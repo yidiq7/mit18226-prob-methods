@@ -24,6 +24,7 @@ where `statement-immutability` can guard it.
 * `PMC.RamseyProp` — the defining property of the Ramsey number `R(k, l)` (§1.1).
 * `PMC.CompleteBipartiteChoosable` — `k`-choosability of `K_{n,n}` (§1.4).
 * `PMC.beats`, `PMC.hamiltonPaths` — tournaments and their Hamilton paths (§2.1).
+* `PMC.SumFree` — sum-free sets in an additive structure (§2.2).
 -/
 
 open Finset
@@ -99,6 +100,23 @@ in the lists, so any colour set can be transported along an injection into `ℕ`
 def CompleteBipartiteChoosable (n k : ℕ) : Prop :=
   ∀ L : Fin n ⊕ Fin n → Finset ℕ, (∀ v, #(L v) = k) →
     ∃ f : Fin n ⊕ Fin n → ℕ, (∀ v, f v ∈ L v) ∧ ∀ i j, f (Sum.inl i) ≠ f (Sum.inr j)
+
+/-! ### Sum-free sets -/
+
+/-- A finset is *sum-free* when no two of its elements — not necessarily distinct — add up
+to an element of the set. This is Zhao's "there do not exist `a, b, c ∈ A` with
+`a + b = c`", with `c` written as `a + b`.
+
+Only `Add` is required: the definition makes sense in any additive structure, and §2.2
+uses it over `ℤ`. -/
+def SumFree {α : Type*} [Add α] (A : Finset α) : Prop :=
+  ∀ a ∈ A, ∀ b ∈ A, a + b ∉ A
+
+@[simp] lemma sumFree_empty {α : Type*} [Add α] : SumFree (∅ : Finset α) := by
+  intro a ha; exact absurd ha (notMem_empty a)
+
+lemma SumFree.subset {α : Type*} [Add α] {A B : Finset α} (h : SumFree A) (hBA : B ⊆ A) :
+    SumFree B := fun a ha b hb hab => h a (hBA ha) b (hBA hb) (hBA hab)
 
 /-! ### Tournaments -/
 

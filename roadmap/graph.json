@@ -271,7 +271,7 @@
       "file": "ProbMethods/Chapter02/SumFree.lean",
       "decl": "PMC.exists_sumFree_subset",
       "doc": "linearity.md#sum-free-subsets-22",
-      "statement": "planned",
+      "statement": "formalized",
       "proof": "planned",
       "uses": [
         "sumFreeDef"
@@ -284,8 +284,8 @@
       "file": "ProbMethods/Basic.lean",
       "decl": "PMC.SumFree",
       "doc": "linearity.md#sum-free-subsets-22",
-      "statement": "planned",
-      "proof": "planned",
+      "statement": "formalized",
+      "proof": "formalized",
       "uses": [],
       "proof_uses": []
     },

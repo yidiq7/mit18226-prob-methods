@@ -115,7 +115,14 @@ Mathlib as `Nat.forall_exists_prime_gt_and_eq_mod (ha : IsUnit a) (n : ℕ) : �
 p.Prime ∧ (p : ZMod q) = a`, in `Mathlib/NumberTheory/LSeries/PrimesInAP.lean`. Take
 `q = 3` and `a = 2`.
 
-Statement not yet authored — needs `PMC.SumFree` at the centralized layer first.
+### sumfree
+`PMC.exists_sumFree_subset` — Theorem 2.2.1. Stated as `#A ≤ 3 * #B` so the claim stays in
+`ℕ` with no division. `PMC.SumFree` is in `ProbMethods/Basic.lean`, defined over any `Add`
+structure as `∀ a ∈ A, ∀ b ∈ A, a + b ∉ A`.
+
+The definition was checked before committing: `{1}`, `{3,4,5}` and `{1,3,5,7}` evaluate
+sum-free, while `{1,2}`, `{1,2,3}` and `{0,5}` do not — the last because `5 + 0 = 5`, which
+is why the theorem needs `0 ∉ A`.
 
 ## Sampling (§2.4)
 
