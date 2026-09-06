@@ -99,7 +99,20 @@ Apply `PMC.exists_isIndepSet_caro_wei` to the complement, whose degrees are `n -
 theorem exists_isClique_caro_wei (G : SimpleGraph V) [DecidableRel G.Adj] :
     ∃ s : Finset V, G.IsClique (s : Set V) ∧
       ∑ v : V, (1 : ℝ) / ((Fintype.card V : ℝ) - G.degree v) ≤ #s := by
-  sorry
+  -- An independent set of `Gᶜ` is a clique of `G`, and `Gᶜ` has degrees `n - 1 - d v`.
+  obtain ⟨s, hs, hsum⟩ := exists_isIndepSet_caro_wei Gᶜ
+  refine ⟨s, by simpa using hs, le_trans (le_of_eq ?_) hsum⟩
+  refine Finset.sum_congr rfl fun v _ => ?_
+  have hlt : G.degree v < Fintype.card V := SimpleGraph.degree_lt_card_verts v
+  -- `degree_compl` subtracts in `ℕ`, which truncates, so settle the identity there and
+  -- cross to `ℝ` once.
+  have hnat : Gᶜ.degree v + 1 = Fintype.card V - G.degree v := by
+    rw [SimpleGraph.degree_compl]
+    omega
+  have hcast : ((Fintype.card V - G.degree v : ℕ) : ℝ) = (Fintype.card V : ℝ) - G.degree v :=
+    Nat.cast_sub hlt.le
+  have hone : ((Gᶜ.degree v + 1 : ℕ) : ℝ) = (Gᶜ.degree v : ℝ) + 1 := by simp
+  rw [← hcast, ← hone, hnat]
 
 /-- **Turán's theorem, edge-count form** (Zhao, Theorem 2.3.6; Turán 1941).
 
