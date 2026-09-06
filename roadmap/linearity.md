@@ -136,7 +136,24 @@ most `7` of its `10` triples. That is a search over `2 ^ 10 = 1024` hypergraphs,
 live or die. Note also that `verify-decide-instance` blocks new `Decidable` instances, so
 whatever is written must ride on instances Mathlib already provides.
 
-Statement not yet authored; the 3-graph and tetrahedron-free definitions are needed first.
+### sampling_tetrahedron
+`PMC.card_le_of_not_hasTetrahedron`, stated as `10 * #H ≤ 7 * n.choose 3` over `ℕ`.
+
+**The notes are off by one here, and the statement corrects them.** Proposition 2.4.4 is
+printed for `n ≥ 4`, but it is false at `n = 4`: brute force over all `2 ^ 4` families of
+triples on four vertices gives a maximum tetrahedron-free size of **3** — drop any single
+triple and no tetrahedron survives — while `(7/10) * C(4,3) = 2.8`. Our statement requires
+`5 ≤ n`, which is also what the argument needs, since it samples five vertices. Worth
+reporting upstream via the errata form in the notes' preface.
+
+The base case is tight and was computed exhaustively: on five vertices the maximum
+tetrahedron-free 3-graph has exactly **7** of the `10` triples, which is where `7/10` comes
+from.
+
+**A trap for whoever proves this.** The base case must be quantified over
+`(powersetCard 3 univ).powerset` — the `1024` families of triples — and *not* over the type
+`Finset (Finset (Fin 5))`, which has `2 ^ 32` elements and is hopeless to decide. The
+difference is the whole feasibility of the node.
 
 ## Unbalancing lights (§2.5)
 

@@ -293,10 +293,15 @@
       "kind": "theorem",
       "parent": "linearity",
       "doc": "linearity.md#sampling-24",
-      "statement": "planned",
+      "statement": "formalized",
       "proof": "planned",
-      "uses": [],
-      "proof_uses": []
+      "uses": [
+        "threeGraphDef",
+        "tetrahedronDef"
+      ],
+      "proof_uses": [],
+      "file": "ProbMethods/Chapter02/Sampling.lean",
+      "decl": "PMC.card_le_of_not_hasTetrahedron"
     },
     "unbalancing_lights": {
       "kind": "theorem",
@@ -318,6 +323,28 @@
       "uses": [],
       "proof_uses": [],
       "note": "Mathlib has no planarity, crossing number, or Euler formula. Not a node in any planned phase."
+    },
+    "threeGraphDef": {
+      "kind": "definition",
+      "parent": "linearity",
+      "file": "ProbMethods/Basic.lean",
+      "decl": "PMC.IsThreeGraph",
+      "doc": "linearity.md#sampling-24",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": []
+    },
+    "tetrahedronDef": {
+      "kind": "definition",
+      "parent": "linearity",
+      "file": "ProbMethods/Basic.lean",
+      "decl": "PMC.HasTetrahedron",
+      "doc": "linearity.md#sampling-24",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": []
     }
   }
 }

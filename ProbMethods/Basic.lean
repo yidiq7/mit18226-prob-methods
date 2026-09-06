@@ -25,6 +25,7 @@ where `statement-immutability` can guard it.
 * `PMC.CompleteBipartiteChoosable` — `k`-choosability of `K_{n,n}` (§1.4).
 * `PMC.beats`, `PMC.hamiltonPaths` — tournaments and their Hamilton paths (§2.1).
 * `PMC.SumFree` — sum-free sets in an additive structure (§2.2).
+* `PMC.IsThreeGraph`, `PMC.HasTetrahedron` — 3-uniform hypergraphs (§2.4).
 -/
 
 open Finset
@@ -100,6 +101,21 @@ in the lists, so any colour set can be transported along an injection into `ℕ`
 def CompleteBipartiteChoosable (n k : ℕ) : Prop :=
   ∀ L : Fin n ⊕ Fin n → Finset ℕ, (∀ v, #(L v) = k) →
     ∃ f : Fin n ⊕ Fin n → ℕ, (∀ v, f v ∈ L v) ∧ ∀ i j, f (Sum.inl i) ≠ f (Sum.inr j)
+
+/-! ### 3-uniform hypergraphs -/
+
+section ThreeGraph
+variable {V : Type*}
+
+/-- A *3-graph* on `V` is a family of 3-element subsets of `V`. -/
+def IsThreeGraph (H : Finset (Finset V)) : Prop := ∀ e ∈ H, #e = 3
+
+/-- `H` contains a *tetrahedron* `K₄⁽³⁾`: four vertices, all four of whose triples are
+edges of `H`. -/
+def HasTetrahedron [DecidableEq V] (H : Finset (Finset V)) : Prop :=
+  ∃ s : Finset V, #s = 4 ∧ ∀ e ∈ powersetCard 3 s, e ∈ H
+
+end ThreeGraph
 
 /-! ### Sum-free sets -/
 
