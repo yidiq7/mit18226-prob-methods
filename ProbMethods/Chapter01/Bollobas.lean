@@ -404,6 +404,15 @@ theorem card_le_choose_of_two_families {m r s : ℕ} (A B : Fin m → Finset α)
     (hdisj : ∀ i, Disjoint (A i) (B i))
     (hcross : ∀ i j, i ≠ j → (A i ∩ B j).Nonempty) :
     m ≤ (r + s).choose r := by
-  sorry
+  -- Every summand of `sum_inv_choose_le_one` collapses to the same constant.
+  have hmain := sum_inv_choose_le_one A B hdisj hcross
+  have hsum : ∑ i : Fin m, (1 : ℝ) / ((#(A i) + #(B i)).choose (#(A i)))
+      = ∑ _i : Fin m, (1 : ℝ) / (((r + s).choose r : ℕ) : ℝ) :=
+    Finset.sum_congr rfl fun i _ => by rw [hA i, hB i]
+  rw [hsum, sum_const, card_univ, Fintype.card_fin, nsmul_eq_mul] at hmain
+  have hpos : (0 : ℝ) < (((r + s).choose r : ℕ) : ℝ) := by
+    exact_mod_cast Nat.choose_pos (Nat.le_add_right r s)
+  rw [mul_one_div, div_le_one hpos] at hmain
+  exact_mod_cast hmain
 
 end PMC
