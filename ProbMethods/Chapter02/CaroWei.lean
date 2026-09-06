@@ -1,4 +1,6 @@
 import ProbMethods.Basic
+import Mathlib.Algebra.Order.BigOperators.Ring.Finset
+import Mathlib.Combinatorics.SimpleGraph.DegreeSum
 
 /-!
 # §2.3 — Caro–Wei and Turán's theorem
@@ -124,6 +126,62 @@ by the AM–HM inequality, where `m` is the number of edges. -/
 theorem card_edgeFinset_le_of_cliqueFree {r : ℕ} (hr : 0 < r) (G : SimpleGraph V)
     [DecidableRel G.Adj] (h : G.CliqueFree (r + 1)) :
     (#G.edgeFinset : ℝ) ≤ (1 - 1 / r) * (Fintype.card V : ℝ) ^ 2 / 2 := by
-  sorry
+  -- No vertices means no edges, and both sides vanish.
+  rcases Nat.eq_zero_or_pos (Fintype.card V) with hcard | hcard
+  · have : IsEmpty V := Fintype.card_eq_zero_iff.1 hcard
+    have hm : #G.edgeFinset = 0 := by
+      have h2 : 2 * #G.edgeFinset = 0 := by
+        rw [← SimpleGraph.sum_degrees_eq_twice_card_edges]
+        simp
+      omega
+    rw [hm, hcard]
+    simp
+  have hR : (0 : ℝ) < (r : ℝ) := by exact_mod_cast hr
+  have hRne : (r : ℝ) ≠ 0 := ne_of_gt hR
+  -- Every vertex misses at least itself, so `n - d v` is a positive denominator.
+  have hdegpos : ∀ v : V, (0 : ℝ) < (Fintype.card V : ℝ) - (G.degree v : ℝ) := fun v =>
+    sub_pos.2 (by exact_mod_cast SimpleGraph.degree_lt_card_verts v)
+  have hsum1 : ∑ _v : V, (1 : ℝ) = (Fintype.card V : ℝ) := by
+    rw [sum_const, card_univ, nsmul_eq_mul, mul_one]
+  have hsd : ∑ v : V, (G.degree v : ℝ) = 2 * (#G.edgeFinset : ℝ) := by
+    exact_mod_cast SimpleGraph.sum_degrees_eq_twice_card_edges G
+  have hQ : ∑ v : V, ((Fintype.card V : ℝ) - (G.degree v : ℝ))
+      = (Fintype.card V : ℝ) * (Fintype.card V : ℝ) - 2 * (#G.edgeFinset : ℝ) := by
+    rw [sum_sub_distrib, hsd, sum_const, card_univ, nsmul_eq_mul]
+  have hQpos : (0 : ℝ)
+      < (Fintype.card V : ℝ) * (Fintype.card V : ℝ) - 2 * (#G.edgeFinset : ℝ) := by
+    rw [← hQ]
+    refine Finset.sum_pos (fun v _ => hdegpos v) ?_
+    rw [← card_pos, card_univ]
+    exact hcard
+  -- Caro–Wei supplies a clique, and `K_{r+1}`-freeness caps it at `r`.
+  obtain ⟨s, hsclique, hcw⟩ := exists_isClique_caro_wei G
+  have hsr : #s ≤ r := by
+    by_contra hcon
+    have hle : r + 1 ≤ #s := by omega
+    obtain ⟨t, hts, htcard⟩ := Finset.exists_subset_card_eq hle
+    exact h t ⟨hsclique.subset (coe_subset.2 hts), htcard⟩
+  -- Sedrakyan's lemma with `f ≡ 1` is the AM–HM step.
+  have hsed : (Fintype.card V : ℝ) ^ 2
+        / ((Fintype.card V : ℝ) * (Fintype.card V : ℝ) - 2 * (#G.edgeFinset : ℝ))
+      ≤ ∑ v : V, (1 : ℝ) / ((Fintype.card V : ℝ) - (G.degree v : ℝ)) := by
+    simpa only [one_pow, hsum1, hQ] using
+      Finset.sq_sum_div_le_sum_sq_div (univ : Finset V) (fun _ => (1 : ℝ))
+        fun v _ => hdegpos v
+  have key : (Fintype.card V : ℝ) ^ 2
+      ≤ (r : ℝ)
+        * ((Fintype.card V : ℝ) * (Fintype.card V : ℝ) - 2 * (#G.edgeFinset : ℝ)) := by
+    refine (div_le_iff₀ hQpos).1 (hsed.trans (hcw.trans ?_))
+    exact_mod_cast hsr
+  -- `r ≥ n² / (n² - 2m)` rearranges into the stated bound.
+  have hone : ((r : ℝ) - 1) / (r : ℝ) = 1 - 1 / (r : ℝ) := by
+    rw [sub_div, div_self hRne]
+  rw [← hone, div_mul_eq_mul_div, div_div, le_div_iff₀ (mul_pos hR zero_lt_two), ← sub_nonneg]
+  have hdiff : ((r : ℝ) - 1) * (Fintype.card V : ℝ) ^ 2
+        - (#G.edgeFinset : ℝ) * ((r : ℝ) * 2)
+      = (r : ℝ) * ((Fintype.card V : ℝ) * (Fintype.card V : ℝ) - 2 * (#G.edgeFinset : ℝ))
+        - (Fintype.card V : ℝ) ^ 2 := by ring
+  rw [hdiff, sub_nonneg]
+  exact key
 
 end PMC
