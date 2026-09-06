@@ -21,7 +21,104 @@ so by the union bound some marking leaves every one of the `2n` vertices a usabl
 choosing from the surviving lists uses each colour on one side only. -/
 theorem completeBipartiteChoosable_of_lt_two_pow {n k : ℕ} (hn : n < 2 ^ (k - 1)) :
     CompleteBipartiteChoosable n k := by
-  sorry
+  rcases Nat.eq_zero_or_pos n with rfl | hn0
+  · -- `K_{0,0}` has no vertices, so any `f` witnesses the conclusion vacuously.
+    intro L _
+    refine ⟨fun _ => 0, ?_, ?_⟩
+    · rintro (i | i) <;> exact i.elim0
+    · exact fun i => i.elim0
+  intro L hL
+  -- `k = 0` would force `n = 0`, which `hn0` rules out, so the lists are nonempty.
+  have hk : 1 ≤ k := by
+    rcases Nat.eq_zero_or_pos k with rfl | hk
+    · have h1 : (2 : ℕ) ^ (0 - 1) = 1 := rfl
+      omega
+    · exact hk
+  -- Only the colours that actually occur matter; collect them into a ground set `C`.
+  obtain ⟨C, hsub⟩ : ∃ C : Finset ℕ, ∀ v, L v ⊆ C :=
+    ⟨univ.biUnion L, fun v => subset_biUnion_of_mem L (mem_univ v)⟩
+  have hkC : k ≤ #C := by
+    have h := card_le_card (hsub (Sum.inl ⟨0, hn0⟩))
+    rwa [hL] at h
+  -- A marking is a `T ⊆ C`, read as the colours reserved for the left side. Left vertex
+  -- `i` is starved when `T` misses its list entirely; right vertex `j` is starved when
+  -- `T` swallows its list entirely.
+  obtain ⟨bad, hbadL, hbadR⟩ :
+      ∃ bad : Fin n ⊕ Fin n → Finset (Finset ℕ),
+        (∀ i, bad (Sum.inl i) = {T ∈ C.powerset | L (Sum.inl i) ∩ T = ∅}) ∧
+        (∀ j, bad (Sum.inr j) = {T ∈ C.powerset | L (Sum.inr j) ⊆ T}) :=
+    ⟨Sum.elim (fun i => {T ∈ C.powerset | L (Sum.inl i) ∩ T = ∅})
+      (fun j => {T ∈ C.powerset | L (Sum.inr j) ⊆ T}), fun _ => rfl, fun _ => rfl⟩
+  -- Each vertex is starved by at most `2 ^ (#C - k)` of the `2 ^ #C` markings.
+  have hpow : ∀ v, #((C \ L v).powerset) = 2 ^ (#C - k) := fun v => by
+    rw [card_powerset, card_sdiff_of_subset (hsub v), hL]
+  have hbadcard : ∀ v, #(bad v) ≤ 2 ^ (#C - k) := by
+    rintro (i | j)
+    · -- A marking missing `L (inl i)` is a subset of `C \ L (inl i)`.
+      rw [hbadL, ← hpow (Sum.inl i)]
+      refine card_le_card fun T hT => ?_
+      rw [mem_filter, mem_powerset] at hT
+      rw [mem_powerset]
+      intro x hx
+      refine mem_sdiff.2 ⟨hT.1 hx, fun hxL => ?_⟩
+      have hmem : x ∈ L (Sum.inl i) ∩ T := mem_inter.2 ⟨hxL, hx⟩
+      rw [hT.2] at hmem
+      exact notMem_empty x hmem
+    · -- `T ↦ T \ L (inr j)` embeds the markings swallowing `L (inr j)` into that powerset.
+      rw [hbadR, ← hpow (Sum.inr j)]
+      refine card_le_card_of_injOn (fun T => T \ L (Sum.inr j)) ?_ ?_
+      · intro T hT
+        rw [mem_coe, mem_filter, mem_powerset] at hT
+        rw [mem_coe, mem_powerset]
+        intro x hx
+        rw [mem_sdiff] at hx ⊢
+        exact ⟨hT.1 hx.1, hx.2⟩
+      · intro T₁ h₁ T₂ h₂ heq
+        rw [mem_coe, mem_filter] at h₁ h₂
+        simp only at heq
+        rw [← sdiff_union_of_subset h₁.2, ← sdiff_union_of_subset h₂.2, heq]
+  -- Union bound: the starving markings are outnumbered by the markings.
+  have hcard : #(univ.biUnion bad) < #(C.powerset) := by
+    have h1 : #(univ.biUnion bad) ≤ ∑ v : Fin n ⊕ Fin n, #(bad v) := card_biUnion_le
+    have h2 : ∑ v : Fin n ⊕ Fin n, #(bad v) ≤ (n + n) * 2 ^ (#C - k) := by
+      calc ∑ v : Fin n ⊕ Fin n, #(bad v)
+          ≤ ∑ _v : Fin n ⊕ Fin n, 2 ^ (#C - k) := sum_le_sum fun v _ => hbadcard v
+        _ = (n + n) * 2 ^ (#C - k) := by
+            simp [sum_const, card_univ, Fintype.card_sum]
+    -- `2 * n < 2 ^ k` is exactly where `hn : n < 2 ^ (k - 1)` is spent.
+    have hsplitk : 2 ^ (k - 1) * 2 = 2 ^ k := by
+      rw [← pow_succ, Nat.sub_add_cancel hk]
+    have hsplitC : 2 ^ k * 2 ^ (#C - k) = 2 ^ #C := by
+      rw [← pow_add, Nat.add_sub_cancel' hkC]
+    have h3 : (n + n) * 2 ^ (#C - k) < 2 ^ #C := by
+      rw [← hsplitC]
+      refine (Nat.mul_lt_mul_right (Nat.two_pow_pos _)).2 ?_
+      omega
+    rw [card_powerset]
+    omega
+  obtain ⟨T, hTC, hTbad⟩ := exists_mem_notMem_of_card_lt_card hcard
+  rw [mem_powerset] at hTC
+  have hTbad' : ∀ v, T ∉ bad v := fun v hv => hTbad (mem_biUnion.2 ⟨v, mem_univ v, hv⟩)
+  -- Under a marking that starves nobody, the left side keeps a reserved colour and the
+  -- right side keeps an unreserved one, so the two sides never collide.
+  have hleft : ∀ i : Fin n, ∃ c, c ∈ L (Sum.inl i) ∧ c ∈ T := by
+    intro i
+    have hi := hTbad' (Sum.inl i)
+    rw [hbadL, mem_filter, mem_powerset, not_and] at hi
+    obtain ⟨c, hc⟩ := nonempty_iff_ne_empty.2 (hi hTC)
+    exact ⟨c, (mem_inter.1 hc).1, (mem_inter.1 hc).2⟩
+  have hright : ∀ j : Fin n, ∃ c, c ∈ L (Sum.inr j) ∧ c ∉ T := by
+    intro j
+    have hj := hTbad' (Sum.inr j)
+    rw [hbadR, mem_filter, mem_powerset, not_and] at hj
+    exact not_subset.1 (hj hTC)
+  refine ⟨Sum.elim (fun i => (hleft i).choose) (fun j => (hright j).choose), ?_, ?_⟩
+  · rintro (i | j)
+    · exact (hleft i).choose_spec.1
+    · exact (hright j).choose_spec.1
+  · intro i j hij
+    simp only [Sum.elim_inl, Sum.elim_inr] at hij
+    exact (hright j).choose_spec.2 (hij ▸ (hleft i).choose_spec.2)
 
 /-- **Non-2-colourable hypergraphs obstruct choosability** (Zhao, Theorem 1.4.3).
 
