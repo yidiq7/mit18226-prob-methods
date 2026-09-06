@@ -49,10 +49,21 @@ tasks. Contributors should reach for them rather than reproving them.
 
 ## Reasoning log
 
-**2026-09-06 — Toolchain.** Pinned Lean `v4.33.1` with Mathlib tag `v4.33.1`. That is
-the newest stable pair at bootstrap, and comfortably above the `v4.27` floor where
-`verify-comparator` becomes a kernel-level statement check. The pin never moves
-mid-run.
+**2026-09-06 — Toolchain: Lean `v4.33.0` + Mathlib tag `v4.33.0`. Do not bump to a
+patch release.** The first pin was `v4.33.1`, and a deliberate smoke-test PR (opened by
+the orchestrator, closed unmerged) showed `verify-comparator` failing at setup on a
+no-op diff. Cause: `.github/workflows/verify-comparator.yml` reads `lean-toolchain` from
+the PR's base SHA and checks out `leanprover/comparator` **at exactly that tag** — and
+`leanprover/comparator` tags only `.0` releases. There is no `v4.33.1` tag, so the
+checkout step failed, and since comparator is merge-blocking that made *every* PR
+permanently unmergeable for a reason invisible in any diff.
+
+The constraint this project now lives under: the toolchain must be a version for which
+`leanprover/comparator` has a tag, i.e. an `x.y.0` release. When this pin is eventually
+moved, check `gh api repos/leanprover/comparator/git/refs/tags` first and confirm
+Mathlib has a matching release tag. Chosen because both `leanprover/comparator@v4.33.0`
+and `mathlib4@v4.33.0` exist, and `v4.33.0` is above the `v4.27` floor where comparator
+becomes a kernel-level statement check.
 
 **2026-09-06 — Targeted imports, not `import Mathlib`.** Measured on this project:
 a file importing all of Mathlib costs ~49s, the same file with targeted imports ~7s.
@@ -76,6 +87,12 @@ side condition on top of the probabilistic argument the chapter is actually teac
 `¬ RamseyProp n k k` is exactly what the random colouring gives, and is equivalent to
 `R(k, k) > n` because `RamseyProp · k l` is upward closed. Erdős–Szekeres (Remark 1.1.5)
 and the `R(k, k)` wrapper are their own nodes, for a later phase.
+
+**2026-09-06 — Validate CI before contributors arrive, not after.** The smoke test
+above cost one throwaway PR and caught a defect that would otherwise have burned every
+contributor's first cycle and looked like their fault. Repeat this after any change to
+the toolchain, the overlay, or `verify-pr.yml`: open a no-op PR, confirm all nine checks
+run and pass, close it.
 
 **2026-09-06 — First batch held to five tasks.** Early-run calibration: `cut_half`,
 `property_b_lower`, `ramsey_erdos`, `caro_wei`, `bollobas_sum`. Five different
