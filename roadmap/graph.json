@@ -51,7 +51,7 @@
       "file": "ProbMethods/Chapter01/Bipartite.lean",
       "decl": "PMC.exists_cut_two_mul_card_edgeFinset_le",
       "doc": "introduction.md#cut_half",
-      "statement": "formalized", "proof": "planned",
+      "statement": "formalized", "proof": "formalized",
       "uses": ["cutEdges"], "proof_uses": []
     },
     "ramsey_erdos": {
@@ -59,7 +59,7 @@
       "file": "ProbMethods/Chapter01/Ramsey.lean",
       "decl": "PMC.not_ramseyProp_of_two_mul_choose_lt",
       "doc": "introduction.md#ramsey_erdos",
-      "statement": "formalized", "proof": "planned",
+      "statement": "formalized", "proof": "formalized",
       "uses": ["ramseyProp"], "proof_uses": []
     },
     "ramsey_alteration": {
@@ -99,7 +99,7 @@
       "file": "ProbMethods/Chapter01/ListChromatic.lean",
       "decl": "PMC.completeBipartiteChoosable_of_lt_two_pow",
       "doc": "introduction.md#choosable_upper",
-      "statement": "formalized", "proof": "planned",
+      "statement": "formalized", "proof": "formalized",
       "uses": ["choosableDef"], "proof_uses": []
     },
     "choosable_lower": {
@@ -116,7 +116,7 @@
       "file": "ProbMethods/Chapter02/CaroWei.lean",
       "decl": "PMC.exists_isIndepSet_caro_wei",
       "doc": "linearity.md#caro_wei",
-      "statement": "formalized", "proof": "planned",
+      "statement": "formalized", "proof": "formalized",
       "uses": [], "proof_uses": []
     },
     "caro_wei_clique": {
