@@ -150,10 +150,23 @@ The base case is tight and was computed exhaustively: on five vertices the maxim
 tetrahedron-free 3-graph has exactly **7** of the `10` triples, which is where `7/10` comes
 from.
 
-**A trap for whoever proves this.** The base case must be quantified over
-`(powersetCard 3 univ).powerset` — the `1024` families of triples — and *not* over the type
-`Finset (Finset (Fin 5))`, which has `2 ^ 32` elements and is hopeless to decide. The
-difference is the whole feasibility of the node.
+**`decide` does not work on the base case, and there is no need for it.** Two things were
+measured. First, the base case cannot be quantified over the type `Finset (Finset (Fin 5))`
+at all — that is `2 ^ 32` elements. Restricting to `(powersetCard 3 univ).powerset`, the
+`1024` families of triples, makes it finite enough to state, but `decide` still exhausts
+the default heartbeat budget and had not finished at twenty times that budget. Even if it
+elaborated, the kernel would have to replay it in CI.
+
+**Use the counting argument instead — it is three lines of mathematics.** Let `M` be the
+triples *not* in `H`. Every one of the `C(5,4) = 5` four-subsets must miss at least one of
+its triples, or it would be a tetrahedron; and each triple lies in exactly `2` four-subsets
+(pick the two remaining vertices). So `2 * #M ≥ 5`, hence `#M ≥ 3`, hence `#H ≤ 7`. This
+was checked against the brute-force extremal number and is tight.
+
+The sampling step is then a double count resting on the identity
+`C(n,3) * C(n-3,2) = 10 * C(n,5)` (verified for `n = 5..11`): summing the triples of `H`
+inside each 5-subset gives `#H * C(n-3,2)` on one side and at most `7 * C(n,5)` on the
+other.
 
 ## Unbalancing lights (§2.5)
 
