@@ -5,3 +5,4 @@ import ProbMethods.Chapter01.Bollobas
 import ProbMethods.Chapter01.PropertyB
 import ProbMethods.Chapter01.ListChromatic
 import ProbMethods.Chapter02.CaroWei
+import ProbMethods.Chapter02.Tournaments

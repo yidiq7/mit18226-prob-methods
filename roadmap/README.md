@@ -19,14 +19,15 @@ written when the phase opens, so the plan never claims more precision than it ha
 | Phase | Chapters | Group file | Status |
 |---|---|---|---|
 | 1 | 1 Introduction | [introduction.md](introduction.md) | 7 of 8 proved; `property_b_lower` claimed |
-| 1 | 2 Linearity of Expectations (§2.3) | [linearity.md](linearity.md) | 2 of 3 proved; `turan_edges` open (#23) |
-| 2 | 2 (rest), 3 Alterations | — | not started |
-| 3 | 4 Second Moment, 5 Chernoff Bound | — | not started |
-| 4 | 6 Lovász Local Lemma | — | not started |
-| 5 | 7 Correlation Inequalities, 8 Janson Inequalities | — | not started |
-| 6 | 9 Concentration of Measure | — | not started |
-| 7 | 10 Entropy | — | not started |
-| 8 | 11 Containers | — | not started |
+| 1 | 2 Linearity of Expectations (§2.3) | [linearity.md](linearity.md) | **complete** (3 of 3) |
+| 2 | 2 (rest) | [linearity.md](linearity.md) | **open**: `szele` stated; §2.6 deferred |
+| 3 | 3 Alterations | — | not started |
+| 4 | 4 Second Moment, 5 Chernoff Bound | — | not started |
+| 5 | 6 Lovász Local Lemma | — | not started |
+| 6 | 7 Correlation Inequalities, 8 Janson Inequalities | — | not started |
+| 7 | 9 Concentration of Measure | — | not started |
+| 8 | 10 Entropy | — | not started |
+| 9 | 11 Containers | — | not started |
 
 ## Conventions that shape the route
 
@@ -230,3 +231,35 @@ merged, each inside 10-20 minutes. So a dead worker session holds a phase-1 node
 week under the current setting. The default was written for multi-month formalizations;
 this project moves in minutes. Asked the holder to release (`orchestrator-notes`: never
 override a lease — ask). **Not changed unilaterally: `.choir/project.toml` is policy.**
+
+**2026-09-06 — Phase 1 is done bar one node, and phase 2 is open.** `turan_edges` (#23)
+merged, completing §2.3. Ten of eleven phase-1 nodes are proved with zero axioms; only
+`property_b_lower` (#2) is outstanding, held by the stale claim noted above.
+
+**Phase 2 is Chapter 2's remainder only; Chapter 3 moves to its own phase.** The original
+table paired them, but §2.1–§2.6 turned out to carry four separate formalization decisions
+(below), and a phase should not open wider than its plan is precise. Section-by-section
+reasoning is in [linearity.md](linearity.md); the decisions worth surfacing here:
+
+* **§2.1 `szele` is stated and ready.** Tournaments are encoded as
+  `t : Sym2 (Fin n) → Bool` read against the order on `Fin n`, reusing the
+  larger-uniform-space device the Chapter 1 proofs converged on twice independently.
+* **§2.2's proof in the book does not transfer** — it averages over `θ ∈ [0,1]` against
+  Lebesgue measure. The discrete mod-`p` version is the route, and Dirichlet is already in
+  Mathlib (`Nat.forall_exists_prime_gt_and_eq_mod`), so prime selection is a citation
+  rather than a project.
+* **§2.5 is stated with explicit constants, not `o(1)`** — the notes hand us the exact
+  expectation `n * 2^(1-n) * C(n-1, ⌊(n-1)/2⌋)`, so the central limit theorem drops out of
+  the statement entirely and the node stays in Chapter 2.
+* **§2.6 (crossing number) is deferred outright, not scheduled.** It needs drawings in the
+  plane, Euler's formula and face counts; Mathlib has no planarity development whatsoever.
+  Formalizing it means building topological graph theory first. Recorded so it is not
+  rediscovered.
+
+**Definitions are checked before they are committed.** `beats` and `hamiltonPaths` were
+evaluated on small cases first: Hamilton-path counts total `96 = 3! * 2^4` over the 64
+tournaments on 3 vertices and `8 = 2! * 2^2` over the 8 on 2 vertices, and antisymmetry
+holds for every `t` and every `a ≠ b`. Those are exactly the identities the counting proof
+rests on, so a definition that was subtly wrong would have shown up as a wrong total. Worth
+repeating for every centralized definition: **the statement layer gets no gate check, and
+a wrong definition makes every theorem about it vacuous.**

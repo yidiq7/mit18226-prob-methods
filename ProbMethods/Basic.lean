@@ -6,6 +6,7 @@ import Mathlib.Combinatorics.SimpleGraph.Clique
 import Mathlib.Combinatorics.SimpleGraph.Finite
 import Mathlib.Data.Real.Basic
 import Mathlib.Algebra.Order.BigOperators.Group.Finset
+import Mathlib.Data.Fintype.Perm
 
 /-!
 # Shared definitions
@@ -22,6 +23,7 @@ where `statement-immutability` can guard it.
 * `PMC.TwoColorable` — property B for a family of sets (§1.3).
 * `PMC.RamseyProp` — the defining property of the Ramsey number `R(k, l)` (§1.1).
 * `PMC.CompleteBipartiteChoosable` — `k`-choosability of `K_{n,n}` (§1.4).
+* `PMC.beats`, `PMC.hamiltonPaths` — tournaments and their Hamilton paths (§2.1).
 -/
 
 open Finset
@@ -97,5 +99,50 @@ in the lists, so any colour set can be transported along an injection into `ℕ`
 def CompleteBipartiteChoosable (n k : ℕ) : Prop :=
   ∀ L : Fin n ⊕ Fin n → Finset ℕ, (∀ v, #(L v) = k) →
     ∃ f : Fin n ⊕ Fin n → ℕ, (∀ v, f v ∈ L v) ∧ ∀ i j, f (Sum.inl i) ≠ f (Sum.inr j)
+
+/-! ### Tournaments -/
+
+section Tournament
+variable {n : ℕ}
+
+/-- `beats t a b` decides whether `a` beats `b` in the tournament encoded by `t`.
+
+A tournament on `Fin n` is a choice of orientation for each of its `C(n, 2)` edges. It is
+encoded here by a function `t : Sym2 (Fin n) → Bool`, read against the linear order on
+`Fin n`: on the edge `s(a, b)` with `a < b`, the value `true` means `a` beats `b`, and
+`false` means `b` beats `a`.
+
+The diagonal values `t s(a, a)` are never consulted, so each tournament is represented by
+the same number of functions `t`. That uniformity is the point: it lets §2.1's averaging
+argument range over all `2 ^ Fintype.card (Sym2 (Fin n))` functions rather than over a
+carved-out subtype, the same device the Chapter 1 counting proofs use. -/
+def beats (t : Sym2 (Fin n) → Bool) (a b : Fin n) : Bool :=
+  if a < b then t s(a, b) else if b < a then !t s(b, a) else false
+
+@[simp] lemma beats_self (t : Sym2 (Fin n) → Bool) (a : Fin n) : beats t a a = false := by
+  simp [beats]
+
+/-- Of two distinct vertices, exactly one beats the other. -/
+lemma beats_eq_not_beats (t : Sym2 (Fin n) → Bool) {a b : Fin n} (h : a ≠ b) :
+    beats t a b = !beats t b a := by
+  rcases lt_or_gt_of_ne h with hab | hab
+  · simp [beats, hab, not_lt_of_gt hab]
+  · simp [beats, hab, not_lt_of_gt hab]
+
+/-- The Hamilton paths of the tournament `t`, as orderings of its vertices: `σ` lists the
+vertices in path order, `σ i` being the vertex in position `i`, and every consecutive pair
+must be directed forwards.
+
+Consecutive positions are picked out by the condition `(j : ℕ) = (i : ℕ) + 1` on a pair of
+elements of `Fin n`, rather than by indexing over `Fin (n - 1)`, so that the definition
+carries no truncated subtraction and no casts. -/
+def hamiltonPaths (t : Sym2 (Fin n) → Bool) : Finset (Equiv.Perm (Fin n)) :=
+  univ.filter fun σ => ∀ i j : Fin n, (j : ℕ) = (i : ℕ) + 1 → beats t (σ i) (σ j)
+
+@[simp] lemma mem_hamiltonPaths {t : Sym2 (Fin n) → Bool} {σ : Equiv.Perm (Fin n)} :
+    σ ∈ hamiltonPaths t ↔ ∀ i j : Fin n, (j : ℕ) = (i : ℕ) + 1 → beats t (σ i) (σ j) := by
+  simp [hamiltonPaths]
+
+end Tournament
 
 end PMC
