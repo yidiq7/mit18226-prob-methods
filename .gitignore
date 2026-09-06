@@ -1,0 +1,5 @@
+.lake/
+__pycache__/
+
+# Choir: overseer-local config never belongs in the repo
+.choir/orchestrator.toml

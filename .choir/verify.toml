@@ -1,0 +1,19 @@
+# Axiom policy — read by verify-axiom-honesty from the BASE commit of
+# each PR (a PR cannot loosen its own policy).
+#
+# net_zero (default): PRs must not increase the prover's trust-surface
+#   counts (its axioms + the prover-specific trust tokens, per
+#   gate/provers/) relative to base.
+# whitelist: only the listed names are permitted anywhere in changed
+#   files. Uncomment and edit if this project demands it (lean4 shown):
+#
+# [audits.axiom_honesty]
+# policy = "whitelist"
+# allowed_axioms = ["propext", "Quot.sound", "Classical.choice"]
+
+# Style audit — max lines per top-level declaration before verify-style
+# flags it (read from the base commit). Default 200; raise it for domains
+# with genuinely long proofs (heavy algebra/combinatorics), lower it for
+# repos that want tight proofs.
+[audits.style]
+threshold_lines = 200

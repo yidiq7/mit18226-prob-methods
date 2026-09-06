@@ -1,0 +1,6 @@
+name = "Mit18226probmethods"
+version = "0.1.0"
+defaultTargets = ["Mit18226probmethods"]
+
+[[lean_lib]]
+name = "Mit18226probmethods"

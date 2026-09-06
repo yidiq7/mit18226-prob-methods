@@ -1,0 +1,23 @@
+# Prover selection — read gate-side (base-SHA) and worker-side (pinned
+# commit) by gate/provers/select.py. lean4 | isabelle | rocq; see
+# design note 12 in the Choir repo.
+[project]
+prover = "lean4"
+
+# Protocol pin — the wire-protocol version + Choir commit this overlay
+# was written from (design note 13 §3). Written by bootstrap/upgrade
+# only, never by hand; read gate-side (gate/protocol.py) and enforced
+# client-side at claim time.
+choir_protocol = 7
+choir_commit = "5115ba83455e1ceb2eb456ef15fb1c3f7650a456"
+
+# Automation level — read by the orchestrator agent at loop start.
+# auto | approve | manual. See docs/agents/ORCHESTRATOR.md in the Choir repo.
+[automation]
+merge = "auto"
+
+# How long a claim may go without a heartbeat before the daily reconcile
+# workflow reclaims it (gate/reconcile/config.py). Tune to project pace:
+# short for fast benchmarks, long for multi-month formalizations. Default 7.
+[reconcile]
+stale_after_days = 7

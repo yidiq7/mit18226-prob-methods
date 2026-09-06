@@ -1,0 +1,65 @@
+{
+  "files": {
+    ".choir/verify.toml": {
+      "class": "seeded",
+      "sha256": "b21ac6e9f7e11f4b91ac7973e750b5c41c6e3124a9b7c2280a08b062e5dc5437"
+    },
+    ".github/workflows/issue-close-on-merge.yml": {
+      "class": "managed",
+      "sha256": "fbefe7681e20594684ab8074e3de68e88981b192e09d5cdea83d40bfcb6aef17"
+    },
+    ".github/workflows/issue-intake.yml": {
+      "class": "managed",
+      "sha256": "0a9914393bb6f997d7da6985c8a0a550e0b1c74155b8a7ea98b47515ffadba39"
+    },
+    ".github/workflows/reconcile.yml": {
+      "class": "managed",
+      "sha256": "dd078fb4bd585af724d37727e5e6fbab6d27bdea150fdd73180e08e7b5b61356"
+    },
+    ".github/workflows/verify-axiom-honesty.yml": {
+      "class": "managed",
+      "sha256": "395233cf871e9d8e270a6855ddeb11d50a6a16d23c5a0282087a88894adf507d"
+    },
+    ".github/workflows/verify-comparator.yml": {
+      "class": "managed",
+      "sha256": "93a1a21028c8f1e210e11df6ceb2162cf691823bf581317e1e488188375ac823"
+    },
+    ".github/workflows/verify-decide-instance.yml": {
+      "class": "managed",
+      "sha256": "6acd8f30dd13da013ad2455085f67d8b80a7b94748c208d6dfa975d25a256f20"
+    },
+    ".github/workflows/verify-pr.yml": {
+      "class": "seeded",
+      "sha256": "1208da1296a0b9f53d30ddf6822f70f74511b74990ab055b6089320ac23d3145"
+    },
+    ".github/workflows/verify-sorry.yml": {
+      "class": "managed",
+      "sha256": "5613c09b34c9d24531950fa1889ef706b909a4be1f63bfd4a2ad552d0d1da87e"
+    },
+    ".github/workflows/verify-statement-equiv.yml": {
+      "class": "managed",
+      "sha256": "cce1f5ca92dc5d2c4d62bc69663bf2847579f501690e18e92283c9afc78813e7"
+    },
+    ".github/workflows/verify-statement-immutability.yml": {
+      "class": "managed",
+      "sha256": "863188d43ccaeee21f6c4607f0e70e908ae855f26cefc4831cfe380d3fa3e93b"
+    },
+    ".github/workflows/verify-style.yml": {
+      "class": "managed",
+      "sha256": "cf384b92e40e0063d8d18997e4319de44d27001818ec975ad90fc029e14a0e6d"
+    },
+    ".github/workflows/verify-trust-report.yml": {
+      "class": "managed",
+      "sha256": "e75e53b2daf58cc222bd7f7fe607ded7716387e0f0137d8cfea840910ecea4cd"
+    },
+    "pyproject.toml": {
+      "class": "managed",
+      "sha256": "884a772f573c9b01671bfae58d6f1db8e88545658e284f3362fb496806bd4d63"
+    },
+    "uv.lock": {
+      "class": "managed",
+      "sha256": "844d84b1f92f616b2faa0eaf8904219e134c2fed4f1bb1c1426916a463213897"
+    }
+  },
+  "manifest_version": 1
+}
