@@ -302,10 +302,12 @@
       "kind": "theorem",
       "parent": "linearity",
       "doc": "linearity.md#unbalancing-lights-25",
-      "statement": "planned",
+      "statement": "formalized",
       "proof": "planned",
       "uses": [],
-      "proof_uses": []
+      "proof_uses": [],
+      "file": "ProbMethods/Chapter02/UnbalancingLights.lean",
+      "decl": "PMC.exists_signs_two_pow_mul_le"
     },
     "crossing_number": {
       "kind": "theorem",

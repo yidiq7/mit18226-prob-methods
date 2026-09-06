@@ -155,7 +155,19 @@ Chapter 2 rather than deferring it behind Chapter 9's machinery.
 Theorem 2.5.2 is **not** a node: its proof rests on a compactness argument producing an
 unspecified constant `c_k`, which is not something a `prove` task can be checked against.
 
-Statement not yet authored.
+### unbalancing_lights
+`PMC.exists_signs_two_pow_mul_le` — Theorem 2.5.1, explicit form. Written multiplicatively
+over `ℤ`:
+
+    (n : ℤ) ^ 2 * C(n-1, ⌊(n-1)/2⌋)  ≤  (∑ i, ∑ j, a i j * x i * y j) * 2 ^ (n - 1)
+
+The bound was checked before committing, since an off-by-one here would make the task
+unprovable rather than merely hard. The underlying identity
+`∑ over y in {±1}^n of |∑ j, y j| = 2n * C(n-1, ⌊(n-1)/2⌋)` holds for `n = 1..7`, and the
+theorem itself was verified **exhaustively over every `±1` matrix** for `n = 1..4`. It is
+*tight* at `n = 1` and `n = 2` — the hardest matrix meets the bound exactly — which is the
+useful part of the check: it says the constant is not accidentally slack, so a proof that
+loses anything will fail.
 
 ## Crossing number inequality (§2.6) — DEFERRED
 
