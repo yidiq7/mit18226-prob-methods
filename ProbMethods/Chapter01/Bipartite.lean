@@ -8,6 +8,7 @@ Zhao, *Probabilistic Methods in Combinatorics*, Theorem 1.0.1.
 
 open Finset
 
+-- CI smoke test 2: no semantic change.
 namespace PMC
 
 variable {V : Type*} [Fintype V] [DecidableEq V]
