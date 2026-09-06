@@ -67,7 +67,7 @@
       "file": "ProbMethods/Chapter01/Ramsey.lean",
       "decl": "PMC.exists_cliqueFree_of_alteration",
       "doc": "introduction.md#ramsey_alteration",
-      "statement": "formalized", "proof": "planned",
+      "statement": "formalized", "proof": "formalized",
       "uses": [], "proof_uses": []
     },
     "bollobas_sum": {
@@ -83,7 +83,7 @@
       "file": "ProbMethods/Chapter01/Bollobas.lean",
       "decl": "PMC.card_le_choose_of_two_families",
       "doc": "introduction.md#bollobas_uniform",
-      "statement": "formalized", "proof": "planned",
+      "statement": "formalized", "proof": "formalized",
       "uses": [], "proof_uses": ["bollobas_sum"]
     },
     "property_b_lower": {

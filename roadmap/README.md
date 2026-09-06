@@ -18,8 +18,8 @@ written when the phase opens, so the plan never claims more precision than it ha
 
 | Phase | Chapters | Group file | Status |
 |---|---|---|---|
-| 1 | 1 Introduction | [introduction.md](introduction.md) | 5 of 8 proved; 3 published, 0 held |
-| 1 | 2 Linearity of Expectations (§2.3) | [linearity.md](linearity.md) | 2 of 3 proved; 1 published, 0 held |
+| 1 | 1 Introduction | [introduction.md](introduction.md) | 7 of 8 proved; `property_b_lower` claimed |
+| 1 | 2 Linearity of Expectations (§2.3) | [linearity.md](linearity.md) | 2 of 3 proved; `turan_edges` open (#23) |
 | 2 | 2 (rest), 3 Alterations | — | not started |
 | 3 | 4 Second Moment, 5 Chernoff Bound | — | not started |
 | 4 | 6 Lovász Local Lemma | — | not started |
@@ -211,3 +211,22 @@ claim them, but both sitting on the board reading `available`.
 **To retire a task, close it and *remove* `choir/available`.** Removal fires `unlabeled`,
 which intake does not listen for, and an issue carrying no lifecycle label is skipped by
 `sync_lease_labels` as well. Do not reach for `choir/invalid`.
+
+**2026-09-06 — `ramsey_alteration` (#12) and `bollobas_uniform` (#22) merged.** Nine of
+eleven phase-1 nodes proved, zero axioms throughout. Only `property_b_lower` (#2, claimed)
+and `turan_edges` (#23, open) remain.
+
+`ramsey_alteration` reuses the same counting-space trick as `ramsey_erdos`: it ranges over
+all subsets of `Sym2 (Fin n)`, which includes the diagonal, so the space is bigger than the
+`2^C(n,2)` genuine edge-colourings. Sound for the same reason — `edgesOn t` is exactly the
+`C(k,2)` off-diagonal pairs inside `t`, so each monochromatic event keeps density
+`2^(1-C(k,2))`. **Two independent contributors reached for this shape**, which suggests it
+is the natural way to do union-bound counting over colourings in Lean, not a one-off.
+
+**2026-09-06 — `reconcile.stale_after_days = 7` is mismatched to this project's pace, and
+it is the overseer's call to change.** #2 was claimed at 20:10:53Z with its last heartbeat
+at 20:11:07Z and nothing since; over the same 70 minutes nine other tasks were claimed and
+merged, each inside 10-20 minutes. So a dead worker session holds a phase-1 node for a
+week under the current setting. The default was written for multi-month formalizations;
+this project moves in minutes. Asked the holder to release (`orchestrator-notes`: never
+override a lease — ask). **Not changed unilaterally: `.choir/project.toml` is policy.**
