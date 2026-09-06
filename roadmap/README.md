@@ -18,8 +18,8 @@ written when the phase opens, so the plan never claims more precision than it ha
 
 | Phase | Chapters | Group file | Status |
 |---|---|---|---|
-| 1 | 1 Introduction | [introduction.md](introduction.md) | 3 of 8 proved; 4 published, 1 held |
-| 1 | 2 Linearity of Expectations (§2.3) | [linearity.md](linearity.md) | 1 of 3 proved; 1 published, 1 held |
+| 1 | 1 Introduction | [introduction.md](introduction.md) | 5 of 8 proved; 3 published, 0 held |
+| 1 | 2 Linearity of Expectations (§2.3) | [linearity.md](linearity.md) | 2 of 3 proved; 1 published, 0 held |
 | 2 | 2 (rest), 3 Alterations | — | not started |
 | 3 | 4 Second Moment, 5 Chernoff Bound | — | not started |
 | 4 | 6 Lovász Local Lemma | — | not started |
@@ -184,3 +184,30 @@ re-running a partially-failed publish, list the board and diff it against the ba
 Never infer what landed from how far the script's output got — the crash here happened
 *after* the API call that mattered. Better still, do the label edits in the same call that
 creates the issue, or verify by target_decl rather than by issue number.
+
+**2026-09-06 — `choosable_lower` (#15), `bollobas_sum` (#5) and `caro_wei_clique` (#17)
+merged.** Seven of eleven phase-1 nodes proved, still zero axioms. Nothing is held any
+more: `bollobas_uniform` (#22) and `turan_edges` (#23) were published as soon as the
+theorems they consume landed, so the whole phase-1 frontier is now live.
+
+`bollobas_sum` was the batch's deliberately hard node and came back complete. It builds
+the permutation count from scratch rather than adapting Mathlib's LYM: `card_mapsOnto`
+counts the permutations carrying `P` onto `L` as `#P! * (n - #P)!`, `card_lowPerms`
+identifies "maps `P` below its complement" with "maps `P` onto the bottom `#P` elements",
+and `card_lowOrders` double-counts pairs `(g, σ)` to get
+`#lowOrders * C(#P + #Q, #P) = n!`. The disjointness of the events is the book's argument
+verbatim — `x ∈ A i ∩ B j` and `y ∈ A j ∩ B i` force `σ x < σ y` and `σ y < σ x`. The
+ground set is normalised to `Fin #X` up front, which is what keeps the counting lemmas
+free of the varying-union problem the roadmap flagged.
+
+**2026-09-06 — `choir/invalid` does not mean "the orchestrator rejected this".** It means
+*failed intake validation, retry pending*: `issue-intake.yml` fires on `labeled` and its
+`if` condition matches `choir/invalid` as well as `choir/available`. Labelling a
+well-formed task `choir/invalid` therefore makes intake re-validate it, find it fine, and
+hand it straight back as `choir/available`. That is what happened to the retired gate
+self-test (#8) and the duplicate `choosable_upper` (#14) — both closed, so no worker could
+claim them, but both sitting on the board reading `available`.
+
+**To retire a task, close it and *remove* `choir/available`.** Removal fires `unlabeled`,
+which intake does not listen for, and an issue carrying no lifecycle label is skipped by
+`sync_lease_labels` as well. Do not reach for `choir/invalid`.

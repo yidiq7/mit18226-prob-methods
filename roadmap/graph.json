@@ -75,7 +75,7 @@
       "file": "ProbMethods/Chapter01/Bollobas.lean",
       "decl": "PMC.sum_inv_choose_le_one",
       "doc": "introduction.md#bollobas_sum",
-      "statement": "formalized", "proof": "planned",
+      "statement": "formalized", "proof": "formalized",
       "uses": [], "proof_uses": []
     },
     "bollobas_uniform": {
@@ -107,7 +107,7 @@
       "file": "ProbMethods/Chapter01/ListChromatic.lean",
       "decl": "PMC.not_completeBipartiteChoosable_of_not_twoColorable",
       "doc": "introduction.md#choosable_lower",
-      "statement": "formalized", "proof": "planned",
+      "statement": "formalized", "proof": "formalized",
       "uses": ["choosableDef", "twoColorable"], "proof_uses": []
     },
 
@@ -124,7 +124,7 @@
       "file": "ProbMethods/Chapter02/CaroWei.lean",
       "decl": "PMC.exists_isClique_caro_wei",
       "doc": "linearity.md#caro_wei_clique",
-      "statement": "formalized", "proof": "planned",
+      "statement": "formalized", "proof": "formalized",
       "uses": [], "proof_uses": ["caro_wei"]
     },
     "turan_edges": {
