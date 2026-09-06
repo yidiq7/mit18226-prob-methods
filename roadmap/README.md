@@ -18,8 +18,8 @@ written when the phase opens, so the plan never claims more precision than it ha
 
 | Phase | Chapters | Group file | Status |
 |---|---|---|---|
-| 1 | 1 Introduction | [introduction.md](introduction.md) | 1 of 8 proved; 6 published, 1 held |
-| 1 | 2 Linearity of Expectations (§2.3) | [linearity.md](linearity.md) | 0 of 3 proved; 1 published, 2 held |
+| 1 | 1 Introduction | [introduction.md](introduction.md) | 2 of 8 proved; 5 published, 1 held |
+| 1 | 2 Linearity of Expectations (§2.3) | [linearity.md](linearity.md) | 1 of 3 proved; 1 published, 1 held |
 | 2 | 2 (rest), 3 Alterations | — | not started |
 | 3 | 4 Second Moment, 5 Chernoff Bound | — | not started |
 | 4 | 6 Lovász Local Lemma | — | not started |
@@ -144,3 +144,24 @@ exchange the order of summation, pigeonhole with `Finset.exists_le_of_sum_le`.
 a signal: `private` declarations get mangled `_private.…` names, so `#print axioms
 PMC.flipAt` cannot resolve them. Expect this on every PR that uses private helpers —
 comparator's kernel-level axiom check is what actually covers the target.
+
+**2026-09-06 — `ramsey_erdos` (#11) and `caro_wei` (#16) merged.** Three of eleven phase-1
+nodes are now proved, none of them with a new axiom.
+
+`ramsey_erdos` counts over *all* functions `Finset (Fin n) → Bool` rather than over the
+`2 ^ C(n,2)` edge-colourings. That looked wrong on first read and is in fact fine: each
+bad event still has relative density `2 ^ -C(k,2)`, since `badSet` constrains `f` on
+exactly the `C(k,2)` pairs inside the `k`-set and leaves every other input free. Working
+over the larger, more uniform index set avoids ever constructing the set of 2-subsets as
+a `Fintype`. Worth remembering before anyone "fixes" it.
+
+`caro_wei` took the Remark 2.3.4 derandomization, not the random-ordering argument, via a
+private lemma generalizing the bound to an induced subgraph (`d_t u` counting only
+neighbours inside `t`) so that strong induction on `t` goes through. This is the
+generalize-then-induct shape; expect it again on `turan_edges`.
+
+**2026-09-06 — `caro_wei_clique` (#17) published, unblocked by #16.** Its `proof_uses`
+dependency is now a real theorem rather than a `sorry`, so it can merge. Remaining held:
+`bollobas_uniform` (waiting on `bollobas_sum`, #5) and `turan_edges` (waiting on
+`caro_wei_clique`, #17). The frontier now unblocks itself as each chain link lands — no
+action needed beyond publishing the successor when its dependency merges.
