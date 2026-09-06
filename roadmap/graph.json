@@ -51,7 +51,7 @@
       "file": "ProbMethods/Chapter01/Bipartite.lean",
       "decl": "PMC.exists_cut_two_mul_card_edgeFinset_le",
       "doc": "introduction.md#cut_half",
-      "statement": "formalized", "proof": "planned",
+      "statement": "formalized", "proof": "formalized",
       "uses": ["cutEdges"], "proof_uses": []
     },
     "ramsey_erdos": {
