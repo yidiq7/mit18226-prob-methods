@@ -88,6 +88,14 @@ side condition on top of the probabilistic argument the chapter is actually teac
 `R(k, k) > n` because `RamseyProp · k l` is upward closed. Erdős–Szekeres (Remark 1.1.5)
 and the `R(k, k)` wrapper are their own nodes, for a later phase.
 
+**2026-09-06 — The gate is validated end-to-end.** A second throwaway PR (#9, closed
+unmerged) targeted a scratch declaration via a `choir/8-…` branch, so
+`verify-comparator` resolved a real task target and ran its full kernel comparison
+rather than no-opping. All nine checks green; comparator 2m50s, rebuild 2m42s, with the
+Mathlib cache working in CI. **Still unvalidated: the merge step itself** —
+`merge_pr`'s preflight and `issue-close-on-merge.yml` have never run here. The first
+real contribution will exercise them.
+
 **2026-09-06 — Validate CI before contributors arrive, not after.** The smoke test
 above cost one throwaway PR and caught a defect that would otherwise have burned every
 contributor's first cycle and looked like their fault. Repeat this after any change to

@@ -1,5 +1,4 @@
 import ProbMethods.Basic
-import ProbMethods.GateSelfTest
 import ProbMethods.Chapter01.Bipartite
 import ProbMethods.Chapter01.Ramsey
 import ProbMethods.Chapter01.Bollobas
