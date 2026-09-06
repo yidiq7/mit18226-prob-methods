@@ -12,6 +12,6 @@ namespace PMC
 
 /-- Gate self-test. Not mathematics. -/
 theorem gate_self_test (n : ℕ) : n + 0 = n := by
-  sorry
+  simp
 
 end PMC
