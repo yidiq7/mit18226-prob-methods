@@ -1,0 +1,86 @@
+# Probabilistic Methods in Combinatorics — formalization roadmap
+
+## Goal
+
+Formalize Yufei Zhao's lecture notes *Probabilistic Methods in Combinatorics*
+(MIT 18.226, Fall 2022; last updated June 18, 2024) in Lean 4 + Mathlib.
+
+This is an **independent** formalization. Contributors must not consult, copy from,
+or reference Meta's ATLAS formalization of this book, in whole or in part, under any
+circumstances. Work from the lecture notes and from Mathlib only.
+
+## Route
+
+The book has eleven chapters. We formalize them in order, in phases: a phase's
+statements are committed to the protected branch first, then published as `prove`
+tasks. Later phases are named here but not yet detailed — their group files are
+written when the phase opens, so the plan never claims more precision than it has.
+
+| Phase | Chapters | Group file | Status |
+|---|---|---|---|
+| 1 | 1 Introduction | [introduction.md](introduction.md) | statements committed |
+| 1 | 2 Linearity of Expectations (§2.3) | [linearity.md](linearity.md) | statements committed |
+| 2 | 2 (rest), 3 Alterations | — | not started |
+| 3 | 4 Second Moment, 5 Chernoff Bound | — | not started |
+| 4 | 6 Lovász Local Lemma | — | not started |
+| 5 | 7 Correlation Inequalities, 8 Janson Inequalities | — | not started |
+| 6 | 9 Concentration of Measure | — | not started |
+| 7 | 10 Entropy | — | not started |
+| 8 | 11 Containers | — | not started |
+
+## Conventions that shape the route
+
+**Finite probability is formalized by counting.** Chapters 1–3 argue over finite
+probability spaces. Rendering those as `MeasureTheory` costs a great deal of
+boilerplate and buys nothing, so their statements are counting statements:
+"some colouring cuts at least half the edges" rather than "the expected number of cut
+edges is `m / 2`". Genuinely measure-theoretic content — concentration, martingales,
+Talagrand (Chapter 9) — will use `ProbabilityTheory` when we reach it.
+
+**Asymptotic statements are deferred or made explicit.** Results the notes state with
+`o(1)` or `≲` (Remarks 1.1.3, 1.1.7, 1.1.10; Corollary 1.4.4; Theorem 2.5.1) are not
+published as tasks in the form the notes give them. Either an explicit-constant version
+is stated, or the node waits until the surrounding theory is in place.
+
+**What Mathlib already has, we do not reprove.** Sperner's theorem, the LYM inequality,
+Erdős–Ko–Rado, the structural form of Turán's theorem and Markov's inequality are
+upstream; they are recorded in `graph.json` as `upstream` and are never published as
+tasks. Contributors should reach for them rather than reproving them.
+
+## Reasoning log
+
+**2026-09-06 — Toolchain.** Pinned Lean `v4.33.1` with Mathlib tag `v4.33.1`. That is
+the newest stable pair at bootstrap, and comfortably above the `v4.27` floor where
+`verify-comparator` becomes a kernel-level statement check. The pin never moves
+mid-run.
+
+**2026-09-06 — Targeted imports, not `import Mathlib`.** Measured on this project:
+a file importing all of Mathlib costs ~49s, the same file with targeted imports ~7s.
+With one file per group of results that difference decides whether CI is minutes or
+an hour. `ProbMethods/Basic.lean` carries the common imports; chapter files add what
+they specifically need.
+
+**2026-09-06 — `autoImplicit` is off.** Set in `lakefile.toml`. With it on, a typo in
+a statement silently becomes a universally quantified variable, which is exactly the
+failure a statement-integrity project cannot tolerate.
+
+**2026-09-06 — Definitions live in `ProbMethods/Basic.lean`.** Every definition that
+appears in a theorem *statement* is authored there by the orchestrator. Chapter files
+hold statements and proofs only. This is the centralized-layer rule: those definitions
+are the interface other tasks' signatures depend on, so a worker never writes one.
+
+**2026-09-06 — Ramsey lower bounds are stated as `¬ RamseyProp n k k`, not
+`n < R(k, k)`.** Defining `R(k, k)` as `sInf {n | RamseyProp n k k}` would make
+`n < R(k, k)` demand that the set be nonempty — i.e. Ramsey's theorem itself — as a
+side condition on top of the probabilistic argument the chapter is actually teaching.
+`¬ RamseyProp n k k` is exactly what the random colouring gives, and is equivalent to
+`R(k, k) > n` because `RamseyProp · k l` is upward closed. Erdős–Szekeres (Remark 1.1.5)
+and the `R(k, k)` wrapper are their own nodes, for a later phase.
+
+**2026-09-06 — First batch held to five tasks.** Early-run calibration: `cut_half`,
+`property_b_lower`, `ramsey_erdos`, `caro_wei`, `bollobas_sum`. Five different
+techniques across two chapters, one of them (`bollobas_sum`) deliberately hard. Six
+further nodes are stated and ready — `ramsey_alteration`, `bollobas_uniform`,
+`choosable_upper`, `choosable_lower`, `caro_wei_clique`, `turan_edges` — and are
+released as soon as the first batch shows the statement conventions survive contact
+with a worker.

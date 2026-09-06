@@ -1,0 +1,139 @@
+{
+  "target": "Yufei Zhao, Probabilistic Methods in Combinatorics (MIT 18.226 lecture notes)",
+  "nodes": {
+    "introduction": { "kind": "group", "doc": "introduction.md" },
+    "linearity": { "kind": "group", "doc": "linearity.md" },
+
+    "crossing": {
+      "kind": "definition", "parent": "introduction",
+      "file": "ProbMethods/Basic.lean", "decl": "PMC.crossing",
+      "doc": "introduction.md#cut_half",
+      "statement": "formalized", "proof": "formalized", "uses": [], "proof_uses": []
+    },
+    "cutEdges": {
+      "kind": "definition", "parent": "introduction",
+      "file": "ProbMethods/Basic.lean", "decl": "PMC.cutEdges",
+      "doc": "introduction.md#cut_half",
+      "statement": "formalized", "proof": "formalized", "uses": ["crossing"], "proof_uses": []
+    },
+    "ramseyProp": {
+      "kind": "definition", "parent": "introduction",
+      "file": "ProbMethods/Basic.lean", "decl": "PMC.RamseyProp",
+      "doc": "introduction.md#ramsey_erdos",
+      "statement": "formalized", "proof": "formalized", "uses": [], "proof_uses": []
+    },
+    "twoColorable": {
+      "kind": "definition", "parent": "introduction",
+      "file": "ProbMethods/Basic.lean", "decl": "PMC.TwoColorable",
+      "doc": "introduction.md#property_b_lower",
+      "statement": "formalized", "proof": "formalized", "uses": [], "proof_uses": []
+    },
+    "choosableDef": {
+      "kind": "definition", "parent": "introduction",
+      "file": "ProbMethods/Basic.lean", "decl": "PMC.CompleteBipartiteChoosable",
+      "doc": "introduction.md#choosable_upper",
+      "statement": "formalized", "proof": "formalized", "uses": [], "proof_uses": []
+    },
+
+    "sperner": { "kind": "theorem", "parent": "introduction", "decl": "IsAntichain.sperner", "upstream": true },
+    "lym": {
+      "kind": "theorem", "parent": "introduction",
+      "decl": "Finset.lubell_yamamoto_meshalkin_inequality_sum_inv_choose", "upstream": true
+    },
+    "ekr": { "kind": "theorem", "parent": "introduction", "decl": "Finset.erdos_ko_rado", "upstream": true },
+    "turan_structural": {
+      "kind": "theorem", "parent": "linearity",
+      "decl": "SimpleGraph.isTuranMaximal_iff_nonempty_iso_turanGraph", "upstream": true
+    },
+
+    "cut_half": {
+      "kind": "theorem", "parent": "introduction",
+      "file": "ProbMethods/Chapter01/Bipartite.lean",
+      "decl": "PMC.exists_cut_two_mul_card_edgeFinset_le",
+      "doc": "introduction.md#cut_half",
+      "statement": "formalized", "proof": "planned",
+      "uses": ["cutEdges"], "proof_uses": []
+    },
+    "ramsey_erdos": {
+      "kind": "theorem", "parent": "introduction",
+      "file": "ProbMethods/Chapter01/Ramsey.lean",
+      "decl": "PMC.not_ramseyProp_of_two_mul_choose_lt",
+      "doc": "introduction.md#ramsey_erdos",
+      "statement": "formalized", "proof": "planned",
+      "uses": ["ramseyProp"], "proof_uses": []
+    },
+    "ramsey_alteration": {
+      "kind": "theorem", "parent": "introduction",
+      "file": "ProbMethods/Chapter01/Ramsey.lean",
+      "decl": "PMC.exists_cliqueFree_of_alteration",
+      "doc": "introduction.md#ramsey_alteration",
+      "statement": "formalized", "proof": "planned",
+      "uses": [], "proof_uses": []
+    },
+    "bollobas_sum": {
+      "kind": "theorem", "parent": "introduction",
+      "file": "ProbMethods/Chapter01/Bollobas.lean",
+      "decl": "PMC.sum_inv_choose_le_one",
+      "doc": "introduction.md#bollobas_sum",
+      "statement": "formalized", "proof": "planned",
+      "uses": [], "proof_uses": []
+    },
+    "bollobas_uniform": {
+      "kind": "theorem", "parent": "introduction",
+      "file": "ProbMethods/Chapter01/Bollobas.lean",
+      "decl": "PMC.card_le_choose_of_two_families",
+      "doc": "introduction.md#bollobas_uniform",
+      "statement": "formalized", "proof": "planned",
+      "uses": [], "proof_uses": ["bollobas_sum"]
+    },
+    "property_b_lower": {
+      "kind": "theorem", "parent": "introduction",
+      "file": "ProbMethods/Chapter01/PropertyB.lean",
+      "decl": "PMC.twoColorable_of_card_lt_two_pow",
+      "doc": "introduction.md#property_b_lower",
+      "statement": "formalized", "proof": "planned",
+      "uses": ["twoColorable"], "proof_uses": []
+    },
+    "choosable_upper": {
+      "kind": "theorem", "parent": "introduction",
+      "file": "ProbMethods/Chapter01/ListChromatic.lean",
+      "decl": "PMC.completeBipartiteChoosable_of_lt_two_pow",
+      "doc": "introduction.md#choosable_upper",
+      "statement": "formalized", "proof": "planned",
+      "uses": ["choosableDef"], "proof_uses": []
+    },
+    "choosable_lower": {
+      "kind": "theorem", "parent": "introduction",
+      "file": "ProbMethods/Chapter01/ListChromatic.lean",
+      "decl": "PMC.not_completeBipartiteChoosable_of_not_twoColorable",
+      "doc": "introduction.md#choosable_lower",
+      "statement": "formalized", "proof": "planned",
+      "uses": ["choosableDef", "twoColorable"], "proof_uses": []
+    },
+
+    "caro_wei": {
+      "kind": "theorem", "parent": "linearity",
+      "file": "ProbMethods/Chapter02/CaroWei.lean",
+      "decl": "PMC.exists_isIndepSet_caro_wei",
+      "doc": "linearity.md#caro_wei",
+      "statement": "formalized", "proof": "planned",
+      "uses": [], "proof_uses": []
+    },
+    "caro_wei_clique": {
+      "kind": "theorem", "parent": "linearity",
+      "file": "ProbMethods/Chapter02/CaroWei.lean",
+      "decl": "PMC.exists_isClique_caro_wei",
+      "doc": "linearity.md#caro_wei_clique",
+      "statement": "formalized", "proof": "planned",
+      "uses": [], "proof_uses": ["caro_wei"]
+    },
+    "turan_edges": {
+      "kind": "theorem", "parent": "linearity",
+      "file": "ProbMethods/Chapter02/CaroWei.lean",
+      "decl": "PMC.card_edgeFinset_le_of_cliqueFree",
+      "doc": "linearity.md#turan_edges",
+      "statement": "formalized", "proof": "planned",
+      "uses": [], "proof_uses": ["caro_wei_clique"]
+    }
+  }
+}

@@ -9,3 +9,8 @@ rev = "v4.33.1"
 
 [[lean_lib]]
 name = "ProbMethods"
+
+[leanOptions]
+pp.unicode.fun = true
+autoImplicit = false
+relaxedAutoImplicit = false
