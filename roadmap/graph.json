@@ -99,7 +99,7 @@
       "file": "ProbMethods/Chapter01/ListChromatic.lean",
       "decl": "PMC.completeBipartiteChoosable_of_lt_two_pow",
       "doc": "introduction.md#choosable_upper",
-      "statement": "formalized", "proof": "planned",
+      "statement": "formalized", "proof": "formalized",
       "uses": ["choosableDef"], "proof_uses": []
     },
     "choosable_lower": {

@@ -18,7 +18,7 @@ written when the phase opens, so the plan never claims more precision than it ha
 
 | Phase | Chapters | Group file | Status |
 |---|---|---|---|
-| 1 | 1 Introduction | [introduction.md](introduction.md) | 2 of 8 proved; 5 published, 1 held |
+| 1 | 1 Introduction | [introduction.md](introduction.md) | 3 of 8 proved; 4 published, 1 held |
 | 1 | 2 Linearity of Expectations (§2.3) | [linearity.md](linearity.md) | 1 of 3 proved; 1 published, 1 held |
 | 2 | 2 (rest), 3 Alterations | — | not started |
 | 3 | 4 Second Moment, 5 Chernoff Bound | — | not started |
@@ -165,3 +165,22 @@ dependency is now a real theorem rather than a `sorry`, so it can merge. Remaini
 `bollobas_uniform` (waiting on `bollobas_sum`, #5) and `turan_edges` (waiting on
 `caro_wei_clique`, #17). The frontier now unblocks itself as each chain link lands — no
 action needed beyond publishing the successor when its dependency merges.
+
+**2026-09-06 — `choosable_upper` (#13) merged.** Notable for adding *no* new declarations:
+the whole union-bound argument sits inline in the pre-stated theorem, so comparator's
+kernel check covers all of it and there is no worker-authored statement to audit. When a
+node can be closed this way it is the cheapest possible thing to review — worth
+preferring in task hints where the argument is short enough to inline.
+
+**2026-09-06 — Publishing bug: `choosable_upper` was published twice, as #13 and #14.**
+The publishing script created #13, then crashed on a formatting bug in its own progress
+`print` (a label enum's `.value` is an `int`, not a `str`). On the re-run only the
+already-confirmed node was removed from the batch, so `choosable_upper` went out a second
+time. #14 was closed as a duplicate, `choir/invalid`; it was never claimed, so no work was
+lost, and #13 is the live task.
+
+**The lesson, for whoever publishes next: creating an issue is not idempotent, so before
+re-running a partially-failed publish, list the board and diff it against the batch.**
+Never infer what landed from how far the script's output got — the crash here happened
+*after* the API call that mattered. Better still, do the label edits in the same call that
+creates the issue, or verify by target_decl rather than by issue number.
