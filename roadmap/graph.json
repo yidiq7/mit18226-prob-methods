@@ -650,13 +650,13 @@
       "kind": "theorem",
       "parent": "chernoffGroup",
       "doc": "chernoff.md#still-to-state",
-      "statement": "planned",
-      "proof": "planned",
+      "statement": "deferred",
+      "proof": "deferred",
       "uses": [
         "chernoff"
       ],
       "proof_uses": [],
-      "note": "Theorem 5.0.5; needs the convexity step for x in [-1,1]."
+      "note": "Theorem 5.0.5 quantifies over arbitrary [-1,1]-valued variables, so the sample space is not finite and the counting framework does not reach it. Needs MeasureTheory, or a restatement for finitely-supported variables."
     },
     "chernoff_bernoulli": {
       "kind": "theorem",
@@ -665,10 +665,11 @@
       "statement": "planned",
       "proof": "planned",
       "uses": [
-        "chernoff"
+        "chernoff",
+        "pweights"
       ],
       "proof_uses": [],
-      "note": "Theorem 5.0.7; same MGF method, different optimisation."
+      "note": "Theorem 5.0.7. The weight family (pweight) now exists; what remains is the MGF for varying p and the (1+eps)log(1+eps)-eps optimisation."
     },
     "discrepancy": {
       "kind": "theorem",
@@ -696,6 +697,18 @@
       "uses": [],
       "proof_uses": [],
       "note": "Counting subsets of V by a property of S inter A factors as 2^#(V\\A) times the count over A.powerset. Lifts a per-edge bound to the whole colouring space."
+    },
+    "pweights": {
+      "kind": "definition",
+      "parent": "chernoffGroup",
+      "file": "ProbMethods/Weighted.lean",
+      "decl": "PMC.pweight",
+      "doc": "chernoff.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "Independent coordinates with per-element probabilities. sum_pweight and sum_pweight_superset (a fixed B is contained with weight prod over B of p i). Needed by 5.0.7 and by random graphs with varying edge probabilities."
     }
   }
 }

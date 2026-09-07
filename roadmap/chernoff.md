@@ -49,10 +49,20 @@ the one-sided bound finishes it. No second MGF computation.
 
 ## Still to state
 
-**Theorem 5.0.5 / Corollary 5.0.6 / Theorem 5.0.7** generalise to bounded and to Bernoulli
-summands. 5.0.5 needs the convexity step `exp(tx) ≤ ((1-x)/2) exp(-t) + ((1+x)/2) exp t`
-for `x ∈ [-1,1]`; the rest of the argument is unchanged. 5.0.7's asymmetric bounds need
-`(1+ε) log(1+ε) - ε`, which is the same MGF method with a different optimisation.
+**Theorem 5.0.5 is deferred, and for a reason worth recording.** It quantifies over
+*arbitrary* independent variables taking values in `[-1, 1]`, so the sample space is a
+product of continua and is **not finite** — the counting framework does not reach it at all,
+unlike everything else in Chapters 1–5. Formalizing it means either `MeasureTheory` or
+restating it for finitely-supported variables. This is the first place where the finite
+approach genuinely runs out, as opposed to merely needing more work.
+
+**Theorem 5.0.7 (Bernoulli, differing probabilities) is reachable.** Its sample space *is*
+finite — subsets of `[n]` weighted by `∏ p i` over the subset and `∏ (1 - p i)` outside —
+and that family is now built as `PMC.pweight`, with `PMC.sum_pweight` (the weights total
+`1`) and `PMC.sum_pweight_superset` (a fixed `B` is contained with weight `∏ i ∈ B, p i`).
+`Finset.prod_add` never needed the factors to be constant, so independence with differing
+probabilities costs nothing beyond stating it. What remains is the MGF for varying `p` and
+the `(1+ε) log(1+ε) - ε` optimisation.
 
 ## Discrepancy (§5.1, Theorem 5.1.1) — proved
 

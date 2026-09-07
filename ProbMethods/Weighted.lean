@@ -23,6 +23,10 @@ easier to normalise at the point of use.
 * `PMC.bweight` — the Bernoulli weight of a subset, `p ^ #X * (1 - p) ^ (card - #X)`.
   Taking `α := Sym2 V` makes this the `G(n, p)` distribution on graphs, which is how
   Chapters 4, 8 and 9 reach the random graph without any measure theory.
+* `PMC.pweight` — the same with a *per-element* probability `p i`, for independent but not
+  identically distributed coordinates. `Finset.prod_add` handles this with no extra work,
+  since it never needed the factors to be constant; Theorem 5.0.7 and any random graph
+  with varying edge probabilities want this form.
 
 ## Main results
 
@@ -426,6 +430,89 @@ theorem card_filter_inter (V A : Finset α) (hA : A ⊆ V)
       rw [Finset.union_sdiff_distrib, Finset.sdiff_eq_self_of_disjoint hRA,
         Finset.sdiff_eq_empty_iff_subset.mpr hT.1, Finset.union_empty]
   rw [Finset.sum_congr rfl hfib, Finset.sum_const, smul_eq_mul, mul_comm]
+
+/-! ### Independent coordinates with differing probabilities -/
+
+/-- The weight of a subset when element `i` is included with its own probability `p i`,
+independently. `PMC.bweight` is the constant case.
+
+`Finset.prod_add` never required the factors to be constant, so this costs nothing beyond
+stating it — which is the point: independence *is* the product factorisation. -/
+def pweight (p : α → ℝ) (X : Finset α) : ℝ :=
+  (∏ i ∈ X, p i) * ∏ i ∈ (univ : Finset α) \ X, (1 - p i)
+
+lemma pweight_nonneg {p : α → ℝ} (hp0 : ∀ i, 0 ≤ p i) (hp1 : ∀ i, p i ≤ 1)
+    (X : Finset α) : 0 ≤ pweight p X :=
+  mul_nonneg
+    (Finset.prod_nonneg fun i _ => hp0 i)
+    (Finset.prod_nonneg fun i _ => by linarith [hp1 i])
+
+/-- The per-element weights total `1`. -/
+theorem sum_pweight (p : α → ℝ) :
+    ∑ X ∈ (univ : Finset α).powerset, pweight p X = 1 := by
+  have h := Finset.prod_add p (fun i => 1 - p i) (univ : Finset α)
+  simp only [pweight]
+  calc ∑ X ∈ (univ : Finset α).powerset,
+        (∏ i ∈ X, p i) * ∏ i ∈ (univ : Finset α) \ X, (1 - p i)
+      = ∏ i ∈ (univ : Finset α), (p i + (1 - p i)) := h.symm
+    _ = 1 := by simp
+
+/-- A fixed `B` is contained with weight `∏ i ∈ B, p i` — the first-moment input for
+independent coordinates with differing probabilities. -/
+theorem sum_pweight_superset (p : α → ℝ) (B : Finset α) :
+    ∑ X ∈ (univ : Finset α).powerset.filter (fun X => B ⊆ X), pweight p X
+      = ∏ i ∈ B, p i := by
+  classical
+  have key : ∑ X ∈ (univ : Finset α).powerset.filter (fun X => B ⊆ X), pweight p X
+      = ∑ Y ∈ (univ \ B).powerset,
+          (∏ i ∈ B, p i) * ((∏ i ∈ Y, p i) * ∏ i ∈ (univ \ B) \ Y, (1 - p i)) := by
+    refine Finset.sum_nbij' (fun X => X \ B) (fun Y => Y ∪ B) ?_ ?_ ?_ ?_ ?_
+    · intro X hX
+      rw [mem_filter, mem_powerset] at hX
+      rw [mem_powerset]
+      exact sdiff_subset_sdiff hX.1 Subset.rfl
+    · intro Y hY
+      rw [mem_powerset] at hY
+      rw [mem_filter, mem_powerset]
+      exact ⟨subset_univ _, subset_union_right⟩
+    · intro X hX
+      rw [mem_filter] at hX
+      exact sdiff_union_of_subset hX.2
+    · intro Y hY
+      rw [mem_powerset] at hY
+      have hdisj : Disjoint Y B := by
+        rw [Finset.disjoint_right]
+        intro x hxB hxY
+        exact (mem_sdiff.mp (hY hxY)).2 hxB
+      show (Y ∪ B) \ B = Y
+      rw [Finset.union_sdiff_right, Finset.sdiff_eq_self_of_disjoint hdisj]
+    · intro X hX
+      rw [mem_filter, mem_powerset] at hX
+      have hBX : B ⊆ X := hX.2
+      have hsplit : (∏ i ∈ X, p i) = (∏ i ∈ B, p i) * ∏ i ∈ X \ B, p i := by
+        rw [← Finset.prod_union (Finset.disjoint_sdiff), Finset.union_sdiff_of_subset hBX]
+      have hcompl : (univ : Finset α) \ X = (univ \ B) \ (X \ B) := by
+        ext x
+        simp only [mem_sdiff]
+        constructor
+        · intro h
+          exact ⟨⟨h.1, fun hxB => h.2 (hBX hxB)⟩, fun hx => h.2 hx.1⟩
+        · intro h
+          refine ⟨h.1.1, fun hxX => ?_⟩
+          by_cases hxB : x ∈ B
+          · exact h.1.2 hxB
+          · exact h.2 ⟨hxX, hxB⟩
+      rw [pweight, hsplit, hcompl]
+      ring
+  rw [key, ← Finset.mul_sum]
+  have hone : ∑ Y ∈ (univ \ B).powerset,
+      (∏ i ∈ Y, p i) * ∏ i ∈ (univ \ B) \ Y, (1 - p i) = 1 := by
+    have h := Finset.prod_add p (fun i => 1 - p i) ((univ : Finset α) \ B)
+    calc ∑ Y ∈ (univ \ B).powerset,
+          (∏ i ∈ Y, p i) * ∏ i ∈ (univ \ B) \ Y, (1 - p i)
+        = ∏ i ∈ (univ : Finset α) \ B, (p i + (1 - p i)) := h.symm
+      _ = 1 := by simp
+  rw [hone, mul_one]
 
 end Bernoulli
 
