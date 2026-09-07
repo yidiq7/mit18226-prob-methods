@@ -70,6 +70,23 @@ theorem janson_lower (p : α → ℝ) (hp0 : ∀ i, 0 ≤ p i) (hp1 : ∀ i, p i
   ext S
   simp
 
+/-- **Janson's lower bound in `G(n, p)`.**
+
+The same statement at a constant probability, which is the form the applications use: over
+the ground set `α` — for a random graph, `Sym2 V` — each element kept independently with
+probability `p`, the chance that none of the sets `g i` appears in full is at least
+`∏ i, (1 - p ^ #(g i))`.
+
+Uses `PMC.bweight_eq_pweight`, the bridge between the two weight families. -/
+theorem janson_lower_const (p : ℝ) (hp0 : 0 ≤ p) (hp1 : p ≤ 1)
+    {ι : Type*} [Fintype ι] [DecidableEq ι] (g : ι → Finset α) :
+    ∏ i, (1 - p ^ #(g i))
+      ≤ ∑ S ∈ (univ : Finset (Finset α)).filter (fun S => ∀ i, ¬ g i ⊆ S), bweight p S := by
+  have h := janson_lower (fun _ : α => p) (fun _ => hp0) (fun _ => hp1) g
+  rw [Finset.prod_congr rfl fun i _ => by rw [Finset.prod_const]] at h
+  refine h.trans (le_of_eq (Finset.sum_congr rfl fun S _ => ?_))
+  rw [bweight_eq_pweight]
+
 end Janson
 
 end PMC

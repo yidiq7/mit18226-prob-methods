@@ -158,7 +158,7 @@
       "decl": "PMC.twoColorable_of_card_lt_two_pow",
       "doc": "introduction.md#property_b_lower",
       "statement": "formalized",
-      "proof": "planned",
+      "proof": "formalized",
       "uses": [
         "twoColorable"
       ],
@@ -259,7 +259,7 @@
       "decl": "PMC.exists_tournament_factorial_le_hamiltonPaths",
       "doc": "linearity.md#szele",
       "statement": "formalized",
-      "proof": "planned",
+      "proof": "formalized",
       "uses": [
         "hamiltonPathsDef"
       ],
@@ -272,7 +272,7 @@
       "decl": "PMC.exists_sumFree_subset",
       "doc": "linearity.md#sum-free-subsets-22",
       "statement": "formalized",
-      "proof": "planned",
+      "proof": "formalized",
       "uses": [
         "sumFreeDef"
       ],
@@ -294,7 +294,7 @@
       "parent": "linearity",
       "doc": "linearity.md#sampling-24",
       "statement": "formalized",
-      "proof": "planned",
+      "proof": "formalized",
       "uses": [
         "threeGraphDef",
         "tetrahedronDef"
@@ -308,7 +308,7 @@
       "parent": "linearity",
       "doc": "linearity.md#unbalancing-lights-25",
       "statement": "formalized",
-      "proof": "planned",
+      "proof": "formalized",
       "uses": [],
       "proof_uses": [],
       "file": "ProbMethods/Chapter02/UnbalancingLights.lean",
@@ -430,7 +430,7 @@
         "chebyshev"
       ],
       "proof_uses": [],
-      "note": "Uniform over subsets, so counting applies. State with the explicit constant 3*2^k/(8*sqrt k)."
+      "note": "Section 4.6 (Erdos distinct subset sums). Now reachable: wmean_bweight_linear and wvar_bweight_linear supply the moments, wchebyshev the tail bound. What remains is the counting step -- distinct subset sums make S -> sum injective, so the number of subsets whose sum lies within lambda sigma of the mean is at most the number of integers in an interval of that length. State with an explicit constant."
     },
     "chebyshev": {
       "kind": "definition",
@@ -802,19 +802,6 @@
       "file": "ProbMethods/Chapter07/Correlation.lean",
       "decl": "PMC.pweight_correlate"
     },
-    "bweight_pweight_bridge": {
-      "kind": "theorem",
-      "parent": "correlation",
-      "doc": "correlation.md#applications-to-random-graphs-72--reachable",
-      "statement": "planned",
-      "proof": "planned",
-      "uses": [
-        "gnp_weights",
-        "pweights"
-      ],
-      "proof_uses": [],
-      "note": "bweight p = pweight (fun _ => p). Needed to combine Chapter 4's results with FKG."
-    },
     "fkg_triangle": {
       "kind": "theorem",
       "parent": "correlation",
@@ -1139,7 +1126,7 @@
         "prob_not_superset"
       ],
       "proof_uses": [],
-      "note": "Theorem 8.1.1, LOWER BOUND. prod (1 - P(A i)) <= P(no A i occurs), with no hypothesis relating the g i to each other -- overlapping bad sets are the interesting case and the bound holds regardless, because the events 'g i is not contained' are decreasing and correlation only helps."
+      "note": "Theorem 8.1.1, LOWER BOUND. prod (1 - P(A i)) <= P(no A i occurs), with no hypothesis relating the g i to each other -- overlapping bad sets are the interesting case and the bound holds regardless, because the events 'g i is not contained' are decreasing and correlation only helps. A constant-p corollary janson_lower_const is stated for G(n,p) via bweight_eq_pweight."
     },
     "janson_upper": {
       "kind": "theorem",
@@ -1573,6 +1560,70 @@
       ],
       "proof_uses": [],
       "note": "The Loomis-Whitney inequality: #A^2 <= product of the three axis-plane shadow sizes for A in three coordinates. The three 2-element subsets of Fin 3 cover each coordinate exactly twice. Checked tight, not merely true: the full 2x2x2 cube has 8 points and three 4-point shadows, 8^2 = 64 = 4*4*4."
+    },
+    "bweight_pweight_bridge_done": {
+      "kind": "theorem",
+      "parent": null,
+      "file": "ProbMethods/Weighted.lean",
+      "decl": "PMC.bweight_eq_pweight",
+      "doc": "second-moment.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "bweight p = pweight (fun _ => p). Without this the two halves of the library cannot be combined: FKG, Harris and Janson are stated for pweight, the variance computations for bweight."
+    },
+    "bweight_mem": {
+      "kind": "theorem",
+      "parent": null,
+      "file": "ProbMethods/Weighted.lean",
+      "decl": "PMC.sum_bweight_mem",
+      "doc": "second-moment.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "The chance a given coordinate survives is p."
+    },
+    "bweight_mem_pair": {
+      "kind": "theorem",
+      "parent": null,
+      "file": "ProbMethods/Weighted.lean",
+      "decl": "PMC.sum_bweight_mem_pair",
+      "doc": "second-moment.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "The chance two given coordinates both survive is p^#{i,j} -- the whole content of the variance computation is that this exponent is 1 when i = j and 2 otherwise."
+    },
+    "linear_mean": {
+      "kind": "theorem",
+      "parent": null,
+      "file": "ProbMethods/Weighted.lean",
+      "decl": "PMC.wmean_bweight_linear",
+      "doc": "second-moment.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [
+        "bweight_mem"
+      ],
+      "proof_uses": [],
+      "note": "Mean of a linear form under bweight p: p * sum a. Verified numerically against brute force at three values of p with non-constant a."
+    },
+    "linear_var": {
+      "kind": "theorem",
+      "parent": null,
+      "file": "ProbMethods/Weighted.lean",
+      "decl": "PMC.wvar_bweight_linear",
+      "doc": "second-moment.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [
+        "bweight_mem_pair"
+      ],
+      "proof_uses": [],
+      "note": "Variance of a linear form under bweight p: p(1-p) * sum a^2. No general independence lemma is invoked; it falls out of sum_bweight_mem_pair. Verified numerically against brute force at three values of p with non-constant a."
     }
   }
 }

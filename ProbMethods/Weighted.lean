@@ -584,6 +584,147 @@ theorem sum_pweight_superset (p : α → ℝ) (B : Finset α) :
       _ = 1 := by simp
   rw [hone, mul_one]
 
+/-! ### Linear forms
+
+The mean and variance of `S ↦ ∑ i ∈ S, a i` under `bweight p` — a random subset with each
+element kept independently with probability `p`. Both come from `PMC.sum_bweight_superset`
+alone: the probability that a given pair of coordinates both survive is `p ^ #{i, j}`, which
+is `p` when `i = j` and `p ^ 2` otherwise, and that single case split is the whole content
+of the variance.
+-/
+
+/-- The chance a given coordinate survives is `p`. -/
+lemma sum_bweight_mem (p : ℝ) (i : α) :
+    ∑ S ∈ (univ : Finset (Finset α)).filter (fun S => i ∈ S), bweight p S = p := by
+  have h := sum_bweight_superset p {i}
+  rw [Finset.powerset_univ, Finset.card_singleton, pow_one] at h
+  have hset : (univ : Finset (Finset α)).filter (fun S => i ∈ S)
+      = (univ : Finset (Finset α)).filter (fun X => {i} ⊆ X) := by
+    ext S
+    simp [Finset.singleton_subset_iff]
+  rw [hset]
+  exact h
+
+/-- The chance two given coordinates both survive is `p ^ #{i, j}` — the whole content of
+the variance computation is that this exponent is `1` when `i = j` and `2` otherwise. -/
+lemma sum_bweight_mem_pair (p : ℝ) (i j : α) :
+    ∑ S ∈ (univ : Finset (Finset α)).filter (fun S => i ∈ S ∧ j ∈ S), bweight p S
+      = p ^ #({i, j} : Finset α) := by
+  have h := sum_bweight_superset p {i, j}
+  rw [Finset.powerset_univ] at h
+  have hset : (univ : Finset (Finset α)).filter (fun S => i ∈ S ∧ j ∈ S)
+      = (univ : Finset (Finset α)).filter (fun X => {i, j} ⊆ X) := by
+    ext S
+    simp [Finset.insert_subset_iff, Finset.singleton_subset_iff]
+  rw [hset]
+  exact h
+
+/-- Pull a sum over `S` out into a sum over the whole ground set. -/
+private lemma sum_over_subset (S : Finset α) (f : α → ℝ) :
+    ∑ i ∈ S, f i = ∑ i : α, (if i ∈ S then f i else 0) := by
+  rw [← Finset.sum_filter]
+  exact Finset.sum_congr (by ext i; simp) fun _ _ => rfl
+
+/-- **The mean of a linear form** under `bweight p`. -/
+theorem wmean_bweight_linear (p : ℝ) (a : α → ℝ) :
+    wmean (bweight p) (fun S => ∑ i ∈ S, a i) = p * ∑ i, a i := by
+  classical
+  calc wmean (bweight p) (fun S => ∑ i ∈ S, a i)
+      = ∑ S : Finset α, ∑ i : α, (if i ∈ S then bweight p S * a i else 0) := by
+        refine Finset.sum_congr rfl fun S _ => ?_
+        show bweight p S * ∑ i ∈ S, a i = _
+        rw [Finset.mul_sum, sum_over_subset]
+    _ = ∑ i : α, ∑ S : Finset α, (if i ∈ S then bweight p S * a i else 0) := by
+        rw [Finset.sum_comm]
+    _ = ∑ i : α, a i * p := by
+        refine Finset.sum_congr rfl fun i _ => ?_
+        rw [← Finset.sum_filter]
+        calc ∑ S ∈ (univ : Finset (Finset α)).filter (fun S => i ∈ S), bweight p S * a i
+            = (∑ S ∈ (univ : Finset (Finset α)).filter (fun S => i ∈ S), bweight p S)
+              * a i := (Finset.sum_mul ..).symm
+          _ = a i * p := by rw [sum_bweight_mem]; ring
+    _ = p * ∑ i, a i := by rw [← Finset.sum_mul]; ring
+
+/-- **The variance of a linear form** under `bweight p`: `p (1 - p) ∑ a i ^ 2`.
+
+The coordinates are independent, so the variances add — but nothing here appeals to a
+general independence lemma; it all falls out of `PMC.sum_bweight_mem_pair` and the fact that
+`#{i, j}` is `1` exactly when `i = j`. -/
+theorem wvar_bweight_linear (p : ℝ) (a : α → ℝ) :
+    wvar (bweight p) (fun S => ∑ i ∈ S, a i) = p * (1 - p) * ∑ i, a i ^ 2 := by
+  classical
+  have hsum : ∑ S : Finset α, bweight p S = 1 := by
+    have h := sum_bweight (α := α) p
+    rwa [Finset.powerset_univ] at h
+  have hsq : wmean (bweight p) (fun S => (∑ i ∈ S, a i) ^ 2)
+      = ∑ i : α, ∑ j : α, a i * a j * p ^ #({i, j} : Finset α) := by
+    calc wmean (bweight p) (fun S => (∑ i ∈ S, a i) ^ 2)
+        = ∑ S : Finset α, ∑ i : α, ∑ j : α,
+            (if i ∈ S ∧ j ∈ S then bweight p S * (a i * a j) else 0) := by
+          refine Finset.sum_congr rfl fun S _ => ?_
+          show bweight p S * (∑ i ∈ S, a i) ^ 2 = _
+          rw [sq, Finset.sum_mul_sum, Finset.mul_sum, sum_over_subset]
+          refine Finset.sum_congr rfl fun i _ => ?_
+          by_cases hi : i ∈ S
+          · rw [if_pos hi, Finset.mul_sum, sum_over_subset]
+            refine Finset.sum_congr rfl fun j _ => ?_
+            by_cases hj : j ∈ S
+            · simp [hi, hj, mul_assoc]
+            · simp [hj]
+          · rw [if_neg hi]
+            refine (Finset.sum_eq_zero fun j _ => ?_).symm
+            simp [hi]
+      _ = ∑ i : α, ∑ j : α, ∑ S : Finset α,
+            (if i ∈ S ∧ j ∈ S then bweight p S * (a i * a j) else 0) := by
+          rw [Finset.sum_comm]
+          exact Finset.sum_congr rfl fun i _ => Finset.sum_comm
+      _ = ∑ i : α, ∑ j : α, a i * a j * p ^ #({i, j} : Finset α) := by
+          refine Finset.sum_congr rfl fun i _ => Finset.sum_congr rfl fun j _ => ?_
+          rw [← Finset.sum_filter]
+          calc ∑ S ∈ (univ : Finset (Finset α)).filter (fun S => i ∈ S ∧ j ∈ S),
+                bweight p S * (a i * a j)
+              = (∑ S ∈ (univ : Finset (Finset α)).filter (fun S => i ∈ S ∧ j ∈ S),
+                  bweight p S) * (a i * a j) := (Finset.sum_mul ..).symm
+            _ = a i * a j * p ^ #({i, j} : Finset α) := by
+                rw [sum_bweight_mem_pair]; ring
+  have hdiag : ∀ i : α, #({i, i} : Finset α) = 1 := fun i => by simp
+  have hoff : ∀ i j : α, i ≠ j → #({i, j} : Finset α) = 2 := fun _ _ hij =>
+    Finset.card_pair hij
+  have hsplit : ∑ i : α, ∑ j : α, a i * a j * p ^ #({i, j} : Finset α)
+      = p * ∑ i : α, a i ^ 2 + p ^ 2 * ((∑ i, a i) ^ 2 - ∑ i, a i ^ 2) := by
+    have hrow : ∀ i : α, ∑ j : α, a i * a j * p ^ #({i, j} : Finset α)
+        = a i ^ 2 * p + p ^ 2 * (a i * (∑ j, a j) - a i ^ 2) := by
+      intro i
+      have h1 : ∀ j : α, a i * a j * p ^ #({i, j} : Finset α)
+          = p ^ 2 * (a i * a j) + (if j = i then a i ^ 2 * p - p ^ 2 * a i ^ 2 else 0) := by
+        intro j
+        by_cases hj : j = i
+        · subst hj
+          rw [if_pos rfl, hdiag j]
+          ring
+        · rw [if_neg hj, hoff i j (Ne.symm hj)]
+          ring
+      rw [Finset.sum_congr rfl fun j _ => h1 j, Finset.sum_add_distrib,
+        Finset.sum_ite_eq' univ i (fun _ => a i ^ 2 * p - p ^ 2 * a i ^ 2),
+        if_pos (mem_univ i), ← Finset.mul_sum, ← Finset.mul_sum]
+      ring
+    rw [Finset.sum_congr rfl fun i _ => hrow i, Finset.sum_add_distrib, ← Finset.sum_mul,
+      ← Finset.mul_sum, Finset.sum_sub_distrib, ← Finset.sum_mul]
+    ring
+  rw [wvar_eq_wmean_sq_sub _ _ hsum, hsq, hsplit, wmean_bweight_linear]
+  ring
+
+/-- **The Chapter 4 weight is the Chapter 7 weight at a constant probability.**
+
+`PMC.bweight` (used for `G(n, p)` and the second-moment results) is `PMC.pweight` at the
+constant function. Without this bridge the two halves of the library cannot be combined:
+FKG, Harris and Janson are all stated for `pweight`, while the variance computations are
+stated for `bweight`. -/
+theorem bweight_eq_pweight (p : ℝ) (X : Finset α) :
+    bweight p X = pweight (fun _ => p) X := by
+  rw [bweight, pweight, Finset.prod_const, Finset.prod_const,
+    card_sdiff_of_subset (subset_univ X), card_univ]
+
 /-- `pweight` as a single product over the ground set. -/
 lemma pweight_eq_prod (p : α → ℝ) (T : Finset α) :
     pweight p T = ∏ i : α, (if i ∈ T then p i else 1 - p i) := by
