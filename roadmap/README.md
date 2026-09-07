@@ -160,6 +160,12 @@ therefore holds a phase-1 node for a week. The default suits multi-month formali
 The holder was asked to release; the lease was **not** overridden, and
 `.choir/project.toml` was **not** edited, because it is policy.
 
+**When checking lease freshness, match on the `choir-lease` block, not on the word
+"heartbeat".** The orchestrator's own stale-claim comment on #2 contains that word, so a
+text match returns *its* timestamp and reads as though the worker is alive — which would
+leave a dead lease in place indefinitely. Filter by `contains("choir-lease")` and read the
+`action:` field, or just use `orchestrator.leases.decide_for_issue`.
+
 **The board has outrun the workers.** As of the last pass there are four unclaimed tasks
 (#27–#30) and no worker activity for over two hours, after ten tasks were claimed and
 merged in the preceding ninety minutes. Nothing is claimed because nothing is running, not
