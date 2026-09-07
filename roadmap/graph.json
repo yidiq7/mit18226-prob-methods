@@ -868,12 +868,12 @@
       "decl": "PMC.lovasz_local_lemma",
       "doc": "local-lemma.md#lll--stated-not-proved",
       "statement": "formalized",
-      "proof": "planned",
+      "proof": "formalized",
       "uses": [
         "noneOfDef"
       ],
       "proof_uses": [],
-      "note": "Asymmetric LLL. Two nested inductions; keep everything multiplicative since the informal proof divides by a quantity not yet known positive."
+      "note": "Asymmetric LLL, proved. Two inductions: lll_peel (inner, on the index set) and lll_key (outer, strong induction on cardinality). Kept multiplicative throughout -- no division by a probability not known to be positive."
     },
     "localLemmaGroup": {
       "kind": "group",

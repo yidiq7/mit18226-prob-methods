@@ -23,7 +23,7 @@ the event that none of `A j` for `j ∈ T` occurs. Writing it as a `Finset.inf` 
 evaluation: over `∅` it is the whole space, and peeling indices intersects complements as
 it should.
 
-### lll — stated, not proved
+### lll — **proved**
 `PMC.lovasz_local_lemma`, the asymmetric form: if `wprob w (A i) ≤ x i * ∏ j ∈ N i, (1 - x j)`
 and each `A i` is independent of every subfamily of complements drawn from outside
 `insert i (N i)`, then
@@ -38,22 +38,24 @@ independence does not suffice for the local lemma. Getting this wrong would make
 statement either false or trivial, so it is worth stating explicitly rather than through a
 convenience predicate.
 
-**Proof strategy.** Two nested inductions.
+**How the proof went.** Two inductions, as planned:
 
-1. By induction on `#T`: for `i ∉ T`,
-   `wprob w (A i ∩ noneOf A T) ≤ x i * wprob w (noneOf A T)`.
-   Split `T` into `T₁ = T ∩ N i` and `T₂ = T \ N i`. Bound the numerator using
-   independence across `T₂`, which gives `wprob w (A i) * wprob w (noneOf A T₂)`; bound the
-   denominator below by `(∏ j ∈ T₁, (1 - x j)) * wprob w (noneOf A T₂)` using the inductive
-   hypothesis, peeling `T₁` one element at a time. Since `T₁ ⊆ N i`, the product in
-   `hbound` dominates `∏ j ∈ T₁, (1 - x j)` and the ratio collapses to `x i`.
-2. By induction on `S`, from
-   `wprob w (noneOf A (insert i S)) ≥ (1 - x i) * wprob w (noneOf A S)`.
+* `lll_peel` (inner, induction on the index set `U`): given the main bound for all
+  *strictly smaller* index sets, `(∏ j ∈ U, (1 - x j)) * P(noneOf V) ≤ P(noneOf (U ∪ V))`.
+  The step uses `PMC.wprob_compl_inter` — `P(Bᶜ ∩ S) = P(S) - P(B ∩ S)` — to peel one index.
+* `lll_key` (outer, strong induction on `#T`): split `T` into `T ∩ N i` and `T \ N i`,
+  bound the numerator by independence across the second part, bound the denominator below
+  by `lll_peel` on the first, and close with
+  `Finset.prod_le_prod_of_subset_of_le_one` — more factors in `[0,1]` means a smaller
+  product, which is what lets `hbound`'s `∏ j ∈ N i` dominate `∏ j ∈ T ∩ N i`.
 
-**The one thing to get right in Lean**: the informal proof divides by
-`wprob w (noneOf A T)`, which is not yet known to be positive at the point of division.
-Keep everything multiplicative — that is why the statement and both inductive claims above
-are phrased as products rather than conditional probabilities.
+The final statement is then `lll_peel` at `V = ∅`, where `noneOf A ∅ = univ` has weight `1`.
+
+**The thing that mattered in Lean**: the informal proof divides by `wprob w (noneOf A T)`,
+which is not known to be positive at the point of division — the conclusion is precisely
+what establishes positivity. Everything is therefore phrased multiplicatively, and no
+division appears anywhere in the development. That was the single design decision the proof
+turned on.
 
 ## Symmetric form and applications
 

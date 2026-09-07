@@ -24,7 +24,7 @@ written when the phase opens, so the plan never claims more precision than it ha
 | 3 | 3 Alterations | [alterations.md](alterations.md) | `dominating` proved; §3.3 upstream, §3.2 deferred, §3.4/§3.5 need design |
 | 4 | 4 Second Moment | [second-moment.md](second-moment.md) | **§4.1 complete** (moments + variance), §4.2, §4.4 proved; §4.7 upstream; §4.3 deferred |
 | 5 | 5 Chernoff Bound | [chernoff.md](chernoff.md) | **Thm 5.0.1, Cor 5.0.3, §5.1 proved**; 5.0.5/5.0.7, §5.2/§5.3 open |
-| 6 | 6 Lovász Local Lemma | [local-lemma.md](local-lemma.md) | **framework + LLL stated**; proof published as a task |
+| 6 | 6 Lovász Local Lemma | [local-lemma.md](local-lemma.md) | **LLL proved** (asymmetric form); symmetric form + §6.2–§6.6 open |
 | 7 | 7 Correlation Inequalities | [correlation.md](correlation.md) | **complete in finite form**: §7.1 upstream, §7.2 proved |
 | 8 | 8 Janson Inequalities | [mathlib-survey.md](mathlib-survey.md) | absent from Mathlib; reachable in the finite framework |
 | 9 | 9 Concentration of Measure | [mathlib-survey.md](mathlib-survey.md) | **§9.1–§9.2 upstream** (Azuma–Hoeffding); §9.5 Talagrand absent |
@@ -280,3 +280,16 @@ that layer built first. Chapters 6, 8 and 11 are genuinely absent.
 **Chapter 6 (Lovász Local Lemma) is the best next target**: absent from Mathlib, fully
 expressible in the finite weighted framework already built here, and the most-cited result
 in the book.
+
+**2026-09-07 — The Lovász Local Lemma is proved** (`PMC.lovasz_local_lemma`, asymmetric
+form), and it is worth recording that this chapter looked unreachable for most of the
+session. It is absent from Mathlib, but the survey established that unlike Talagrand or
+containers it is fully expressible in the finite weighted framework — events as `Finset`s,
+`wprob` as probability, dependency as a neighbour map — and so it was work rather than
+missing theory.
+
+Two inductions: `lll_peel` on the index set, `lll_key` by strong induction on cardinality,
+with the second calling the first at strictly smaller sets. **The design decision the whole
+proof turned on: keep everything multiplicative.** The informal argument divides by
+`P(noneOf T)`, which is not known to be positive at that point — positivity is the
+conclusion. No division appears anywhere in the development.

@@ -88,6 +88,30 @@ lemma wprob_mono {w : Ω → ℝ} (hw : ∀ ω, 0 ≤ w ω) {A B : Finset Ω} (h
 
 lemma wprob_univ (w : Ω → ℝ) : wprob w (univ : Finset Ω) = ∑ ω, w ω := rfl
 
+/-- Splitting an event by another: `P(Bᶜ ∩ S) = P(S) - P(B ∩ S)`.
+
+This is the peeling step of the local lemma's induction, and the reason it can be kept
+free of division. -/
+lemma wprob_compl_inter [DecidableEq Ω] (w : Ω → ℝ) (B S : Finset Ω) :
+    wprob w (Bᶜ ∩ S) = wprob w S - wprob w (B ∩ S) := by
+  have hdisj : Disjoint (B ∩ S) (Bᶜ ∩ S) := by
+    rw [Finset.disjoint_left]
+    intro x hx hx'
+    rw [mem_inter] at hx hx'
+    exact (mem_compl.mp hx'.1) hx.1
+  have hunion : (B ∩ S) ∪ (Bᶜ ∩ S) = S := by
+    ext x
+    simp only [mem_union, mem_inter, mem_compl]
+    constructor
+    · rintro (⟨-, h⟩ | ⟨-, h⟩) <;> exact h
+    · intro h
+      by_cases hB : x ∈ B
+      · exact Or.inl ⟨hB, h⟩
+      · exact Or.inr ⟨hB, h⟩
+  have h : wprob w (B ∩ S) + wprob w (Bᶜ ∩ S) = wprob w S := by
+    rw [wprob, wprob, wprob, ← Finset.sum_union hdisj, hunion]
+  linarith
+
 /-- Complement: `P(Aᶜ) = P(univ) - P(A)`. -/
 lemma wprob_compl [DecidableEq Ω] (w : Ω → ℝ) (A : Finset Ω) :
     wprob w Aᶜ = (∑ ω, w ω) - wprob w A := by
