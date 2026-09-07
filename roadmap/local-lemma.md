@@ -81,10 +81,18 @@ now proved: `PMC.card_filter_inter_prod` (`Weighted.lean`) says properties depen
     #{S ⊆ V : P (S ∩ C) ∧ Q (S ∩ (V \ C))} = #{U ⊆ C : P U} * #{W ⊆ V \ C : Q W}
 
 by the bijection `S ↦ (S ∩ C, S ∩ (V \ C))`. Checked numerically as well as formally (both
-sides give `9` on `Fin 4` with `C = {0,1}`). Under the uniform measure this is exactly
-`P(A ∩ B) = P(A) P(B)` for events on disjoint coordinate sets — which is how the local
-lemma's `hindep` gets discharged, since two edges that share no vertex constrain disjoint
-blocks.
+sides give `9` on `Fin 4` with `C = {0,1}`).
+
+**On top of it, the discharge is packaged once.** `PMC.DeterminedBy C A` says membership in
+`A` depends only on `S ∩ C`, and `PMC.card_inter_mul_of_determinedBy` then gives
+
+    #(A ∩ A') * 2 ^ n = #A * #A'
+
+for `A` determined by `C` and `A'` determined by `univ \ C` — i.e. `P(A ∩ A') = P(A) P(A')`
+under the uniform measure. **So an application of the local lemma only has to exhibit the
+blocks and check they are disjoint**, rather than re-derive independence. The key step is
+that determinacy gives `S ∈ A ↔ S ∩ C ∈ A`, which turns the event into a filter of the
+shape `card_filter_inter_prod` expects.
 
 §6.2 (colouring hypergraphs) strengthens §1.3's `property_b_lower`, which is already
 proved, so it is the natural first application: a `k`-uniform hypergraph in which every edge

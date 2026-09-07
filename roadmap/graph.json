@@ -937,10 +937,36 @@
       "proof": "planned",
       "uses": [
         "lll_symmetric",
-        "block_independence"
+        "independence_bridge"
       ],
       "proof_uses": [],
       "note": "Section 6.2: a k-uniform hypergraph whose every edge meets at most d others is 2-colourable once e(d+1)2^(1-k) <= 1. Strengthens the proved property_b_lower."
+    },
+    "determinedBy": {
+      "kind": "definition",
+      "parent": "localLemmaGroup",
+      "file": "ProbMethods/Weighted.lean",
+      "decl": "PMC.DeterminedBy",
+      "doc": "local-lemma.md#applications",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": []
+    },
+    "independence_bridge": {
+      "kind": "theorem",
+      "parent": "localLemmaGroup",
+      "file": "ProbMethods/Weighted.lean",
+      "decl": "PMC.card_inter_mul_of_determinedBy",
+      "doc": "local-lemma.md#applications",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [
+        "determinedBy",
+        "block_independence"
+      ],
+      "proof_uses": [],
+      "note": "P(A inter A') = P(A) P(A') for events determined by disjoint coordinate blocks. The reusable discharge of the LLL independence hypothesis: an application exhibits the blocks and checks disjointness."
     }
   }
 }

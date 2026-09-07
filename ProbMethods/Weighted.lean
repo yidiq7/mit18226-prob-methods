@@ -48,6 +48,10 @@ easier to normalise at the point of use.
   every pattern in a family has `m` elements, the weighted expected number of patterns
   contained in a random subset is `#patterns * p ^ m`. Chapter 4's §4.1, §4.2 and §4.4 are
   all this lemma with different pattern families.
+* `PMC.DeterminedBy` and `PMC.card_inter_mul_of_determinedBy` — the **reusable discharge**
+  of the local lemma's independence hypothesis: two events determined by disjoint blocks of
+  coordinates satisfy `P(A ∩ A') = P(A) P(A')`, so an application only has to exhibit the
+  blocks and check they are disjoint.
 * `PMC.card_filter_inter_prod` — **block independence**: properties depending on disjoint
   blocks of coordinates factor, by the bijection `S ↦ (S ∩ C, S ∩ (V \ C))`. This is the
   counting form of independence that every application of the local lemma has to
@@ -694,6 +698,62 @@ theorem card_filter_inter_prod (V C : Finset α) (hC : C ⊆ V)
       Finset.disjoint_iff_inter_eq_empty.mp hdisj, Finset.union_empty,
       Finset.union_inter_distrib_right, Finset.inter_eq_left.mpr hq2,
       Finset.disjoint_iff_inter_eq_empty.mp hdisj2, Finset.empty_union]
+
+/-! ### Events determined by a block of coordinates -/
+
+/-- An event is *determined by* `C` when membership depends only on the intersection with
+`C`. -/
+def DeterminedBy (C : Finset α) (A : Finset (Finset α)) : Prop :=
+  ∀ S T : Finset α, S ∩ C = T ∩ C → (S ∈ A ↔ T ∈ A)
+
+lemma DeterminedBy.mem_iff {C : Finset α} {A : Finset (Finset α)} (hA : DeterminedBy C A)
+    (S : Finset α) : S ∈ A ↔ S ∩ C ∈ A := by
+  refine hA S (S ∩ C) ?_
+  rw [Finset.inter_assoc, Finset.inter_self]
+
+/-- The count of an event determined by `C`, in terms of its trace on `C`. -/
+lemma DeterminedBy.card_eq {C : Finset α} {A : Finset (Finset α)} (hA : DeterminedBy C A) :
+    #A = 2 ^ #((univ : Finset α) \ C) * #(C.powerset.filter fun U => U ∈ A) := by
+  classical
+  have hrw : A = (univ : Finset α).powerset.filter fun S => S ∩ C ∈ A := by
+    ext S
+    rw [mem_filter, mem_powerset]
+    exact ⟨fun h => ⟨subset_univ S, (hA.mem_iff S).mp h⟩,
+      fun h => (hA.mem_iff S).mpr h.2⟩
+  calc #A = #((univ : Finset α).powerset.filter fun S => S ∩ C ∈ A) := by rw [← hrw]
+    _ = 2 ^ #((univ : Finset α) \ C) * #(C.powerset.filter fun U => U ∈ A) :=
+        card_filter_inter (univ : Finset α) C (subset_univ C) (fun U => U ∈ A)
+
+/-- **Events determined by disjoint blocks are independent** (in counting form).
+
+`#(A ∩ A') * 2 ^ n = #A * #A'`, i.e. `P(A ∩ A') = P(A) P(A')` under the uniform measure.
+This is the reusable discharge of the local lemma's independence hypothesis: an application
+only has to exhibit the blocks and check they are disjoint. -/
+theorem card_inter_mul_of_determinedBy {C : Finset α} {A A' : Finset (Finset α)}
+    (hA : DeterminedBy C A) (hA' : DeterminedBy ((univ : Finset α) \ C) A') :
+    #(A ∩ A') * 2 ^ Fintype.card α = #A * #A' := by
+  classical
+  have hCle : #C ≤ Fintype.card α := by
+    rw [← card_univ]; exact card_le_univ C
+  have hsdiff : #((univ : Finset α) \ C) = Fintype.card α - #C := by
+    rw [card_sdiff_of_subset (subset_univ C), card_univ]
+  have hboth : A ∩ A'
+      = (univ : Finset α).powerset.filter
+        fun S => (S ∩ C ∈ A) ∧ (S ∩ ((univ : Finset α) \ C) ∈ A') := by
+    ext S
+    rw [mem_inter, mem_filter, mem_powerset]
+    exact ⟨fun h => ⟨subset_univ S, (hA.mem_iff S).mp h.1, (hA'.mem_iff S).mp h.2⟩,
+      fun h => ⟨(hA.mem_iff S).mpr h.2.1, (hA'.mem_iff S).mpr h.2.2⟩⟩
+  rw [hboth, card_filter_inter_prod (univ : Finset α) C (subset_univ C),
+    hA.card_eq, hA'.card_eq]
+  have hswap : (univ : Finset α) \ ((univ : Finset α) \ C) = C := by
+    ext a
+    simp only [mem_sdiff, mem_univ, true_and, not_not, and_true]
+  rw [hswap, hsdiff]
+  have hpow : (2 : ℕ) ^ (Fintype.card α - #C) * 2 ^ #C = 2 ^ Fintype.card α := by
+    rw [← pow_add, Nat.sub_add_cancel hCle]
+  rw [← hpow]
+  ring
 
 end Bernoulli
 
