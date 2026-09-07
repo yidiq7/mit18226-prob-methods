@@ -91,6 +91,146 @@ theorem card_monoEvent (edge : ι → Finset V) (i : ι) {k : ℕ} (hk : 1 ≤ k
   rw [htrace, card_insert_of_notMem (by simpa using hne), card_singleton, hsdiff]
   ring
 
+/-! ### The uniform weight on colourings -/
+
+/-- The uniform weight on the `2 ^ n` colourings of `V`. -/
+noncomputable def unifColoring (V : Type*) [Fintype V] : Finset V → ℝ :=
+  fun _ => 1 / 2 ^ Fintype.card V
+
+lemma unifColoring_apply (S : Finset V) :
+    unifColoring V S = 1 / 2 ^ Fintype.card V := rfl
+
+lemma unifColoring_nonneg (S : Finset V) : 0 ≤ unifColoring V S := by
+  rw [unifColoring_apply]; positivity
+
+lemma sum_unifColoring : ∑ S : Finset V, unifColoring V S = 1 := by
+  rw [Finset.sum_congr rfl fun S _ => unifColoring_apply S, Finset.sum_const, nsmul_eq_mul,
+    card_univ, Fintype.card_finset]
+  push_cast
+  rw [mul_one_div, div_self (by positivity)]
+
+/-- Under the uniform weight, probability is counting. -/
+lemma wprob_unifColoring (A : Finset (Finset V)) :
+    wprob (unifColoring V) A = #A / 2 ^ Fintype.card V := by
+  rw [wprob, Finset.sum_congr rfl fun S _ => unifColoring_apply S, Finset.sum_const,
+    nsmul_eq_mul, mul_one_div]
+
+/-- **Independence for the uniform colouring**, in the exact shape the local lemma wants:
+events determined by disjoint blocks of vertices have multiplicative probability. -/
+lemma wprob_unifColoring_mul_of_determinedBy {C : Finset V} {A A' : Finset (Finset V)}
+    (hA : DeterminedBy C A) (hA' : DeterminedBy ((univ : Finset V) \ C) A') :
+    wprob (unifColoring V) (A ∩ A')
+      = wprob (unifColoring V) A * wprob (unifColoring V) A' := by
+  have h : (#(A ∩ A') : ℝ) * 2 ^ Fintype.card V = #A * #A' := by
+    exact_mod_cast card_inter_mul_of_determinedBy hA hA'
+  have hpos : (0 : ℝ) < 2 ^ Fintype.card V := by positivity
+  rw [wprob_unifColoring, wprob_unifColoring, wprob_unifColoring, div_mul_div_comm,
+    div_eq_div_iff (by positivity) (by positivity)]
+  calc (#(A ∩ A') : ℝ) * (2 ^ Fintype.card V * 2 ^ Fintype.card V)
+      = (#(A ∩ A') * 2 ^ Fintype.card V) * 2 ^ Fintype.card V := by ring
+    _ = #A * #A' * 2 ^ Fintype.card V := by rw [h]
+
+/-! ### The dependency graph: sharing a vertex -/
+
+/-- Two edges are dependent exactly when they share a vertex. -/
+def sharesVertex (edge : ι → Finset V) (i : ι) : Finset ι :=
+  univ.filter fun j => j ≠ i ∧ (edge i ∩ edge j).Nonempty
+
+@[simp] lemma mem_sharesVertex {edge : ι → Finset V} {i j : ι} :
+    j ∈ sharesVertex edge i ↔ j ≠ i ∧ (edge i ∩ edge j).Nonempty := by
+  simp [sharesVertex]
+
+/-- If `A j` is determined by the vertices of `edge j` for every `j`, then "none of the
+edges in `T` is monochromatic" is determined by any block containing all of them. -/
+theorem determinedBy_noneOf {A : ι → Finset (Finset V)} {C : ι → Finset V}
+    (hA : ∀ j, DeterminedBy (C j) (A j)) {D : Finset V} {T : Finset ι}
+    (hT : ∀ j ∈ T, C j ⊆ D) : DeterminedBy D (noneOf A T) := by
+  classical
+  revert hT
+  induction T using Finset.induction_on with
+  | empty => intro _; simpa using determinedBy_univ D
+  | @insert i T _ ih =>
+      intro hT
+      rw [noneOf_insert]
+      exact ((hA i).mono (hT i (mem_insert_self i T))).compl.inter
+        (ih fun j hj => hT j (mem_insert_of_mem hj))
+
+/-- **§6.2 — 2-colouring a hypergraph by the local lemma** (Zhao, Theorem 6.2.1).
+
+If every edge of a `k`-uniform hypergraph meets at most `d` others, and
+`e (d+1) 2^(1-k) ≤ 1`, then the hypergraph is 2-colourable: some set `S` of vertices both
+fails to contain and fails to miss every edge.
+
+This strengthens §1.3's `PMC.twoColorable_of_card_lt_two_pow`, which bounds the *total*
+number of edges: here the bound is local, on how many edges any one edge meets, so it
+applies to arbitrarily large hypergraphs.
+
+The three inputs are `PMC.lovasz_local_lemma_symmetric`, `PMC.card_monoEvent` for the
+probability `2 ^ (1-k)`, and `PMC.wprob_unifColoring_mul_of_determinedBy` for independence
+— the last via `PMC.determinedBy_monoEvent`, since edges sharing no vertex give events on
+disjoint blocks of coordinates. -/
+theorem exists_two_coloring_of_local_lemma (edge : ι → Finset V) {k d : ℕ}
+    (hk : 1 ≤ k) (hd : 0 < d) (hcard : ∀ i, #(edge i) = k)
+    (hdeg : ∀ i, #(sharesVertex edge i) ≤ d)
+    (hep : Real.exp 1 * ((d : ℝ) + 1) * (2 / 2 ^ k) ≤ 1) :
+    ∃ S : Finset V, ∀ i, ¬ edge i ⊆ S ∧ (edge i ∩ S).Nonempty := by
+  classical
+  by_cases hι : Nonempty ι
+  · obtain ⟨i0⟩ := hι
+    have hkn : k ≤ Fintype.card V := by
+      rw [← hcard i0, ← card_univ]
+      exact card_le_card (subset_univ _)
+    -- each event has probability exactly `2 / 2 ^ k = 2 ^ (1-k)`
+    have hprob : ∀ i, wprob (unifColoring V) (monoEvent edge i) ≤ 2 / 2 ^ k := by
+      intro i
+      rw [wprob_unifColoring, card_monoEvent edge i hk (hcard i)]
+      refine le_of_eq ?_
+      push_cast
+      rw [div_eq_div_iff (by positivity) (by positivity)]
+      calc (2 : ℝ) * 2 ^ (Fintype.card V - k) * 2 ^ k
+          = 2 * (2 ^ (Fintype.card V - k) * 2 ^ k) := by ring
+        _ = 2 * 2 ^ Fintype.card V := by rw [← pow_add, Nat.sub_add_cancel hkn]
+    -- edges sharing no vertex are independent
+    have hindep : ∀ (i : ι) (T : Finset ι), Disjoint T (insert i (sharesVertex edge i)) →
+        wprob (unifColoring V) (monoEvent edge i ∩ noneOf (monoEvent edge) T)
+          = wprob (unifColoring V) (monoEvent edge i)
+            * wprob (unifColoring V) (noneOf (monoEvent edge) T) := by
+      intro i T hT
+      refine wprob_unifColoring_mul_of_determinedBy (determinedBy_monoEvent edge i) ?_
+      refine determinedBy_noneOf (fun j => determinedBy_monoEvent edge j) ?_
+      intro j hj x hx
+      have hjnot : j ∉ insert i (sharesVertex edge i) := Finset.disjoint_left.mp hT hj
+      have hji : j ≠ i := by
+        intro h
+        exact hjnot (by rw [h]; exact mem_insert_self i _)
+      have hempty : edge i ∩ edge j = ∅ := by
+        by_contra h
+        exact hjnot (mem_insert_of_mem
+          (mem_sharesVertex.mpr ⟨hji, Finset.nonempty_iff_ne_empty.mpr h⟩))
+      rw [mem_sdiff]
+      refine ⟨mem_univ x, fun hxi => ?_⟩
+      have hmem : x ∈ edge i ∩ edge j := mem_inter.mpr ⟨hxi, hx⟩
+      rw [hempty] at hmem
+      exact notMem_empty x hmem
+    have hpos := lovasz_local_lemma_symmetric (unifColoring V) unifColoring_nonneg
+      sum_unifColoring (monoEvent edge) (sharesVertex edge) hd (by positivity)
+      (fun i => by simp) hdeg hindep hprob
+      (by calc Real.exp 1 * (2 / 2 ^ k) * ((d : ℝ) + 1)
+              = Real.exp 1 * ((d : ℝ) + 1) * (2 / 2 ^ k) := by ring
+            _ ≤ 1 := hep)
+    -- a positive-probability event is nonempty, and its members are the good colourings
+    have hne : (noneOf (monoEvent edge) (univ : Finset ι)).Nonempty := by
+      rcases Finset.eq_empty_or_nonempty (noneOf (monoEvent edge) (univ : Finset ι)) with
+        h | h
+      · rw [h, wprob_empty] at hpos; linarith
+      · exact h
+    obtain ⟨S, hS⟩ := hne
+    refine ⟨S, fun i => ?_⟩
+    have hSi : S ∉ monoEvent edge i := mem_noneOf.mp hS i (mem_univ i)
+    simp only [monoEvent, mem_filter, mem_univ, true_and, not_or] at hSi
+    exact ⟨hSi.1, Finset.nonempty_iff_ne_empty.mpr hSi.2⟩
+  · exact ⟨∅, fun i => absurd ⟨i⟩ hι⟩
+
 end Coloring
 
 end PMC

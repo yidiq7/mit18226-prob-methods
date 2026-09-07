@@ -110,10 +110,30 @@ is `Finset V` under the uniform weight, and `PMC.monoEvent edge i` is the event 
   `2` times the free coordinates. Checked numerically at `(n,k) = (4,2)` and `(5,3)`, both
   giving `8`.
 
-What remains for the full statement (a `k`-uniform hypergraph in which every edge meets at
-most `d` others is 2-colourable once `e (d+1) 2^(1-k) ≤ 1`) is arithmetic assembly: fix the
-uniform weight `1/2^n`, set `p = 2^(1-k)`, take the dependency graph to be "shares a
-vertex", and feed `PMC.lovasz_local_lemma_symmetric`.
+### §6.2 — done
+
+`PMC.exists_two_coloring_of_local_lemma`: a `k`-uniform hypergraph in which every edge
+meets at most `d` others is 2-colourable once `e (d+1) 2^(1-k) ≤ 1`. This strengthens
+§1.3's `PMC.twoColorable_of_card_lt_two_pow`, which bounds the *total* number of edges —
+here the bound is local, so it applies to arbitrarily large hypergraphs.
+
+The assembly took four supporting pieces, all reusable for §6.3–§6.4:
+
+* `PMC.unifColoring` and `PMC.wprob_unifColoring` — the uniform weight `1/2^n` on
+  colourings, under which probability is literally counting.
+* `PMC.wprob_unifColoring_mul_of_determinedBy` — independence in the exact shape the local
+  lemma's `hindep` wants, obtained from `PMC.card_inter_mul_of_determinedBy` by dividing
+  through by `(2^n)^2`.
+* `PMC.determinedBy_noneOf` — "none of the edges in `T` is monochromatic" is determined by
+  any block containing all of them (Finset induction through `noneOf_insert`).
+* `PMC.mem_noneOf` — membership in `noneOf`, which turns the positive probability the local
+  lemma returns into an actual colouring.
+
+**Non-vacuity was checked**, not assumed: instantiating at two 4-edges sharing a vertex on
+7 points (`k = 4`, `d = 1`, `e·2·(2/16) ≈ 0.68 ≤ 1`) discharges every hypothesis, so the
+theorem is not true-by-empty-hypotheses. Worth doing for any statement whose hypotheses are
+a numeric inequality — a mis-stated constant turns the whole result into a tautology, and
+nothing in the gate would catch it.
 
 The remaining sections (§6.3 independent transversals, §6.4 directed cycles, §6.5 lopsided
 local lemma, §6.6 algorithmic local lemma) each need their own setup; §6.5 in particular

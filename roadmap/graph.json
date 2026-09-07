@@ -933,15 +933,19 @@
       "kind": "theorem",
       "parent": "localLemmaGroup",
       "doc": "local-lemma.md#applications",
-      "statement": "planned",
-      "proof": "planned",
+      "statement": "formalized",
+      "proof": "formalized",
       "uses": [
         "lll_symmetric",
-        "independence_bridge",
-        "monoEvent_card"
+        "monoEvent_card",
+        "determinedBy_noneOf",
+        "unif_independence",
+        "mem_noneOf"
       ],
       "proof_uses": [],
-      "note": "Section 6.2. Both substantive inputs are now proved (determinedBy_monoEvent, card_monoEvent); what remains is arithmetic assembly: uniform weights, p = 2^(1-k), and the dependency graph 'shares a vertex'."
+      "note": "Section 6.2, DONE. A k-uniform hypergraph in which every edge meets at most d others is 2-colourable once e(d+1)2^(1-k) <= 1. Strengthens 1.3's twoColorable_of_card_lt_two_pow: the bound is local, so it applies to arbitrarily large hypergraphs. Non-vacuity checked by instantiating at two 4-edges sharing a vertex on 7 points with d = 1.",
+      "file": "ProbMethods/Chapter06/Coloring.lean",
+      "decl": "PMC.exists_two_coloring_of_local_lemma"
     },
     "determinedBy": {
       "kind": "definition",
@@ -1008,6 +1012,53 @@
       ],
       "proof_uses": [],
       "note": "A k-edge is monochromatic under exactly 2 * 2^(n-k) colourings, i.e. probability 2^(1-k). Proved through DeterminedBy.card_eq: the monochromatic traces on the edge are exactly the empty set and the edge. Checked numerically at (n,k) = (4,2) and (5,3), both giving 8."
+    },
+    "mem_noneOf": {
+      "kind": "lemma",
+      "parent": "localLemmaGroup",
+      "file": "ProbMethods/Chapter06/LocalLemma.lean",
+      "decl": "PMC.mem_noneOf",
+      "doc": "local-lemma.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": []
+    },
+    "unifColoring": {
+      "kind": "definition",
+      "parent": "localLemmaGroup",
+      "file": "ProbMethods/Chapter06/Coloring.lean",
+      "decl": "PMC.unifColoring",
+      "doc": "local-lemma.md#applications",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "The uniform weight on the 2^n colourings; probability is counting."
+    },
+    "unif_independence": {
+      "kind": "theorem",
+      "parent": "localLemmaGroup",
+      "file": "ProbMethods/Chapter06/Coloring.lean",
+      "decl": "PMC.wprob_unifColoring_mul_of_determinedBy",
+      "doc": "local-lemma.md#applications",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "Independence for the uniform colouring in the exact shape the local lemma wants: events determined by disjoint blocks of vertices multiply."
+    },
+    "determinedBy_noneOf": {
+      "kind": "theorem",
+      "parent": "localLemmaGroup",
+      "file": "ProbMethods/Chapter06/Coloring.lean",
+      "decl": "PMC.determinedBy_noneOf",
+      "doc": "local-lemma.md#applications",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "'None of the edges in T is monochromatic' is determined by any block containing all of them. Finset induction on T through noneOf_insert."
     }
   }
 }

@@ -36,6 +36,13 @@ lemma noneOf_insert (A : ι → Finset Ω) (i : ι) (T : Finset ι) :
 lemma noneOf_subset (A : ι → Finset Ω) {T U : Finset ι} (h : T ⊆ U) :
     noneOf A U ⊆ noneOf A T := Finset.inf_mono h
 
+lemma mem_noneOf {A : ι → Finset Ω} {T : Finset ι} {ω : Ω} :
+    ω ∈ noneOf A T ↔ ∀ j ∈ T, ω ∉ A j := by
+  classical
+  refine Finset.induction_on T (by simp) ?_
+  intro i T _ ih
+  rw [noneOf_insert, mem_inter, mem_compl, ih, Finset.forall_mem_insert]
+
 /-- The peeling step: given the main bound for all *strictly smaller* index sets, the
 probability that none of `U ∪ V` occurs is at least `∏ j ∈ U, (1 - x j)` times the
 probability that none of `V` occurs.
