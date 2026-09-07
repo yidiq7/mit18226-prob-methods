@@ -674,13 +674,16 @@
       "kind": "theorem",
       "parent": "chernoffGroup",
       "doc": "chernoff.md#still-to-state",
-      "statement": "planned",
-      "proof": "planned",
+      "statement": "formalized",
+      "proof": "formalized",
       "uses": [
-        "chernoff"
+        "chernoff_two_sided",
+        "restriction"
       ],
       "proof_uses": [],
-      "note": "Section 5.1; Chernoff per edge plus a union bound, both now available."
+      "note": "Theorem 5.1.1 with the explicit constant 2 rather than O(.). Requires 3 <= #F, which the notes gloss.",
+      "file": "ProbMethods/Chapter05/Discrepancy.lean",
+      "decl": "PMC.exists_low_discrepancy"
     },
     "restriction": {
       "kind": "theorem",

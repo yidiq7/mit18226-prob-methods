@@ -54,20 +54,34 @@ summands. 5.0.5 needs the convexity step `exp(tx) ≤ ((1-x)/2) exp(-t) + ((1+x)
 for `x ∈ [-1,1]`; the rest of the argument is unchanged. 5.0.7's asymmetric bounds need
 `(1+ε) log(1+ε) - ε`, which is the same MGF method with a different optimisation.
 
-**§5.1 Discrepancy (Theorem 5.1.1).** All ingredients now exist. The lifting step is
-`PMC.card_filter_inter` (`Weighted.lean`): counting subsets of `V` by a property of
-`S ∩ A` factors as `2 ^ #(V \ A)` times the count over `A.powerset`, proved by the
-bijection `S ↦ S \ A` on each fibre of `S ↦ S ∩ A`. The recipe: apply the two-sided bound
-to each edge `A ∈ F` with
-`λ = 2 sqrt (log m)`, giving at most `2 ^ #A * exp (-2 log m) = 2 ^ #A / m ^ 2` bad
-colourings *per edge* on that edge's coordinates, lift to the whole ground set by the
-bijection `S ↦ (S ∩ A, S \ A)` (a factor `2 ^ (n - #A)`), and union bound over the `m`
-edges to get `2 ^ n * 2 / m < 2 ^ n` bad colourings when `m ≥ 3`. So some colouring works,
-with the explicit bound `2 sqrt (n log m)` rather than `O(sqrt (n log m))`.
+## Discrepancy (§5.1, Theorem 5.1.1) — proved
 
-**`m ≥ 3` is needed**, and the notes gloss it: the union bound gives failure `≤ 2/m`, which
-must be `< 1`. The notes write "with probability greater than `1 - 2/m ≥ 0`", but `≥ 0` is
-not enough to conclude a colouring exists — it needs `> 0`, i.e. `m > 2`.
+`PMC.exists_low_discrepancy`: for any family `F` of `m ≥ 3` subsets of an `n`-element ground
+set there is a `±1` colouring under which every edge's sum is at most `2 √(n log m)` in
+absolute value.
+
+**Stated with the constant `2`, not `O(√(n log m))`** — that is what the notes' own proof
+yields, and this project does not publish asymptotic statements.
+
+The assembly, all three ingredients now in place:
+
+* the two-sided Chernoff bound on each edge at `λ = 2 √(log m)`, for which
+  `exp(-λ²/2) = m⁻²` exactly;
+* `PMC.card_filter_inter` to lift from that edge's coordinates to the whole colouring
+  space, contributing the factor `2 ^ #(V \ A)`;
+* `Finset.card_biUnion_le` for the union bound over the `m` edges, giving at most
+  `2 · 2ⁿ / m < 2ⁿ` bad colourings, so some colouring survives.
+
+Two details worth recording. The per-edge threshold `λ √#A` is *dominated* by the uniform
+threshold `2 √(n log m)` since `#A ≤ n`, so the bound applies to the larger threshold
+without loss. And the empty edge needs separate treatment: its sum is `0`, which is below
+the threshold, so no colouring is bad for it — the Chernoff bound itself requires `0 < #A`.
+
+**`3 ≤ #F` is needed, and the notes gloss it.** The union bound gives failure at most
+`2/m`; the notes conclude "with probability greater than `1 - 2/m ≥ 0`", but `≥ 0` does not
+produce a colouring — it needs `> 0`, i.e. `m > 2`.
+
+## Still to state
 
 **§5.2 nearly equiangular vectors, §5.3 Hajós counterexample** need linear algebra over
 `ℝ^n` and a graph construction respectively. Theorem 5.1.3 (Spencer's "six standard
