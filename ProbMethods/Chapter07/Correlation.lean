@@ -128,6 +128,54 @@ theorem pweight_correlate_anti (p : α → ℝ) (hp0 : ∀ i, 0 ≤ p i) (hp1 : 
   rw [hmA, hmB, hmAB] at h
   exact h
 
+/-- **Oppositely-monotone events are negatively correlated** — Harris' inequality in its
+mixed form.
+
+An upward-closed `A` and a downward-closed `B` satisfy `P(A ∧ B) ≤ P(A) P(B)`. Obtained from
+the increasing case applied to `A` and the complement of `B`, which is upward-closed:
+`P(A) P(¬B) ≤ P(A ∧ ¬B)` rearranges to exactly this.
+
+This is the form Janson's upper bound needs — there the increasing event is "this bad set
+appears" and the decreasing one is "none of the earlier bad sets appears". -/
+theorem pweight_anticorrelate (p : α → ℝ) (hp0 : ∀ i, 0 ≤ p i) (hp1 : ∀ i, p i ≤ 1)
+    (A B : Finset α → Prop) [DecidablePred A] [DecidablePred B]
+    (hA : ∀ S T : Finset α, S ⊆ T → A S → A T)
+    (hB : ∀ S T : Finset α, S ⊆ T → B T → B S) :
+    (∑ S ∈ (univ : Finset (Finset α)).filter (fun S => A S ∧ B S), pweight p S)
+      ≤ (∑ S ∈ (univ : Finset (Finset α)).filter A, pweight p S)
+        * ∑ S ∈ (univ : Finset (Finset α)).filter B, pweight p S := by
+  classical
+  have htot : ∑ S : Finset α, pweight p S = 1 := by
+    have h := sum_pweight (α := α) p
+    rwa [Finset.powerset_univ] at h
+  -- the complement of a downward-closed event is upward-closed
+  have hnB : ∀ S T : Finset α, S ⊆ T → ¬ B S → ¬ B T := fun S T hST hS hT => hS (hB S T hST hT)
+  have hinc := pweight_correlate p hp0 hp1 A (fun S => ¬ B S) hA hnB
+  -- split `A` along `B`
+  have hsplitA : (∑ S ∈ (univ : Finset (Finset α)).filter (fun S => A S ∧ B S), pweight p S)
+      + ∑ S ∈ (univ : Finset (Finset α)).filter (fun S => A S ∧ ¬ B S), pweight p S
+      = ∑ S ∈ (univ : Finset (Finset α)).filter A, pweight p S := by
+    rw [← Finset.sum_filter_add_sum_filter_not
+      ((univ : Finset (Finset α)).filter A) B (pweight p)]
+    congr 1
+    · exact Finset.sum_congr (by ext S; simp [and_comm]) fun _ _ => rfl
+    · exact Finset.sum_congr (by ext S; simp) fun _ _ => rfl
+  -- and the whole space along `B`
+  have hsplitB : (∑ S ∈ (univ : Finset (Finset α)).filter B, pweight p S)
+      + ∑ S ∈ (univ : Finset (Finset α)).filter (fun S => ¬ B S), pweight p S = 1 := by
+    rw [← htot]
+    exact Finset.sum_filter_add_sum_filter_not (univ : Finset (Finset α)) B (pweight p)
+  have hc : (∑ S ∈ (univ : Finset (Finset α)).filter (fun S => ¬ B S), pweight p S)
+      = 1 - ∑ S ∈ (univ : Finset (Finset α)).filter B, pweight p S := by linarith
+  rw [hc] at hinc
+  have hexp : (∑ S ∈ (univ : Finset (Finset α)).filter A, pweight p S)
+        * (1 - ∑ S ∈ (univ : Finset (Finset α)).filter B, pweight p S)
+      = (∑ S ∈ (univ : Finset (Finset α)).filter A, pweight p S)
+        - (∑ S ∈ (univ : Finset (Finset α)).filter A, pweight p S)
+          * ∑ S ∈ (univ : Finset (Finset α)).filter B, pweight p S := by ring
+  rw [hexp] at hinc
+  linarith [hinc, hsplitA]
+
 /-- **Harris for a whole family**: finitely many downward-closed events are positively
 correlated, so the probability that all of them hold is at least the product of their
 probabilities. Induction on the index set through `PMC.pweight_correlate_anti`. -/

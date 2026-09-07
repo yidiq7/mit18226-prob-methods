@@ -662,14 +662,15 @@
       "kind": "theorem",
       "parent": "chernoffGroup",
       "doc": "chernoff.md#still-to-state",
-      "statement": "planned",
-      "proof": "planned",
+      "statement": "formalized",
+      "proof": "formalized",
       "uses": [
-        "chernoff",
-        "pweights"
+        "pweight_mgf"
       ],
       "proof_uses": [],
-      "note": "Theorem 5.0.7. The weight family (pweight) now exists; what remains is the MGF for varying p and the (1+eps)log(1+eps)-eps optimisation."
+      "note": "Theorem 5.0.7, DONE. Upper tail for Bernoulli coordinates with DIFFERING probabilities: with mu = sum p i, the weight of the subsets of size at least (1+eps) mu is at most exp(-mu((1+eps) log(1+eps) - eps)). Stated with the exact exponent, not an O() estimate -- t = log(1+eps) is the true minimiser of the MGF bound, so no slack. Checked numerically at seven parameter settings including the degenerate p = 0 case, where both sides equal 1 exactly.",
+      "file": "ProbMethods/Chapter05/ChernoffBernoulli.lean",
+      "decl": "PMC.sum_pweight_upper_tail"
     },
     "discrepancy": {
       "kind": "theorem",
@@ -1145,7 +1146,7 @@
         "janson_lower"
       ],
       "proof_uses": [],
-      "note": "Theorem 8.1.1, UPPER BOUND exp(-mu + Delta/2). Not a correlation inequality: conditions on a prefix of the family. Needs a conditional-probability layer in the finite framework plus 1 - t <= exp(-t) (Real.add_one_le_exp). The natural next Chapter 8 task."
+      "note": "Theorem 8.1.1, UPPER BOUND exp(-mu + Delta/2). Two of the three missing pieces now exist: pweight_anticorrelate (mixed Harris) and the observation that for a pair of bad sets sharing no element the events are independent. What remains is (i) block independence for pweight -- the non-uniform analogue of card_inter_mul_of_determinedBy, needed because the non-neighbours of i live on a disjoint coordinate block -- and (ii) a conditional-probability layer with the telescoping chain rule over a prefix ordering, handling the degenerate case where some prefix has probability zero (then both sides are trivially fine)."
     },
     "entropyGroup": {
       "kind": "group",
@@ -1653,6 +1654,30 @@
       "uses": [],
       "proof_uses": [],
       "note": "bweight (1/2) is the uniform weight 2^(-n) on subsets, so probability is counting."
+    },
+    "pweight_mgf": {
+      "kind": "theorem",
+      "parent": "chernoffGroup",
+      "file": "ProbMethods/Chapter05/ChernoffBernoulli.lean",
+      "decl": "PMC.sum_pweight_mul_exp",
+      "doc": "chernoff.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "The moment generating function for differing probabilities: Finset.prod_add with factors p i * e^t and 1 - p i. Nothing here needs the p i to agree, which is exactly why pweight was worth defining."
+    },
+    "harris_mixed": {
+      "kind": "theorem",
+      "parent": null,
+      "file": "ProbMethods/Chapter07/Correlation.lean",
+      "decl": "PMC.pweight_anticorrelate",
+      "doc": "correlation.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "Harris' inequality in its MIXED form: an upward-closed A and downward-closed B satisfy P(A and B) <= P(A) P(B). From the increasing case applied to A and the complement of B. This is the form Janson's UPPER bound needs -- there the increasing event is 'this bad set appears' and the decreasing one is 'none of the earlier bad sets appears'."
     }
   }
 }

@@ -17,6 +17,7 @@ import ProbMethods.Chapter04.Variance
 import ProbMethods.Chapter04.DistinctSums
 import ProbMethods.Chapter05.Chernoff
 import ProbMethods.Chapter05.Discrepancy
+import ProbMethods.Chapter05.ChernoffBernoulli
 import ProbMethods.Chapter06.LocalLemma
 import ProbMethods.Chapter06.Coloring
 import ProbMethods.Chapter07.Correlation
