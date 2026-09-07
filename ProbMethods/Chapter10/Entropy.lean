@@ -1,5 +1,6 @@
 import ProbMethods.Weighted
 import Mathlib.Analysis.SpecialFunctions.Log.NegMulLog
+import Mathlib.Algebra.BigOperators.Field
 
 /-!
 # §10.1 — Entropy of a finite random variable
@@ -128,6 +129,18 @@ lemma sum_wdist_pair_left (w : Ω → ℝ) (X : Ω → β) (Y : Ω → γ) (c : 
       ext ω; simp [Prod.ext_iff, and_comm, and_assoc]]]
   exact Finset.sum_fiberwise _ X w
 
+lemma wdist_pair_le_left {w : Ω → ℝ} (hw : ∀ ω, 0 ≤ w ω) (X : Ω → β) (Y : Ω → γ)
+    (b : β) (c : γ) : wdist w (fun ω => (X ω, Y ω)) (b, c) ≤ wdist w X b :=
+  wprob_mono hw fun ω hω => by
+    simp only [mem_filter, mem_univ, true_and] at hω ⊢
+    exact congrArg Prod.fst hω
+
+lemma wdist_pair_le_right {w : Ω → ℝ} (hw : ∀ ω, 0 ≤ w ω) (X : Ω → β) (Y : Ω → γ)
+    (b : β) (c : γ) : wdist w (fun ω => (X ω, Y ω)) (b, c) ≤ wdist w Y c :=
+  wprob_mono hw fun ω hω => by
+    simp only [mem_filter, mem_univ, true_and] at hω ⊢
+    exact congrArg Prod.snd hω
+
 /-- **Entropy is subadditive**: `H(X, Y) ≤ H(X) + H(Y)` (Zhao, §10.1).
 
 Gibbs' inequality against the product of the marginals. Absolute continuity is automatic
@@ -138,15 +151,8 @@ theorem wentropy_pair_le {w : Ω → ℝ} (hw : ∀ ω, 0 ≤ w ω) (hsum : ∑ 
     wentropy w (fun ω => (X ω, Y ω)) ≤ wentropy w X + wentropy w Y := by
   set P : β × γ → ℝ := wdist w fun ω => (X ω, Y ω) with hPdef
   set Q : β × γ → ℝ := fun q => wdist w X q.1 * wdist w Y q.2 with hQdef
-  have hPle : ∀ q : β × γ, P q ≤ wdist w X q.1 ∧ P q ≤ wdist w Y q.2 := by
-    intro q
-    constructor
-    · exact wprob_mono hw (fun ω hω => by
-        simp only [mem_filter, mem_univ, true_and] at hω ⊢
-        exact congrArg Prod.fst hω)
-    · exact wprob_mono hw (fun ω hω => by
-        simp only [mem_filter, mem_univ, true_and] at hω ⊢
-        exact congrArg Prod.snd hω)
+  have hPle : ∀ q : β × γ, P q ≤ wdist w X q.1 ∧ P q ≤ wdist w Y q.2 := fun q =>
+    ⟨wdist_pair_le_left hw X Y q.1 q.2, wdist_pair_le_right hw X Y q.1 q.2⟩
   have hP0 : ∀ q, 0 ≤ P q := fun q => wdist_nonneg hw _ q
   have hac : ∀ q, P q ≠ 0 → Q q ≠ 0 := by
     intro q hq
@@ -195,6 +201,67 @@ theorem wentropy_pair_le {w : Ω → ℝ} (hw : ∀ ω, 0 ≤ w ω) (hsum : ∑ 
     ring
   have hjoint : ∑ q : β × γ, Real.negMulLog (P q) = wentropy w (fun ω => (X ω, Y ω)) := rfl
   rw [hXsum, hYsum, hjoint] at hgibbs
+  linarith
+
+/-! ### Conditional entropy and the chain rule -/
+
+/-- The conditional distribution of `Y` given `X = b`. Where `P (X = b) = 0` this is `0`,
+which is the convention that makes the chain rule hold without a side condition. -/
+noncomputable def wcondDist (w : Ω → ℝ) (X : Ω → β) (Y : Ω → γ) (b : β) (c : γ) : ℝ :=
+  wdist w (fun ω => (X ω, Y ω)) (b, c) / wdist w X b
+
+/-- The conditional entropy `H(Y | X)`: the entropy of `Y` within each fibre of `X`,
+averaged over the fibres. -/
+noncomputable def wcondEntropy (w : Ω → ℝ) (X : Ω → β) (Y : Ω → γ) : ℝ :=
+  ∑ b, wdist w X b * ∑ c, Real.negMulLog (wcondDist w X Y b c)
+
+/-- **The chain rule**: `H(X, Y) = H(X) + H(Y | X)` (Zhao, §10.1).
+
+Termwise this is Mathlib's `Real.negMulLog_mul`, applied to the factorisation
+`P(X = b, Y = c) = P(X = b) · P(Y = c | X = b)`. The fibres where `P(X = b) = 0` need a
+separate look — there the conditional distribution is `0/0 = 0` and does not sum to one —
+but both sides vanish on them, so the identity survives with no side condition. -/
+theorem wentropy_chain {w : Ω → ℝ} (hw : ∀ ω, 0 ≤ w ω) (X : Ω → β) (Y : Ω → γ) :
+    wentropy w (fun ω => (X ω, Y ω)) = wentropy w X + wcondEntropy w X Y := by
+  have hfib : ∀ b : β, ∑ c, Real.negMulLog (wdist w (fun ω => (X ω, Y ω)) (b, c))
+      = Real.negMulLog (wdist w X b)
+        + wdist w X b * ∑ c, Real.negMulLog (wcondDist w X Y b c) := by
+    intro b
+    rcases eq_or_lt_of_le (wdist_nonneg hw X b) with h | h
+    · -- an empty fibre: every joint probability under it vanishes, and so does every term
+      have hz : ∀ c, wdist w (fun ω => (X ω, Y ω)) (b, c) = 0 := fun c =>
+        le_antisymm (by rw [h]; exact wdist_pair_le_left hw X Y b c)
+          (wdist_nonneg hw _ (b, c))
+      simp [hz, ← h, Real.negMulLog]
+    · have hfac : ∀ c, wdist w (fun ω => (X ω, Y ω)) (b, c)
+          = wdist w X b * wcondDist w X Y b c := fun c => by
+        rw [wcondDist, mul_div_cancel₀ _ (ne_of_gt h)]
+      have hone : ∑ c, wcondDist w X Y b c = 1 := by
+        simp only [wcondDist]
+        rw [← Finset.sum_div, sum_wdist_pair_right, div_self (ne_of_gt h)]
+      calc ∑ c, Real.negMulLog (wdist w (fun ω => (X ω, Y ω)) (b, c))
+          = ∑ c, (wcondDist w X Y b c * Real.negMulLog (wdist w X b)
+              + wdist w X b * Real.negMulLog (wcondDist w X Y b c)) := by
+            refine Finset.sum_congr rfl fun c _ => ?_
+            rw [hfac c, Real.negMulLog_mul]
+        _ = (∑ c, wcondDist w X Y b c) * Real.negMulLog (wdist w X b)
+              + wdist w X b * ∑ c, Real.negMulLog (wcondDist w X Y b c) := by
+            rw [Finset.sum_add_distrib, ← Finset.sum_mul, ← Finset.mul_sum]
+        _ = Real.negMulLog (wdist w X b)
+              + wdist w X b * ∑ c, Real.negMulLog (wcondDist w X Y b c) := by
+            rw [hone, one_mul]
+  rw [wentropy, Fintype.sum_prod_type,
+    Finset.sum_congr rfl fun b _ => hfib b, Finset.sum_add_distrib]
+  rfl
+
+/-- **Conditioning reduces entropy**: `H(Y | X) ≤ H(Y)`.
+
+Immediate from the chain rule and subadditivity — the two inequalities are the same fact
+read in opposite directions. -/
+theorem wcondEntropy_le {w : Ω → ℝ} (hw : ∀ ω, 0 ≤ w ω) (hsum : ∑ ω, w ω = 1)
+    (X : Ω → β) (Y : Ω → γ) : wcondEntropy w X Y ≤ wentropy w Y := by
+  have h1 := wentropy_chain hw X Y
+  have h2 := wentropy_pair_le hw hsum X Y
   linarith
 
 end Entropy

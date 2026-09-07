@@ -26,7 +26,9 @@ distribution, and `PMC.wentropy w X = ∑ b, negMulLog (P (X = b))` is its entro
 | `PMC.wentropy`, `PMC.wentropy_nonneg` | proved |
 | `PMC.wentropy_le_log_card` — uniform maximises entropy | proved |
 | `PMC.wentropy_pair_le` — subadditivity `H(X,Y) ≤ H(X) + H(Y)` | proved |
-| Conditional entropy and the chain rule | open |
+| `PMC.wcondDist`, `PMC.wcondEntropy` | proved |
+| `PMC.wentropy_chain` — chain rule `H(X,Y) = H(X) + H(Y\|X)` | proved |
+| `PMC.wcondEntropy_le` — conditioning reduces entropy | proved |
 | Shearer's lemma | open |
 | Applications (counting, Loomis–Whitney, triangle bound) | open |
 
@@ -50,10 +52,31 @@ random variable has entropy `0`, and a fair coin has entropy `log 2`. Both are `
 that compiled. Worth doing for any *definition* that later theorems are stated in terms of
 — a subtly wrong `wdist` would have made every theorem here true and meaningless.
 
-## Next
+## The chain rule, and the empty-fibre convention
 
-The chain rule `H(X,Y) = H(X) + H(Y | X)` is the natural next step: it needs conditional
-entropy, which in this framework is `∑ b, P(X = b) * wentropy (conditioned weight) Y`, and
-the conditioned weight is just `w` restricted to a fibre and renormalised. Shearer's lemma
-then follows from the chain rule by the usual induction, and Shearer is what the
-combinatorial applications actually use.
+`PMC.wentropy_chain` is termwise Mathlib's `Real.negMulLog_mul` applied to the
+factorisation `P(X = b, Y = c) = P(X = b) · P(Y = c | X = b)`. The one place it needs
+thought is the fibres where `P(X = b) = 0`: there `wcondDist` is `0/0 = 0` and does *not*
+sum to one, so the factorisation argument does not apply — but both sides vanish on such a
+fibre, so the identity holds with **no side condition**. Defining `wcondDist` by plain
+division, and taking Lean's `x/0 = 0`, is what buys that.
+
+`PMC.wcondEntropy_le` (`H(Y|X) ≤ H(Y)`) then falls straight out of the chain rule and
+subadditivity: the two inequalities are the same fact read in opposite directions.
+
+## Next: Shearer
+
+Both inputs Shearer's induction runs on are now proved. What remains:
+
+* the **n-fold chain rule** over a linearly ordered index set, and
+* the stronger monotonicity `H(Y | X, Z) ≤ H(Y | X)`.
+
+Then Shearer is the usual argument: expand `H(X_S)` along the chain rule within `S`, weaken
+each conditional entropy to condition on the whole prefix, and sum over the family — each
+coordinate is counted at least `k` times, giving `k · H(X) ≤ ∑_{S ∈ F} H(X_S)`.
+
+**Plan for the tuple types.** Keep all coordinate types equal and represent the restriction
+`X_S` by *masking* coordinates outside `S` to a default value. Masking has the same entropy
+as the genuine restriction (the map between their value sets is injective where the
+distribution is supported) and it keeps every random variable at type `Ω → ι → β`, avoiding
+dependent types entirely. Worth the small lemma it costs.

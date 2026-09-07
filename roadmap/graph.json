@@ -863,7 +863,7 @@
         "entropy_chain_rule"
       ],
       "proof_uses": [],
-      "note": "Shearer's lemma, from the chain rule by the usual induction. What the combinatorial applications actually use."
+      "note": "Shearer's lemma. The two inputs it runs on are now proved (wentropy_chain, wcondEntropy_le); what remains is the n-fold chain rule over a linearly ordered index set and the stronger monotonicity H(Y | X, Z) <= H(Y | X). Plan: keep all coordinate types equal and represent the restriction X_S by masking coordinates outside S to a default value, which has the same entropy as the genuine restriction and avoids dependent types entirely."
     },
     "lll": {
       "kind": "theorem",
@@ -1247,13 +1247,56 @@
       "file": "ProbMethods/Chapter10/Entropy.lean",
       "decl": "PMC.wentropy_chain",
       "doc": "entropy.md",
-      "statement": "planned",
-      "proof": "planned",
+      "statement": "formalized",
+      "proof": "formalized",
       "uses": [
         "entropy_subadditive"
       ],
       "proof_uses": [],
-      "note": "H(X,Y) = H(X) + H(Y|X). Needs conditional entropy: w restricted to a fibre and renormalised. The natural next Chapter 10 task, and the input to Shearer."
+      "note": "H(X,Y) = H(X) + H(Y|X). Termwise this is Mathlib's Real.negMulLog_mul applied to P(X=b,Y=c) = P(X=b) P(Y=c|X=b). The empty fibres need a separate look -- there the conditional distribution is 0/0 = 0 and does not sum to one -- but both sides vanish on them, so the identity holds with no side condition."
+    },
+    "wcondDistDef": {
+      "kind": "definition",
+      "parent": "entropyGroup",
+      "file": "ProbMethods/Chapter10/Entropy.lean",
+      "decl": "PMC.wcondDist",
+      "doc": "entropy.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [
+        "wdistDef"
+      ],
+      "proof_uses": [],
+      "note": "Conditional distribution; 0 on empty fibres, which is the convention that makes the chain rule unconditional."
+    },
+    "wcondEntropyDef": {
+      "kind": "definition",
+      "parent": "entropyGroup",
+      "file": "ProbMethods/Chapter10/Entropy.lean",
+      "decl": "PMC.wcondEntropy",
+      "doc": "entropy.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [
+        "wcondDistDef"
+      ],
+      "proof_uses": [],
+      "note": "H(Y|X): the entropy of Y within each fibre of X, averaged over fibres."
+    },
+    "cond_reduces_entropy": {
+      "kind": "theorem",
+      "parent": "entropyGroup",
+      "file": "ProbMethods/Chapter10/Entropy.lean",
+      "decl": "PMC.wcondEntropy_le",
+      "doc": "entropy.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [
+        "entropy_chain_rule",
+        "entropy_subadditive"
+      ],
+      "proof_uses": [],
+      "note": "Conditioning reduces entropy: H(Y|X) <= H(Y). Immediate from the chain rule and subadditivity -- the two are the same fact read in opposite directions. This is the monotonicity Shearer's induction runs on."
     }
   }
 }
