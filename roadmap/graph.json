@@ -460,13 +460,16 @@
       "kind": "theorem",
       "parent": "secondMoment",
       "doc": "second-moment.md#random-graph-sections-4144--pending-the-weighted-counting-layer",
-      "statement": "planned",
-      "proof": "planned",
+      "statement": "formalized",
+      "proof": "formalized",
       "uses": [
-        "gnp_weights"
+        "gnp_weights",
+        "trianglesDef"
       ],
       "proof_uses": [],
-      "note": "Needs the weighted-counting layer; state in explicit finite-n form."
+      "note": "First-moment identity: expected triangle count is C(n,3) p^3. The n -> infinity threshold statement is deliberately not stated.",
+      "file": "ProbMethods/Chapter04/RandomTriangle.lean",
+      "decl": "PMC.sum_bweight_mul_card_triangles"
     },
     "subgraph_threshold": {
       "kind": "theorem",
@@ -515,6 +518,30 @@
       ],
       "proof_uses": [],
       "note": "Uniform over [n]; needs Mertens estimates."
+    },
+    "spannedEdgesDef": {
+      "kind": "definition",
+      "parent": "secondMoment",
+      "file": "ProbMethods/Basic.lean",
+      "decl": "PMC.spannedEdges",
+      "doc": "second-moment.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": []
+    },
+    "trianglesDef": {
+      "kind": "definition",
+      "parent": "secondMoment",
+      "file": "ProbMethods/Basic.lean",
+      "decl": "PMC.triangles",
+      "doc": "second-moment.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [
+        "spannedEdgesDef"
+      ],
+      "proof_uses": []
     }
   }
 }

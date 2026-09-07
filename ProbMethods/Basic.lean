@@ -7,6 +7,7 @@ import Mathlib.Combinatorics.SimpleGraph.Finite
 import Mathlib.Data.Real.Basic
 import Mathlib.Algebra.Order.BigOperators.Group.Finset
 import Mathlib.Data.Fintype.Perm
+import Mathlib.Data.Sym.Card
 
 /-!
 # Shared definitions
@@ -27,6 +28,8 @@ where `statement-immutability` can guard it.
 * `PMC.SumFree` — sum-free sets in an additive structure (§2.2).
 * `PMC.IsThreeGraph`, `PMC.HasTetrahedron` — 3-uniform hypergraphs (§2.4).
 * `PMC.IsDominating` — dominating sets in a graph (§3.1).
+* `PMC.spannedEdges`, `PMC.triangles`, `PMC.HasTriangle` — edges spanned by a vertex set,
+  the triples spanning a triangle, and containing a triangle (§4.1).
 -/
 
 open Finset
@@ -102,6 +105,38 @@ in the lists, so any colour set can be transported along an injection into `ℕ`
 def CompleteBipartiteChoosable (n k : ℕ) : Prop :=
   ∀ L : Fin n ⊕ Fin n → Finset ℕ, (∀ v, #(L v) = k) →
     ∃ f : Fin n ⊕ Fin n → ℕ, (∀ v, f v ∈ L v) ∧ ∀ i j, f (Sum.inl i) ≠ f (Sum.inr j)
+
+/-! ### Edges spanned by a vertex set -/
+
+section Spanned
+variable {V : Type*} [DecidableEq V]
+
+/-- The edges spanned by a vertex set: every unordered pair of distinct members. -/
+def spannedEdges (t : Finset V) : Finset (Sym2 V) :=
+  t.offDiag.image Sym2.mk.uncurry
+
+lemma card_spannedEdges (t : Finset V) : #(spannedEdges t) = (#t).choose 2 :=
+  Sym2.card_image_offDiag t
+
+/-- The vertex triples spanning a triangle of `E`. -/
+def triangles [Fintype V] (E : Finset (Sym2 V)) : Finset (Finset V) :=
+  (powersetCard 3 (univ : Finset V)).filter fun t => spannedEdges t ⊆ E
+
+/-- An edge set contains a *triangle*: three vertices, all three of whose pairs are edges.
+
+Written as a bounded existential over `powersetCard 3 univ` so that it is decidable, and
+hence usable inside a `Finset.filter`.
+
+Graphs are represented here by their edge set in `Sym2 V`, which is what lets `PMC.bweight`
+act as the `G(n, p)` distribution on them. -/
+def HasTriangle [Fintype V] (E : Finset (Sym2 V)) : Prop :=
+  ∃ t ∈ powersetCard 3 (univ : Finset V), spannedEdges t ⊆ E
+
+lemma hasTriangle_iff_triangles_nonempty [Fintype V] {E : Finset (Sym2 V)} :
+    HasTriangle E ↔ (triangles E).Nonempty := by
+  simp [HasTriangle, triangles, Finset.filter_nonempty_iff]
+
+end Spanned
 
 /-! ### Dominating sets -/
 

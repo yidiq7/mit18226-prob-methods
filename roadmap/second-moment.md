@@ -84,9 +84,25 @@ uniformly from `[n]`. The distribution *is* uniform, so counting applies, and Ma
 Mertens-type estimates on `∑ 1/p`, which is where the work is. Stateable in explicit form;
 not attempted yet.
 
-## Random graph sections (§4.1–4.4) — pending the weighted-counting layer
+## Random graph sections (§4.1–4.4)
 
-4.1 (does a typical random graph contain a triangle), 4.2 (thresholds for fixed subgraphs),
-4.3 (thresholds), 4.4 (clique number). All follow once the layer above exists, in
-explicit-constant finite-`n` form. 4.3's general threshold theorem is the one whose natural
-statement is genuinely asymptotic; expect it to stay deferred longest.
+### random_triangle (§4.1) — proved
+`PMC.sum_bweight_mul_card_triangles`: the expected number of triangles in `G(n, p)` is
+exactly `C(n, 3) * p ^ 3`.
+
+An identity, not an estimate, and it needs no hypothesis on `p`. Each of the `C(n, 3)`
+triples spans three edges and a fixed edge set is present with weight `p ^ #B`
+(`sum_bweight_superset`), so exchanging the order of summation is the whole proof. This is
+the quantitative content the threshold at `p ≍ 1/n` rests on; the `n → ∞` statement itself
+is deliberately not stated, per the asymptotics convention.
+
+**This is the proof that the layer works.** A random-graph result, in a project with no
+`MeasureTheory` and no `PMF`, in about thirty lines on top of `Weighted.lean`.
+
+### Still to do (§4.2–4.4)
+4.2 (thresholds for fixed subgraphs) generalises §4.1 by replacing the triangle with an
+arbitrary fixed graph `H`: the same argument gives `#(copies of H) * p ^ e(H)`. 4.4 (clique
+number) is the same first-moment shape with `powersetCard k`. Both should now be short.
+4.3's general threshold theorem is the one whose natural statement is genuinely asymptotic;
+expect it to stay deferred longest. The *second*-moment directions of 4.1–4.2 need the
+variance of the triangle count, which is where `wvar` and `wchebyshev` come in.
