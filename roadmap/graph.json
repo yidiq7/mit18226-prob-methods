@@ -368,7 +368,7 @@
       "decl": "PMC.exists_isDominating_card_le",
       "doc": "alterations.md#dominating",
       "statement": "formalized",
-      "proof": "planned",
+      "proof": "formalized",
       "uses": [
         "dominatingDef"
       ],
