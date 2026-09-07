@@ -37,7 +37,11 @@ distribution, and `PMC.wentropy w X = ∑ b, negMulLog (P (X = b))` is its entro
 | `PMC.masked`, `PMC.tupleEntropy` and its three properties | proved |
 | `PMC.shearer_of_submodular` — Shearer for set functions | proved |
 | **`PMC.shearer` — Shearer's lemma** | proved |
-| Applications (counting, Loomis–Whitney, triangle bound) | open |
+| `PMC.wentropy_le_log_card_image` — `H(Z) ≤ log #(attained values)` | proved |
+| `PMC.wentropy_uniform_of_injective` — `H = log \|Ω\|` | proved |
+| `PMC.card_pow_le_prod_card_projSet` — Shearer as a count | proved |
+| **`PMC.loomis_whitney`** | proved |
+| Further applications (triangle bound, Kahn/Bregman) | open |
 
 ## The one trap: `log 0 = 0`
 
@@ -122,9 +126,29 @@ Two representation choices that paid off:
   no bijection at all; what is true is that explicit maps `g`, `h` invert each other *along
   the ranges*, which is exactly what the lemma asks for.
 
-## Next: the applications
+## Counting with entropy
 
-`PMC.shearer` is in place, so Chapter 10's combinatorial applications are now the open
-work: the entropy counting bound, Loomis–Whitney, and the triangle-counting bound. Each
-needs a concrete tuple and a cover, plus `PMC.wentropy_le_log_card` to convert entropy back
-into a count.
+`PMC.card_pow_le_prod_card_projSet` is the general counting form of Shearer, and
+`PMC.loomis_whitney` its `Fin 3` instance. The conversion from entropy to counts has exactly
+two halves, and both are worth having as named lemmas:
+
+* `PMC.wentropy_uniform_of_injective` — under the uniform weight on `A`, the *whole* tuple
+  determines the point, so its entropy is `log #A` **exactly**. This is the lower half.
+* `PMC.wentropy_le_log_card_image` — a mask takes at most `#(trace of A on S)` values, so
+  its entropy is at most the log of that. Note this had to be the *image* version:
+  `PMC.wentropy_le_log_card` bounds by the size of the whole value type, which here is
+  `#(ι → Option β)` and useless. The quantity the combinatorics is about is always the
+  number of values actually attained.
+
+Traces are recorded as masked tuples (`PMC.projSet`), matching the representation choice
+made for `PMC.tupleEntropy`, so the two fit together with no conversion.
+
+**Checked tight, not merely true:** the full `2 × 2 × 2` cube has `8` points and three
+`4`-point shadows, and `8² = 64 = 4 · 4 · 4`. A loose or mis-stated exponent would not
+achieve equality, so this is a stronger check than non-vacuity.
+
+## Next
+
+Remaining Chapter 10 applications: the triangle-counting bound and the
+Kahn/Bregman-type results. Both are further instances of
+`PMC.card_pow_le_prod_card_projSet` or of `PMC.shearer_of_submodular` directly.

@@ -1502,6 +1502,77 @@
       ],
       "proof_uses": [],
       "note": "Shearer's lemma for ANY normalised monotone submodular set function -- the combinatorial half, with no entropy in it. Indexed family so repeated sets are allowed, which is the generality the applications use."
+    },
+    "entropy_le_log_image": {
+      "kind": "theorem",
+      "parent": "entropyGroup",
+      "file": "ProbMethods/Chapter10/Entropy.lean",
+      "decl": "PMC.wentropy_le_log_card_image",
+      "doc": "entropy.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [
+        "gibbs"
+      ],
+      "proof_uses": [],
+      "note": "H(Z) <= log #(values actually attained). Sharper than wentropy_le_log_card, which bounds by the size of the whole value type; the counting applications need the attained count, since that is the quantity the combinatorics is about. Gibbs against the uniform distribution on the image."
+    },
+    "entropy_uniform_injective": {
+      "kind": "theorem",
+      "parent": "entropyGroup",
+      "file": "ProbMethods/Chapter10/Entropy.lean",
+      "decl": "PMC.wentropy_uniform_of_injective",
+      "doc": "entropy.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [
+        "wentropyDef"
+      ],
+      "proof_uses": [],
+      "note": "An injective random variable under the uniform weight has entropy log |Omega|. The lower half of every entropy counting argument -- what turns H back into a count."
+    },
+    "projSetDef": {
+      "kind": "definition",
+      "parent": "entropyGroup",
+      "file": "ProbMethods/Chapter10/LoomisWhitney.lean",
+      "decl": "PMC.projSet",
+      "doc": "entropy.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "The trace of A on the coordinates in S, recorded as masked tuples so all traces live in one type."
+    },
+    "shearer_counting": {
+      "kind": "theorem",
+      "parent": "entropyGroup",
+      "file": "ProbMethods/Chapter10/LoomisWhitney.lean",
+      "decl": "PMC.card_pow_le_prod_card_projSet",
+      "doc": "entropy.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [
+        "shearer",
+        "entropy_uniform_injective",
+        "entropy_le_log_image",
+        "projSetDef"
+      ],
+      "proof_uses": [],
+      "note": "Shearer as a counting statement: if every coordinate is covered k times, #A^k <= product of trace sizes. The conversion is entropy_uniform_injective on the whole tuple (H = log #A exactly) and entropy_le_log_image on each mask."
+    },
+    "loomis_whitney": {
+      "kind": "theorem",
+      "parent": "entropyGroup",
+      "file": "ProbMethods/Chapter10/LoomisWhitney.lean",
+      "decl": "PMC.loomis_whitney",
+      "doc": "entropy.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [
+        "shearer_counting"
+      ],
+      "proof_uses": [],
+      "note": "The Loomis-Whitney inequality: #A^2 <= product of the three axis-plane shadow sizes for A in three coordinates. The three 2-element subsets of Fin 3 cover each coordinate exactly twice. Checked tight, not merely true: the full 2x2x2 cube has 8 points and three 4-point shadows, 8^2 = 64 = 4*4*4."
     }
   }
 }

@@ -106,6 +106,104 @@ theorem wentropy_le_log_card {w : Ω → ℝ} (hw : ∀ ω, 0 ≤ w ω) (hsum : 
   have : wentropy w X = ∑ b, Real.negMulLog (wdist w X b) := rfl
   linarith [hgibbs]
 
+/-- **Sharper: entropy is at most the log of the number of values actually attained.**
+
+`PMC.wentropy_le_log_card` bounds by the size of the whole value type; for the counting
+applications what is needed is the number of attained values, since that is the quantity
+the combinatorics is about. Gibbs against the uniform distribution *on the image*. -/
+theorem wentropy_le_log_card_image {w : Ω → ℝ} (hw : ∀ ω, 0 ≤ w ω) (hsum : ∑ ω, w ω = 1)
+    (Z : Ω → β) : wentropy w Z ≤ Real.log #((univ : Finset Ω).image Z) := by
+  classical
+  have hΩ : Nonempty Ω := by
+    by_contra hcon
+    rw [not_nonempty_iff] at hcon
+    rw [Finset.univ_eq_empty, Finset.sum_empty] at hsum
+    exact zero_ne_one hsum
+  have himg : ((univ : Finset Ω).image Z).Nonempty :=
+    ⟨Z (Classical.arbitrary Ω), Finset.mem_image_of_mem Z (mem_univ _)⟩
+  have hm : (0 : ℝ) < #((univ : Finset Ω).image Z) := by
+    exact_mod_cast Finset.card_pos.mpr himg
+  -- values off the image have probability zero
+  have hoff : ∀ b : β, b ∉ (univ : Finset Ω).image Z → wdist w Z b = 0 := by
+    intro b hb
+    rw [wdist, wprob, Finset.filter_false_of_mem, Finset.sum_empty]
+    intro ω _ hZω
+    exact hb (Finset.mem_image.mpr ⟨ω, mem_univ ω, hZω⟩)
+  have hQsum : ∑ b : β,
+      (if b ∈ (univ : Finset Ω).image Z then 1 / (#((univ : Finset Ω).image Z) : ℝ) else 0)
+      = 1 := by
+    rw [Finset.sum_ite_mem, Finset.univ_inter, Finset.sum_const, nsmul_eq_mul, mul_one_div,
+      div_self (ne_of_gt hm)]
+  have hgibbs := sum_mul_log_div_le (wdist w Z)
+    (fun b => if b ∈ (univ : Finset Ω).image Z then 1 / (#((univ : Finset Ω).image Z) : ℝ)
+      else 0)
+    (wdist_nonneg hw Z)
+    (fun b => by by_cases hb : b ∈ (univ : Finset Ω).image Z <;> simp [hb] <;> positivity)
+    (fun b hb => by
+      have : b ∈ (univ : Finset Ω).image Z := by
+        by_contra hcon
+        exact hb (hoff b hcon)
+      simp only [if_pos this]
+      positivity)
+    (by rw [sum_wdist, hsum]) (le_of_eq hQsum)
+  have hterm : ∀ b : β, wdist w Z b
+        * Real.log ((if b ∈ (univ : Finset Ω).image Z
+            then 1 / (#((univ : Finset Ω).image Z) : ℝ) else 0) / wdist w Z b)
+      = Real.negMulLog (wdist w Z b)
+        - wdist w Z b * Real.log #((univ : Finset Ω).image Z) := by
+    intro b
+    rcases eq_or_lt_of_le (wdist_nonneg hw Z b) with h | h
+    · rw [← h]
+      simp [Real.negMulLog]
+    · have hb : b ∈ (univ : Finset Ω).image Z := by
+        by_contra hcon
+        exact (ne_of_gt h) (hoff b hcon)
+      rw [if_pos hb, Real.log_div (by positivity) (ne_of_gt h), one_div, Real.log_inv,
+        Real.negMulLog]
+      ring
+  rw [Finset.sum_congr rfl fun b _ => hterm b, Finset.sum_sub_distrib, ← Finset.sum_mul,
+    sum_wdist, hsum, one_mul] at hgibbs
+  have hj : ∑ b : β, Real.negMulLog (wdist w Z b) = wentropy w Z := rfl
+  rw [hj] at hgibbs
+  linarith
+
+/-- **An injective random variable under the uniform weight has entropy `log |Ω|`.**
+
+The lower half of every entropy counting argument: it is what turns `H` back into a count.
+-/
+theorem wentropy_uniform_of_injective {Z : Ω → β} (hZ : Function.Injective Z)
+    (hN : 0 < Fintype.card Ω) :
+    wentropy (fun _ : Ω => (1 : ℝ) / Fintype.card Ω) Z = Real.log (Fintype.card Ω) := by
+  classical
+  have hNR : (0 : ℝ) < Fintype.card Ω := by exact_mod_cast hN
+  have hval : ∀ b : β, wdist (fun _ : Ω => (1 : ℝ) / Fintype.card Ω) Z b
+      = if b ∈ (univ : Finset Ω).image Z then 1 / (Fintype.card Ω : ℝ) else 0 := by
+    intro b
+    by_cases hb : b ∈ (univ : Finset Ω).image Z
+    · obtain ⟨ω₀, -, hω₀⟩ := Finset.mem_image.mp hb
+      have hfib : ((univ : Finset Ω).filter fun ω => Z ω = b) = {ω₀} := by
+        ext ω
+        simp only [mem_filter, mem_univ, true_and, mem_singleton]
+        exact ⟨fun h => hZ (h.trans hω₀.symm), fun h => by rw [h, hω₀]⟩
+      rw [wdist, wprob, hfib, Finset.sum_singleton, if_pos hb]
+    · have hfib : ((univ : Finset Ω).filter fun ω => Z ω = b) = ∅ := by
+        rw [Finset.eq_empty_iff_forall_notMem]
+        intro ω hω
+        simp only [mem_filter, mem_univ, true_and] at hω
+        exact hb (Finset.mem_image.mpr ⟨ω, mem_univ ω, hω⟩)
+      rw [wdist, wprob, hfib, Finset.sum_empty, if_neg hb]
+  have hsummand : ∀ b : β,
+      Real.negMulLog (wdist (fun _ : Ω => (1 : ℝ) / Fintype.card Ω) Z b)
+        = if b ∈ (univ : Finset Ω).image Z
+          then Real.negMulLog ((1 : ℝ) / Fintype.card Ω) else 0 := by
+    intro b
+    rw [hval b]
+    by_cases hb : b ∈ (univ : Finset Ω).image Z <;> simp [hb, Real.negMulLog]
+  rw [wentropy, Finset.sum_congr rfl fun b _ => hsummand b, Finset.sum_ite_mem,
+    Finset.univ_inter, Finset.sum_const, Finset.card_image_of_injective univ hZ, card_univ,
+    nsmul_eq_mul, Real.negMulLog, one_div, Real.log_inv]
+  field_simp
+
 variable {γ : Type*} [Fintype γ] [DecidableEq γ]
 
 lemma filter_pair_eq (X : Ω → β) (Y : Ω → γ) (b : β) (c : γ) :
