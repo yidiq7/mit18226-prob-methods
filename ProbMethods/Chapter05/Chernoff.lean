@@ -119,4 +119,69 @@ theorem card_filter_sign_sum_le {n : ℕ} (hn : 0 < n) {lam : ℝ} (hlam : 0 < l
     le_div_iff₀ hpos]
   exact hkey
 
+/-- **The two-sided Chernoff bound** (Zhao, Corollary 5.0.3).
+
+`#{S : λ√n ≤ |2 #S - n|} ≤ 2 * (2 ^ n * exp (-λ² / 2))`, i.e.
+`P(|Sₙ| ≥ λ√n) ≤ 2 exp(-λ²/2)` after dividing by `2 ^ n`.
+
+The lower tail is the upper tail of the complement: `S ↦ Sᶜ` sends `2 #S - n` to its
+negation, so the two tails have exactly equal cardinality and one application of
+`PMC.card_filter_sign_sum_le` suffices. -/
+theorem card_filter_abs_sign_sum_le {n : ℕ} (hn : 0 < n) {lam : ℝ} (hlam : 0 < lam) :
+    (#((univ : Finset (Fin n)).powerset.filter
+        fun S => lam * Real.sqrt n ≤ |2 * (#S : ℝ) - n|) : ℝ)
+      ≤ 2 * (2 ^ n * Real.exp (-(lam ^ 2) / 2)) := by
+  classical
+  set P : Finset (Finset (Fin n)) := (univ : Finset (Fin n)).powerset.filter
+      (fun S => lam * Real.sqrt n ≤ 2 * (#S : ℝ) - n) with hPdef
+  set N : Finset (Finset (Fin n)) := (univ : Finset (Fin n)).powerset.filter
+      (fun S => 2 * (#S : ℝ) - n ≤ -(lam * Real.sqrt n)) with hNdef
+  -- `S ↦ Sᶜ` matches the lower tail with the upper tail.
+  have hcompl : ∀ S : Finset (Fin n), 2 * ((#Sᶜ : ℕ) : ℝ) - n = -(2 * (#S : ℝ) - n) := by
+    intro S
+    have h : (#Sᶜ : ℕ) = n - #S := by
+      rw [card_compl, Fintype.card_fin]
+    have hle : #S ≤ n := by
+      have := card_le_univ S
+      rwa [Fintype.card_fin] at this
+    rw [h, Nat.cast_sub hle]
+    ring
+  have hNP : #N = #P := by
+    refine Finset.card_nbij' (fun S => Sᶜ) (fun S => Sᶜ) ?_ ?_ ?_ ?_
+    · intro S hS
+      rw [hNdef, mem_coe, mem_filter] at hS
+      rw [hPdef, mem_coe, mem_filter]
+      refine ⟨mem_powerset.mpr (subset_univ _), ?_⟩
+      rw [hcompl S]
+      linarith [hS.2]
+    · intro S hS
+      rw [hPdef, mem_coe, mem_filter] at hS
+      rw [hNdef, mem_coe, mem_filter]
+      refine ⟨mem_powerset.mpr (subset_univ _), ?_⟩
+      rw [hcompl S]
+      linarith [hS.2]
+    · intro S _
+      exact compl_compl S
+    · intro S _
+      exact compl_compl S
+  -- The two-sided event is covered by the two tails.
+  have hsub : (univ : Finset (Fin n)).powerset.filter
+      (fun S => lam * Real.sqrt n ≤ |2 * (#S : ℝ) - n|) ⊆ P ∪ N := by
+    intro S hS
+    rw [mem_filter] at hS
+    rw [mem_union, hPdef, hNdef, mem_filter, mem_filter]
+    rcases le_abs.mp hS.2 with h | h
+    · exact Or.inl ⟨hS.1, h⟩
+    · exact Or.inr ⟨hS.1, by linarith⟩
+  have hchern := card_filter_sign_sum_le hn hlam
+  rw [← hPdef] at hchern
+  calc (#((univ : Finset (Fin n)).powerset.filter
+        fun S => lam * Real.sqrt n ≤ |2 * (#S : ℝ) - n|) : ℝ)
+      ≤ ((#(P ∪ N) : ℕ) : ℝ) := by
+        exact_mod_cast Nat.cast_le.mpr (card_le_card hsub)
+    _ ≤ ((#P : ℕ) : ℝ) + ((#N : ℕ) : ℝ) := by
+        exact_mod_cast Nat.cast_le.mpr (card_union_le P N)
+    _ = 2 * ((#P : ℕ) : ℝ) := by rw [hNP]; ring
+    _ ≤ 2 * (2 ^ n * Real.exp (-(lam ^ 2) / 2)) := by linarith [hchern]
+
 end PMC

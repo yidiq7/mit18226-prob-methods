@@ -32,10 +32,17 @@ failure, and the bound holds at every `n ≥ 1` and `λ` tested.
 Markov's inequality is inlined (each qualifying subset contributes at least
 `exp (λ²)`); `PMC.wmarkov` in `Weighted.lean` is the reusable weighted form for later use.
 
-## Still to state
+## Two-sided (Corollary 5.0.3) — proved
 
-**Corollary 5.0.3** (two-sided, `2 exp(-λ²/2)`) follows by symmetry `S ↦ Sᶜ`, which sends
-`2#S - n` to `-(2#S - n)`. Short.
+`PMC.card_filter_abs_sign_sum_le`:
+`#{S : λ√n ≤ |2 #S - n|} ≤ 2 * (2 ^ n * exp (-λ²/2))`.
+
+The lower tail *is* the upper tail of the complement: `S ↦ Sᶜ` sends `2 #S - n` to its
+negation, so `Finset.card_nbij'` with complement in both directions (it is an involution)
+gives the two tails exactly equal cardinality, and one application of the one-sided bound
+finishes it. No second MGF computation.
+
+## Still to state
 
 **Theorem 5.0.5 / Corollary 5.0.6 / Theorem 5.0.7** generalise to bounded and to Bernoulli
 summands. 5.0.5 needs the convexity step `exp(tx) ≤ ((1-x)/2) exp(-t) + ((1+x)/2) exp t`

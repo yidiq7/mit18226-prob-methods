@@ -636,13 +636,15 @@
       "kind": "theorem",
       "parent": "chernoffGroup",
       "doc": "chernoff.md#still-to-state",
-      "statement": "planned",
-      "proof": "planned",
+      "statement": "formalized",
+      "proof": "formalized",
       "uses": [
         "chernoff"
       ],
       "proof_uses": [],
-      "note": "Corollary 5.0.3; follows by the complement symmetry S -> S^c."
+      "note": "Corollary 5.0.3. The lower tail is the upper tail of the complement, so S -> S^c gives equal cardinality and one application of the one-sided bound suffices.",
+      "file": "ProbMethods/Chapter05/Chernoff.lean",
+      "decl": "PMC.card_filter_abs_sign_sum_le"
     },
     "chernoff_bounded": {
       "kind": "theorem",
