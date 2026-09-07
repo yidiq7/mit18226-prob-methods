@@ -264,6 +264,112 @@ theorem wcondEntropy_le {w : Ω → ℝ} (hw : ∀ ω, 0 ≤ w ω) (hsum : ∑ �
   have h2 := wentropy_pair_le hw hsum X Y
   linarith
 
+/-! ### Basic monotonicity, and entropy as a function of the fibres -/
+
+lemma wcondDist_nonneg {w : Ω → ℝ} (hw : ∀ ω, 0 ≤ w ω) (X : Ω → β) (Y : Ω → γ) (b : β)
+    (c : γ) : 0 ≤ wcondDist w X Y b c :=
+  div_nonneg (wdist_nonneg hw _ _) (wdist_nonneg hw X b)
+
+lemma wcondDist_le_one {w : Ω → ℝ} (hw : ∀ ω, 0 ≤ w ω) (X : Ω → β) (Y : Ω → γ) (b : β)
+    (c : γ) : wcondDist w X Y b c ≤ 1 := by
+  rw [wcondDist]
+  rcases eq_or_lt_of_le (wdist_nonneg hw X b) with h | h
+  · rw [← h]; simp
+  · rw [div_le_one h]
+    exact wdist_pair_le_left hw X Y b c
+
+theorem wcondEntropy_nonneg {w : Ω → ℝ} (hw : ∀ ω, 0 ≤ w ω) (X : Ω → β) (Y : Ω → γ) :
+    0 ≤ wcondEntropy w X Y :=
+  Finset.sum_nonneg fun b _ => mul_nonneg (wdist_nonneg hw X b)
+    (Finset.sum_nonneg fun c _ =>
+      Real.negMulLog_nonneg (wcondDist_nonneg hw X Y b c) (wcondDist_le_one hw X Y b c))
+
+/-- **Adding a coordinate never decreases entropy.** Chain rule plus
+`PMC.wcondEntropy_nonneg`. -/
+theorem wentropy_le_pair {w : Ω → ℝ} (hw : ∀ ω, 0 ≤ w ω) (X : Ω → β) (Y : Ω → γ) :
+    wentropy w X ≤ wentropy w (fun ω => (X ω, Y ω)) := by
+  have h := wentropy_chain hw X Y
+  have h2 := wcondEntropy_nonneg hw X Y
+  linarith
+
+/-- A constant random variable carries no information. -/
+theorem wentropy_const {w : Ω → ℝ} (hsum : ∑ ω, w ω = 1) (b0 : β) :
+    wentropy w (fun _ : Ω => b0) = 0 := by
+  rw [wentropy]
+  refine Finset.sum_eq_zero fun b _ => ?_
+  have hval : wdist w (fun _ : Ω => b0) b = if b0 = b then 1 else 0 := by
+    rw [wdist, wprob]
+    by_cases h : b0 = b
+    · rw [if_pos h, Finset.filter_true_of_mem fun _ _ => h]
+      exact hsum
+    · rw [if_neg h, Finset.filter_false_of_mem fun _ _ => h, Finset.sum_empty]
+  rw [hval]
+  by_cases h : b0 = b <;> simp [h, Real.negMulLog]
+
+/-- **Entropy depends only on the fibres.**
+
+If `X` and `Y` determine each other pointwise — `Y = g ∘ X` and `X = h ∘ Y` — then they have
+the same entropy. Note that `g` and `h` need *not* be mutually inverse on the whole value
+types, only along the ranges of `X` and `Y`; that is exactly what makes this usable for
+comparing a masked tuple `X_{T ∪ T'}` with the pair `(X_T, X_{T'})`, whose value types have
+no bijection between them at all. -/
+theorem wentropy_congr (w : Ω → ℝ) (X : Ω → β) (Y : Ω → γ) (g : β → γ) (h : γ → β)
+    (hg : ∀ ω, Y ω = g (X ω)) (hh : ∀ ω, X ω = h (Y ω)) :
+    wentropy w X = wentropy w Y := by
+  classical
+  have hzX : ∀ b : β, (¬ ∃ ω, X ω = b) → Real.negMulLog (wdist w X b) = 0 := by
+    intro b hb
+    have hemp : ((univ : Finset Ω).filter fun ω => X ω = b) = ∅ := by
+      rw [Finset.eq_empty_iff_forall_notMem]
+      intro ω hω
+      simp only [mem_filter, mem_univ, true_and] at hω
+      exact hb ⟨ω, hω⟩
+    rw [wdist, wprob, hemp, Finset.sum_empty]
+    simp [Real.negMulLog]
+  have hzY : ∀ c : γ, (¬ ∃ ω, Y ω = c) → Real.negMulLog (wdist w Y c) = 0 := by
+    intro c hc
+    have hemp : ((univ : Finset Ω).filter fun ω => Y ω = c) = ∅ := by
+      rw [Finset.eq_empty_iff_forall_notMem]
+      intro ω hω
+      simp only [mem_filter, mem_univ, true_and] at hω
+      exact hc ⟨ω, hω⟩
+    rw [wdist, wprob, hemp, Finset.sum_empty]
+    simp [Real.negMulLog]
+  have e1 : ∑ b ∈ (univ : Finset β).filter (fun b => ∃ ω, X ω = b),
+      Real.negMulLog (wdist w X b) = wentropy w X :=
+    Finset.sum_subset (Finset.filter_subset _ _) fun b _ hb =>
+      hzX b fun hex => hb (Finset.mem_filter.mpr ⟨mem_univ b, hex⟩)
+  have e2 : ∑ c ∈ (univ : Finset γ).filter (fun c => ∃ ω, Y ω = c),
+      Real.negMulLog (wdist w Y c) = wentropy w Y :=
+    Finset.sum_subset (Finset.filter_subset _ _) fun c _ hc =>
+      hzY c fun hex => hc (Finset.mem_filter.mpr ⟨mem_univ c, hex⟩)
+  rw [← e1, ← e2]
+  refine Finset.sum_nbij' g h ?_ ?_ ?_ ?_ ?_
+  · intro b hb
+    obtain ⟨ω₀, hω₀⟩ := (Finset.mem_filter.mp hb).2
+    exact Finset.mem_filter.mpr ⟨mem_univ _, ⟨ω₀, by rw [hg ω₀, hω₀]⟩⟩
+  · intro c hc
+    obtain ⟨ω₀, hω₀⟩ := (Finset.mem_filter.mp hc).2
+    exact Finset.mem_filter.mpr ⟨mem_univ _, ⟨ω₀, by rw [hh ω₀, hω₀]⟩⟩
+  · intro b hb
+    obtain ⟨ω₀, hω₀⟩ := (Finset.mem_filter.mp hb).2
+    rw [← hω₀, ← hg ω₀, ← hh ω₀]
+  · intro c hc
+    obtain ⟨ω₀, hω₀⟩ := (Finset.mem_filter.mp hc).2
+    rw [← hω₀, ← hh ω₀, ← hg ω₀]
+  · intro b hb
+    obtain ⟨ω₀, hω₀⟩ := (Finset.mem_filter.mp hb).2
+    have hgb : g b = Y ω₀ := by rw [← hω₀, ← hg ω₀]
+    have hb' : h (g b) = b := by rw [hgb, ← hh ω₀, hω₀]
+    congr 1
+    rw [wdist, wdist]
+    congr 1
+    ext ω
+    simp only [mem_filter, mem_univ, true_and]
+    constructor
+    · intro hx; rw [hg ω, hx]
+    · intro hy; rw [hh ω, hy, hb']
+
 /-! ### Relabelling, and submodularity
 
 Submodularity, `H(X,Y,Z) + H(X) ≤ H(X,Y) + H(X,Z)`, is the last of the structural entropy
@@ -474,6 +580,142 @@ theorem wcondEntropy_le_of_pair {w : Ω → ℝ} (hw : ∀ ω, 0 ≤ w ω) (hsum
   rw [heq] at hc1
   linarith
 
+/-- **Entropy never increases under a function of the variable**: `H(f ∘ Z) ≤ H(Z)`.
+
+Via `PMC.wentropy_congr`: `(f ∘ Z, Z)` and `Z` determine each other, so they have equal
+entropy, and dropping the second coordinate can only lose. -/
+theorem wentropy_comp_le {w : Ω → ℝ} (hw : ∀ ω, 0 ≤ w ω) {β' : Type*} [Fintype β']
+    [DecidableEq β'] (Z : Ω → β') (f : β' → β) :
+    wentropy w (fun ω => f (Z ω)) ≤ wentropy w Z := by
+  have h1 : wentropy w (fun ω => (f (Z ω), Z ω)) = wentropy w Z :=
+    (wentropy_congr w Z (fun ω => (f (Z ω), Z ω)) (fun z => (f z, z)) Prod.snd
+      (fun _ => rfl) (fun _ => rfl)).symm
+  have h2 := wentropy_le_pair hw (fun ω => f (Z ω)) Z
+  linarith
+
 end Entropy
+
+/-! ## The entropy of a masked tuple
+
+Shearer's lemma is a statement about the set function `S ↦ H(X_S)` for a tuple of random
+variables `X`. Rather than restricting to a subtype — which would make `X_S` and
+`X_{S'}` live in different types and force dependent-type bookkeeping at every step — we
+represent `X_S` by *masking*: coordinates outside `S` are replaced by `none`. Every
+`X_S` then has one and the same type `ι → Option β`, and the identities relating
+`(X_S, X_T)` to `X_{S ∪ T}` are all instances of `PMC.wentropy_congr`.
+
+Using `Option β` rather than a default value avoids requiring `Inhabited β` and keeps
+"erased" distinguishable from every real value.
+
+The three properties below — normalised at `∅`, monotone, and submodular in
+diminishing-returns form — are exactly the hypotheses Shearer's lemma needs; what remains
+of Shearer is a statement about set functions with no entropy in it at all.
+-/
+
+section Tuple
+
+variable {Ω : Type*} [Fintype Ω] [DecidableEq Ω] {β : Type*} [Fintype β] [DecidableEq β]
+  {ι : Type*} [Fintype ι] [DecidableEq ι]
+
+/-- The tuple `X` masked to the coordinates in `S`. -/
+def masked (X : ι → Ω → β) (S : Finset ι) (ω : Ω) : ι → Option β :=
+  fun i => if i ∈ S then some (X i ω) else none
+
+/-- Overlay: the first argument wins wherever it is defined. -/
+def overlay (u v : ι → Option β) : ι → Option β := fun i => (u i).orElse fun _ => v i
+
+/-- Erase every coordinate outside `S`. -/
+def projMask (S : Finset ι) (u : ι → Option β) : ι → Option β :=
+  fun i => if i ∈ S then u i else none
+
+lemma overlay_masked (X : ι → Ω → β) (S T : Finset ι) (ω : Ω) :
+    overlay (masked X S ω) (masked X T ω) = masked X (S ∪ T) ω := by
+  funext i
+  simp only [overlay, masked, Finset.mem_union]
+  by_cases hS : i ∈ S <;> by_cases hT : i ∈ T <;> simp [hS, hT]
+
+lemma projMask_masked (X : ι → Ω → β) {S T : Finset ι} (hST : S ⊆ T) (ω : Ω) :
+    projMask S (masked X T ω) = masked X S ω := by
+  funext i
+  simp only [projMask, masked]
+  by_cases h : i ∈ S
+  · simp [h, hST h]
+  · simp [h]
+
+/-- The entropy of the masked tuple — the set function Shearer's lemma is about. -/
+noncomputable def tupleEntropy (w : Ω → ℝ) (X : ι → Ω → β) (S : Finset ι) : ℝ :=
+  wentropy w (masked X S)
+
+/-- Two masked tuples jointly carry exactly the information of the mask of their union. -/
+theorem wentropy_masked_pair (w : Ω → ℝ) (X : ι → Ω → β) (S T : Finset ι) :
+    wentropy w (fun ω => (masked X S ω, masked X T ω)) = tupleEntropy w X (S ∪ T) := by
+  refine (wentropy_congr w (masked X (S ∪ T))
+    (fun ω => (masked X S ω, masked X T ω))
+    (fun u => (projMask S u, projMask T u)) (fun p => overlay p.1 p.2) ?_ ?_).symm
+  · intro ω
+    have hS : S ⊆ S ∪ T := Finset.subset_union_left
+    have hT : T ⊆ S ∪ T := Finset.subset_union_right
+    rw [Prod.ext_iff]
+    exact ⟨(projMask_masked X hS ω).symm, (projMask_masked X hT ω).symm⟩
+  · intro ω
+    exact (overlay_masked X S T ω).symm
+
+theorem wentropy_masked_triple (w : Ω → ℝ) (X : ι → Ω → β) (S T U : Finset ι) :
+    wentropy w (fun ω => (masked X S ω, masked X T ω, masked X U ω))
+      = tupleEntropy w X (S ∪ T ∪ U) := by
+  refine (wentropy_congr w (masked X (S ∪ T ∪ U))
+    (fun ω => (masked X S ω, masked X T ω, masked X U ω))
+    (fun u => (projMask S u, projMask T u, projMask U u))
+    (fun p => overlay p.1 (overlay p.2.1 p.2.2)) ?_ ?_).symm
+  · intro ω
+    have hS : S ⊆ S ∪ T ∪ U :=
+      Finset.subset_union_left.trans Finset.subset_union_left
+    have hT : T ⊆ S ∪ T ∪ U :=
+      Finset.subset_union_right.trans Finset.subset_union_left
+    have hU : U ⊆ S ∪ T ∪ U := Finset.subset_union_right
+    rw [Prod.ext_iff, Prod.ext_iff]
+    exact ⟨(projMask_masked X hS ω).symm,
+      (projMask_masked X hT ω).symm, (projMask_masked X hU ω).symm⟩
+  · intro ω
+    rw [overlay_masked, overlay_masked, Finset.union_assoc]
+
+/-- `H(X_∅) = 0`: the empty mask carries no information. -/
+@[simp] theorem tupleEntropy_empty {w : Ω → ℝ} (hsum : ∑ ω, w ω = 1) (X : ι → Ω → β) :
+    tupleEntropy w X ∅ = 0 := by
+  have hconst : masked X (∅ : Finset ι) = fun _ : Ω => (fun _ : ι => (none : Option β)) := by
+    funext ω i
+    simp [masked]
+  rw [tupleEntropy, hconst, wentropy_const hsum]
+
+/-- `S ↦ H(X_S)` is monotone: more coordinates, more entropy. -/
+theorem tupleEntropy_mono {w : Ω → ℝ} (hw : ∀ ω, 0 ≤ w ω) (X : ι → Ω → β) {S T : Finset ι}
+    (hST : S ⊆ T) : tupleEntropy w X S ≤ tupleEntropy w X T := by
+  have hrw : masked X S = fun ω => projMask S (masked X T ω) := by
+    funext ω
+    exact (projMask_masked X hST ω).symm
+  rw [tupleEntropy, tupleEntropy, hrw]
+  exact wentropy_comp_le hw (masked X T) (projMask S)
+
+/-- **`S ↦ H(X_S)` is submodular, in diminishing-returns form.**
+
+Adding the coordinate `i` to a larger set helps no more than adding it to a smaller one.
+This is `PMC.wentropy_submodular` applied to the three masks `X_T`, `X_{T' \ T}` and
+`X_{\{i\}}`, with `PMC.wentropy_masked_pair` and `PMC.wentropy_masked_triple` used to read
+the results back as values of `tupleEntropy`. No hypothesis on `i` is needed. -/
+theorem tupleEntropy_submodular {w : Ω → ℝ} (hw : ∀ ω, 0 ≤ w ω) (hsum : ∑ ω, w ω = 1)
+    (X : ι → Ω → β) {T T' : Finset ι} (hT : T ⊆ T') (i : ι) :
+    tupleEntropy w X (insert i T') - tupleEntropy w X T'
+      ≤ tupleEntropy w X (insert i T) - tupleEntropy w X T := by
+  have hsub := wentropy_submodular hw hsum (masked X T) (masked X (T' \ T)) (masked X {i})
+  rw [wentropy_masked_triple, wentropy_masked_pair, wentropy_masked_pair] at hsub
+  rw [Finset.union_sdiff_of_subset hT] at hsub
+  rw [show T' ∪ {i} = insert i T' from by
+      rw [Finset.union_comm, ← Finset.insert_eq],
+    show T ∪ {i} = insert i T from by
+      rw [Finset.union_comm, ← Finset.insert_eq]] at hsub
+  have hTe : tupleEntropy w X T = wentropy w (masked X T) := rfl
+  linarith
+
+end Tuple
 
 end PMC
