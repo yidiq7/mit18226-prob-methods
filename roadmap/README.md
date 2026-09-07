@@ -50,216 +50,119 @@ tasks. Contributors should reach for them rather than reproving them.
 
 ## Reasoning log
 
-**2026-09-06 — Toolchain: Lean `v4.33.0` + Mathlib tag `v4.33.0`. Do not bump to a
-patch release.** The first pin was `v4.33.1`, and a deliberate smoke-test PR (opened by
-the orchestrator, closed unmerged) showed `verify-comparator` failing at setup on a
-no-op diff. Cause: `.github/workflows/verify-comparator.yml` reads `lean-toolchain` from
-the PR's base SHA and checks out `leanprover/comparator` **at exactly that tag** — and
-`leanprover/comparator` tags only `.0` releases. There is no `v4.33.1` tag, so the
-checkout step failed, and since comparator is merge-blocking that made *every* PR
-permanently unmergeable for a reason invisible in any diff.
+Compressed 2026-09-06. Per-node merge narratives have been dropped — `graph.json` carries
+status and git history carries the diffs. What remains is everything a restarted
+orchestrator would otherwise have to rediscover.
 
-The constraint this project now lives under: the toolchain must be a version for which
-`leanprover/comparator` has a tag, i.e. an `x.y.0` release. When this pin is eventually
-moved, check `gh api repos/leanprover/comparator/git/refs/tags` first and confirm
-Mathlib has a matching release tag. Chosen because both `leanprover/comparator@v4.33.0`
-and `mathlib4@v4.33.0` exist, and `v4.33.0` is above the `v4.27` floor where comparator
-becomes a kernel-level statement check.
+### Hard constraints
 
-**2026-09-06 — Targeted imports, not `import Mathlib`.** Measured on this project:
-a file importing all of Mathlib costs ~49s, the same file with targeted imports ~7s.
-With one file per group of results that difference decides whether CI is minutes or
-an hour. `ProbMethods/Basic.lean` carries the common imports; chapter files add what
-they specifically need.
+**Toolchain must be an `x.y.0` release: Lean `v4.33.0` + Mathlib `v4.33.0`.** The first
+pin was `v4.33.1`, and a smoke-test PR showed `verify-comparator` failing at setup on a
+no-op diff. `verify-comparator.yml` checks out `leanprover/comparator` at exactly the tag
+in `lean-toolchain`, and that repo tags only `.0` releases — so there is no `v4.33.1` tag,
+the checkout step failed, and since comparator is merge-blocking *every* PR became
+permanently unmergeable for a reason invisible in any diff. Before moving this pin, check
+`gh api repos/leanprover/comparator/git/refs/tags` and confirm Mathlib has a matching
+release tag. `v4.33.0` is above the `v4.27` floor where comparator becomes a kernel-level
+statement check.
 
-**2026-09-06 — `autoImplicit` is off.** Set in `lakefile.toml`. With it on, a typo in
-a statement silently becomes a universally quantified variable, which is exactly the
-failure a statement-integrity project cannot tolerate.
+**A node whose `proof_uses` names an unproved theorem cannot be published here**, even
+though `orchestrator-planning.md`'s readiness test calls it ready — that test asks only
+that a dependency be *stated*. `.choir/verify.toml` leaves `audits.sorry_delta.policy` at
+the default `block`, and `gate/verify/comparator.py` adds `sorryAx` to comparator's
+permitted axioms **only** under policy `report`. So a proof invoking a still-`sorry`'d
+lemma carries `sorryAx` in its axiom closure and comparator fails it with
+`Illegal axiom detected` — unmergeable, invisible in the diff, and not the worker's fault.
+**Check `proof_uses` against the inventory before publishing, not just the graph's
+`statement` fields.** Depending on a *definition* is unaffected. Switching the sorry policy
+to `report` would buy parallelism on chained results at the cost of what a green gate
+means; that is an overseer decision.
 
-**2026-09-06 — Definitions live in `ProbMethods/Basic.lean`.** Every definition that
-appears in a theorem *statement* is authored there by the orchestrator. Chapter files
-hold statements and proofs only. This is the centralized-layer rule: those definitions
-are the interface other tasks' signatures depend on, so a worker never writes one.
+**`choir/invalid` does not mean "the orchestrator rejected this."** It means *failed intake
+validation, retry pending*: `issue-intake.yml` fires on `labeled` and its `if` matches
+`choir/invalid` as well as `choir/available`, so labelling a well-formed task `choir/invalid`
+makes intake re-validate it, find it fine, and hand it back as `choir/available`. **To
+retire a task, close it and *remove* `choir/available`** — removal fires `unlabeled`, which
+intake does not listen for, and an issue with no lifecycle label is skipped by
+`sync_lease_labels` too.
 
-**2026-09-06 — Ramsey lower bounds are stated as `¬ RamseyProp n k k`, not
-`n < R(k, k)`.** Defining `R(k, k)` as `sInf {n | RamseyProp n k k}` would make
-`n < R(k, k)` demand that the set be nonempty — i.e. Ramsey's theorem itself — as a
-side condition on top of the probabilistic argument the chapter is actually teaching.
-`¬ RamseyProp n k k` is exactly what the random colouring gives, and is equivalent to
-`R(k, k) > n` because `RamseyProp · k l` is upward closed. Erdős–Szekeres (Remark 1.1.5)
-and the `R(k, k)` wrapper are their own nodes, for a later phase.
+**`autoImplicit` is off** (`lakefile.toml`). With it on, a typo in a statement silently
+becomes a universally quantified variable — exactly the failure a statement-integrity
+project cannot tolerate.
 
-**2026-09-06 — The gate is validated end-to-end.** A second throwaway PR (#9, closed
-unmerged) targeted a scratch declaration via a `choir/8-…` branch, so
-`verify-comparator` resolved a real task target and ran its full kernel comparison
-rather than no-opping. All nine checks green; comparator 2m50s, rebuild 2m42s, with the
-Mathlib cache working in CI. The merge step is now validated too: PR #10 merged through
-`merge_pr`'s preflight, and `issue-close-on-merge.yml` closed #1 and moved it to
-`choir/done`. Nothing in the gate is untested at this point.
+**Definitions that appear in a theorem statement live in `ProbMethods/Basic.lean`,**
+authored by the orchestrator. Chapter files hold statements and proofs only. Those
+definitions are the interface other tasks' signatures depend on, so a worker never writes
+one.
 
-**2026-09-06 — Validate CI before contributors arrive, not after.** The smoke test
-above cost one throwaway PR and caught a defect that would otherwise have burned every
-contributor's first cycle and looked like their fault. Repeat this after any change to
-the toolchain, the overlay, or `verify-pr.yml`: open a no-op PR, confirm all nine checks
-run and pass, close it.
+**Targeted imports, not `import Mathlib`.** Measured here: a file importing all of Mathlib
+costs ~49s, the same file with targeted imports ~7s. With one file per group of results
+that difference decides whether CI is minutes or an hour.
 
-**2026-09-06 — First batch held to five tasks; calibration passed, batch two
-released.** The opening five (`cut_half`, `property_b_lower`, `ramsey_erdos`,
-`caro_wei`, `bollobas_sum`) were five techniques across two chapters, held small so a
-systematic mis-statement would surface before it was multiplied across the board. It
-didn't: `cut_half` came back as a clean proof against the statement as written, using
-the counting convention as intended, so the conventions survive contact with a worker.
-Batch two is `ramsey_alteration` (#12), `choosable_upper` (#14) and `choosable_lower`
-(#15). The other three stated nodes are held for the reason in the next entry, not for
-calibration.
+### Practices that paid off
 
-**2026-09-06 — A node whose `proof_uses` names an unproved theorem cannot be published
-here, even though the planning playbook calls it ready.** The playbook's readiness test
-asks only that a dependency be *stated* — nodes fill in any order. That is true in
-general but not under this project's sorry policy. `.choir/verify.toml` leaves
-`audits.sorry_delta.policy` at its default `block`, and `gate/verify/comparator.py`
-adds `sorryAx` to comparator's permitted axioms **only** under policy `report`. So a
-proof that invokes a still-`sorry`'d lemma carries `sorryAx` in its axiom closure and
-`verify-comparator` fails it with `Illegal axiom detected` — unmergeable, for a reason
-invisible in the diff, through no fault of the worker.
+**Validate CI before contributors arrive, not after.** Two throwaway PRs (#6/#7, then #9
+targeting a scratch declaration through a `choir/8-…` branch so comparator resolved a real
+target) cost nothing and caught the toolchain defect above, which would otherwise have
+burned every contributor's first cycle and looked like their fault. Repeat after any change
+to the toolchain, the overlay, or `verify-pr.yml`. The merge path is validated too: PR #10
+went through `merge_pr`'s preflight and `issue-close-on-merge.yml` moved #1 to
+`choir/done`.
 
-Consequence: `bollobas_uniform` (needs `bollobas_sum`, #5), `caro_wei_clique` (needs
-`caro_wei`, #4) and `turan_edges` (needs `caro_wei_clique`) stay unpublished until the
-theorems they consume are merged. Depending on a *definition* is unaffected — that is
-why `choosable_upper` and `choosable_lower`, whose only dependency is
-`PMC.CompleteBipartiteChoosable`, went out. **Check `proof_uses` against the inventory,
-not just the graph's `statement` fields, before publishing.** If this project ever
-wants genuine parallelism on chained results, the lever is switching the sorry policy
-to `report` — an overseer decision, and one that changes what a green gate means.
+**Check every centralized definition numerically before committing it.** The statement
+layer gets *no* gate check, and a wrong definition makes every theorem about it vacuously
+true — the one failure the whole verification stack cannot catch. `beats`/`hamiltonPaths`
+were confirmed by reproducing the counting identity at two sizes (`96 = 3! * 2^4` over the
+64 tournaments on 3 vertices, `8 = 2! * 2^2` over the 8 on 2) plus antisymmetry; `SumFree`
+against six known examples; the §2.5 bound exhaustively against every `±1` matrix for
+`n ≤ 4`, where it turns out to be *tight* at `n = 1, 2`.
 
-**2026-09-06 — First contribution merged: #10, `cut_half`.** All nine checks green,
-comparator 2m58s against a real target. What I checked beyond the gate: the six new
-declarations are all `private` helpers about `Function.update`; the only hypothesis any
-of them carries is `a ≠ b` in the half-of-colourings lemma, which is genuinely needed
-and is discharged at the call site from `G.Adj a b` via `hadj.ne` — not smuggled to
-make the proof close. `flipAt` is a thin wrapper on `Function.update`, so there is no
-definitional gap to exploit. The argument is the intended one: sum over colourings,
-exchange the order of summation, pigeonhole with `Finset.exists_le_of_sum_le`.
+**Publishing an issue is not idempotent.** `choosable_upper` went out twice, as #13 and
+#14, because the publish script crashed on a formatting bug in its own progress `print`
+*after* the API call that mattered, and the re-run dropped only the node whose success had
+been printed. #14 was closed unclaimed, nothing lost. **Before re-running a partially
+failed publish, list the board and diff it by `target_decl`** — and do not infer what
+landed from how far the output got. When auditing, check the audit actually ran: the first
+duplicate scan returned "none" only because every row had errored.
 
-`verify-trust-report` listed all six helpers as `unresolved`. That is expected and not
-a signal: `private` declarations get mangled `_private.…` names, so `#print axioms
-PMC.flipAt` cannot resolve them. Expect this on every PR that uses private helpers —
-comparator's kernel-level axiom check is what actually covers the target.
+### What contributions look like here
 
-**2026-09-06 — `ramsey_erdos` (#11) and `caro_wei` (#16) merged.** Three of eleven phase-1
-nodes are now proved, none of them with a new axiom.
+**Counting over a larger uniform space is the idiom, not a mistake.** `ramsey_erdos` counts
+over all functions `Finset (Fin n) → Bool` and `ramsey_alteration` over all subsets of
+`Sym2 (Fin n)` — both bigger than the `2^C(n,2)` genuine edge-colourings, diagonal
+included. Sound because each bad event keeps its relative density, and it avoids building a
+`Fintype` of 2-subsets. **Two contributors reached for this independently**, and the
+tournament encoding in §2.1 follows it deliberately. Do not let anyone "fix" it.
 
-`ramsey_erdos` counts over *all* functions `Finset (Fin n) → Bool` rather than over the
-`2 ^ C(n,2)` edge-colourings. That looked wrong on first read and is in fact fine: each
-bad event still has relative density `2 ^ -C(k,2)`, since `badSet` constrains `f` on
-exactly the `C(k,2)` pairs inside the `k`-set and leaves every other input free. Working
-over the larger, more uniform index set avoids ever constructing the set of 2-subsets as
-a `Fintype`. Worth remembering before anyone "fixes" it.
+**`verify-trust-report` lists `private` helpers as `unresolved`, and that is expected** —
+private names are mangled to `_private.…`, so `#print axioms PMC.foo` cannot resolve them.
+Comparator's kernel-level axiom check is what actually covers the target.
 
-`caro_wei` took the Remark 2.3.4 derandomization, not the random-ordering argument, via a
-private lemma generalizing the bound to an induced subgraph (`d_t u` counting only
-neighbours inside `t`) so that strong induction on `t` goes through. This is the
-generalize-then-induct shape; expect it again on `turan_edges`.
+**The cheapest PRs to review add no new declarations at all** — `choosable_upper`,
+`choosable_lower`, `caro_wei_clique` and `turan_edges` each put the whole argument inline in
+the pre-stated theorem, leaving nothing worker-authored to audit. Worth preferring in task
+hints when the argument is short enough to inline.
 
-**2026-09-06 — `caro_wei_clique` (#17) published, unblocked by #16.** Its `proof_uses`
-dependency is now a real theorem rather than a `sorry`, so it can merge. Remaining held:
-`bollobas_uniform` (waiting on `bollobas_sum`, #5) and `turan_edges` (waiting on
-`caro_wei_clique`, #17). The frontier now unblocks itself as each chain link lands — no
-action needed beyond publishing the successor when its dependency merges.
+### Errata in the source
 
-**2026-09-06 — `choosable_upper` (#13) merged.** Notable for adding *no* new declarations:
-the whole union-bound argument sits inline in the pre-stated theorem, so comparator's
-kernel check covers all of it and there is no worker-authored statement to audit. When a
-node can be closed this way it is the cheapest possible thing to review — worth
-preferring in task hints where the argument is short enough to inline.
+**Proposition 2.4.4 is printed for `n ≥ 4` and is false there.** On four vertices the
+extremal tetrahedron-free 3-graph has `3` of the `4` triples — drop any one and no
+tetrahedron survives — while `(7/10) * C(4,3) = 2.8`. Verified by brute force. Our
+statement requires `5 ≤ n`, which is what the sampling argument needs anyway. Worth
+reporting via the errata form in the notes' preface.
 
-**2026-09-06 — Publishing bug: `choosable_upper` was published twice, as #13 and #14.**
-The publishing script created #13, then crashed on a formatting bug in its own progress
-`print` (a label enum's `.value` is an `int`, not a `str`). On the re-run only the
-already-confirmed node was removed from the batch, so `choosable_upper` went out a second
-time. #14 was closed as a duplicate, `choir/invalid`; it was never claimed, so no work was
-lost, and #13 is the live task.
+### Open items for the overseer
 
-**The lesson, for whoever publishes next: creating an issue is not idempotent, so before
-re-running a partially-failed publish, list the board and diff it against the batch.**
-Never infer what landed from how far the script's output got — the crash here happened
-*after* the API call that mattered. Better still, do the label edits in the same call that
-creates the issue, or verify by target_decl rather than by issue number.
+**`reconcile.stale_after_days = 7` is mismatched to this project's pace.** #2 was claimed
+at 20:10:53Z with its last heartbeat at 20:11:07Z and nothing since, while nine other tasks
+were claimed and merged inside 10–20 minutes each over the same hour. A dead worker session
+therefore holds a phase-1 node for a week. The default suits multi-month formalizations.
+The holder was asked to release; the lease was **not** overridden, and
+`.choir/project.toml` was **not** edited, because it is policy.
 
-**2026-09-06 — `choosable_lower` (#15), `bollobas_sum` (#5) and `caro_wei_clique` (#17)
-merged.** Seven of eleven phase-1 nodes proved, still zero axioms. Nothing is held any
-more: `bollobas_uniform` (#22) and `turan_edges` (#23) were published as soon as the
-theorems they consume landed, so the whole phase-1 frontier is now live.
-
-`bollobas_sum` was the batch's deliberately hard node and came back complete. It builds
-the permutation count from scratch rather than adapting Mathlib's LYM: `card_mapsOnto`
-counts the permutations carrying `P` onto `L` as `#P! * (n - #P)!`, `card_lowPerms`
-identifies "maps `P` below its complement" with "maps `P` onto the bottom `#P` elements",
-and `card_lowOrders` double-counts pairs `(g, σ)` to get
-`#lowOrders * C(#P + #Q, #P) = n!`. The disjointness of the events is the book's argument
-verbatim — `x ∈ A i ∩ B j` and `y ∈ A j ∩ B i` force `σ x < σ y` and `σ y < σ x`. The
-ground set is normalised to `Fin #X` up front, which is what keeps the counting lemmas
-free of the varying-union problem the roadmap flagged.
-
-**2026-09-06 — `choir/invalid` does not mean "the orchestrator rejected this".** It means
-*failed intake validation, retry pending*: `issue-intake.yml` fires on `labeled` and its
-`if` condition matches `choir/invalid` as well as `choir/available`. Labelling a
-well-formed task `choir/invalid` therefore makes intake re-validate it, find it fine, and
-hand it straight back as `choir/available`. That is what happened to the retired gate
-self-test (#8) and the duplicate `choosable_upper` (#14) — both closed, so no worker could
-claim them, but both sitting on the board reading `available`.
-
-**To retire a task, close it and *remove* `choir/available`.** Removal fires `unlabeled`,
-which intake does not listen for, and an issue carrying no lifecycle label is skipped by
-`sync_lease_labels` as well. Do not reach for `choir/invalid`.
-
-**2026-09-06 — `ramsey_alteration` (#12) and `bollobas_uniform` (#22) merged.** Nine of
-eleven phase-1 nodes proved, zero axioms throughout. Only `property_b_lower` (#2, claimed)
-and `turan_edges` (#23, open) remain.
-
-`ramsey_alteration` reuses the same counting-space trick as `ramsey_erdos`: it ranges over
-all subsets of `Sym2 (Fin n)`, which includes the diagonal, so the space is bigger than the
-`2^C(n,2)` genuine edge-colourings. Sound for the same reason — `edgesOn t` is exactly the
-`C(k,2)` off-diagonal pairs inside `t`, so each monochromatic event keeps density
-`2^(1-C(k,2))`. **Two independent contributors reached for this shape**, which suggests it
-is the natural way to do union-bound counting over colourings in Lean, not a one-off.
-
-**2026-09-06 — `reconcile.stale_after_days = 7` is mismatched to this project's pace, and
-it is the overseer's call to change.** #2 was claimed at 20:10:53Z with its last heartbeat
-at 20:11:07Z and nothing since; over the same 70 minutes nine other tasks were claimed and
-merged, each inside 10-20 minutes. So a dead worker session holds a phase-1 node for a
-week under the current setting. The default was written for multi-month formalizations;
-this project moves in minutes. Asked the holder to release (`orchestrator-notes`: never
-override a lease — ask). **Not changed unilaterally: `.choir/project.toml` is policy.**
-
-**2026-09-06 — Phase 1 is done bar one node, and phase 2 is open.** `turan_edges` (#23)
-merged, completing §2.3. Ten of eleven phase-1 nodes are proved with zero axioms; only
-`property_b_lower` (#2) is outstanding, held by the stale claim noted above.
-
-**Phase 2 is Chapter 2's remainder only; Chapter 3 moves to its own phase.** The original
-table paired them, but §2.1–§2.6 turned out to carry four separate formalization decisions
-(below), and a phase should not open wider than its plan is precise. Section-by-section
-reasoning is in [linearity.md](linearity.md); the decisions worth surfacing here:
-
-* **§2.1 `szele` is stated and ready.** Tournaments are encoded as
-  `t : Sym2 (Fin n) → Bool` read against the order on `Fin n`, reusing the
-  larger-uniform-space device the Chapter 1 proofs converged on twice independently.
-* **§2.2's proof in the book does not transfer** — it averages over `θ ∈ [0,1]` against
-  Lebesgue measure. The discrete mod-`p` version is the route, and Dirichlet is already in
-  Mathlib (`Nat.forall_exists_prime_gt_and_eq_mod`), so prime selection is a citation
-  rather than a project.
-* **§2.5 is stated with explicit constants, not `o(1)`** — the notes hand us the exact
-  expectation `n * 2^(1-n) * C(n-1, ⌊(n-1)/2⌋)`, so the central limit theorem drops out of
-  the statement entirely and the node stays in Chapter 2.
-* **§2.6 (crossing number) is deferred outright, not scheduled.** It needs drawings in the
-  plane, Euler's formula and face counts; Mathlib has no planarity development whatsoever.
-  Formalizing it means building topological graph theory first. Recorded so it is not
-  rediscovered.
-
-**Definitions are checked before they are committed.** `beats` and `hamiltonPaths` were
-evaluated on small cases first: Hamilton-path counts total `96 = 3! * 2^4` over the 64
-tournaments on 3 vertices and `8 = 2! * 2^2` over the 8 on 2 vertices, and antisymmetry
-holds for every `t` and every `a ≠ b`. Those are exactly the identities the counting proof
-rests on, so a definition that was subtly wrong would have shown up as a wrong total. Worth
-repeating for every centralized definition: **the statement layer gets no gate check, and
-a wrong definition makes every theorem about it vacuous.**
+**The board has outrun the workers.** As of the last pass there are four unclaimed tasks
+(#27–#30) and no worker activity for over two hours, after ten tasks were claimed and
+merged in the preceding ninety minutes. Nothing is claimed because nothing is running, not
+because the tasks are too hard — so publishing more would not help, and the frontier is
+deliberately not being expanded further until workers return or the overseer redirects.
+Chapter 3 is the next phase to open when that happens.
