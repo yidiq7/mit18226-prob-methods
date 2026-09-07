@@ -1,4 +1,5 @@
 import ProbMethods.Weighted
+import Mathlib.Analysis.SpecialFunctions.Log.Basic
 
 /-!
 # §6.1 — The Lovász Local Lemma
@@ -190,6 +191,99 @@ theorem lovasz_local_lemma (w : Ω → ℝ) (hw : ∀ ω, 0 ≤ w ω) (hsum : �
     (univ : Finset ι) (∅ : Finset ι) (by simp) (by simp)
   rw [Finset.union_empty, noneOf_empty, wprob_univ, hsum, mul_one] at h
   exact h
+
+/-! ### The symmetric form -/
+
+/-- `(1 + 1/d) ^ d ≤ e`, from `1 + x ≤ exp x`. -/
+private lemma one_add_inv_pow_le_exp {d : ℕ} (hd : 0 < d) :
+    ((1 : ℝ) + 1 / d) ^ d ≤ Real.exp 1 := by
+  have hdR : (0 : ℝ) < d := by exact_mod_cast hd
+  have h1 : (1 : ℝ) + 1 / d ≤ Real.exp (1 / d) := by
+    have := Real.add_one_le_exp (1 / (d : ℝ))
+    linarith
+  have h2 : ((1 : ℝ) + 1 / d) ^ d ≤ Real.exp (1 / d) ^ d :=
+    pow_le_pow_left₀ (by positivity) h1 d
+  rw [← Real.exp_nat_mul, show (d : ℝ) * (1 / d) = 1 by field_simp] at h2
+  exact h2
+
+/-- `1 / e ≤ (d / (d + 1)) ^ d`, which is what makes `e p (d + 1) ≤ 1` the right
+hypothesis for the symmetric local lemma. -/
+private lemma inv_exp_le_pow {d : ℕ} (hd : 0 < d) :
+    1 / Real.exp 1 ≤ ((d : ℝ) / (d + 1)) ^ d := by
+  have hdR : (0 : ℝ) < d := by exact_mod_cast hd
+  have hd1 : (0 : ℝ) < (d : ℝ) + 1 := by linarith
+  have hkey : ((d : ℝ) / (d + 1)) ^ d * ((1 : ℝ) + 1 / d) ^ d = 1 := by
+    rw [← mul_pow, show (d : ℝ) / (d + 1) * (1 + 1 / d) = 1 by field_simp, one_pow]
+  have hpos : (0 : ℝ) < ((1 : ℝ) + 1 / d) ^ d := by positivity
+  have hle := one_add_inv_pow_le_exp hd
+  rw [div_le_iff₀ (Real.exp_pos 1)]
+  calc (1 : ℝ) = ((d : ℝ) / (d + 1)) ^ d * ((1 : ℝ) + 1 / d) ^ d := hkey.symm
+    _ ≤ ((d : ℝ) / (d + 1)) ^ d * Real.exp 1 :=
+        mul_le_mul_of_nonneg_left hle (by positivity)
+
+/-- **The Lovász Local Lemma**, symmetric form (Zhao, §6.1).
+
+If every event has probability at most `p`, every event depends on at most `d` others, and
+`e * p * (d + 1) ≤ 1`, then with positive probability none of the events occurs.
+
+This is the form every application in §6.2–§6.6 uses. It follows from the asymmetric form
+at `x i = 1 / (d + 1)`: the hypothesis `e p (d+1) ≤ 1` gives `p ≤ 1 / (e (d+1))`, and
+`1/e ≤ (d/(d+1)) ^ d` (`PMC.inv_exp_le_pow`, from `1 + x ≤ exp x`) turns that into the
+`hbound` the asymmetric form needs.
+
+**`0 < d` is required.** At `d = 0` the events are mutually independent and the choice
+`x i = 1/(d+1) = 1` violates the asymmetric form's `x i < 1`; that case is separately
+trivial, since independence gives `P(none) = ∏ (1 - P(A i))` directly. Textbook statements
+generally leave this implicit. -/
+theorem lovasz_local_lemma_symmetric (w : Ω → ℝ) (hw : ∀ ω, 0 ≤ w ω) (hsum : ∑ ω, w ω = 1)
+    (A : ι → Finset Ω) (N : ι → Finset ι) {d : ℕ} (hd : 0 < d) {p : ℝ} (hp0 : 0 ≤ p)
+    (hself : ∀ i, i ∉ N i)
+    (hdeg : ∀ i, #(N i) ≤ d)
+    (hindep : ∀ (i : ι) (T : Finset ι), Disjoint T (insert i (N i)) →
+      wprob w (A i ∩ noneOf A T) = wprob w (A i) * wprob w (noneOf A T))
+    (hprob : ∀ i, wprob w (A i) ≤ p)
+    (hep : Real.exp 1 * p * (d + 1) ≤ 1) :
+    0 < wprob w (noneOf A (univ : Finset ι)) := by
+  have hdR : (0 : ℝ) < d := by exact_mod_cast hd
+  have hd1 : (0 : ℝ) < (d : ℝ) + 1 := by linarith
+  set x : ι → ℝ := fun _ => 1 / ((d : ℝ) + 1) with hxdef
+  have hx0 : ∀ i, 0 ≤ x i := fun i => by rw [hxdef]; positivity
+  have hx1 : ∀ i, x i < 1 := fun i => by
+    rw [hxdef]
+    rw [div_lt_one hd1]
+    linarith
+  -- `1 - 1/(d+1) = d/(d+1)`
+  have hfac : (1 : ℝ) - 1 / ((d : ℝ) + 1) = (d : ℝ) / ((d : ℝ) + 1) := by
+    rw [eq_div_iff (ne_of_gt hd1), sub_mul, one_mul, div_mul_eq_mul_div,
+      mul_div_assoc, div_self (ne_of_gt hd1), mul_one]
+    ring
+  have hbound : ∀ i, wprob w (A i) ≤ x i * ∏ j ∈ N i, (1 - x j) := by
+    intro i
+    have hprodeq : (∏ j ∈ N i, (1 - x j)) = ((d : ℝ) / ((d : ℝ) + 1)) ^ #(N i) := by
+      rw [hxdef]
+      simp only
+      rw [Finset.prod_const, hfac]
+    have hmono : ((d : ℝ) / ((d : ℝ) + 1)) ^ d ≤ ((d : ℝ) / ((d : ℝ) + 1)) ^ #(N i) :=
+      pow_le_pow_of_le_one (by positivity) (by rw [div_le_one hd1]; linarith) (hdeg i)
+    have hexp := inv_exp_le_pow hd
+    have hple : p ≤ 1 / (Real.exp 1 * ((d : ℝ) + 1)) := by
+      rw [le_div_iff₀ (by positivity)]
+      calc p * (Real.exp 1 * ((d : ℝ) + 1)) = Real.exp 1 * p * ((d : ℝ) + 1) := by ring
+        _ ≤ 1 := hep
+    calc wprob w (A i) ≤ p := hprob i
+      _ ≤ 1 / (Real.exp 1 * ((d : ℝ) + 1)) := hple
+      _ = (1 / ((d : ℝ) + 1)) * (1 / Real.exp 1) := by
+          rw [one_div, one_div, one_div, mul_inv]
+          ring
+      _ ≤ (1 / ((d : ℝ) + 1)) * ((d : ℝ) / ((d : ℝ) + 1)) ^ d :=
+          mul_le_mul_of_nonneg_left hexp (by positivity)
+      _ ≤ (1 / ((d : ℝ) + 1)) * ((d : ℝ) / ((d : ℝ) + 1)) ^ #(N i) :=
+          mul_le_mul_of_nonneg_left hmono (by positivity)
+      _ = x i * ∏ j ∈ N i, (1 - x j) := by rw [hprodeq, hxdef]
+  have h := lovasz_local_lemma w hw hsum A N x hx0 hx1 hself hindep hbound
+  have hprodpos : (0 : ℝ) < ∏ i, (1 - x i) :=
+    Finset.prod_pos fun i _ => by linarith [hx1 i]
+  linarith
 
 end LocalLemma
 

@@ -57,12 +57,31 @@ what establishes positivity. Everything is therefore phrased multiplicatively, a
 division appears anywhere in the development. That was the single design decision the proof
 turned on.
 
-## Symmetric form and applications
+## Symmetric form — proved
 
-The symmetric local lemma (`e p (d+1) ≤ 1` with `#(N i) ≤ d` and `wprob w (A i) ≤ p`)
-follows by taking `x i = 1/(d+1)` and using `(1 - 1/(d+1))^d > 1/e`. Worth stating as a
-corollary once the general form is proved, since every application in §6.2–§6.6 uses the
-symmetric version.
+`PMC.lovasz_local_lemma_symmetric`: if every event has probability at most `p`, depends on
+at most `d` others, and `e * p * (d + 1) ≤ 1`, then with positive probability none occurs.
+This is the form every application in §6.2–§6.6 uses.
+
+From the asymmetric form at `x i = 1 / (d + 1)`. The analytic input is
+`1 / e ≤ (d / (d + 1)) ^ d` (`inv_exp_le_pow`), which comes from `1 + t ≤ exp t` at
+`t = 1/d`: that gives `(1 + 1/d) ^ d ≤ exp 1`, and `(d/(d+1)) * (1 + 1/d) = 1` inverts it.
+
+**`0 < d` is required, and textbooks leave it implicit.** At `d = 0` the choice
+`x i = 1/(d+1) = 1` violates the asymmetric form's `x i < 1`. That case is separately
+trivial — mutual independence gives `P(none) = ∏ (1 - P(A i))` directly — but it is a real
+side condition, not a formality.
+
+## Applications
 
 §6.2 (colouring hypergraphs) strengthens §1.3's `property_b_lower`, which is already
-proved, so it is a natural first application.
+proved, so it is a natural first application: a `k`-uniform hypergraph in which every edge
+meets at most `d` others is 2-colourable once `e (d+1) 2^(1-k) ≤ 1`. The events are "edge
+`e` is monochromatic", the dependency graph is "shares a vertex", and each event has
+probability `2^(1-k)` under the uniform colouring — all three now expressible with
+`PMC.wprob` and the symmetric form.
+
+The remaining sections (§6.3 independent transversals, §6.4 directed cycles, §6.5 lopsided
+local lemma, §6.6 algorithmic local lemma) each need their own setup; §6.5 in particular
+needs a different independence hypothesis (lopsidependency) and so a variant statement, not
+just an application.
