@@ -866,6 +866,131 @@ theorem card_filter_inter_prod (V C : Finset α) (hC : C ⊆ V)
       Finset.union_inter_distrib_right, Finset.inter_eq_left.mpr hq2,
       Finset.disjoint_iff_inter_eq_empty.mp hdisj2, Finset.empty_union]
 
+/-! ### Block independence for `pweight`
+
+`PMC.card_inter_mul_of_determinedBy` gives independence of events on disjoint coordinate
+blocks for the *uniform* weight. The same is true for `pweight`, and the applications need
+it: Janson's upper bound conditions on the bad sets that share no element with the current
+one, which is exactly an event on the complementary block.
+-/
+
+/-- The weight of one *block* of coordinates: only the coordinates in `D` are decided.
+`PMC.pweight` is the case `D = univ`. -/
+def pweightOn (D : Finset α) (p : α → ℝ) (T : Finset α) : ℝ :=
+  (∏ i ∈ T, p i) * ∏ i ∈ D \ T, (1 - p i)
+
+@[simp] lemma pweightOn_univ (p : α → ℝ) (S : Finset α) :
+    pweightOn univ p S = pweight p S := rfl
+
+/-- A block's weights total `1`, by `Finset.prod_add` again. -/
+theorem sum_pweightOn (D : Finset α) (p : α → ℝ) :
+    ∑ T ∈ D.powerset, pweightOn D p T = 1 := by
+  have h := Finset.prod_add p (fun i => 1 - p i) D
+  rw [show ∑ T ∈ D.powerset, pweightOn D p T
+      = ∑ T ∈ D.powerset, (∏ i ∈ T, p i) * ∏ i ∈ D \ T, (1 - p i) from rfl, ← h]
+  simp
+
+lemma pweightOn_nonneg {p : α → ℝ} (hp0 : ∀ i, 0 ≤ p i) (hp1 : ∀ i, p i ≤ 1) (D T : Finset α) :
+    0 ≤ pweightOn D p T :=
+  mul_nonneg (Finset.prod_nonneg fun i _ => hp0 i)
+    (Finset.prod_nonneg fun i _ => by linarith [hp1 i])
+
+/-- **The two blocks' weights multiply to the whole weight.** -/
+theorem pweightOn_mul_pweightOn (p : α → ℝ) (C S : Finset α) :
+    pweightOn C p (S ∩ C) * pweightOn ((univ : Finset α) \ C) p (S ∩ ((univ : Finset α) \ C))
+      = pweight p S := by
+  classical
+  have hdisj1 : Disjoint (S ∩ C) (S ∩ ((univ : Finset α) \ C)) := by
+    rw [Finset.disjoint_left]
+    intro x hx hx'
+    exact (mem_sdiff.mp (mem_inter.mp hx').2).2 (mem_inter.mp hx).2
+  have hunion1 : S ∩ C ∪ S ∩ ((univ : Finset α) \ C) = S := by
+    ext x
+    simp only [mem_union, mem_inter, mem_sdiff, mem_univ, true_and]
+    tauto
+  have hdisj2 : Disjoint (C \ (S ∩ C))
+      (((univ : Finset α) \ C) \ (S ∩ ((univ : Finset α) \ C))) := by
+    rw [Finset.disjoint_left]
+    intro x hx hx'
+    exact (mem_sdiff.mp (mem_sdiff.mp hx').1).2 (mem_sdiff.mp hx).1
+  have hunion2 : C \ (S ∩ C) ∪ ((univ : Finset α) \ C) \ (S ∩ ((univ : Finset α) \ C))
+      = (univ : Finset α) \ S := by
+    ext x
+    simp only [mem_union, mem_sdiff, mem_inter, mem_univ, true_and]
+    tauto
+  rw [pweightOn, pweightOn, pweight]
+  calc (∏ i ∈ S ∩ C, p i) * (∏ i ∈ C \ (S ∩ C), (1 - p i))
+        * ((∏ i ∈ S ∩ ((univ : Finset α) \ C), p i)
+          * ∏ i ∈ ((univ : Finset α) \ C) \ (S ∩ ((univ : Finset α) \ C)), (1 - p i))
+      = ((∏ i ∈ S ∩ C, p i) * ∏ i ∈ S ∩ ((univ : Finset α) \ C), p i)
+        * ((∏ i ∈ C \ (S ∩ C), (1 - p i))
+          * ∏ i ∈ ((univ : Finset α) \ C) \ (S ∩ ((univ : Finset α) \ C)), (1 - p i)) := by
+        ring
+    _ = (∏ i ∈ S, p i) * ∏ i ∈ (univ : Finset α) \ S, (1 - p i) := by
+        rw [← Finset.prod_union hdisj1, ← Finset.prod_union hdisj2, hunion1, hunion2]
+
+/-- **The weighted analogue of `PMC.card_filter_inter_prod`.**
+
+A condition on the trace in `C` and a condition on the trace outside `C` are independent:
+the total weight factors as the product of the two block weights. -/
+theorem sum_pweight_filter_split (p : α → ℝ) (C : Finset α)
+    (P Q : Finset α → Prop) [DecidablePred P] [DecidablePred Q] :
+    ∑ S ∈ (univ : Finset (Finset α)).filter
+        (fun S => P (S ∩ C) ∧ Q (S ∩ ((univ : Finset α) \ C))), pweight p S
+      = (∑ T ∈ C.powerset.filter P, pweightOn C p T)
+        * ∑ U ∈ ((univ : Finset α) \ C).powerset.filter Q,
+            pweightOn ((univ : Finset α) \ C) p U := by
+  classical
+  rw [Finset.sum_mul_sum, ← Finset.sum_product']
+  refine Finset.sum_nbij' (fun S => (S ∩ C, S ∩ ((univ : Finset α) \ C)))
+    (fun q => q.1 ∪ q.2) ?_ ?_ ?_ ?_ ?_
+  · intro S hS
+    rw [mem_filter] at hS
+    rw [Finset.mem_product, mem_filter, mem_filter, mem_powerset, mem_powerset]
+    exact ⟨⟨inter_subset_right, hS.2.1⟩, ⟨inter_subset_right, hS.2.2⟩⟩
+  · intro q hq
+    rw [Finset.mem_product, mem_filter, mem_filter, mem_powerset, mem_powerset] at hq
+    obtain ⟨⟨hq1, hP⟩, ⟨hq2, hQ⟩⟩ := hq
+    have hdisj : Disjoint q.2 C := by
+      rw [Finset.disjoint_left]
+      intro x hx hxC
+      exact (mem_sdiff.mp (hq2 hx)).2 hxC
+    have hdisj2 : Disjoint q.1 ((univ : Finset α) \ C) := by
+      rw [Finset.disjoint_left]
+      intro x hx hxV
+      exact (mem_sdiff.mp hxV).2 (hq1 hx)
+    have h1 : (q.1 ∪ q.2) ∩ C = q.1 := by
+      rw [Finset.union_inter_distrib_right, Finset.inter_eq_left.mpr hq1,
+        Finset.disjoint_iff_inter_eq_empty.mp hdisj, Finset.union_empty]
+    have h2 : (q.1 ∪ q.2) ∩ ((univ : Finset α) \ C) = q.2 := by
+      rw [Finset.union_inter_distrib_right, Finset.inter_eq_left.mpr hq2,
+        Finset.disjoint_iff_inter_eq_empty.mp hdisj2, Finset.empty_union]
+    rw [mem_filter]
+    exact ⟨mem_univ _, by rw [h1]; exact hP, by rw [h2]; exact hQ⟩
+  · intro S _
+    show S ∩ C ∪ S ∩ ((univ : Finset α) \ C) = S
+    ext x
+    simp only [mem_union, mem_inter, mem_sdiff, mem_univ, true_and]
+    tauto
+  · intro q hq
+    rw [Finset.mem_product, mem_filter, mem_filter, mem_powerset, mem_powerset] at hq
+    obtain ⟨⟨hq1, -⟩, ⟨hq2, -⟩⟩ := hq
+    have hdisj : Disjoint q.2 C := by
+      rw [Finset.disjoint_left]
+      intro x hx hxC
+      exact (mem_sdiff.mp (hq2 hx)).2 hxC
+    have hdisj2 : Disjoint q.1 ((univ : Finset α) \ C) := by
+      rw [Finset.disjoint_left]
+      intro x hx hxV
+      exact (mem_sdiff.mp hxV).2 (hq1 hx)
+    show ((q.1 ∪ q.2) ∩ C, (q.1 ∪ q.2) ∩ ((univ : Finset α) \ C)) = q
+    rw [Finset.union_inter_distrib_right, Finset.inter_eq_left.mpr hq1,
+      Finset.disjoint_iff_inter_eq_empty.mp hdisj, Finset.union_empty,
+      Finset.union_inter_distrib_right, Finset.inter_eq_left.mpr hq2,
+      Finset.disjoint_iff_inter_eq_empty.mp hdisj2, Finset.empty_union]
+  · intro S _
+    exact (pweightOn_mul_pweightOn p C S).symm
+
 /-! ### Events determined by a block of coordinates -/
 
 /-- An event is *determined by* `C` when membership depends only on the intersection with
@@ -911,6 +1036,40 @@ lemma DeterminedBy.compl {C : Finset α} {A : Finset (Finset α)} (hA : Determin
     DeterminedBy C Aᶜ := by
   intro S T hST
   rw [mem_compl, mem_compl, hA S T hST]
+
+/-- **Events determined by disjoint blocks are independent, for `pweight`.**
+
+The non-uniform analogue of `PMC.card_inter_mul_of_determinedBy`. An application only has
+to exhibit the blocks and check they are disjoint. -/
+theorem sum_pweight_inter_of_determinedBy (p : α → ℝ) {C : Finset α}
+    {A B : Finset (Finset α)} (hA : DeterminedBy C A)
+    (hB : DeterminedBy ((univ : Finset α) \ C) B) :
+    (∑ S ∈ A ∩ B, pweight p S) = (∑ S ∈ A, pweight p S) * ∑ S ∈ B, pweight p S := by
+  classical
+  have hfullC : ((univ : Finset α) \ C).powerset.filter (fun _ => True)
+      = ((univ : Finset α) \ C).powerset := Finset.filter_true_of_mem fun _ _ => trivial
+  have hfullD : C.powerset.filter (fun _ => True) = C.powerset :=
+    Finset.filter_true_of_mem fun _ _ => trivial
+  have hAsum : (∑ S ∈ A, pweight p S)
+      = ∑ T ∈ C.powerset.filter (fun T => T ∈ A), pweightOn C p T := by
+    have h := sum_pweight_filter_split p C (fun T => T ∈ A) (fun _ => True)
+    rw [hfullC, sum_pweightOn, mul_one] at h
+    rw [← h]
+    exact Finset.sum_congr (by ext S; simp [hA.mem_iff S]) fun _ _ => rfl
+  have hBsum : (∑ S ∈ B, pweight p S)
+      = ∑ U ∈ ((univ : Finset α) \ C).powerset.filter (fun U => U ∈ B),
+          pweightOn ((univ : Finset α) \ C) p U := by
+    have h := sum_pweight_filter_split p C (fun _ => True) (fun U => U ∈ B)
+    rw [hfullD, sum_pweightOn, one_mul] at h
+    rw [← h]
+    exact Finset.sum_congr (by ext S; simp [hB.mem_iff S]) fun _ _ => rfl
+  have hABsum : (∑ S ∈ A ∩ B, pweight p S)
+      = (∑ T ∈ C.powerset.filter (fun T => T ∈ A), pweightOn C p T)
+        * ∑ U ∈ ((univ : Finset α) \ C).powerset.filter (fun U => U ∈ B),
+            pweightOn ((univ : Finset α) \ C) p U := by
+    rw [← sum_pweight_filter_split p C (fun T => T ∈ A) (fun U => U ∈ B)]
+    exact Finset.sum_congr (by ext S; simp [hA.mem_iff S, hB.mem_iff S]) fun _ _ => rfl
+  rw [hABsum, hAsum, hBsum]
 
 @[simp] lemma determinedBy_univ (C : Finset α) :
     DeterminedBy C (univ : Finset (Finset α)) := by

@@ -1146,7 +1146,7 @@
         "janson_lower"
       ],
       "proof_uses": [],
-      "note": "Theorem 8.1.1, UPPER BOUND exp(-mu + Delta/2). Two of the three missing pieces now exist: pweight_anticorrelate (mixed Harris) and the observation that for a pair of bad sets sharing no element the events are independent. What remains is (i) block independence for pweight -- the non-uniform analogue of card_inter_mul_of_determinedBy, needed because the non-neighbours of i live on a disjoint coordinate block -- and (ii) a conditional-probability layer with the telescoping chain rule over a prefix ordering, handling the degenerate case where some prefix has probability zero (then both sides are trivially fine)."
+      "note": "Theorem 8.1.1, UPPER BOUND exp(-mu + Delta/2). Both blockers are now cleared: pweight_anticorrelate (mixed Harris) and pweight_block_indep (block independence for pweight). PLAN, worked out and worth following: avoid conditional probability entirely and keep everything multiplicative, as in the LLL. The per-step estimate is wprob (noneOf A (insert i T)) <= exp(-P(A i) + sum over j in T sharing an element with i of P(A i inter A j)) * wprob (noneOf A T), and it holds for ANY finite T not containing i -- split T into the js whose bad set meets g i (handled by mixed Harris) and those disjoint from it (handled by block independence). No ordering is needed for the step. A linear order enters only in the induction: peel the LARGEST element each time, as in sum_chain_eq, so the remaining T is a prefix and the double sum becomes the lower-triangular half of Delta."
     },
     "entropyGroup": {
       "kind": "group",
@@ -1678,6 +1678,66 @@
       "uses": [],
       "proof_uses": [],
       "note": "Harris' inequality in its MIXED form: an upward-closed A and downward-closed B satisfy P(A and B) <= P(A) P(B). From the increasing case applied to A and the complement of B. This is the form Janson's UPPER bound needs -- there the increasing event is 'this bad set appears' and the decreasing one is 'none of the earlier bad sets appears'."
+    },
+    "pweightOnDef": {
+      "kind": "definition",
+      "parent": "jansonGroup",
+      "file": "ProbMethods/Weighted.lean",
+      "decl": "PMC.pweightOn",
+      "doc": "janson.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "The weight of one block of coordinates; pweight is the case D = univ."
+    },
+    "pweightOn_norm": {
+      "kind": "theorem",
+      "parent": "jansonGroup",
+      "file": "ProbMethods/Weighted.lean",
+      "decl": "PMC.sum_pweightOn",
+      "doc": "janson.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "A block's weights total 1, by Finset.prod_add again."
+    },
+    "pweightOn_factor": {
+      "kind": "theorem",
+      "parent": "jansonGroup",
+      "file": "ProbMethods/Weighted.lean",
+      "decl": "PMC.pweightOn_mul_pweightOn",
+      "doc": "janson.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "The two blocks' weights multiply to the whole weight."
+    },
+    "pweight_split": {
+      "kind": "theorem",
+      "parent": "jansonGroup",
+      "file": "ProbMethods/Weighted.lean",
+      "decl": "PMC.sum_pweight_filter_split",
+      "doc": "janson.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "The weighted analogue of card_filter_inter_prod: a condition on the trace in C and one on the trace outside C are independent."
+    },
+    "pweight_block_indep": {
+      "kind": "theorem",
+      "parent": "jansonGroup",
+      "file": "ProbMethods/Weighted.lean",
+      "decl": "PMC.sum_pweight_inter_of_determinedBy",
+      "doc": "janson.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "Events determined by disjoint blocks are independent for pweight -- the non-uniform analogue of card_inter_mul_of_determinedBy. An application only has to exhibit the blocks and check they are disjoint."
     }
   }
 }

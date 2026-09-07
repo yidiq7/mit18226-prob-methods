@@ -53,16 +53,32 @@ is an *equality* and therefore symmetric in `⊓` and `⊔`. So Mathlib's `fkg` 
 the dual verbatim, where `Monotone` means `Antitone`. Worth remembering: when a hypothesis
 is stated as an equality rather than an inequality, order-reversal is usually free.
 
-## The upper bound is a different argument
+## The upper bound: both blockers cleared, and the plan
 
-The upper bound is not a correlation inequality. It conditions on a prefix of the family —
-`P(Ā_i | ⋂_{j<i} Ā_j)` — and bounds each conditional probability using Harris *and* a
-union bound over the `j < i` that share an element with `i`. Two things it needs that the
-lower bound did not:
+The upper bound is not a correlation inequality — informally it conditions on a prefix of
+the family and bounds `P(Ā_i | ⋂_{j<i} Ā_j)`. Two ingredients were missing; both now exist:
 
-* conditional probability in the finite weighted framework (a definition, plus the chain
-  rule as a `Finset.prod_range_succ`-style telescoping);
-* `1 - t ≤ exp (-t)`, which is `Real.add_one_le_exp` — already used in §6.1.
+* `PMC.pweight_anticorrelate` — Harris in its **mixed** form, `P(A ∧ B) ≤ P(A) P(B)` for `A`
+  increasing and `B` decreasing. Here `A` is "this bad set appears" and `B` is "none of the
+  earlier ones does".
+* `PMC.sum_pweight_inter_of_determinedBy` — block independence for `pweight`, the
+  non-uniform analogue of `PMC.card_inter_mul_of_determinedBy`. Needed because the bad sets
+  *disjoint* from `g i` live on the complementary coordinate block, where the events really
+  are independent rather than merely correlated.
 
-Neither is deep, but together they are a session's work, and the conditional-probability
-layer would be new. It is the natural next Chapter 8 task.
+**Do not build a conditional-probability layer.** The right move is the one §6.1 already
+made for the local lemma: keep everything multiplicative. Division by `P(⋂_{j<i} Ā_j)` is
+exactly what forces case analysis on whether that probability vanishes. The per-step
+estimate to prove is
+
+    wprob (noneOf A (insert i T))
+      ≤ exp (-P (A i) + ∑_{j ∈ T, g j ∩ g i ≠ ∅} P (A i ∩ A j)) · wprob (noneOf A T),
+
+and it holds for **any** finite `T` with `i ∉ T`: split `T` into the `j` whose bad set meets
+`g i` (mixed Harris) and those disjoint from it (block independence). No ordering is needed
+for the step itself.
+
+A linear order enters only in the induction, and only to make the double sum come out as
+`Δ/2`: peel the **largest** element each time — the same pattern as `PMC.sum_chain_eq` in
+Chapter 10 — so the remaining `T` is always a prefix and `∑_i ∑_{j < i, j ∼ i}` is the
+lower-triangular half of the ordered-pair sum `Δ`.
