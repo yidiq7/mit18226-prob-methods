@@ -136,7 +136,37 @@ most `7` of its `10` triples. That is a search over `2 ^ 10 = 1024` hypergraphs,
 live or die. Note also that `verify-decide-instance` blocks new `Decidable` instances, so
 whatever is written must ride on instances Mathlib already provides.
 
-Statement not yet authored; the 3-graph and tetrahedron-free definitions are needed first.
+### sampling_tetrahedron
+`PMC.card_le_of_not_hasTetrahedron`, stated as `10 * #H ≤ 7 * n.choose 3` over `ℕ`.
+
+**The notes are off by one here, and the statement corrects them.** Proposition 2.4.4 is
+printed for `n ≥ 4`, but it is false at `n = 4`: brute force over all `2 ^ 4` families of
+triples on four vertices gives a maximum tetrahedron-free size of **3** — drop any single
+triple and no tetrahedron survives — while `(7/10) * C(4,3) = 2.8`. Our statement requires
+`5 ≤ n`, which is also what the argument needs, since it samples five vertices. Worth
+reporting upstream via the errata form in the notes' preface.
+
+The base case is tight and was computed exhaustively: on five vertices the maximum
+tetrahedron-free 3-graph has exactly **7** of the `10` triples, which is where `7/10` comes
+from.
+
+**`decide` does not work on the base case, and there is no need for it.** Two things were
+measured. First, the base case cannot be quantified over the type `Finset (Finset (Fin 5))`
+at all — that is `2 ^ 32` elements. Restricting to `(powersetCard 3 univ).powerset`, the
+`1024` families of triples, makes it finite enough to state, but `decide` still exhausts
+the default heartbeat budget and had not finished at twenty times that budget. Even if it
+elaborated, the kernel would have to replay it in CI.
+
+**Use the counting argument instead — it is three lines of mathematics.** Let `M` be the
+triples *not* in `H`. Every one of the `C(5,4) = 5` four-subsets must miss at least one of
+its triples, or it would be a tetrahedron; and each triple lies in exactly `2` four-subsets
+(pick the two remaining vertices). So `2 * #M ≥ 5`, hence `#M ≥ 3`, hence `#H ≤ 7`. This
+was checked against the brute-force extremal number and is tight.
+
+The sampling step is then a double count resting on the identity
+`C(n,3) * C(n-3,2) = 10 * C(n,5)` (verified for `n = 5..11`): summing the triples of `H`
+inside each 5-subset gives `#H * C(n-3,2)` on one side and at most `7 * C(n,5)` on the
+other.
 
 ## Unbalancing lights (§2.5)
 
@@ -155,7 +185,19 @@ Chapter 2 rather than deferring it behind Chapter 9's machinery.
 Theorem 2.5.2 is **not** a node: its proof rests on a compactness argument producing an
 unspecified constant `c_k`, which is not something a `prove` task can be checked against.
 
-Statement not yet authored.
+### unbalancing_lights
+`PMC.exists_signs_two_pow_mul_le` — Theorem 2.5.1, explicit form. Written multiplicatively
+over `ℤ`:
+
+    (n : ℤ) ^ 2 * C(n-1, ⌊(n-1)/2⌋)  ≤  (∑ i, ∑ j, a i j * x i * y j) * 2 ^ (n - 1)
+
+The bound was checked before committing, since an off-by-one here would make the task
+unprovable rather than merely hard. The underlying identity
+`∑ over y in {±1}^n of |∑ j, y j| = 2n * C(n-1, ⌊(n-1)/2⌋)` holds for `n = 1..7`, and the
+theorem itself was verified **exhaustively over every `±1` matrix** for `n = 1..4`. It is
+*tight* at `n = 1` and `n = 2` — the hardest matrix meets the bound exactly — which is the
+useful part of the check: it says the constant is not accidentally slack, so a proof that
+loses anything will fail.
 
 ## Crossing number inequality (§2.6) — DEFERRED
 
