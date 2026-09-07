@@ -45,8 +45,9 @@ then `n ≳ 2 ^ k / sqrt k`.
 `(univ : Finset (Fin k)).powerset`. The pieces:
 
 * `μ = (∑ x) / 2` and `σ² = (∑ x²) / 4 ≤ n² k / 4`;
-* Chebyshev over a finite uniform space — **not** in Mathlib in that form, and it should be
-  authored at the centralized layer, since Chapters 4, 5 and 9 all want it;
+* Chebyshev over a finite weighted space — **now available** as `PMC.wchebyshev` and
+  `PMC.wchebyshev'` in `ProbMethods/Weighted.lean`, with `PMC.wmean` and `PMC.wvar`.
+  Mathlib's Chebyshev is `MeasureTheory`-only and does not apply to a bare finite sum;
 * distinct subset sums give `P(X = v) ≤ 2 ^ (-k)` for each value `v`, so the count of
   patterns landing in an interval of length `2 n sqrt k` is at most `2 n sqrt k`;
 * combining bounds `3/4 ≤ 2 n sqrt k * 2 ^ (-k)`, hence `n ≥ 3 * 2 ^ k / (8 sqrt k)`.

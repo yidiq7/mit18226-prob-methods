@@ -436,11 +436,13 @@
       "kind": "definition",
       "parent": "secondMoment",
       "doc": "second-moment.md#distinct-sums-46--the-tractable-node",
-      "statement": "planned",
-      "proof": "planned",
+      "statement": "formalized",
+      "proof": "formalized",
       "uses": [],
       "proof_uses": [],
-      "note": "Chebyshev over a finite weighted space; centralized layer. Wanted by chapters 4, 5 and 9."
+      "note": "Chebyshev over a finite weighted space, with wmean/wvar. Mathlib's is MeasureTheory-only. Wanted by chapters 4, 5, 9.",
+      "file": "ProbMethods/Weighted.lean",
+      "decl": "PMC.wchebyshev"
     },
     "gnp_weights": {
       "kind": "definition",
