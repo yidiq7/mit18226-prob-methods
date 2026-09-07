@@ -561,6 +561,49 @@
       ],
       "proof_uses": [],
       "note": "The first moment method, once: patterns of size m are contained with total weight #patterns * p^m. Instances: 4.1, 4.2, 4.4."
+    },
+    "second_moment_method": {
+      "kind": "theorem",
+      "parent": "secondMoment",
+      "file": "ProbMethods/Weighted.lean",
+      "decl": "PMC.wsecond_moment",
+      "doc": "second-moment.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [
+        "chebyshev"
+      ],
+      "proof_uses": [],
+      "note": "Where a count vanishes the weight is at most wvar/wmean^2. The positive half of every threshold."
+    },
+    "second_moment_pair": {
+      "kind": "theorem",
+      "parent": "secondMoment",
+      "file": "ProbMethods/Weighted.lean",
+      "decl": "PMC.sum_bweight_mul_card_filter_sq",
+      "doc": "second-moment.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [
+        "gnp_weights"
+      ],
+      "proof_uses": [],
+      "note": "Second moment of a pattern count: sum over pairs of p^#(union). Two patterns are both present iff their union is."
+    },
+    "random_triangle_second": {
+      "kind": "theorem",
+      "parent": "secondMoment",
+      "file": "ProbMethods/Chapter04/SecondMoment.lean",
+      "decl": "PMC.sum_bweight_triangleFree_le",
+      "doc": "second-moment.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [
+        "second_moment_method",
+        "random_triangle"
+      ],
+      "proof_uses": [],
+      "note": "Triangle-free graphs carry weight at most Var/(C(n,3)p^3)^2. Remaining work in 4.1 is the overlap analysis bounding Var."
     }
   }
 }

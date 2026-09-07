@@ -29,6 +29,9 @@ easier to normalise at the point of use.
 * `PMC.wchebyshev` — Chebyshev's inequality. Mathlib's Chebyshev is stated for
   `MeasureTheory`/`ProbabilityTheory` and does not apply to a bare finite weighted sum, so
   this is proved here. Chapters 4 (§4.5, §4.6), 5 and 9 all want it.
+* `PMC.wsecond_moment` — **the second moment method**: wherever a count vanishes, the total
+  weight is at most `wvar / (wmean) ^ 2`. This is the "whp the count is positive" direction
+  of every threshold result, in finite form.
 * `PMC.sum_bweight` — the weights total `1`.
 * `PMC.sum_bweight_superset` — the subsets *containing* a fixed `B` carry weight `p ^ #B`.
   On `Sym2 V` this is exactly "every edge of a fixed subgraph is present with probability
@@ -39,6 +42,10 @@ easier to normalise at the point of use.
   every pattern in a family has `m` elements, the weighted expected number of patterns
   contained in a random subset is `#patterns * p ^ m`. Chapter 4's §4.1, §4.2 and §4.4 are
   all this lemma with different pattern families.
+* `PMC.sum_bweight_mul_card_filter_sq` — **the second moment**, in the same generality: the
+  weighted mean of the *square* of the pattern count is `∑ i, ∑ j, p ^ #(g i ∪ g j)`. Two
+  patterns are both present exactly when their union is, so no new weight computation is
+  needed. Feeding this and the first moment into `wchebyshev` is the second-moment method.
 
 `ProbMethods/Chapter03/Dominating.lean` proves private special cases of the disjoint and
 superset lemmas; those should be golfed away in favour of these.
@@ -101,6 +108,34 @@ theorem wchebyshev' (w : Ω → ℝ) (X : Ω → ℝ) (hw : ∀ ω, 0 ≤ w ω) 
         + (∑ ω ∈ univ.filter fun ω => a ≤ |X ω - wmean w X|, w ω) * a ^ 2 := by
     rw [← add_mul, hsplit]
   linarith
+
+/-- **The second moment method.**
+
+If a count `N` has positive weighted mean, then any set of points where `N` vanishes has
+total weight at most `wvar w N / (wmean w N) ^ 2`. Stated multiplicatively, so there is no
+division and no need to know the variance is nonzero.
+
+This is the direction that says a random object *does* contain the structure being counted:
+when the variance is small next to the squared mean, almost all the weight sits where the
+count is nonzero. Taking `w := bweight p` and `N` a subgraph count turns it into the
+positive half of a threshold result.
+
+Phrased for an arbitrary `S` on which `N` vanishes rather than for a `filter`, so that no
+decidability of real equality is involved at the call site. -/
+theorem wsecond_moment (w : Ω → ℝ) (N : Ω → ℝ) (hw : ∀ ω, 0 ≤ w ω)
+    (hmean : 0 < wmean w N) {S : Finset Ω} (hS : ∀ ω ∈ S, N ω = 0) :
+    (∑ ω ∈ S, w ω) * (wmean w N) ^ 2 ≤ wvar w N := by
+  have hsub : S ⊆ univ.filter fun ω => wmean w N ≤ |N ω - wmean w N| := by
+    intro ω hω
+    rw [mem_filter]
+    refine ⟨mem_univ _, ?_⟩
+    rw [hS ω hω, zero_sub, abs_neg, abs_of_pos hmean]
+  calc (∑ ω ∈ S, w ω) * (wmean w N) ^ 2
+      ≤ (∑ ω ∈ univ.filter fun ω => wmean w N ≤ |N ω - wmean w N|, w ω)
+          * (wmean w N) ^ 2 :=
+        mul_le_mul_of_nonneg_right
+          (Finset.sum_le_sum_of_subset_of_nonneg hsub fun ω _ _ => hw ω) (sq_nonneg _)
+    _ ≤ wvar w N := wchebyshev w N hw hmean
 
 end Weighted
 
@@ -241,6 +276,71 @@ theorem sum_bweight_mul_card_filter {ι : Type*} [DecidableEq ι]
           by_cases h : g i ⊆ X <;> simp [h]
         rw [hconv, sum_bweight_superset, hm i hi]
     _ = #I * p ^ m := by rw [Finset.sum_const, nsmul_eq_mul]
+
+/-- **The second moment of a pattern count.**
+
+The weighted mean of the square of the number of patterns contained in a random subset is
+`∑ i ∈ I, ∑ j ∈ I, p ^ #(g i ∪ g j)`.
+
+The only input beyond the first moment is that `g i ⊆ X` and `g j ⊆ X` together say exactly
+`g i ∪ g j ⊆ X`, so `sum_bweight_superset` applies unchanged to the pair. Together with
+`sum_bweight_mul_card_filter` and `wchebyshev` this is the second-moment method: the
+diagonal terms `i = j` contribute `p ^ #(g i)` and the off-diagonal terms measure how much
+patterns overlap. -/
+theorem sum_bweight_mul_card_filter_sq {ι : Type*} [DecidableEq ι]
+    (p : ℝ) (I : Finset ι) (g : ι → Finset α) :
+    ∑ X ∈ (univ : Finset α).powerset, bweight p X * (#(I.filter fun i => g i ⊆ X) : ℝ) ^ 2
+      = ∑ i ∈ I, ∑ j ∈ I, p ^ #(g i ∪ g j) := by
+  classical
+  have hcard : ∀ X : Finset α, (#(I.filter fun i => g i ⊆ X) : ℝ)
+      = ∑ i ∈ I, (if g i ⊆ X then (1 : ℝ) else 0) := by
+    intro X
+    rw [Finset.card_filter, Nat.cast_sum]
+    refine Finset.sum_congr rfl fun i _ => ?_
+    by_cases h : g i ⊆ X <;> simp [h]
+  have hsq : ∀ X : Finset α, (#(I.filter fun i => g i ⊆ X) : ℝ) ^ 2
+      = ∑ i ∈ I, ∑ j ∈ I, (if g i ∪ g j ⊆ X then (1 : ℝ) else 0) := by
+    intro X
+    rw [hcard X, sq, Finset.sum_mul_sum]
+    refine Finset.sum_congr rfl fun i _ => Finset.sum_congr rfl fun j _ => ?_
+    by_cases hi : g i ⊆ X
+    · by_cases hj : g j ⊆ X
+      · simp [hi, hj, Finset.union_subset_iff]
+      · simp [hi, hj, Finset.union_subset_iff]
+    · simp [hi, Finset.union_subset_iff]
+  calc ∑ X ∈ (univ : Finset α).powerset,
+        bweight p X * (#(I.filter fun i => g i ⊆ X) : ℝ) ^ 2
+      = ∑ X ∈ (univ : Finset α).powerset, ∑ i ∈ I, ∑ j ∈ I,
+          bweight p X * (if g i ∪ g j ⊆ X then (1 : ℝ) else 0) := by
+        refine Finset.sum_congr rfl fun X _ => ?_
+        rw [hsq X, Finset.mul_sum]
+        refine Finset.sum_congr rfl fun i _ => ?_
+        rw [Finset.mul_sum]
+    _ = ∑ i ∈ I, ∑ j ∈ I, ∑ X ∈ (univ : Finset α).powerset,
+          bweight p X * (if g i ∪ g j ⊆ X then (1 : ℝ) else 0) := by
+        rw [Finset.sum_comm]
+        refine Finset.sum_congr rfl fun i _ => Finset.sum_comm
+    _ = ∑ i ∈ I, ∑ j ∈ I, p ^ #(g i ∪ g j) := by
+        refine Finset.sum_congr rfl fun i _ => Finset.sum_congr rfl fun j _ => ?_
+        have hconv : ∑ X ∈ (univ : Finset α).powerset,
+            bweight p X * (if g i ∪ g j ⊆ X then (1 : ℝ) else 0)
+              = ∑ X ∈ (univ : Finset α).powerset.filter (fun X => g i ∪ g j ⊆ X),
+                bweight p X := by
+          rw [Finset.sum_filter]
+          refine Finset.sum_congr rfl fun X _ => ?_
+          by_cases h : g i ∪ g j ⊆ X <;> simp [h]
+        rw [hconv, sum_bweight_superset]
+
+/-- `wmean` against Bernoulli weights is the sum over the powerset, which is the shape the
+first- and second-moment lemmas above produce. `Finset.powerset_univ` is what makes these
+the same space: every `Finset α` is a subset of `univ`. -/
+lemma wmean_eq_sum_powerset (w : Finset α → ℝ) (N : Finset α → ℝ) :
+    wmean w N = ∑ X ∈ (univ : Finset α).powerset, w X * N X := by
+  rw [wmean, Finset.powerset_univ]
+
+lemma wvar_eq_sum_powerset (w : Finset α → ℝ) (N : Finset α → ℝ) :
+    wvar w N = ∑ X ∈ (univ : Finset α).powerset, w X * (N X - wmean w N) ^ 2 := by
+  rw [wvar, Finset.powerset_univ]
 
 end Bernoulli
 

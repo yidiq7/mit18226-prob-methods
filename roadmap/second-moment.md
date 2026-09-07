@@ -121,10 +121,29 @@ lemma is that `Sym2.map` of an injection is injective, so an embedding carries `
 edge set of the same size — Mathlib has `Sym2.map` but no injectivity lemma for it, so it is
 proved here.
 
+### The second moment, in the same generality
+`PMC.sum_bweight_mul_card_filter_sq` gives the weighted mean of the *square* of a pattern
+count as `∑ i, ∑ j, p ^ #(g i ∪ g j)`. No new weight computation was needed: two patterns
+are both present exactly when their union is, so `sum_bweight_superset` applies to the pair
+unchanged. The diagonal terms give `p ^ #(g i)` and the off-diagonal terms are precisely the
+overlap structure the second-moment method turns on.
+
+`PMC.wsecond_moment` is then the method itself: **where a count vanishes, the total weight
+is at most `wvar / (wmean) ^ 2`**. It is phrased for an arbitrary set on which the count
+vanishes rather than for a `filter`, so no decidability of real equality appears at the call
+site.
+
+### random_triangle_second (§4.1, positive direction) — proved
+`PMC.sum_bweight_triangleFree_le`: any family of triangle-free graphs carries
+`G(n, p)`-weight at most `Var / (C(n,3) p ^ 3) ^ 2`. With `PMC.wmean_card_triangles`
+identifying the mean, this is the "typically contains a triangle" half of the threshold in
+finite form.
+
+What is left in §4.1 is the *overlap analysis*: bounding
+`∑ t, ∑ t', p ^ #(spannedEdges t ∪ spannedEdges t')` explicitly. Two triples share 0, 1, 2
+or 3 vertices, and only the sharing-two case contributes materially — that case analysis is
+combinatorics on top of machinery that now exists.
+
 ### Still to do
 §4.3's general threshold theorem is the one whose natural statement is genuinely
-asymptotic; expect it to stay deferred longest. The *second*-moment directions of §4.1–4.2
-need the variance of the subgraph count, which is what `wvar` and `wchebyshev` are there
-for — and the variance needs the weight of two overlapping patterns, i.e. a two-pattern
-version of `sum_bweight_superset` (the weight of `X ⊇ B₁ ∪ B₂` is `p ^ #(B₁ ∪ B₂)`, which
-the existing lemma already gives).
+asymptotic; expect it to stay deferred longest.

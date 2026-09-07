@@ -12,3 +12,4 @@ import ProbMethods.Chapter02.UnbalancingLights
 import ProbMethods.Chapter02.Sampling
 import ProbMethods.Chapter03.Dominating
 import ProbMethods.Chapter04.FirstMoment
+import ProbMethods.Chapter04.SecondMoment
