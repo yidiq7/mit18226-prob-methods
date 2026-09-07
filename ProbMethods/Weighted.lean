@@ -724,6 +724,32 @@ lemma DeterminedBy.card_eq {C : Finset α} {A : Finset (Finset α)} (hA : Determ
     _ = 2 ^ #((univ : Finset α) \ C) * #(C.powerset.filter fun U => U ∈ A) :=
         card_filter_inter (univ : Finset α) C (subset_univ C) (fun U => U ∈ A)
 
+/-- Determinacy is monotone in the block. -/
+lemma DeterminedBy.mono {C C' : Finset α} {A : Finset (Finset α)} (h : C ⊆ C')
+    (hA : DeterminedBy C A) : DeterminedBy C' A := by
+  intro S T hST
+  refine hA S T ?_
+  have hS : S ∩ C = (S ∩ C') ∩ C := by
+    rw [Finset.inter_assoc, Finset.inter_eq_right.mpr h]
+  have hT : T ∩ C = (T ∩ C') ∩ C := by
+    rw [Finset.inter_assoc, Finset.inter_eq_right.mpr h]
+  rw [hS, hT, hST]
+
+lemma DeterminedBy.inter {C : Finset α} {A B : Finset (Finset α)}
+    (hA : DeterminedBy C A) (hB : DeterminedBy C B) : DeterminedBy C (A ∩ B) := by
+  intro S T hST
+  rw [mem_inter, mem_inter, hA S T hST, hB S T hST]
+
+lemma DeterminedBy.compl {C : Finset α} {A : Finset (Finset α)} (hA : DeterminedBy C A) :
+    DeterminedBy C Aᶜ := by
+  intro S T hST
+  rw [mem_compl, mem_compl, hA S T hST]
+
+@[simp] lemma determinedBy_univ (C : Finset α) :
+    DeterminedBy C (univ : Finset (Finset α)) := by
+  intro S T _
+  simp
+
 /-- **Events determined by disjoint blocks are independent** (in counting form).
 
 `#(A ∩ A') * 2 ^ n = #A * #A'`, i.e. `P(A ∩ A') = P(A) P(A')` under the uniform measure.

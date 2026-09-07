@@ -94,12 +94,26 @@ blocks and check they are disjoint**, rather than re-derive independence. The ke
 that determinacy gives `S ∈ A ↔ S ∩ C ∈ A`, which turns the event into a filter of the
 shape `card_filter_inter_prod` expects.
 
-§6.2 (colouring hypergraphs) strengthens §1.3's `property_b_lower`, which is already
-proved, so it is the natural first application: a `k`-uniform hypergraph in which every edge
-meets at most `d` others is 2-colourable once `e (d+1) 2^(1-k) ≤ 1`. The events are "edge
-`e` is monochromatic", the dependency graph is "shares a vertex", each event has probability
-`2^(1-k)` under the uniform colouring, and `hindep` follows from block independence applied
-to the union of the edges in the subfamily.
+### §6.2 — both substantive inputs proved
+
+`ProbMethods/Chapter06/Coloring.lean`. Colourings are subsets `S ⊆ V`, so the sample space
+is `Finset V` under the uniform weight, and `PMC.monoEvent edge i` is the event that edge
+`i` is monochromatic.
+
+* `PMC.determinedBy_monoEvent` — monochromaticity on `edge i` depends **only** on the
+  colours of `edge i`'s vertices. This is the fact that discharges the local lemma's
+  independence hypothesis: two edges sharing no vertex give events on disjoint blocks, so
+  `PMC.card_inter_mul_of_determinedBy` applies directly.
+* `PMC.card_monoEvent` — a `k`-edge is monochromatic under exactly `2 * 2 ^ (n - k)`
+  colourings, i.e. with probability `2 ^ (1-k)`. Proved through `DeterminedBy.card_eq`: the
+  monochromatic *traces* on the edge are exactly `∅` and the edge itself, so the count is
+  `2` times the free coordinates. Checked numerically at `(n,k) = (4,2)` and `(5,3)`, both
+  giving `8`.
+
+What remains for the full statement (a `k`-uniform hypergraph in which every edge meets at
+most `d` others is 2-colourable once `e (d+1) 2^(1-k) ≤ 1`) is arithmetic assembly: fix the
+uniform weight `1/2^n`, set `p = 2^(1-k)`, take the dependency graph to be "shares a
+vertex", and feed `PMC.lovasz_local_lemma_symmetric`.
 
 The remaining sections (§6.3 independent transversals, §6.4 directed cycles, §6.5 lopsided
 local lemma, §6.6 algorithmic local lemma) each need their own setup; §6.5 in particular

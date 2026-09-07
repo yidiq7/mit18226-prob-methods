@@ -937,10 +937,11 @@
       "proof": "planned",
       "uses": [
         "lll_symmetric",
-        "independence_bridge"
+        "independence_bridge",
+        "monoEvent_card"
       ],
       "proof_uses": [],
-      "note": "Section 6.2: a k-uniform hypergraph whose every edge meets at most d others is 2-colourable once e(d+1)2^(1-k) <= 1. Strengthens the proved property_b_lower."
+      "note": "Section 6.2. Both substantive inputs are now proved (determinedBy_monoEvent, card_monoEvent); what remains is arithmetic assembly: uniform weights, p = 2^(1-k), and the dependency graph 'shares a vertex'."
     },
     "determinedBy": {
       "kind": "definition",
@@ -967,6 +968,46 @@
       ],
       "proof_uses": [],
       "note": "P(A inter A') = P(A) P(A') for events determined by disjoint coordinate blocks. The reusable discharge of the LLL independence hypothesis: an application exhibits the blocks and checks disjointness."
+    },
+    "monoEventDef": {
+      "kind": "definition",
+      "parent": "localLemmaGroup",
+      "file": "ProbMethods/Chapter06/Coloring.lean",
+      "decl": "PMC.monoEvent",
+      "doc": "local-lemma.md#applications",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": []
+    },
+    "monoEvent_determined": {
+      "kind": "theorem",
+      "parent": "localLemmaGroup",
+      "file": "ProbMethods/Chapter06/Coloring.lean",
+      "decl": "PMC.determinedBy_monoEvent",
+      "doc": "local-lemma.md#applications",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [
+        "monoEventDef",
+        "determinedBy"
+      ],
+      "proof_uses": [],
+      "note": "Monochromaticity on edge i depends only on the colours of edge i's vertices -- the fact that discharges the LLL independence hypothesis for 6.2."
+    },
+    "monoEvent_card": {
+      "kind": "theorem",
+      "parent": "localLemmaGroup",
+      "file": "ProbMethods/Chapter06/Coloring.lean",
+      "decl": "PMC.card_monoEvent",
+      "doc": "local-lemma.md#applications",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [
+        "monoEvent_determined"
+      ],
+      "proof_uses": [],
+      "note": "A k-edge is monochromatic under exactly 2 * 2^(n-k) colourings, i.e. probability 2^(1-k). Proved through DeterminedBy.card_eq: the monochromatic traces on the edge are exactly the empty set and the edge. Checked numerically at (n,k) = (4,2) and (5,3), both giving 8."
     }
   }
 }
