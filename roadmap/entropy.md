@@ -32,7 +32,11 @@ distribution, and `PMC.wentropy w X = ∑ b, negMulLog (P (X = b))` is its entro
 | `PMC.wentropy_equiv` — relabelling invariance | proved |
 | `PMC.wentropy_submodular` — `H(X,Y,Z) + H(X) ≤ H(X,Y) + H(X,Z)` | proved |
 | `PMC.wcondEntropy_le_of_pair` — `H(Y\|X,Z) ≤ H(Y\|X)` | proved |
-| Shearer's lemma | open |
+| `PMC.wentropy_congr` — entropy depends only on the fibres | proved |
+| `PMC.wentropy_comp_le` — `H(f ∘ Z) ≤ H(Z)` | proved |
+| `PMC.masked`, `PMC.tupleEntropy` and its three properties | proved |
+| `PMC.shearer_of_submodular` — Shearer for set functions | proved |
+| **`PMC.shearer` — Shearer's lemma** | proved |
 | Applications (counting, Loomis–Whitney, triangle bound) | open |
 
 ## The one trap: `log 0 = 0`
@@ -84,16 +88,43 @@ worth knowing before writing the next one of these:
   form while the goal mentions the abbreviation, and each `rw` then needs a direction-correct
   `hPX`. Writing the terms out in full was shorter overall.
 
-## Next: Shearer
+## Shearer: where to make the cut
 
-Every structural inequality Shearer's induction needs is now proved — the chain rule,
-`H(Y|X) ≤ H(Y)`, `H(Y|X,Z) ≤ H(Y|X)`, and relabelling invariance. What remains is
-bookkeeping: the **n-fold chain rule** over a linearly ordered index set. Then Shearer is the usual argument: expand `H(X_S)` along the chain rule within `S`, weaken
-each conditional entropy to condition on the whole prefix, and sum over the family — each
-coordinate is counted at least `k` times, giving `k · H(X) ≤ ∑_{S ∈ F} H(X_S)`.
+`PMC.shearer` is proved, and the thing worth remembering is *where the proof was split*.
+The entropy side ends at three facts about the set function `S ↦ H(X_S)`
+(`ProbMethods/Chapter10/Entropy.lean`):
 
-**Plan for the tuple types.** Keep all coordinate types equal and represent the restriction
-`X_S` by *masking* coordinates outside `S` to a default value. Masking has the same entropy
-as the genuine restriction (the map between their value sets is injective where the
-distribution is supported) and it keeps every random variable at type `Ω → ι → β`, avoiding
-dependent types entirely. Worth the small lemma it costs.
+* `PMC.tupleEntropy_empty` — normalised at `∅`;
+* `PMC.tupleEntropy_mono` — monotone;
+* `PMC.tupleEntropy_submodular` — submodular in diminishing-returns form.
+
+**Everything after that has no entropy in it.** `PMC.shearer_of_submodular`
+(`ProbMethods/Chapter10/Shearer.lean`) proves Shearer for *any* normalised monotone
+submodular set function, and `PMC.shearer` is the one-line instance. That cut is worth
+copying for the other Chapter 10 results: the combinatorial half is where the content is,
+it is reusable, and it can be checked without knowing what entropy is.
+
+The mechanism is the chain decomposition `PMC.sum_chain_eq`: fixing a linear order,
+`f S = ∑ i ∈ S, (f (insert i (S ∩ prefixLt i)) - f (S ∩ prefixLt i))`, which telescopes on
+peeling off `max' S`. Submodularity then replaces each increment by the one taken over the
+*whole* prefix — which no longer depends on `S`, so the family can be summed and each
+coordinate's multiplicity counted.
+
+Two representation choices that paid off:
+
+* **Masking, not restriction.** `PMC.masked X S ω i = if i ∈ S then some (X i ω) else none`,
+  so every `X_S` has the *same* type `ι → Option β`. Restricting to a subtype would put
+  `X_S` and `X_T` in different types and force dependent-type bookkeeping at every step.
+  `Option β` rather than a default value avoids requiring `Inhabited β` and keeps "erased"
+  distinguishable from every real value.
+* **`PMC.wentropy_congr` stated via mutual determination**, not via a bijection of value
+  types. `X_{S ∪ T}` and `(X_S, X_T)` carry the same information but their value types admit
+  no bijection at all; what is true is that explicit maps `g`, `h` invert each other *along
+  the ranges*, which is exactly what the lemma asks for.
+
+## Next: the applications
+
+`PMC.shearer` is in place, so Chapter 10's combinatorial applications are now the open
+work: the entropy counting bound, Loomis–Whitney, and the triangle-counting bound. Each
+needs a concrete tuple and a cover, plus `PMC.wentropy_le_log_card` to convert entropy back
+into a count.

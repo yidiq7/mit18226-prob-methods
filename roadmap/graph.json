@@ -854,16 +854,19 @@
     "shearer": {
       "kind": "theorem",
       "parent": "entropyGroup",
-      "file": "ProbMethods/Chapter10/Entropy.lean",
+      "file": "ProbMethods/Chapter10/Shearer.lean",
       "decl": "PMC.shearer",
       "doc": "entropy.md",
-      "statement": "planned",
-      "proof": "planned",
+      "statement": "formalized",
+      "proof": "formalized",
       "uses": [
-        "entropy_chain_rule"
+        "shearer_submodular",
+        "tuple_empty",
+        "tuple_mono",
+        "tuple_submodular"
       ],
       "proof_uses": [],
-      "note": "Shearer's lemma. Every structural inequality it needs is now proved (wentropy_chain, wcondEntropy_le, wcondEntropy_le_of_pair, wentropy_equiv). What remains is bookkeeping: the n-fold chain rule over a linearly ordered index set, and representing the restriction X_S by masking coordinates outside S to a default value, which keeps every variable at type Omega -> iota -> beta and avoids dependent types."
+      "note": "Shearer's lemma. Proved by splitting at the right place: the entropy side supplies three properties of S -> H(X_S), and everything after that is a statement about set functions. Checked against the classic instance: the three 2-element subsets of a 3-tuple cover each coordinate twice, giving 2 H(X) <= H(X_12) + H(X_02) + H(X_01)."
     },
     "lll": {
       "kind": "theorem",
@@ -1342,6 +1345,163 @@
       ],
       "proof_uses": [],
       "note": "H(Y | X, Z) <= H(Y | X): submodularity re-read through the chain rule. The step Shearer's induction takes for each coordinate."
+    },
+    "entropy_fibre_congr": {
+      "kind": "theorem",
+      "parent": "entropyGroup",
+      "file": "ProbMethods/Chapter10/Entropy.lean",
+      "decl": "PMC.wentropy_congr",
+      "doc": "entropy.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [
+        "wentropyDef"
+      ],
+      "proof_uses": [],
+      "note": "Entropy depends only on the fibres: if X and Y determine each other pointwise they have equal entropy. Crucially g and h need NOT be mutually inverse on the whole value types, only along the ranges -- which is what makes it apply to a masked tuple versus a pair of masked tuples, whose value types admit no bijection at all."
+    },
+    "entropy_comp_le": {
+      "kind": "theorem",
+      "parent": "entropyGroup",
+      "file": "ProbMethods/Chapter10/Entropy.lean",
+      "decl": "PMC.wentropy_comp_le",
+      "doc": "entropy.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [
+        "entropy_fibre_congr",
+        "entropy_chain_rule"
+      ],
+      "proof_uses": [],
+      "note": "H(f o Z) <= H(Z)."
+    },
+    "maskedDef": {
+      "kind": "definition",
+      "parent": "entropyGroup",
+      "file": "ProbMethods/Chapter10/Entropy.lean",
+      "decl": "PMC.masked",
+      "doc": "entropy.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "X restricted to S, represented by masking coordinates outside S to none. Keeps every X_S at one type, avoiding dependent-type bookkeeping. Option beta rather than a default value avoids requiring Inhabited and keeps 'erased' distinguishable from every real value."
+    },
+    "tupleEntropyDef": {
+      "kind": "definition",
+      "parent": "entropyGroup",
+      "file": "ProbMethods/Chapter10/Entropy.lean",
+      "decl": "PMC.tupleEntropy",
+      "doc": "entropy.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [
+        "maskedDef",
+        "wentropyDef"
+      ],
+      "proof_uses": [],
+      "note": "The set function S -> H(X_S) that Shearer's lemma is about."
+    },
+    "masked_pair": {
+      "kind": "theorem",
+      "parent": "entropyGroup",
+      "file": "ProbMethods/Chapter10/Entropy.lean",
+      "decl": "PMC.wentropy_masked_pair",
+      "doc": "entropy.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [
+        "entropy_fibre_congr",
+        "maskedDef"
+      ],
+      "proof_uses": [],
+      "note": "Two masks jointly carry exactly the information of the mask of their union."
+    },
+    "masked_triple": {
+      "kind": "theorem",
+      "parent": "entropyGroup",
+      "file": "ProbMethods/Chapter10/Entropy.lean",
+      "decl": "PMC.wentropy_masked_triple",
+      "doc": "entropy.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [
+        "entropy_fibre_congr",
+        "maskedDef"
+      ],
+      "proof_uses": [],
+      "note": "Three-mask version."
+    },
+    "tuple_empty": {
+      "kind": "theorem",
+      "parent": "entropyGroup",
+      "file": "ProbMethods/Chapter10/Entropy.lean",
+      "decl": "PMC.tupleEntropy_empty",
+      "doc": "entropy.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [
+        "tupleEntropyDef"
+      ],
+      "proof_uses": [],
+      "note": ""
+    },
+    "tuple_mono": {
+      "kind": "theorem",
+      "parent": "entropyGroup",
+      "file": "ProbMethods/Chapter10/Entropy.lean",
+      "decl": "PMC.tupleEntropy_mono",
+      "doc": "entropy.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [
+        "tupleEntropyDef",
+        "entropy_comp_le"
+      ],
+      "proof_uses": [],
+      "note": "More coordinates, more entropy."
+    },
+    "tuple_submodular": {
+      "kind": "theorem",
+      "parent": "entropyGroup",
+      "file": "ProbMethods/Chapter10/Entropy.lean",
+      "decl": "PMC.tupleEntropy_submodular",
+      "doc": "entropy.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [
+        "entropy_submodular",
+        "masked_pair",
+        "masked_triple"
+      ],
+      "proof_uses": [],
+      "note": "Diminishing returns: adding coordinate i to a larger set helps no more than adding it to a smaller one. No hypothesis on i needed."
+    },
+    "chain_decomp": {
+      "kind": "theorem",
+      "parent": "entropyGroup",
+      "file": "ProbMethods/Chapter10/Shearer.lean",
+      "decl": "PMC.sum_chain_eq",
+      "doc": "entropy.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "The chain decomposition of a set function along a linear order; telescopes by peeling off the largest element of S. Pure combinatorics, no entropy."
+    },
+    "shearer_submodular": {
+      "kind": "theorem",
+      "parent": "entropyGroup",
+      "file": "ProbMethods/Chapter10/Shearer.lean",
+      "decl": "PMC.shearer_of_submodular",
+      "doc": "entropy.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [
+        "chain_decomp"
+      ],
+      "proof_uses": [],
+      "note": "Shearer's lemma for ANY normalised monotone submodular set function -- the combinatorial half, with no entropy in it. Indexed family so repeated sets are allowed, which is the generality the applications use."
     }
   }
 }
