@@ -1059,6 +1059,94 @@
       "uses": [],
       "proof_uses": [],
       "note": "'None of the edges in T is monochromatic' is determined by any block containing all of them. Finset induction on T through noneOf_insert."
+    },
+    "jansonGroup": {
+      "kind": "group",
+      "doc": "janson.md",
+      "statement": null,
+      "proof": null,
+      "note": "Chapter 8. Reachable with no new probability layer: the ground set is Sym2 V and the measure is pweight."
+    },
+    "fkg_anti": {
+      "kind": "theorem",
+      "parent": "jansonGroup",
+      "file": "ProbMethods/Weighted.lean",
+      "decl": "PMC.pweight_fkg_anti",
+      "doc": "janson.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "FKG for decreasing functions, obtained for free from the order dual: pweight's log-supermodularity is an equality, hence symmetric in meet and join, so Mathlib's fkg transports to (Finset a)^op where Monotone means Antitone."
+    },
+    "correlate_anti": {
+      "kind": "theorem",
+      "parent": "jansonGroup",
+      "file": "ProbMethods/Chapter07/Correlation.lean",
+      "decl": "PMC.pweight_correlate_anti",
+      "doc": "janson.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [
+        "fkg_anti"
+      ],
+      "proof_uses": [],
+      "note": "Harris for two decreasing events."
+    },
+    "correlate_anti_family": {
+      "kind": "theorem",
+      "parent": "jansonGroup",
+      "file": "ProbMethods/Chapter07/Correlation.lean",
+      "decl": "PMC.pweight_correlate_anti_family",
+      "doc": "janson.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [
+        "correlate_anti"
+      ],
+      "proof_uses": [],
+      "note": "Harris for a whole family: finitely many decreasing events are positively correlated. Induction on the index set."
+    },
+    "prob_not_superset": {
+      "kind": "theorem",
+      "parent": "jansonGroup",
+      "file": "ProbMethods/Chapter08/Janson.lean",
+      "decl": "PMC.sum_pweight_not_superset",
+      "doc": "janson.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "P(B not contained in S) = 1 - prod of p over B."
+    },
+    "janson_lower": {
+      "kind": "theorem",
+      "parent": "jansonGroup",
+      "file": "ProbMethods/Chapter08/Janson.lean",
+      "decl": "PMC.janson_lower",
+      "doc": "janson.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [
+        "correlate_anti_family",
+        "prob_not_superset"
+      ],
+      "proof_uses": [],
+      "note": "Theorem 8.1.1, LOWER BOUND. prod (1 - P(A i)) <= P(no A i occurs), with no hypothesis relating the g i to each other -- overlapping bad sets are the interesting case and the bound holds regardless, because the events 'g i is not contained' are decreasing and correlation only helps."
+    },
+    "janson_upper": {
+      "kind": "theorem",
+      "parent": "jansonGroup",
+      "file": "ProbMethods/Chapter08/Janson.lean",
+      "decl": "PMC.janson_upper",
+      "doc": "janson.md",
+      "statement": "planned",
+      "proof": "planned",
+      "uses": [
+        "janson_lower"
+      ],
+      "proof_uses": [],
+      "note": "Theorem 8.1.1, UPPER BOUND exp(-mu + Delta/2). Not a correlation inequality: conditions on a prefix of the family. Needs a conditional-probability layer in the finite framework plus 1 - t <= exp(-t) (Real.add_one_le_exp). The natural next Chapter 8 task."
     }
   }
 }

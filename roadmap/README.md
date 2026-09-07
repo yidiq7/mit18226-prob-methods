@@ -20,13 +20,13 @@ written when the phase opens, so the plan never claims more precision than it ha
 |---|---|---|---|
 | 1 | 1 Introduction | [introduction.md](introduction.md) | **complete** (8 of 8) |
 | 1 | 2 Linearity of Expectations (§2.3) | [linearity.md](linearity.md) | **complete** (3 of 3) |
-| 2 | 2 (rest) | [linearity.md](linearity.md) | `szele` + `sampling` proved; `sumfree`/`unbalancing` open; §2.6 deferred |
+| 2 | 2 (rest) | [linearity.md](linearity.md) | `szele`, `sampling`, `sumfree`, `unbalancing` all proved; §2.6 deferred |
 | 3 | 3 Alterations | [alterations.md](alterations.md) | `dominating` proved; §3.3 upstream, §3.2 deferred, §3.4/§3.5 need design |
 | 4 | 4 Second Moment | [second-moment.md](second-moment.md) | **§4.1 complete** (moments + variance), §4.2, §4.4 proved; §4.7 upstream; §4.3 deferred |
 | 5 | 5 Chernoff Bound | [chernoff.md](chernoff.md) | **Thm 5.0.1, Cor 5.0.3, §5.1 proved**; 5.0.5/5.0.7, §5.2/§5.3 open |
-| 6 | 6 Lovász Local Lemma | [local-lemma.md](local-lemma.md) | **§6.1 complete**: asymmetric + symmetric LLL proved; §6.2–§6.6 open |
+| 6 | 6 Lovász Local Lemma | [local-lemma.md](local-lemma.md) | **§6.1 + §6.2 complete**: both LLL forms and hypergraph 2-colouring; §6.3–§6.6 open |
 | 7 | 7 Correlation Inequalities | [correlation.md](correlation.md) | **complete in finite form**: §7.1 upstream, §7.2 proved |
-| 8 | 8 Janson Inequalities | [mathlib-survey.md](mathlib-survey.md) | absent from Mathlib; reachable in the finite framework |
+| 8 | 8 Janson Inequalities | [janson.md](janson.md) | **Thm 8.1.1 lower bound proved**; upper bound needs a conditional-probability layer |
 | 9 | 9 Concentration of Measure | [mathlib-survey.md](mathlib-survey.md) | **§9.1–§9.2 upstream** (Azuma–Hoeffding); §9.5 Talagrand absent |
 | 10 | 10 Entropy | [mathlib-survey.md](mathlib-survey.md) | analytic groundwork upstream; discrete entropy layer absent |
 | 11 | 11 Containers | — | not started |
@@ -55,6 +55,15 @@ tasks. Contributors should reach for them rather than reproving them.
 Compressed 2026-09-06. Per-node merge narratives have been dropped — `graph.json` carries
 status and git history carries the diffs. What remains is everything a restarted
 orchestrator would otherwise have to rediscover.
+
+### Milestone: the repository has no `sorry`
+
+As of the Janson lower bound, every declaration in `ProbMethods/` is fully proved and every
+theorem's `#print axioms` is `[propext, Classical.choice, Quot.sound]`. The two long-open
+sorries (`exists_sumFree_subset`, `exists_signs_two_pow_mul_le`) were both closed by merged
+PRs. This is worth keeping true: `sorry-delta` is at policy `block`, so any regression is
+caught at the gate, but a `sorry` that never enters is cheaper than one that has to be
+chased out.
 
 ### Hard constraints
 

@@ -636,6 +636,32 @@ theorem pweight_fkg (p : α → ℝ) (hp0 : ∀ i, 0 ≤ p i) (hp1 : ∀ i, p i 
   rw [hwsum, one_mul] at h
   simpa only [wmean] using h
 
+/-- **Harris' inequality, decreasing form.** The same statement for *antitone* `f` and `g`.
+
+`Finset α` and its order dual are both distributive lattices, and the log-supermodularity
+`pweight p T * pweight p U = pweight p (T ∩ U) * pweight p (T ∪ U)` is symmetric in `⊓`
+and `⊔`, so the FKG hypotheses transport to the dual verbatim — where `Monotone` means
+`Antitone`. Decreasing events are what Janson's inequality needs. -/
+theorem pweight_fkg_anti (p : α → ℝ) (hp0 : ∀ i, 0 ≤ p i) (hp1 : ∀ i, p i ≤ 1)
+    {f g : Finset α → ℝ} (hf0 : 0 ≤ f) (hg0 : 0 ≤ g)
+    (hf : Antitone f) (hg : Antitone g) :
+    wmean (pweight p) f * wmean (pweight p) g
+      ≤ wmean (pweight p) (fun T => f T * g T) := by
+  classical
+  have hw0 : (0 : (Finset α)ᵒᵈ → ℝ) ≤ fun T => pweight p (OrderDual.ofDual T) :=
+    fun T => pweight_nonneg hp0 hp1 _
+  have hwsum : ∑ T : (Finset α)ᵒᵈ, pweight p (OrderDual.ofDual T) = 1 := by
+    have h := sum_pweight (α := α) p
+    rwa [Finset.powerset_univ] at h
+  have h := fkg (μ := fun T : (Finset α)ᵒᵈ => pweight p (OrderDual.ofDual T))
+    (f := fun T : (Finset α)ᵒᵈ => f (OrderDual.ofDual T))
+    (g := fun T : (Finset α)ᵒᵈ => g (OrderDual.ofDual T))
+    hw0 (fun T => hf0 _) (fun T => hg0 _) (fun a b hab => hf hab) (fun a b hab => hg hab)
+    (fun a b => le_of_eq (by
+      simpa [mul_comm] using pweight_mul_pweight p (OrderDual.ofDual a) (OrderDual.ofDual b)))
+  rw [hwsum, one_mul] at h
+  exact h
+
 /-- **Events on disjoint blocks of coordinates factor.**
 
 If one property depends only on `S ∩ C` and another only on `S ∩ (V \ C)`, the subsets of
