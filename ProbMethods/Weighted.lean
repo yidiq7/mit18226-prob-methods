@@ -48,6 +48,10 @@ easier to normalise at the point of use.
   every pattern in a family has `m` elements, the weighted expected number of patterns
   contained in a random subset is `#patterns * p ^ m`. Chapter 4's §4.1, §4.2 and §4.4 are
   all this lemma with different pattern families.
+* `PMC.card_filter_inter_prod` — **block independence**: properties depending on disjoint
+  blocks of coordinates factor, by the bijection `S ↦ (S ∩ C, S ∩ (V \ C))`. This is the
+  counting form of independence that every application of the local lemma has to
+  discharge.
 * `PMC.card_filter_inter` — **restriction**: counting subsets of `V` by a property of
   their intersection with `A ⊆ V` factors as `2 ^ #(V \ A)` times the count over
   `A.powerset`. This is what lifts a bound proved on one hypergraph edge to the space of
@@ -627,6 +631,69 @@ theorem pweight_fkg (p : α → ℝ) (hp0 : ∀ i, 0 ≤ p i) (hp1 : ∀ i, p i 
     (fun T U => le_of_eq (pweight_mul_pweight p T U))
   rw [hwsum, one_mul] at h
   simpa only [wmean] using h
+
+/-- **Events on disjoint blocks of coordinates factor.**
+
+If one property depends only on `S ∩ C` and another only on `S ∩ (V \ C)`, the subsets of
+`V` satisfying both are counted by the product of the two separate counts. The bijection is
+`S ↦ (S ∩ C, S ∩ (V \ C))`.
+
+This is the counting form of independence for events determined by disjoint sets of
+coordinates — the hypothesis every application of the local lemma has to discharge. -/
+theorem card_filter_inter_prod (V C : Finset α) (hC : C ⊆ V)
+    (P Q : Finset α → Prop) [DecidablePred P] [DecidablePred Q] :
+    #(V.powerset.filter fun S => P (S ∩ C) ∧ Q (S ∩ (V \ C)))
+      = #(C.powerset.filter P) * #((V \ C).powerset.filter Q) := by
+  classical
+  rw [← card_product]
+  refine Finset.card_nbij' (fun S => (S ∩ C, S ∩ (V \ C)))
+    (fun q => q.1 ∪ q.2) ?_ ?_ ?_ ?_
+  · intro S hS
+    rw [mem_coe, mem_filter, mem_powerset] at hS
+    rw [mem_coe, mem_product, mem_filter, mem_filter, mem_powerset, mem_powerset]
+    exact ⟨⟨inter_subset_right, hS.2.1⟩, ⟨inter_subset_right, hS.2.2⟩⟩
+  · intro q hq
+    rw [mem_coe, mem_product, mem_filter, mem_filter, mem_powerset, mem_powerset] at hq
+    obtain ⟨⟨hq1, hP⟩, ⟨hq2, hQ⟩⟩ := hq
+    have hdisj : Disjoint q.2 C := by
+      rw [Finset.disjoint_left]
+      intro x hx hxC
+      exact (mem_sdiff.mp (hq2 hx)).2 hxC
+    have h1 : (q.1 ∪ q.2) ∩ C = q.1 := by
+      rw [Finset.union_inter_distrib_right, Finset.inter_eq_left.mpr hq1,
+        Finset.disjoint_iff_inter_eq_empty.mp hdisj, Finset.union_empty]
+    have hdisj2 : Disjoint q.1 (V \ C) := by
+      rw [Finset.disjoint_left]
+      intro x hx hxV
+      exact (mem_sdiff.mp hxV).2 (hq1 hx)
+    have h2 : (q.1 ∪ q.2) ∩ (V \ C) = q.2 := by
+      rw [Finset.union_inter_distrib_right, Finset.inter_eq_left.mpr hq2,
+        Finset.disjoint_iff_inter_eq_empty.mp hdisj2, Finset.empty_union]
+    rw [mem_coe, mem_filter, mem_powerset]
+    refine ⟨union_subset (hq1.trans hC) (hq2.trans sdiff_subset), ?_, ?_⟩
+    · rw [h1]; exact hP
+    · rw [h2]; exact hQ
+  · intro S hS
+    rw [mem_coe, mem_filter, mem_powerset] at hS
+    show S ∩ C ∪ S ∩ (V \ C) = S
+    rw [← Finset.inter_union_distrib_left, Finset.union_sdiff_of_subset hC,
+      Finset.inter_eq_left.mpr hS.1]
+  · intro q hq
+    rw [mem_coe, mem_product, mem_filter, mem_filter, mem_powerset, mem_powerset] at hq
+    obtain ⟨⟨hq1, -⟩, ⟨hq2, -⟩⟩ := hq
+    have hdisj : Disjoint q.2 C := by
+      rw [Finset.disjoint_left]
+      intro x hx hxC
+      exact (mem_sdiff.mp (hq2 hx)).2 hxC
+    have hdisj2 : Disjoint q.1 (V \ C) := by
+      rw [Finset.disjoint_left]
+      intro x hx hxV
+      exact (mem_sdiff.mp hxV).2 (hq1 hx)
+    show ((q.1 ∪ q.2) ∩ C, (q.1 ∪ q.2) ∩ (V \ C)) = q
+    rw [Finset.union_inter_distrib_right, Finset.inter_eq_left.mpr hq1,
+      Finset.disjoint_iff_inter_eq_empty.mp hdisj, Finset.union_empty,
+      Finset.union_inter_distrib_right, Finset.inter_eq_left.mpr hq2,
+      Finset.disjoint_iff_inter_eq_empty.mp hdisj2, Finset.empty_union]
 
 end Bernoulli
 

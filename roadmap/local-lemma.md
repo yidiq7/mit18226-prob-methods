@@ -74,12 +74,24 @@ side condition, not a formality.
 
 ## Applications
 
+**The independence hypothesis is the real cost of any application**, and the tool for it is
+now proved: `PMC.card_filter_inter_prod` (`Weighted.lean`) says properties depending on
+*disjoint blocks of coordinates* factor,
+
+    #{S ⊆ V : P (S ∩ C) ∧ Q (S ∩ (V \ C))} = #{U ⊆ C : P U} * #{W ⊆ V \ C : Q W}
+
+by the bijection `S ↦ (S ∩ C, S ∩ (V \ C))`. Checked numerically as well as formally (both
+sides give `9` on `Fin 4` with `C = {0,1}`). Under the uniform measure this is exactly
+`P(A ∩ B) = P(A) P(B)` for events on disjoint coordinate sets — which is how the local
+lemma's `hindep` gets discharged, since two edges that share no vertex constrain disjoint
+blocks.
+
 §6.2 (colouring hypergraphs) strengthens §1.3's `property_b_lower`, which is already
-proved, so it is a natural first application: a `k`-uniform hypergraph in which every edge
+proved, so it is the natural first application: a `k`-uniform hypergraph in which every edge
 meets at most `d` others is 2-colourable once `e (d+1) 2^(1-k) ≤ 1`. The events are "edge
-`e` is monochromatic", the dependency graph is "shares a vertex", and each event has
-probability `2^(1-k)` under the uniform colouring — all three now expressible with
-`PMC.wprob` and the symmetric form.
+`e` is monochromatic", the dependency graph is "shares a vertex", each event has probability
+`2^(1-k)` under the uniform colouring, and `hindep` follows from block independence applied
+to the union of the edges in the subfamily.
 
 The remaining sections (§6.3 independent transversals, §6.4 directed cycles, §6.5 lopsided
 local lemma, §6.6 algorithmic local lemma) each need their own setup; §6.5 in particular

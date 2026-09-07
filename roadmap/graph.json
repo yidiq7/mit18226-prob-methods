@@ -916,6 +916,31 @@
       "note": "Symmetric LLL at x i = 1/(d+1), needing 1/e <= (d/(d+1))^d from 1 + t <= exp t. Requires 0 < d: at d = 0 the choice x i = 1 violates the asymmetric form's x i < 1, and that case is separately trivial. Textbooks leave this implicit.",
       "file": "ProbMethods/Chapter06/LocalLemma.lean",
       "decl": "PMC.lovasz_local_lemma_symmetric"
+    },
+    "block_independence": {
+      "kind": "theorem",
+      "parent": "localLemmaGroup",
+      "file": "ProbMethods/Weighted.lean",
+      "decl": "PMC.card_filter_inter_prod",
+      "doc": "local-lemma.md#applications",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "Properties on disjoint coordinate blocks factor, by the bijection S -> (S inter C, S inter (V \\ C)). The counting form of the independence hypothesis every LLL application must discharge. Checked numerically: both sides give 9 on Fin 4 with C = {0,1}."
+    },
+    "property_b_lll": {
+      "kind": "theorem",
+      "parent": "localLemmaGroup",
+      "doc": "local-lemma.md#applications",
+      "statement": "planned",
+      "proof": "planned",
+      "uses": [
+        "lll_symmetric",
+        "block_independence"
+      ],
+      "proof_uses": [],
+      "note": "Section 6.2: a k-uniform hypergraph whose every edge meets at most d others is 2-colourable once e(d+1)2^(1-k) <= 1. Strengthens the proved property_b_lower."
     }
   }
 }
