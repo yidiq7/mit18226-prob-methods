@@ -22,12 +22,13 @@ written when the phase opens, so the plan never claims more precision than it ha
 | 1 | 2 Linearity of Expectations (§2.3) | [linearity.md](linearity.md) | **complete** (3 of 3) |
 | 2 | 2 (rest) | [linearity.md](linearity.md) | `szele` + `sampling` proved; `sumfree`/`unbalancing` open; §2.6 deferred |
 | 3 | 3 Alterations | [alterations.md](alterations.md) | `dominating` proved; §3.3 upstream, §3.2 deferred, §3.4/§3.5 need design |
-| 4 | 4 Second Moment, 5 Chernoff Bound | — | not started |
-| 5 | 6 Lovász Local Lemma | — | not started |
-| 6 | 7 Correlation Inequalities, 8 Janson Inequalities | — | not started |
-| 7 | 9 Concentration of Measure | — | not started |
-| 8 | 10 Entropy | — | not started |
-| 9 | 11 Containers | — | not started |
+| 4 | 4 Second Moment | [second-moment.md](second-moment.md) | **surveyed**: §4.7 upstream; `distinct_sums` next; §4.1–4.4 need the weighted-counting layer |
+| 5 | 5 Chernoff Bound | — | not started |
+| 6 | 6 Lovász Local Lemma | — | not started |
+| 7 | 7 Correlation Inequalities, 8 Janson Inequalities | — | not started |
+| 8 | 9 Concentration of Measure | — | not started |
+| 9 | 10 Entropy | — | not started |
+| 10 | 11 Containers | — | not started |
 
 ## Conventions that shape the route
 
@@ -210,3 +211,31 @@ merged in the preceding ninety minutes. Nothing is claimed because nothing is ru
 because the tasks are too hard — so publishing more would not help, and the frontier is
 deliberately not being expanded further until workers return or the overseer redirects.
 Chapter 3 is the next phase to open when that happens.
+
+**2026-09-07 — The `G(n, p)` blocker is not real, and that changes the plan for a third of
+the book.** Sections 3.4, 4.1–4.4 and parts of 8 and 9 are all statements about the
+Erdős–Rényi random graph, and Mathlib has no such object — which reads like a hard stop.
+It is not. `G(n, p)` on a *fixed* vertex set is exactly the finite Bernoulli weight sum
+`w E = p ^ #E * (1 - p) ^ (N - #E)` over `E ∈ (univ : Finset (Sym2 V)).powerset`, the same
+device `dominating` (§3.1) is proved with, and `Finset.prod_add` gives that the weights
+total `1`. Edge-indicator independence is the product factorisation `prod_add` already
+encodes.
+
+**What is actually hard in those sections is the asymptotics, not the probability** — every
+one is phrased "with high probability as `n → ∞`". This project already has the convention
+for that: state the finite-`n` inequality with explicit constants and leave the limit out.
+So the ordering is: build the weighted-counting layer (`gnp_weights`, expected subgraph
+counts, Chebyshev over a finite weighted space), then state explicit forms. **Chebyshev in
+that form is not in Mathlib and belongs in the centralized layer**, since Chapters 4, 5 and
+9 all want it.
+
+**2026-09-07 — Weierstrass approximation (§4.7) is upstream.** Mathlib has
+`bernsteinApproximation_uniform`, by the same Bernstein-polynomial argument the notes give.
+Recorded in `graph.json` as `upstream`; never to be published.
+
+**2026-09-07 — Second erratum, in Theorem 4.6.3's proof.** The notes combine the Chebyshev
+bound `P ≥ 3/4` with the distinctness bound `P ≤ 2 n sqrt k 2^(-k)` and print the result as
+`2 n sqrt k 2^(-k) ≤ 3/4`. That direction bounds `n` above and contradicts the stated
+conclusion `n ≳ 2^k / sqrt k`; the correct combination is `3/4 ≤ 2 n sqrt k 2^(-k)`. Unlike
+the Proposition 2.4.4 erratum, this one is confined to the proof — the theorem as stated is
+true. Worth reporting upstream along with the other.

@@ -409,6 +409,108 @@
       "uses": [],
       "proof_uses": [],
       "note": "Continuous [0,1] construction; needs a discretisation designed first."
+    },
+    "secondMoment": {
+      "kind": "group",
+      "doc": "second-moment.md"
+    },
+    "weierstrass": {
+      "kind": "theorem",
+      "parent": "secondMoment",
+      "decl": "bernsteinApproximation_uniform",
+      "upstream": true
+    },
+    "distinct_sums": {
+      "kind": "theorem",
+      "parent": "secondMoment",
+      "doc": "second-moment.md#distinct-sums-46--the-tractable-node",
+      "statement": "planned",
+      "proof": "planned",
+      "uses": [
+        "chebyshev"
+      ],
+      "proof_uses": [],
+      "note": "Uniform over subsets, so counting applies. State with the explicit constant 3*2^k/(8*sqrt k)."
+    },
+    "chebyshev": {
+      "kind": "definition",
+      "parent": "secondMoment",
+      "doc": "second-moment.md#distinct-sums-46--the-tractable-node",
+      "statement": "planned",
+      "proof": "planned",
+      "uses": [],
+      "proof_uses": [],
+      "note": "Chebyshev over a finite weighted space; centralized layer. Wanted by chapters 4, 5 and 9."
+    },
+    "gnp_weights": {
+      "kind": "definition",
+      "parent": "secondMoment",
+      "doc": "second-moment.md#the-structural-finding-for-this-chapter-and-for-much-of-the-book",
+      "statement": "planned",
+      "proof": "planned",
+      "uses": [],
+      "proof_uses": [],
+      "note": "G(n,p) as finite Bernoulli weights over edge sets, per the device validated in 3.1. Gates 4.1-4.4 and 3.4."
+    },
+    "random_triangle": {
+      "kind": "theorem",
+      "parent": "secondMoment",
+      "doc": "second-moment.md#random-graph-sections-4144--pending-the-weighted-counting-layer",
+      "statement": "planned",
+      "proof": "planned",
+      "uses": [
+        "gnp_weights"
+      ],
+      "proof_uses": [],
+      "note": "Needs the weighted-counting layer; state in explicit finite-n form."
+    },
+    "subgraph_threshold": {
+      "kind": "theorem",
+      "parent": "secondMoment",
+      "doc": "second-moment.md#random-graph-sections-4144--pending-the-weighted-counting-layer",
+      "statement": "planned",
+      "proof": "planned",
+      "uses": [
+        "gnp_weights"
+      ],
+      "proof_uses": [],
+      "note": "Needs the weighted-counting layer; state in explicit finite-n form."
+    },
+    "thresholds": {
+      "kind": "theorem",
+      "parent": "secondMoment",
+      "doc": "second-moment.md#random-graph-sections-4144--pending-the-weighted-counting-layer",
+      "statement": "planned",
+      "proof": "planned",
+      "uses": [
+        "gnp_weights"
+      ],
+      "proof_uses": [],
+      "note": "Needs the weighted-counting layer; state in explicit finite-n form."
+    },
+    "clique_number": {
+      "kind": "theorem",
+      "parent": "secondMoment",
+      "doc": "second-moment.md#random-graph-sections-4144--pending-the-weighted-counting-layer",
+      "statement": "planned",
+      "proof": "planned",
+      "uses": [
+        "gnp_weights"
+      ],
+      "proof_uses": [],
+      "note": "Needs the weighted-counting layer; state in explicit finite-n form."
+    },
+    "hardy_ramanujan": {
+      "kind": "theorem",
+      "parent": "secondMoment",
+      "doc": "second-moment.md#hardyramanujan-45--not-yet-stated",
+      "statement": "planned",
+      "proof": "planned",
+      "uses": [
+        "chebyshev"
+      ],
+      "proof_uses": [],
+      "note": "Uniform over [n]; needs Mertens estimates."
     }
   }
 }
