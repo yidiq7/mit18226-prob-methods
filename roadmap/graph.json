@@ -853,13 +853,17 @@
     },
     "shearer": {
       "kind": "theorem",
-      "parent": "concentration",
-      "doc": "mathlib-survey.md",
+      "parent": "entropyGroup",
+      "file": "ProbMethods/Chapter10/Entropy.lean",
+      "decl": "PMC.shearer",
+      "doc": "entropy.md",
       "statement": "planned",
       "proof": "planned",
-      "uses": [],
+      "uses": [
+        "entropy_chain_rule"
+      ],
       "proof_uses": [],
-      "note": "Section 10.4. Needs a discrete Shannon entropy first -- none in Mathlib, though negMulLog and KL machinery exist."
+      "note": "Shearer's lemma, from the chain rule by the usual induction. What the combinatorial applications actually use."
     },
     "lll": {
       "kind": "theorem",
@@ -1147,6 +1151,109 @@
       ],
       "proof_uses": [],
       "note": "Theorem 8.1.1, UPPER BOUND exp(-mu + Delta/2). Not a correlation inequality: conditions on a prefix of the family. Needs a conditional-probability layer in the finite framework plus 1 - t <= exp(-t) (Real.add_one_le_exp). The natural next Chapter 8 task."
+    },
+    "entropyGroup": {
+      "kind": "group",
+      "doc": "entropy.md",
+      "statement": null,
+      "proof": null,
+      "note": "Chapter 10. Mathlib has Real.negMulLog and binary entropy but no entropy of a random variable, no subadditivity, no chain rule, no Shearer -- this chapter builds that layer."
+    },
+    "gibbs": {
+      "kind": "theorem",
+      "parent": "entropyGroup",
+      "file": "ProbMethods/Chapter10/Entropy.lean",
+      "decl": "PMC.sum_mul_log_div_le",
+      "doc": "entropy.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "Gibbs' inequality. Carries an explicit absolute-continuity hypothesis because under Mathlib's log 0 = 0 convention the usual statement is FALSE: P = (1/2,1/2), Q = (1,0) gives sum = (1/2) log 2 > 0."
+    },
+    "wdistDef": {
+      "kind": "definition",
+      "parent": "entropyGroup",
+      "file": "ProbMethods/Chapter10/Entropy.lean",
+      "decl": "PMC.wdist",
+      "doc": "entropy.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "Distribution of a random variable under a weight."
+    },
+    "wentropyDef": {
+      "kind": "definition",
+      "parent": "entropyGroup",
+      "file": "ProbMethods/Chapter10/Entropy.lean",
+      "decl": "PMC.wentropy",
+      "doc": "entropy.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [
+        "wdistDef"
+      ],
+      "proof_uses": [],
+      "note": "Shannon entropy in nats. Pinned down numerically before use: constant RV gives 0, fair coin gives log 2."
+    },
+    "entropy_nonneg": {
+      "kind": "theorem",
+      "parent": "entropyGroup",
+      "file": "ProbMethods/Chapter10/Entropy.lean",
+      "decl": "PMC.wentropy_nonneg",
+      "doc": "entropy.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [
+        "wentropyDef"
+      ],
+      "proof_uses": [],
+      "note": ""
+    },
+    "entropy_le_log_card": {
+      "kind": "theorem",
+      "parent": "entropyGroup",
+      "file": "ProbMethods/Chapter10/Entropy.lean",
+      "decl": "PMC.wentropy_le_log_card",
+      "doc": "entropy.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [
+        "gibbs",
+        "wentropyDef"
+      ],
+      "proof_uses": [],
+      "note": "The uniform distribution maximises entropy: H(X) <= log |beta|. Gibbs against the uniform Q."
+    },
+    "entropy_subadditive": {
+      "kind": "theorem",
+      "parent": "entropyGroup",
+      "file": "ProbMethods/Chapter10/Entropy.lean",
+      "decl": "PMC.wentropy_pair_le",
+      "doc": "entropy.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [
+        "gibbs",
+        "wentropyDef"
+      ],
+      "proof_uses": [],
+      "note": "Subadditivity H(X,Y) <= H(X) + H(Y). Gibbs against the product of the marginals; absolute continuity is free because a marginal is positive wherever the joint is."
+    },
+    "entropy_chain_rule": {
+      "kind": "theorem",
+      "parent": "entropyGroup",
+      "file": "ProbMethods/Chapter10/Entropy.lean",
+      "decl": "PMC.wentropy_chain",
+      "doc": "entropy.md",
+      "statement": "planned",
+      "proof": "planned",
+      "uses": [
+        "entropy_subadditive"
+      ],
+      "proof_uses": [],
+      "note": "H(X,Y) = H(X) + H(Y|X). Needs conditional entropy: w restricted to a fibre and renormalised. The natural next Chapter 10 task, and the input to Shearer."
     }
   }
 }

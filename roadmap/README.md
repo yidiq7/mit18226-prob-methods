@@ -28,7 +28,7 @@ written when the phase opens, so the plan never claims more precision than it ha
 | 7 | 7 Correlation Inequalities | [correlation.md](correlation.md) | **complete in finite form**: §7.1 upstream, §7.2 proved |
 | 8 | 8 Janson Inequalities | [janson.md](janson.md) | **Thm 8.1.1 lower bound proved**; upper bound needs a conditional-probability layer |
 | 9 | 9 Concentration of Measure | [mathlib-survey.md](mathlib-survey.md) | **§9.1–§9.2 upstream** (Azuma–Hoeffding); §9.5 Talagrand absent |
-| 10 | 10 Entropy | [mathlib-survey.md](mathlib-survey.md) | analytic groundwork upstream; discrete entropy layer absent |
+| 10 | 10 Entropy | [entropy.md](entropy.md) | **§10.1 layer built**: Gibbs, entropy, `H ≤ log n`, subadditivity; chain rule + Shearer open |
 | 11 | 11 Containers | — | not started |
 
 ## Conventions that shape the route

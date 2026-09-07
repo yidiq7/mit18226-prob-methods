@@ -20,3 +20,4 @@ import ProbMethods.Chapter06.LocalLemma
 import ProbMethods.Chapter06.Coloring
 import ProbMethods.Chapter07.Correlation
 import ProbMethods.Chapter08.Janson
+import ProbMethods.Chapter10.Entropy
