@@ -164,14 +164,22 @@ finer, which is what makes the case analysis finite.
   `18` at `n = 6`, `13` against `21` at `n = 7` — a valid over-count, and the factor `n` is
   what matters.
 
-Assembling: `E[X]² = ∑ over pairs of p ^ 6`, so the pairs sharing at most one vertex cancel
-exactly and only the `≥ 2`-sharing pairs survive. Each of those spans `3` or `5` edges, so
-contributes at most `p ^ 3` for `p ≤ 1`, and there are at most `C(n,3) * 3n` of them:
+### variance_triangles — proved
+`PMC.wvar_card_triangles_le`: **`Var ≤ 3 n C(n,3) p ^ 3`**.
 
-    Var ≤ 3 n C(n,3) p ^ 3
+`E[X]² = ∑ over pairs of p ^ 6`, so the pairs sharing at most one vertex — which span
+exactly `6` edges — cancel against it *term by term*, and only the `≥ 2`-sharing pairs
+survive. Each of those spans `3` or `5` edges, hence contributes at most `p ^ 3` once
+`p ≤ 1`, and there are at most `C(n,3) * 3n` of them.
 
-which is the useful form — `Var / E² = 3n / (C(n,3) p ^ 3)` is small exactly when
-`n p → ∞`, the correct threshold.
+`Var / E² = 3n / (C(n,3) p ^ 3)` is small exactly when `n p → ∞`, so the crude `3n`
+over-count loses nothing that matters, and §4.1 is complete in finite form: the first
+moment, the second moment, the variance bound, and the triangle-free weight bound
+(`sum_bweight_triangleFree_le`) that combines them.
+
+**What is deliberately absent is only the limit statement.** "`G(n,p)` contains a triangle
+with high probability when `np → ∞`" is the asymptotic wrapper around these inequalities,
+and this project does not state asymptotics.
 
 ### Still to do
 §4.3's general threshold theorem is the one whose natural statement is genuinely

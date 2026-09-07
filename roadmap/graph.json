@@ -467,7 +467,7 @@
         "trianglesDef"
       ],
       "proof_uses": [],
-      "note": "First-moment identity: expected triangle count is C(n,3) p^3. The n -> infinity threshold statement is deliberately not stated.",
+      "note": "First-moment identity C(n,3) p^3, with the second moment and the variance bound now also proved. The n -> infinity threshold statement remains deliberately unstated.",
       "file": "ProbMethods/Chapter04/FirstMoment.lean",
       "decl": "PMC.sum_bweight_mul_card_triangles"
     },
@@ -749,6 +749,23 @@
       "uses": [],
       "proof_uses": [],
       "note": "At most C(3,2)*n = 3n triples meet a fixed triple in >= 2 vertices: such a t' is insert v u for a 2-subset u of t. Checked: 10 actual vs bound 18 at n=6, 13 vs 21 at n=7."
+    },
+    "variance_triangles": {
+      "kind": "theorem",
+      "parent": "secondMoment",
+      "file": "ProbMethods/Chapter04/Variance.lean",
+      "decl": "PMC.wvar_card_triangles_le",
+      "doc": "second-moment.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [
+        "variance_identity",
+        "pair_counting",
+        "overlap",
+        "second_moment_pair"
+      ],
+      "proof_uses": [],
+      "note": "Var <= 3 n C(n,3) p^3. Pairs sharing at most one vertex span exactly 6 edges and cancel against E[X]^2 term by term; only overlapping pairs survive."
     }
   }
 }
