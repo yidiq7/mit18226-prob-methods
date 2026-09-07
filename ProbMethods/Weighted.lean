@@ -29,6 +29,7 @@ easier to normalise at the point of use.
 * `PMC.wchebyshev` — Chebyshev's inequality. Mathlib's Chebyshev is stated for
   `MeasureTheory`/`ProbabilityTheory` and does not apply to a bare finite weighted sum, so
   this is proved here. Chapters 4 (§4.5, §4.6), 5 and 9 all want it.
+* `PMC.wmarkov` — Markov's inequality for a nonnegative variable.
 * `PMC.wsecond_moment` — **the second moment method**: wherever a count vanishes, the total
   weight is at most `wvar / (wmean) ^ 2`. This is the "whp the count is positive" direction
   of every threshold result, in finite form.
@@ -108,6 +109,24 @@ theorem wchebyshev' (w : Ω → ℝ) (X : Ω → ℝ) (hw : ∀ ω, 0 ≤ w ω) 
         + (∑ ω ∈ univ.filter fun ω => a ≤ |X ω - wmean w X|, w ω) * a ^ 2 := by
     rw [← add_mul, hsplit]
   linarith
+
+/-- **Markov's inequality** over a finite weighted space.
+
+The total weight of the points where a nonnegative `X` reaches `a` is at most
+`wmean w X / a`. Stated multiplicatively. Mathlib's Markov is `MeasureTheory`-only. -/
+theorem wmarkov (w : Ω → ℝ) (X : Ω → ℝ) (hw : ∀ ω, 0 ≤ w ω) (hX : ∀ ω, 0 ≤ X ω)
+    {a : ℝ} (ha : 0 < a) :
+    (∑ ω ∈ univ.filter fun ω => a ≤ X ω, w ω) * a ≤ wmean w X := by
+  calc (∑ ω ∈ univ.filter fun ω => a ≤ X ω, w ω) * a
+      = ∑ ω ∈ univ.filter fun ω => a ≤ X ω, w ω * a := Finset.sum_mul _ _ _
+    _ ≤ ∑ ω ∈ univ.filter fun ω => a ≤ X ω, w ω * X ω := by
+        refine Finset.sum_le_sum fun ω hω => ?_
+        rw [mem_filter] at hω
+        exact mul_le_mul_of_nonneg_left hω.2 (hw ω)
+    _ ≤ ∑ ω, w ω * X ω := by
+        refine Finset.sum_le_sum_of_subset_of_nonneg (filter_subset _ _) fun ω _ _ => ?_
+        exact mul_nonneg (hw ω) (hX ω)
+    _ = wmean w X := rfl
 
 /-- **The second moment method.**
 

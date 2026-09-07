@@ -604,6 +604,81 @@
       ],
       "proof_uses": [],
       "note": "Triangle-free graphs carry weight at most Var/(C(n,3)p^3)^2. Remaining work in 4.1 is the overlap analysis bounding Var."
+    },
+    "chernoffGroup": {
+      "kind": "group",
+      "doc": "chernoff.md"
+    },
+    "markov_weighted": {
+      "kind": "theorem",
+      "parent": "chernoffGroup",
+      "file": "ProbMethods/Weighted.lean",
+      "decl": "PMC.wmarkov",
+      "doc": "chernoff.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": []
+    },
+    "chernoff": {
+      "kind": "theorem",
+      "parent": "chernoffGroup",
+      "file": "ProbMethods/Chapter05/Chernoff.lean",
+      "decl": "PMC.card_filter_sign_sum_le",
+      "doc": "chernoff.md#chernoff",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "Theorem 5.0.1 via the MGF method. Requires 0 < n, which the notes leave implicit. Real.cosh_le_exp_half_sq is upstream."
+    },
+    "chernoff_two_sided": {
+      "kind": "theorem",
+      "parent": "chernoffGroup",
+      "doc": "chernoff.md#still-to-state",
+      "statement": "planned",
+      "proof": "planned",
+      "uses": [
+        "chernoff"
+      ],
+      "proof_uses": [],
+      "note": "Corollary 5.0.3; follows by the complement symmetry S -> S^c."
+    },
+    "chernoff_bounded": {
+      "kind": "theorem",
+      "parent": "chernoffGroup",
+      "doc": "chernoff.md#still-to-state",
+      "statement": "planned",
+      "proof": "planned",
+      "uses": [
+        "chernoff"
+      ],
+      "proof_uses": [],
+      "note": "Theorem 5.0.5; needs the convexity step for x in [-1,1]."
+    },
+    "chernoff_bernoulli": {
+      "kind": "theorem",
+      "parent": "chernoffGroup",
+      "doc": "chernoff.md#still-to-state",
+      "statement": "planned",
+      "proof": "planned",
+      "uses": [
+        "chernoff"
+      ],
+      "proof_uses": [],
+      "note": "Theorem 5.0.7; same MGF method, different optimisation."
+    },
+    "discrepancy": {
+      "kind": "theorem",
+      "parent": "chernoffGroup",
+      "doc": "chernoff.md#still-to-state",
+      "statement": "planned",
+      "proof": "planned",
+      "uses": [
+        "chernoff"
+      ],
+      "proof_uses": [],
+      "note": "Section 5.1; Chernoff per edge plus a union bound, both now available."
     }
   }
 }
