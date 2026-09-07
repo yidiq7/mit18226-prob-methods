@@ -176,6 +176,17 @@ Consequences: `orchestrator.leases.decide_for_issue` (lease comments) and reconc
 `stale_after_days` alone will not reliably free a claim that the orchestrator keeps
 touching.** Ask the holder to release *once*, then leave the issue alone.
 
+**The daily reconcile cron also cannot be relied on for timeliness.** It is scheduled for
+06:17 UTC; on 2026-09-07 it had still not fired an hour past due. The workflow is `active`,
+sits on the default branch, and the repo is public and not a fork, so nothing is
+misconfigured — GitHub's scheduled workflows are simply best-effort and may be delayed or
+dropped. Only the `workflow_dispatch` path is dependable.
+
+**Net effect: on this project, freeing a stale claim is a manual act.** Three independent
+reasons stack up — the 7-day threshold is far longer than the 10-to-20-minute task pace,
+the fallback clock resets on any issue activity, and the cron is best-effort. Do not wait
+for it to resolve itself.
+
 **When checking lease freshness, match on the `choir-lease` block, not on the word
 "heartbeat".** The orchestrator's own stale-claim comment on #2 contains that word, so a
 text match returns *its* timestamp and reads as though the worker is alive — which would
