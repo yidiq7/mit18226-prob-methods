@@ -37,16 +37,30 @@ Harris–Kleitman, Kleitman's lemma and Kruskal–Katona — several of which ar
 results here. §1.2's Sperner/LYM/EKR were already known to be upstream; this is the same
 lesson one chapter later.
 
-## Applications to random graphs (§7.2) — reachable
+## Applications to random graphs (§7.2) — proved
 
-The notes apply Harris–FKG to `G(n, p)`: monotone graph properties are positively
-correlated, so for instance the probability that a random graph is both triangle-free and
-has no isolated vertex factorises favourably.
+### fkg_random_graphs
+`PMC.pweight_correlate`: for **upward-closed** properties `A` and `B` of a random subset,
 
-Everything needed is now present. `PMC.pweight` is the product measure on edge sets, and
-with `α := Sym2 V` `PMC.pweight_fkg` is exactly "monotone graph properties correlate". What
-remains per application is showing the specific property is monotone — pure combinatorics,
-no probability.
+    weight(A) * weight(B) ≤ weight(A ∧ B)
+
+This is the form applications use. It comes from `pweight_fkg` applied to the indicator
+functions, which are monotone exactly because the properties are upward-closed — that
+passage from monotone *functions* to monotone *events* is the whole content added here.
+
+With `α := Sym2 V` it reads "monotone graph properties correlate in `G(n, p)`".
+
+### fkg_triangle
+`PMC.pweight_hasTriangle_correlate`: containing a triangle correlates with any monotone
+property. `hasTriangle_mono` is immediate (`spannedEdges t ⊆ E ⊆ F`), and `HasTriangle`
+needed an explicit `DecidablePred` instance — it *is* decidable, being a bounded
+existential over `powersetCard 3 univ`, but instance search does not unfold a `def`. That
+instance is now in `Basic.lean`, which is also what makes `HasTriangle` usable in a
+`filter` at all.
+
+Further applications in the notes follow the same pattern: state the property, prove it
+upward-closed, apply `pweight_correlate`. No probability is involved beyond this point —
+which is the useful upshot of the chapter being upstream.
 
 One caveat worth recording: `PMC.bweight` (the constant-`p` form used in Chapter 4) and
 `PMC.pweight` are the same measure when `p` is constant, but they are *defined* differently

@@ -25,7 +25,7 @@ written when the phase opens, so the plan never claims more precision than it ha
 | 4 | 4 Second Moment | [second-moment.md](second-moment.md) | **§4.1 complete** (moments + variance), §4.2, §4.4 proved; §4.7 upstream; §4.3 deferred |
 | 5 | 5 Chernoff Bound | [chernoff.md](chernoff.md) | **Thm 5.0.1, Cor 5.0.3, §5.1 proved**; 5.0.5/5.0.7, §5.2/§5.3 open |
 | 6 | 6 Lovász Local Lemma | — | not started |
-| 7 | 7 Correlation Inequalities | [correlation.md](correlation.md) | **§7.1 upstream in Mathlib**; bridge proved; §7.2 reachable |
+| 7 | 7 Correlation Inequalities | [correlation.md](correlation.md) | **complete in finite form**: §7.1 upstream, §7.2 proved |
 | 8 | 8 Janson Inequalities | — | not started |
 | 9 | 9 Concentration of Measure | — | not started |
 | 10 | 10 Entropy | — | not started |

@@ -797,13 +797,15 @@
       "kind": "theorem",
       "parent": "correlation",
       "doc": "correlation.md#applications-to-random-graphs-72--reachable",
-      "statement": "planned",
-      "proof": "planned",
+      "statement": "formalized",
+      "proof": "formalized",
       "uses": [
         "harris_fkg"
       ],
       "proof_uses": [],
-      "note": "Section 7.2. Take alpha := Sym2 V in pweight_fkg; what remains per application is monotonicity of the specific property, which is combinatorics."
+      "note": "Monotone (upward-closed) events correlate under a product measure. With alpha := Sym2 V this is 'monotone graph properties correlate in G(n,p)'.",
+      "file": "ProbMethods/Chapter07/Correlation.lean",
+      "decl": "PMC.pweight_correlate"
     },
     "bweight_pweight_bridge": {
       "kind": "theorem",
@@ -817,6 +819,21 @@
       ],
       "proof_uses": [],
       "note": "bweight p = pweight (fun _ => p). Needed to combine Chapter 4's results with FKG."
+    },
+    "fkg_triangle": {
+      "kind": "theorem",
+      "parent": "correlation",
+      "file": "ProbMethods/Chapter07/Correlation.lean",
+      "decl": "PMC.pweight_hasTriangle_correlate",
+      "doc": "correlation.md#applications-to-random-graphs-72--reachable",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [
+        "fkg_random_graphs",
+        "trianglesDef"
+      ],
+      "proof_uses": [],
+      "note": "Concrete instance: containing a triangle correlates with any monotone property. Needs hasTriangle_mono and a DecidablePred instance for HasTriangle."
     }
   }
 }

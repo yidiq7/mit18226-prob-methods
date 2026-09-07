@@ -177,6 +177,13 @@ act as the `G(n, p)` distribution on them. -/
 def HasTriangle [Fintype V] (E : Finset (Sym2 V)) : Prop :=
   ∃ t ∈ powersetCard 3 (univ : Finset V), spannedEdges t ⊆ E
 
+/-- `HasTriangle` is decidable, being a bounded existential over `powersetCard 3 univ`.
+Supplied explicitly because the definition is a `def`, so instance search does not unfold
+it. -/
+instance decidableHasTriangle [Fintype V] : DecidablePred (HasTriangle (V := V)) :=
+  fun E => decidable_of_iff
+    (∃ t ∈ powersetCard 3 (univ : Finset V), spannedEdges t ⊆ E) Iff.rfl
+
 lemma hasTriangle_iff_triangles_nonempty [Fintype V] {E : Finset (Sym2 V)} :
     HasTriangle E ↔ (triangles E).Nonempty := by
   simp [HasTriangle, triangles, cliqueSets, Finset.filter_nonempty_iff]
