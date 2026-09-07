@@ -160,6 +160,22 @@ therefore holds a phase-1 node for a week. The default suits multi-month formali
 The holder was asked to release; the lease was **not** overridden, and
 `.choir/project.toml` was **not** edited, because it is policy.
 
+**Reconcile and the lease arbiter measure staleness by different clocks, and commenting
+on a stale claim delays the automatic reclamation.** Validated by a dry-run dispatch of
+`reconcile.yml` (`dry_run=true`, `threshold_days=0`), which correctly reported
+`#2: no heartbeat label; last activity 0 days ago` — so the mechanism works, but note
+*which* signal it used. `gate/reconcile/stale_claims.py` prefers a
+`choir/heartbeat:YYYY-MM-DD` **label** and, when there is none, falls back to the issue's
+`updated_at`. The workers here post lease **comments** and never set that label, so this
+project is permanently on the `updated_at` fallback — and any comment or label edit on the
+issue, including the orchestrator's own nudge, resets it. The nudge on #2 therefore pushed
+its automatic reclamation out by a further day.
+
+Consequences: `orchestrator.leases.decide_for_issue` (lease comments) and reconcile
+(label / issue activity) can disagree about the same claim, and **tightening
+`stale_after_days` alone will not reliably free a claim that the orchestrator keeps
+touching.** Ask the holder to release *once*, then leave the issue alone.
+
 **When checking lease freshness, match on the `choir-lease` block, not on the word
 "heartbeat".** The orchestrator's own stale-claim comment on #2 contains that word, so a
 text match returns *its* timestamp and reads as though the worker is alive — which would
