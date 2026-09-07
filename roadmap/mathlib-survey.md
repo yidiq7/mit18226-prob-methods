@@ -1,0 +1,77 @@
+# Mathlib survey for the remaining chapters
+
+Done 2026-09-07, after Chapter 7's main theorem turned out to be upstream and I had begun
+planning a proof of it. The lesson from that near-miss was to survey before planning, so
+this is that survey. It **corrects one earlier misclassification** and reclassifies
+Chapter 9.
+
+## Correction: Theorem 5.0.5 is upstream, not unreachable
+
+`chernoff.md` recorded Theorem 5.0.5 (Chernoff for arbitrary `[-1,1]`-valued variables) as
+deferred because "the sample space is a product of continua and is not finite — the counting
+framework does not reach it".
+
+The first half is true and the conclusion drawn from it was wrong. **Mathlib has this
+result**, in `Mathlib/Probability/Moments/SubGaussian.lean`:
+
+* `hasSubgaussianMGF_of_mem_Icc_of_integral_eq_zero` — **Hoeffding's lemma**: a mean-zero
+  variable valued in `[a, b]` has a sub-Gaussian MGF. This is precisely the convexity step
+  5.0.5 needs.
+* `measure_sum_ge_le_of_iIndepFun` — **Hoeffding's inequality**: the tail bound for a sum of
+  independent sub-Gaussian variables, which is 5.0.5 itself.
+
+So 5.0.5 is `upstream`, in `MeasureTheory` form. What is true is that *this project's* finite
+framework cannot state it; that is a statement about the framework, not about the
+availability of the mathematics. Recorded as upstream in `graph.json`.
+
+## Chapter 9 (Concentration of Measure) — substantially upstream
+
+* **§9.1 bounded differences / §9.2 martingale concentration.**
+  `measure_sum_ge_le_of_HasCondSubgaussianMGF` in `SubGaussian.lean` is the
+  **Azuma–Hoeffding inequality**. `Mathlib/Probability/Martingale/` supplies the martingale
+  theory around it (`Basic`, `Convergence`, `OptionalStopping`, `OptionalSampling`,
+  `Upcrossing`, `BorelCantelli`, `Centering`).
+* **§9.5 Talagrand's inequality** — absent.
+* **§9.4 isoperimetric inequalities, §9.6 Euclidean TSP** — absent.
+
+So Chapter 9 is *not* the wall it was recorded as. Its first two sections are upstream in
+`MeasureTheory` form; Talagrand and the geometric sections remain genuinely absent.
+
+## Chapter 10 (Entropy) — groundwork present, the combinatorial results absent
+
+Present: `Mathlib/Analysis/SpecialFunctions/Log/NegMulLog.lean` (the `x log x` function with
+its convexity), `Analysis/SpecialFunctions/BinaryEntropy.lean`, and
+`Mathlib/InformationTheory/` with `KullbackLeibler/` (Basic, ChainRule, DataProcessing,
+KLFun), `Coding`, `Hamming`.
+
+Absent: any **discrete Shannon entropy of a random variable** — no definition was found —
+and hence §10.1's basic properties, §10.2 (permanents, perfect matchings), §10.3
+(Sidorenko) and §10.4 (**Shearer's lemma**). The analytic ingredients exist; the
+combinatorial entropy layer would have to be built, starting with the definition.
+
+## Chapters 6, 8, 11 — genuinely absent
+
+* **Chapter 6, Lovász Local Lemma** — no `lovasz`, `local_lemma` or `localLemma` anywhere.
+  The only hit was the surname in a `KruskalKatona` reference. The symmetric LLL *is*
+  expressible in this project's finite weighted framework (events as subsets of a finite
+  space, dependency via a graph), so this is real but reachable work, not a framework
+  limitation.
+* **Chapter 8, Janson inequalities** — absent. Also expressible finitely, and it builds on
+  the `G(n,p)` weights and second-moment machinery already here.
+* **Chapter 11, hypergraph containers** — absent.
+
+## What this changes
+
+The remaining work sorts into three piles, and the survey moved things between them:
+
+1. **Upstream (do not build):** §1.2 Sperner/LYM/EKR, §2.3 Turán structural, §3.3 Markov,
+   §4.7 Weierstrass, §5.0.5 Hoeffding, §7.1 FKG, §9.1–§9.2 Azuma–Hoeffding.
+2. **Reachable in the finite framework:** Chapter 6 (LLL), Chapter 8 (Janson), §4.6,
+   §5.0.7, `sumfree`, `unbalancing`. All build on machinery now in `Weighted.lean`.
+3. **Genuinely absent from Mathlib and large:** Talagrand (§9.5), the geometric sections
+   (§3.2, §9.4, §9.6), planarity (§2.6), containers (Chapter 11), the discrete entropy
+   layer (Chapter 10).
+
+**Chapter 6 is the best next target**: entirely absent from Mathlib, entirely expressible
+in the framework that exists here, and the local lemma is the single most-cited result in
+the book.

@@ -649,14 +649,9 @@
     "chernoff_bounded": {
       "kind": "theorem",
       "parent": "chernoffGroup",
-      "doc": "chernoff.md#still-to-state",
-      "statement": "deferred",
-      "proof": "deferred",
-      "uses": [
-        "chernoff"
-      ],
-      "proof_uses": [],
-      "note": "Theorem 5.0.5 quantifies over arbitrary [-1,1]-valued variables, so the sample space is not finite and the counting framework does not reach it. Needs MeasureTheory, or a restatement for finitely-supported variables."
+      "decl": "ProbabilityTheory.measure_sum_ge_le_of_iIndepFun",
+      "upstream": true,
+      "note": "Theorem 5.0.5 is Hoeffding's inequality, which Mathlib has in MeasureTheory form (SubGaussian.lean), together with Hoeffding's lemma. Earlier recorded as deferred; that was wrong -- the finite framework cannot state it, but the mathematics is upstream."
     },
     "chernoff_bernoulli": {
       "kind": "theorem",
@@ -834,6 +829,47 @@
       ],
       "proof_uses": [],
       "note": "Concrete instance: containing a triangle correlates with any monotone property. Needs hasTriangle_mono and a DecidablePred instance for HasTriangle."
+    },
+    "azuma": {
+      "kind": "theorem",
+      "parent": "concentration",
+      "decl": "ProbabilityTheory.measure_sum_ge_le_of_HasCondSubgaussianMGF",
+      "upstream": true,
+      "note": "Azuma-Hoeffding, in Mathlib SubGaussian.lean. Covers 9.1-9.2 in MeasureTheory form."
+    },
+    "concentration": {
+      "kind": "group",
+      "doc": "mathlib-survey.md"
+    },
+    "talagrand": {
+      "kind": "theorem",
+      "parent": "concentration",
+      "doc": "mathlib-survey.md",
+      "statement": "deferred",
+      "proof": "deferred",
+      "uses": [],
+      "proof_uses": [],
+      "note": "Section 9.5. Absent from Mathlib; large."
+    },
+    "shearer": {
+      "kind": "theorem",
+      "parent": "concentration",
+      "doc": "mathlib-survey.md",
+      "statement": "planned",
+      "proof": "planned",
+      "uses": [],
+      "proof_uses": [],
+      "note": "Section 10.4. Needs a discrete Shannon entropy first -- none in Mathlib, though negMulLog and KL machinery exist."
+    },
+    "lll": {
+      "kind": "theorem",
+      "parent": "concentration",
+      "doc": "mathlib-survey.md",
+      "statement": "planned",
+      "proof": "planned",
+      "uses": [],
+      "proof_uses": [],
+      "note": "Chapter 6. Absent from Mathlib but expressible in this project's finite weighted framework. Best next target."
     }
   }
 }

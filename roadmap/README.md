@@ -24,11 +24,11 @@ written when the phase opens, so the plan never claims more precision than it ha
 | 3 | 3 Alterations | [alterations.md](alterations.md) | `dominating` proved; §3.3 upstream, §3.2 deferred, §3.4/§3.5 need design |
 | 4 | 4 Second Moment | [second-moment.md](second-moment.md) | **§4.1 complete** (moments + variance), §4.2, §4.4 proved; §4.7 upstream; §4.3 deferred |
 | 5 | 5 Chernoff Bound | [chernoff.md](chernoff.md) | **Thm 5.0.1, Cor 5.0.3, §5.1 proved**; 5.0.5/5.0.7, §5.2/§5.3 open |
-| 6 | 6 Lovász Local Lemma | — | not started |
+| 6 | 6 Lovász Local Lemma | [mathlib-survey.md](mathlib-survey.md) | absent from Mathlib; **best next target** |
 | 7 | 7 Correlation Inequalities | [correlation.md](correlation.md) | **complete in finite form**: §7.1 upstream, §7.2 proved |
-| 8 | 8 Janson Inequalities | — | not started |
-| 9 | 9 Concentration of Measure | — | not started |
-| 10 | 10 Entropy | — | not started |
+| 8 | 8 Janson Inequalities | [mathlib-survey.md](mathlib-survey.md) | absent from Mathlib; reachable in the finite framework |
+| 9 | 9 Concentration of Measure | [mathlib-survey.md](mathlib-survey.md) | **§9.1–§9.2 upstream** (Azuma–Hoeffding); §9.5 Talagrand absent |
+| 10 | 10 Entropy | [mathlib-survey.md](mathlib-survey.md) | analytic groundwork upstream; discrete entropy layer absent |
 | 11 | 11 Containers | — | not started |
 
 ## Conventions that shape the route
@@ -257,3 +257,26 @@ Chapter 10's entropy inequalities are exactly the kind of thing that may be part
 The bridge `PMC.pweight_fkg` is what makes the upstream result usable here: a product
 measure is log-modular **with equality** (`pweight_mul_pweight`), which is the precise
 sense in which independence is what FKG needs.
+
+**2026-09-07 — Surveyed Mathlib for every remaining chapter, and it corrected a mistake of
+mine.** Full results in [mathlib-survey.md](mathlib-survey.md). Two things changed:
+
+**Theorem 5.0.5 is upstream, not unreachable.** I had recorded it as deferred because
+arbitrary `[-1,1]`-valued variables give a non-finite sample space. The premise was right
+and the conclusion wrong: `Mathlib/Probability/Moments/SubGaussian.lean` has **Hoeffding's
+lemma** (`hasSubgaussianMGF_of_mem_Icc_of_integral_eq_zero`) and **Hoeffding's inequality**
+(`measure_sum_ge_le_of_iIndepFun`), which is 5.0.5. "This project's framework cannot state
+it" is a fact about the framework, not about whether the mathematics exists.
+
+**Chapter 9 is not the wall it was recorded as.** `measure_sum_ge_le_of_HasCondSubgaussianMGF`
+is **Azuma–Hoeffding**, and `Probability/Martingale/` supplies the surrounding theory — so
+§9.1–§9.2 are upstream in `MeasureTheory` form. Talagrand (§9.5) and the geometric sections
+remain absent.
+
+Also: Chapter 10's analytic groundwork is upstream (`negMulLog`, binary entropy, KL
+divergence) but there is **no discrete Shannon entropy** in Mathlib, so §10.1–§10.4 need
+that layer built first. Chapters 6, 8 and 11 are genuinely absent.
+
+**Chapter 6 (Lovász Local Lemma) is the best next target**: absent from Mathlib, fully
+expressible in the finite weighted framework already built here, and the most-cited result
+in the book.
