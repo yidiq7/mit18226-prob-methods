@@ -345,6 +345,70 @@
       "proof": "formalized",
       "uses": [],
       "proof_uses": []
+    },
+    "alterations": {
+      "kind": "group",
+      "doc": "alterations.md"
+    },
+    "dominatingDef": {
+      "kind": "definition",
+      "parent": "alterations",
+      "file": "ProbMethods/Basic.lean",
+      "decl": "PMC.IsDominating",
+      "doc": "alterations.md#dominating",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": []
+    },
+    "dominating": {
+      "kind": "theorem",
+      "parent": "alterations",
+      "file": "ProbMethods/Chapter03/Dominating.lean",
+      "decl": "PMC.exists_isDominating_card_le",
+      "doc": "alterations.md#dominating",
+      "statement": "formalized",
+      "proof": "planned",
+      "uses": [
+        "dominatingDef"
+      ],
+      "proof_uses": []
+    },
+    "markov": {
+      "kind": "theorem",
+      "parent": "alterations",
+      "decl": "MeasureTheory.mul_meas_ge_le_lintegral",
+      "upstream": true
+    },
+    "heilbronn": {
+      "kind": "theorem",
+      "parent": "alterations",
+      "doc": "alterations.md#heilbronn-triangle-problem-32--deferred",
+      "statement": "deferred",
+      "proof": "deferred",
+      "uses": [],
+      "proof_uses": [],
+      "note": "Integral geometry over R^2; the algebraic alternative needs Pick's theorem. Neither is in Mathlib."
+    },
+    "high_girth": {
+      "kind": "theorem",
+      "parent": "alterations",
+      "doc": "alterations.md#high-girth-and-high-chromatic-number-34--not-yet-stated",
+      "statement": "planned",
+      "proof": "planned",
+      "uses": [],
+      "proof_uses": [],
+      "note": "Needs a theory of G(n,p); should be its own phase."
+    },
+    "random_greedy": {
+      "kind": "theorem",
+      "parent": "alterations",
+      "doc": "alterations.md#random-greedy-colouring-35--not-yet-stated",
+      "statement": "planned",
+      "proof": "planned",
+      "uses": [],
+      "proof_uses": [],
+      "note": "Continuous [0,1] construction; needs a discretisation designed first."
     }
   }
 }

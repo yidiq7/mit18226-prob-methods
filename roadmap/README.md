@@ -18,10 +18,10 @@ written when the phase opens, so the plan never claims more precision than it ha
 
 | Phase | Chapters | Group file | Status |
 |---|---|---|---|
-| 1 | 1 Introduction | [introduction.md](introduction.md) | 7 of 8 proved; `property_b_lower` claimed |
+| 1 | 1 Introduction | [introduction.md](introduction.md) | **complete** (8 of 8) |
 | 1 | 2 Linearity of Expectations (§2.3) | [linearity.md](linearity.md) | **complete** (3 of 3) |
-| 2 | 2 (rest) | [linearity.md](linearity.md) | **open**: `szele` stated; §2.6 deferred |
-| 3 | 3 Alterations | — | not started |
+| 2 | 2 (rest) | [linearity.md](linearity.md) | `szele` + `sampling` proved; `sumfree`/`unbalancing` open; §2.6 deferred |
+| 3 | 3 Alterations | [alterations.md](alterations.md) | **open**: `dominating` stated; §3.3 upstream, §3.2 deferred |
 | 4 | 4 Second Moment, 5 Chernoff Bound | — | not started |
 | 5 | 6 Lovász Local Lemma | — | not started |
 | 6 | 7 Correlation Inequalities, 8 Janson Inequalities | — | not started |

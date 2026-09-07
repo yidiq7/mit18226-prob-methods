@@ -26,6 +26,7 @@ where `statement-immutability` can guard it.
 * `PMC.beats`, `PMC.hamiltonPaths` — tournaments and their Hamilton paths (§2.1).
 * `PMC.SumFree` — sum-free sets in an additive structure (§2.2).
 * `PMC.IsThreeGraph`, `PMC.HasTetrahedron` — 3-uniform hypergraphs (§2.4).
+* `PMC.IsDominating` — dominating sets in a graph (§3.1).
 -/
 
 open Finset
@@ -101,6 +102,15 @@ in the lists, so any colour set can be transported along an injection into `ℕ`
 def CompleteBipartiteChoosable (n k : ℕ) : Prop :=
   ∀ L : Fin n ⊕ Fin n → Finset ℕ, (∀ v, #(L v) = k) →
     ∃ f : Fin n ⊕ Fin n → ℕ, (∀ v, f v ∈ L v) ∧ ∀ i j, f (Sum.inl i) ≠ f (Sum.inr j)
+
+/-! ### Dominating sets -/
+
+/-- `U` is *dominating* in `G` when every vertex outside `U` has a neighbour in `U`. -/
+def IsDominating {V : Type*} (G : SimpleGraph V) (U : Finset V) : Prop :=
+  ∀ v ∉ U, ∃ u ∈ U, G.Adj v u
+
+lemma isDominating_univ {V : Type*} [Fintype V] (G : SimpleGraph V) :
+    IsDominating G (univ : Finset V) := fun _ hv => absurd (mem_univ _) hv
 
 /-! ### 3-uniform hypergraphs -/
 
