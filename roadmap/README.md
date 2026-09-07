@@ -21,7 +21,7 @@ written when the phase opens, so the plan never claims more precision than it ha
 | 1 | 1 Introduction | [introduction.md](introduction.md) | **complete** (8 of 8) |
 | 1 | 2 Linearity of Expectations (§2.3) | [linearity.md](linearity.md) | **complete** (3 of 3) |
 | 2 | 2 (rest) | [linearity.md](linearity.md) | `szele` + `sampling` proved; `sumfree`/`unbalancing` open; §2.6 deferred |
-| 3 | 3 Alterations | [alterations.md](alterations.md) | **open**: `dominating` stated; §3.3 upstream, §3.2 deferred |
+| 3 | 3 Alterations | [alterations.md](alterations.md) | `dominating` proved; §3.3 upstream, §3.2 deferred, §3.4/§3.5 need design |
 | 4 | 4 Second Moment, 5 Chernoff Bound | — | not started |
 | 5 | 6 Lovász Local Lemma | — | not started |
 | 6 | 7 Correlation Inequalities, 8 Janson Inequalities | — | not started |
@@ -108,6 +108,17 @@ burned every contributor's first cycle and looked like their fault. Repeat after
 to the toolchain, the overlay, or `verify-pr.yml`. The merge path is validated too: PR #10
 went through `merge_pr`'s preflight and `issue-close-on-merge.yml` moved #1 to
 `choir/done`.
+
+**Bernoulli weights as a finite sum are the device for non-uniform arguments, and it
+works.** Validated on `dominating` (§3.1), the first node whose distribution is not
+uniform. Put `w X = p ^ #X * (1 - p) ^ (n - #X)` over `univ.powerset`; `Finset.prod_add`
+gives `∑ w = (p + (1 - p)) ^ n = 1`, so `Finset.exists_le_of_sum_le` turns "at least as
+good as the expectation" into an ordinary averaging step. No `MeasureTheory`, and `p` may
+be any real — here it is `log (δ+1) / (δ+1)`. Two reusable pieces came out of it: the
+subsets avoiding a fixed `B` carry weight `(1 - p) ^ #B`, and those containing a fixed `v`
+carry `p`, the latter obtained by *subtracting* the former from the total rather than
+building a bijection. **Expect every later chapter with a real-valued parameter to reuse
+this.**
 
 **Check every centralized definition numerically before committing it.** The statement
 layer gets *no* gate check, and a wrong definition makes every theorem about it vacuously
