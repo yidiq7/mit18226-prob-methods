@@ -25,9 +25,21 @@ already has a convention for exactly that (`README.md`: asymptotic statements ar
 or made explicit), and it applies here: state the finite-`n` inequality with explicit
 constants, and leave the limit statement out.
 
-So the ordering for this chapter is: **build the weighted-counting layer first** (the
-`G(n,p)` weights, the expected count of a fixed subgraph, Chebyshev over a finite weighted
-space), then state the explicit-constant forms. None of it needs machinery Mathlib lacks.
+So the ordering for this chapter is: **build the weighted-counting layer first**, then
+state the explicit-constant forms. None of it needs machinery Mathlib lacks.
+
+**The layer now exists**, in `ProbMethods/Weighted.lean`:
+
+* `PMC.bweight p X = p ^ #X * (1 - p) ^ (card α - #X)` — take `α := Sym2 V` for `G(n, p)`;
+* `PMC.sum_bweight` — the weights total `1`;
+* `PMC.sum_bweight_superset` — a fixed `B` is contained with weight `p ^ #B`, i.e. a fixed
+  subgraph appears with weight `p ^ (its edge count)`. This is the opening step of every
+  first-moment random-graph argument;
+* `PMC.sum_bweight_disjoint` — a fixed `B` is avoided with weight `(1 - p) ^ #B`;
+* `PMC.wchebyshev` / `PMC.wchebyshev'` with `PMC.wmean`, `PMC.wvar`.
+
+All axiom-clean. What remains for §4.1–§4.4 is the combinatorics on top, not the
+probability.
 
 ## Weierstrass approximation (§4.7) — UPSTREAM
 

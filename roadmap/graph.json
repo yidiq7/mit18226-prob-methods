@@ -448,11 +448,13 @@
       "kind": "definition",
       "parent": "secondMoment",
       "doc": "second-moment.md#the-structural-finding-for-this-chapter-and-for-much-of-the-book",
-      "statement": "planned",
-      "proof": "planned",
+      "statement": "formalized",
+      "proof": "formalized",
       "uses": [],
       "proof_uses": [],
-      "note": "G(n,p) as finite Bernoulli weights over edge sets, per the device validated in 3.1. Gates 4.1-4.4 and 3.4."
+      "note": "G(n,p) as finite Bernoulli weights: bweight, sum_bweight, sum_bweight_superset (weight p^#B for a fixed edge set), sum_bweight_disjoint. Take alpha := Sym2 V.",
+      "file": "ProbMethods/Weighted.lean",
+      "decl": "PMC.bweight"
     },
     "random_triangle": {
       "kind": "theorem",

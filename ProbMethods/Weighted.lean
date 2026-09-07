@@ -20,11 +20,23 @@ easier to normalise at the point of use.
 * `PMC.wmean` — the weighted mean of a real random variable.
 * `PMC.wvar` — its weighted variance, about its own weighted mean.
 
+* `PMC.bweight` — the Bernoulli weight of a subset, `p ^ #X * (1 - p) ^ (card - #X)`.
+  Taking `α := Sym2 V` makes this the `G(n, p)` distribution on graphs, which is how
+  Chapters 4, 8 and 9 reach the random graph without any measure theory.
+
 ## Main results
 
 * `PMC.wchebyshev` — Chebyshev's inequality. Mathlib's Chebyshev is stated for
   `MeasureTheory`/`ProbabilityTheory` and does not apply to a bare finite weighted sum, so
   this is proved here. Chapters 4 (§4.5, §4.6), 5 and 9 all want it.
+* `PMC.sum_bweight` — the weights total `1`.
+* `PMC.sum_bweight_superset` — the subsets *containing* a fixed `B` carry weight `p ^ #B`.
+  On `Sym2 V` this is exactly "every edge of a fixed subgraph is present with probability
+  `p ^ (its edge count)`", the fact every first-moment random-graph argument opens with.
+* `PMC.sum_bweight_disjoint` — the subsets *avoiding* `B` carry weight `(1 - p) ^ #B`.
+
+`ProbMethods/Chapter03/Dominating.lean` proves private special cases of the last two; those
+should be golfed away in favour of these.
 -/
 
 open Finset
@@ -86,5 +98,106 @@ theorem wchebyshev' (w : Ω → ℝ) (X : Ω → ℝ) (hw : ∀ ω, 0 ≤ w ω) 
   linarith
 
 end Weighted
+
+section Bernoulli
+
+variable {α : Type*} [Fintype α] [DecidableEq α]
+
+/-- The Bernoulli weight of a subset: each element included independently with probability
+`p`. With `α := Sym2 V` this is the `G(n, p)` distribution on graphs. -/
+def bweight (p : ℝ) (X : Finset α) : ℝ := p ^ #X * (1 - p) ^ (Fintype.card α - #X)
+
+lemma bweight_nonneg {p : ℝ} (hp0 : 0 ≤ p) (hp1 : p ≤ 1) (X : Finset α) :
+    0 ≤ bweight p X :=
+  mul_nonneg (pow_nonneg hp0 _) (pow_nonneg (by linarith) _)
+
+/-- Over any `S`, the Bernoulli weights relative to `S` total `1`. This is
+`Finset.prod_add` with both factors constant. -/
+lemma sum_bernoulli_on (S : Finset α) (p : ℝ) :
+    ∑ X ∈ S.powerset, p ^ #X * (1 - p) ^ (#S - #X) = 1 := by
+  have h := Finset.prod_add (fun _ : α => p) (fun _ : α => 1 - p) S
+  calc ∑ X ∈ S.powerset, p ^ #X * (1 - p) ^ (#S - #X)
+      = ∑ X ∈ S.powerset, (∏ _i ∈ X, p) * ∏ _i ∈ S \ X, (1 - p) := by
+        refine Finset.sum_congr rfl fun X hX => ?_
+        rw [mem_powerset] at hX
+        rw [prod_const, prod_const, card_sdiff_of_subset hX]
+    _ = ∏ _i ∈ S, (p + (1 - p)) := h.symm
+    _ = 1 := by simp
+
+/-- The Bernoulli weights total `1`. -/
+theorem sum_bweight (p : ℝ) : ∑ X ∈ (univ : Finset α).powerset, bweight p X = 1 := by
+  have h := sum_bernoulli_on (univ : Finset α) p
+  rwa [card_univ] at h
+
+/-- The subsets avoiding `B` carry weight `(1 - p) ^ #B`. -/
+theorem sum_bweight_disjoint (p : ℝ) (B : Finset α) :
+    ∑ X ∈ (univ : Finset α).powerset.filter (fun X => Disjoint X B), bweight p X
+      = (1 - p) ^ #B := by
+  have hset : (univ : Finset α).powerset.filter (fun X => Disjoint X B)
+      = (univ \ B).powerset := by
+    ext X
+    simp only [mem_filter, mem_powerset, subset_univ, true_and, subset_sdiff]
+  have hcard : #(univ \ B) = Fintype.card α - #B := by
+    rw [card_sdiff_of_subset (subset_univ B), card_univ]
+  have hBle : #B ≤ Fintype.card α := by rw [← card_univ]; exact card_le_univ B
+  rw [hset]
+  calc ∑ X ∈ (univ \ B).powerset, bweight p X
+      = ∑ X ∈ (univ \ B).powerset,
+          (p ^ #X * (1 - p) ^ (#(univ \ B) - #X)) * (1 - p) ^ #B := by
+        refine Finset.sum_congr rfl fun X hX => ?_
+        rw [mem_powerset] at hX
+        have hXle : #X ≤ #(univ \ B) := card_le_card hX
+        rw [bweight, mul_assoc, ← pow_add]
+        congr 2
+        omega
+    _ = (∑ X ∈ (univ \ B).powerset, p ^ #X * (1 - p) ^ (#(univ \ B) - #X)) * (1 - p) ^ #B :=
+        (Finset.sum_mul _ _ _).symm
+    _ = (1 - p) ^ #B := by rw [sum_bernoulli_on, one_mul]
+
+/-- The subsets containing `B` carry weight `p ^ #B`.
+
+On `α := Sym2 V` this says a fixed set of `#B` edges is present with weight `p ^ #B`, which
+is the opening step of every first-moment argument about `G(n, p)`. -/
+theorem sum_bweight_superset (p : ℝ) (B : Finset α) :
+    ∑ X ∈ (univ : Finset α).powerset.filter (fun X => B ⊆ X), bweight p X = p ^ #B := by
+  have hcard : #(univ \ B) = Fintype.card α - #B := by
+    rw [card_sdiff_of_subset (subset_univ B), card_univ]
+  have hBle : #B ≤ Fintype.card α := by rw [← card_univ]; exact card_le_univ B
+  have key : ∑ X ∈ (univ : Finset α).powerset.filter (fun X => B ⊆ X), bweight p X
+      = ∑ Y ∈ (univ \ B).powerset,
+          p ^ #B * (p ^ #Y * (1 - p) ^ (#(univ \ B) - #Y)) := by
+    refine Finset.sum_nbij' (fun X => X \ B) (fun Y => Y ∪ B) ?_ ?_ ?_ ?_ ?_
+    · intro X hX
+      rw [mem_filter, mem_powerset] at hX
+      rw [mem_powerset]
+      exact sdiff_subset_sdiff hX.1 Subset.rfl
+    · intro Y hY
+      rw [mem_powerset] at hY
+      rw [mem_filter, mem_powerset]
+      exact ⟨subset_univ _, subset_union_right⟩
+    · intro X hX
+      rw [mem_filter] at hX
+      exact sdiff_union_of_subset hX.2
+    · intro Y hY
+      rw [mem_powerset] at hY
+      have hdisj : Disjoint Y B := by
+        rw [Finset.disjoint_right]
+        intro x hxB hxY
+        exact (mem_sdiff.mp (hY hxY)).2 hxB
+      rw [union_sdiff_right, sdiff_eq_self_of_disjoint hdisj]
+    · intro X hX
+      rw [mem_filter, mem_powerset] at hX
+      have hBX : B ⊆ X := hX.2
+      have hcardX : #(X \ B) + #B = #X := by
+        rw [card_sdiff_of_subset hBX]
+        have : #B ≤ #X := card_le_card hBX
+        omega
+      have hexp : Fintype.card α - #X = #(univ \ B) - #(X \ B) := by
+        omega
+      rw [bweight, hexp, ← hcardX, pow_add]
+      ring
+  rw [key, ← Finset.mul_sum, sum_bernoulli_on, mul_one]
+
+end Bernoulli
 
 end PMC
