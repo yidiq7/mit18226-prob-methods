@@ -54,8 +54,11 @@ summands. 5.0.5 needs the convexity step `exp(tx) ≤ ((1-x)/2) exp(-t) + ((1+x)
 for `x ∈ [-1,1]`; the rest of the argument is unchanged. 5.0.7's asymmetric bounds need
 `(1+ε) log(1+ε) - ε`, which is the same MGF method with a different optimisation.
 
-**§5.1 Discrepancy (Theorem 5.1.1).** With the bound now stated over an arbitrary `Finset`,
-the remaining ingredients are in place: apply it to each edge `A ∈ F` with
+**§5.1 Discrepancy (Theorem 5.1.1).** All ingredients now exist. The lifting step is
+`PMC.card_filter_inter` (`Weighted.lean`): counting subsets of `V` by a property of
+`S ∩ A` factors as `2 ^ #(V \ A)` times the count over `A.powerset`, proved by the
+bijection `S ↦ S \ A` on each fibre of `S ↦ S ∩ A`. The recipe: apply the two-sided bound
+to each edge `A ∈ F` with
 `λ = 2 sqrt (log m)`, giving at most `2 ^ #A * exp (-2 log m) = 2 ^ #A / m ^ 2` bad
 colourings *per edge* on that edge's coordinates, lift to the whole ground set by the
 bijection `S ↦ (S ∩ A, S \ A)` (a factor `2 ^ (n - #A)`), and union bound over the `m`

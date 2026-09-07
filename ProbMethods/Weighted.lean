@@ -43,6 +43,10 @@ easier to normalise at the point of use.
   every pattern in a family has `m` elements, the weighted expected number of patterns
   contained in a random subset is `#patterns * p ^ m`. Chapter 4's §4.1, §4.2 and §4.4 are
   all this lemma with different pattern families.
+* `PMC.card_filter_inter` — **restriction**: counting subsets of `V` by a property of
+  their intersection with `A ⊆ V` factors as `2 ^ #(V \ A)` times the count over
+  `A.powerset`. This is what lifts a bound proved on one hypergraph edge to the space of
+  colourings of the whole ground set, where a union bound can be taken.
 * `PMC.sum_bweight_mul_card_filter_sq` — **the second moment**, in the same generality: the
   weighted mean of the *square* of the pattern count is `∑ i, ∑ j, p ^ #(g i ∪ g j)`. Two
   patterns are both present exactly when their union is, so no new weight computation is
@@ -360,6 +364,68 @@ lemma wmean_eq_sum_powerset (w : Finset α → ℝ) (N : Finset α → ℝ) :
 lemma wvar_eq_sum_powerset (w : Finset α → ℝ) (N : Finset α → ℝ) :
     wvar w N = ∑ X ∈ (univ : Finset α).powerset, w X * (N X - wmean w N) ^ 2 := by
   rw [wvar, Finset.powerset_univ]
+
+/-- **Restricting a subset count to a sub-ground-set.**
+
+Counting the subsets of `V` by a property of their intersection with `A ⊆ V`: each
+`T ⊆ A` has exactly `2 ^ #(V \ A)` preimages under `S ↦ S ∩ A`, so the count factors.
+
+This is what lets a bound proved over `A.powerset` — a Chernoff bound for a sum over one
+hypergraph edge, say — be lifted to the space of colourings of the whole ground set, where
+a union bound over several edges can be taken. -/
+theorem card_filter_inter (V A : Finset α) (hA : A ⊆ V)
+    (P : Finset α → Prop) [DecidablePred P] :
+    #(V.powerset.filter fun S => P (S ∩ A))
+      = 2 ^ #(V \ A) * #(A.powerset.filter P) := by
+  classical
+  have hmaps : ∀ S ∈ V.powerset.filter (fun S => P (S ∩ A)),
+      S ∩ A ∈ A.powerset.filter P := by
+    intro S hS
+    rw [mem_filter, mem_powerset] at hS
+    rw [mem_filter, mem_powerset]
+    exact ⟨inter_subset_right, hS.2⟩
+  rw [Finset.card_eq_sum_card_fiberwise hmaps]
+  have hfib : ∀ T ∈ A.powerset.filter P,
+      #((V.powerset.filter fun S => P (S ∩ A)).filter fun S => S ∩ A = T)
+        = 2 ^ #(V \ A) := by
+    intro T hT
+    rw [mem_filter, mem_powerset] at hT
+    rw [← card_powerset]
+    refine Finset.card_nbij' (fun S => S \ A) (fun R => R ∪ T) ?_ ?_ ?_ ?_
+    · intro S hS
+      rw [mem_coe, mem_filter, mem_filter, mem_powerset] at hS
+      rw [mem_coe, mem_powerset]
+      intro x hx
+      rw [mem_sdiff] at hx ⊢
+      exact ⟨hS.1.1 hx.1, hx.2⟩
+    · intro R hR
+      rw [mem_coe, mem_powerset] at hR
+      have hRA : R ∩ A = ∅ := by
+        rw [Finset.eq_empty_iff_forall_notMem]
+        intro x hx
+        rw [mem_inter] at hx
+        exact (mem_sdiff.mp (hR hx.1)).2 hx.2
+      have hinter : (R ∪ T) ∩ A = T := by
+        rw [Finset.union_inter_distrib_right, hRA, Finset.empty_union,
+          Finset.inter_eq_left.mpr hT.1]
+      rw [mem_coe, mem_filter, mem_filter, mem_powerset]
+      refine ⟨⟨?_, ?_⟩, hinter⟩
+      · exact union_subset (hR.trans sdiff_subset) (hT.1.trans hA)
+      · rw [hinter]; exact hT.2
+    · intro S hS
+      rw [mem_coe, mem_filter, mem_filter] at hS
+      rw [← hS.2]
+      exact Finset.sdiff_union_inter S A
+    · intro R hR
+      rw [mem_coe, mem_powerset] at hR
+      have hRA : Disjoint R A := by
+        rw [Finset.disjoint_right]
+        intro x hxA hxR
+        exact (mem_sdiff.mp (hR hxR)).2 hxA
+      show (R ∪ T) \ A = R
+      rw [Finset.union_sdiff_distrib, Finset.sdiff_eq_self_of_disjoint hRA,
+        Finset.sdiff_eq_empty_iff_subset.mpr hT.1, Finset.union_empty]
+  rw [Finset.sum_congr rfl hfib, Finset.sum_const, smul_eq_mul, mul_comm]
 
 end Bernoulli
 

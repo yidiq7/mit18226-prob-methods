@@ -681,6 +681,18 @@
       ],
       "proof_uses": [],
       "note": "Section 5.1; Chernoff per edge plus a union bound, both now available."
+    },
+    "restriction": {
+      "kind": "theorem",
+      "parent": "chernoffGroup",
+      "file": "ProbMethods/Weighted.lean",
+      "decl": "PMC.card_filter_inter",
+      "doc": "chernoff.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "Counting subsets of V by a property of S inter A factors as 2^#(V\\A) times the count over A.powerset. Lifts a per-edge bound to the whole colouring space."
     }
   }
 }
