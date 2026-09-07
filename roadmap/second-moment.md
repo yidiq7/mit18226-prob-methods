@@ -140,9 +140,23 @@ identifying the mean, this is the "typically contains a triangle" half of the th
 finite form.
 
 What is left in §4.1 is the *overlap analysis*: bounding
-`∑ t, ∑ t', p ^ #(spannedEdges t ∪ spannedEdges t')` explicitly. Two triples share 0, 1, 2
-or 3 vertices, and only the sharing-two case contributes materially — that case analysis is
-combinatorics on top of machinery that now exists.
+`∑ t, ∑ t', p ^ #(spannedEdges t ∪ spannedEdges t')` explicitly.
+
+**The governing identity is now proved.** `PMC.spannedEdges_inter`: two vertex sets span
+exactly the edges of their *intersection* in common. Hence
+`PMC.card_spannedEdges_union`:
+
+    #(spannedEdges s ∪ spannedEdges t) + C(#(s ∩ t), 2) = C(#s, 2) + C(#t, 2)
+
+For two `3`-sets that reads `3 + 3 - C(#(s ∩ t), 2)`, i.e. **3, 5, 6, 6** as they share
+3, 2, 1, 0 vertices — checked by evaluation, matching the hand analysis. So the overlap
+between two potential copies is governed by the overlap of their *vertex* sets and nothing
+finer, which is what makes the case analysis finite.
+
+What remains is the counting: `∑` over pairs splits by `#(s ∩ t)`, and since
+`E[X]² = ∑ over pairs of p ^ 6`, only the pairs sharing at least two vertices contribute to
+the variance. Bounding their number (at most `3n` partners per triple) gives
+`Var ≤ C(n,3) p ^ 3 (1 + 3 n p ^ 2)`.
 
 ### Still to do
 §4.3's general threshold theorem is the one whose natural statement is genuinely

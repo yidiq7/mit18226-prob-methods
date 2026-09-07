@@ -709,6 +709,20 @@
       "uses": [],
       "proof_uses": [],
       "note": "Independent coordinates with per-element probabilities. sum_pweight and sum_pweight_superset (a fixed B is contained with weight prod over B of p i). Needed by 5.0.7 and by random graphs with varying edge probabilities."
+    },
+    "overlap": {
+      "kind": "theorem",
+      "parent": "secondMoment",
+      "file": "ProbMethods/Basic.lean",
+      "decl": "PMC.spannedEdges_inter",
+      "doc": "second-moment.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [
+        "spannedEdgesDef"
+      ],
+      "proof_uses": [],
+      "note": "Two vertex sets span exactly the edges of their intersection in common; with card_spannedEdges_union this gives #(E_s union E_t) = C(#s,2) + C(#t,2) - C(#(s inter t),2). The combinatorial heart of every subgraph second moment."
     }
   }
 }

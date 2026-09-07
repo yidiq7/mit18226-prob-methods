@@ -118,6 +118,46 @@ def spannedEdges (t : Finset V) : Finset (Sym2 V) :=
 lemma card_spannedEdges (t : Finset V) : #(spannedEdges t) = (#t).choose 2 :=
   Sym2.card_image_offDiag t
 
+lemma mem_spannedEdges {t : Finset V} {x : Sym2 V} :
+    x ∈ spannedEdges t ↔ ∃ a ∈ t, ∃ b ∈ t, a ≠ b ∧ x = s(a, b) := by
+  constructor
+  · intro hx
+    obtain ⟨⟨a, b⟩, hp, rfl⟩ := mem_image.1 hx
+    obtain ⟨ha, hb, hab⟩ := mem_offDiag.1 hp
+    exact ⟨a, ha, b, hb, hab, rfl⟩
+  · rintro ⟨a, ha, b, hb, hab, rfl⟩
+    exact mem_image.2 ⟨(a, b), mem_offDiag.2 ⟨ha, hb, hab⟩, rfl⟩
+
+/-- **Two vertex sets span exactly the edges of their intersection in common.**
+
+This is the combinatorial fact behind every second-moment computation for subgraph counts:
+the overlap between two potential copies is governed by the overlap of their vertex sets,
+not by anything finer. -/
+lemma spannedEdges_inter (s t : Finset V) :
+    spannedEdges (s ∩ t) = spannedEdges s ∩ spannedEdges t := by
+  ext x
+  rw [mem_inter, mem_spannedEdges, mem_spannedEdges, mem_spannedEdges]
+  constructor
+  · rintro ⟨a, ha, b, hb, hab, rfl⟩
+    rw [mem_inter] at ha hb
+    exact ⟨⟨a, ha.1, b, hb.1, hab, rfl⟩, ⟨a, ha.2, b, hb.2, hab, rfl⟩⟩
+  · rintro ⟨⟨a, ha, b, hb, hab, rfl⟩, ⟨c, hc, d, hd, hcd, heq⟩⟩
+    -- `s(a, b) = s(c, d)` forces `{a, b} = {c, d}`, so `a` and `b` lie in `t` as well.
+    rw [Sym2.eq_iff] at heq
+    rcases heq with ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩
+    · exact ⟨a, mem_inter.2 ⟨ha, hc⟩, b, mem_inter.2 ⟨hb, hd⟩, hab, rfl⟩
+    · exact ⟨a, mem_inter.2 ⟨ha, hd⟩, b, mem_inter.2 ⟨hb, hc⟩, hab, rfl⟩
+
+/-- The edge count of a union of two spanned edge sets, in terms of the vertex sets. For
+two `3`-sets this is `3 + 3 - C(#(s ∩ t), 2)`: `3` when they coincide, `5` when they share
+an edge, `6` when they share at most a vertex. -/
+lemma card_spannedEdges_union (s t : Finset V) :
+    #(spannedEdges s ∪ spannedEdges t) + (#(s ∩ t)).choose 2
+      = (#s).choose 2 + (#t).choose 2 := by
+  have h := Finset.card_union_add_card_inter (spannedEdges s) (spannedEdges t)
+  rw [← spannedEdges_inter, card_spannedEdges, card_spannedEdges, card_spannedEdges] at h
+  exact h
+
 /-- The `k`-element vertex sets spanning a clique of `E`. -/
 def cliqueSets [Fintype V] (k : ℕ) (E : Finset (Sym2 V)) : Finset (Finset V) :=
   (powersetCard k (univ : Finset V)).filter fun t => spannedEdges t ⊆ E
