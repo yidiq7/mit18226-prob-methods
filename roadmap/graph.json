@@ -723,6 +723,32 @@
       ],
       "proof_uses": [],
       "note": "Two vertex sets span exactly the edges of their intersection in common; with card_spannedEdges_union this gives #(E_s union E_t) = C(#s,2) + C(#t,2) - C(#(s inter t),2). The combinatorial heart of every subgraph second moment."
+    },
+    "variance_identity": {
+      "kind": "theorem",
+      "parent": "secondMoment",
+      "file": "ProbMethods/Weighted.lean",
+      "decl": "PMC.wvar_eq_wmean_sq_sub",
+      "doc": "second-moment.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [
+        "chebyshev"
+      ],
+      "proof_uses": [],
+      "note": "wvar = E[X^2] - (E X)^2 when the weights total 1. Turns a computed second moment into a variance."
+    },
+    "pair_counting": {
+      "kind": "theorem",
+      "parent": "secondMoment",
+      "file": "ProbMethods/Chapter04/Variance.lean",
+      "decl": "PMC.card_partners_le",
+      "doc": "second-moment.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "At most C(3,2)*n = 3n triples meet a fixed triple in >= 2 vertices: such a t' is insert v u for a 2-subset u of t. Checked: 10 actual vs bound 18 at n=6, 13 vs 21 at n=7."
     }
   }
 }

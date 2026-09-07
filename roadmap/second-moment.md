@@ -153,10 +153,25 @@ For two `3`-sets that reads `3 + 3 - C(#(s ∩ t), 2)`, i.e. **3, 5, 6, 6** as t
 between two potential copies is governed by the overlap of their *vertex* sets and nothing
 finer, which is what makes the case analysis finite.
 
-What remains is the counting: `∑` over pairs splits by `#(s ∩ t)`, and since
-`E[X]² = ∑ over pairs of p ^ 6`, only the pairs sharing at least two vertices contribute to
-the variance. Bounding their number (at most `3n` partners per triple) gives
-`Var ≤ C(n,3) p ^ 3 (1 + 3 n p ^ 2)`.
+**The two remaining ingredients are now proved.**
+
+* `PMC.wvar_eq_wmean_sq_sub` (`Weighted.lean`): `wvar = E[X²] - (E X)²` when the weights
+  total `1`, which is what turns the second moment from
+  `sum_bweight_mul_card_filter_sq` into a variance.
+* `PMC.card_partners_le` (`Chapter04/Variance.lean`): at most `C(3,2) * n = 3n` triples meet
+  a fixed triple in two or more vertices, since such a `t'` is `insert v u` for a `2`-subset
+  `u ⊆ t` and a vertex `v`. Checked against the true counts: `10` actual against the bound
+  `18` at `n = 6`, `13` against `21` at `n = 7` — a valid over-count, and the factor `n` is
+  what matters.
+
+Assembling: `E[X]² = ∑ over pairs of p ^ 6`, so the pairs sharing at most one vertex cancel
+exactly and only the `≥ 2`-sharing pairs survive. Each of those spans `3` or `5` edges, so
+contributes at most `p ^ 3` for `p ≤ 1`, and there are at most `C(n,3) * 3n` of them:
+
+    Var ≤ 3 n C(n,3) p ^ 3
+
+which is the useful form — `Var / E² = 3n / (C(n,3) p ^ 3)` is small exactly when
+`n p → ∞`, the correct threshold.
 
 ### Still to do
 §4.3's general threshold theorem is the one whose natural statement is genuinely

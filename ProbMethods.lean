@@ -13,5 +13,6 @@ import ProbMethods.Chapter02.Sampling
 import ProbMethods.Chapter03.Dominating
 import ProbMethods.Chapter04.FirstMoment
 import ProbMethods.Chapter04.SecondMoment
+import ProbMethods.Chapter04.Variance
 import ProbMethods.Chapter05.Chernoff
 import ProbMethods.Chapter05.Discrepancy

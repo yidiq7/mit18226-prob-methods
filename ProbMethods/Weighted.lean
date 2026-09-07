@@ -77,6 +77,18 @@ def wvar (w : Ω → ℝ) (X : Ω → ℝ) : ℝ := ∑ ω, w ω * (X ω - wmean
 lemma wvar_nonneg {w : Ω → ℝ} (X : Ω → ℝ) (hw : ∀ ω, 0 ≤ w ω) : 0 ≤ wvar w X :=
   Finset.sum_nonneg fun ω _ => mul_nonneg (hw ω) (sq_nonneg _)
 
+/-- `wvar w X = E[X²] - (E X)²`, when the weights total `1`. This is what turns a second
+moment computed by `sum_bweight_mul_card_filter_sq` into a variance. -/
+lemma wvar_eq_wmean_sq_sub (w : Ω → ℝ) (X : Ω → ℝ) (hw : ∑ ω, w ω = 1) :
+    wvar w X = wmean w (fun ω => X ω ^ 2) - (wmean w X) ^ 2 := by
+  have hexp : ∀ ω : Ω, w ω * (X ω - wmean w X) ^ 2
+      = w ω * X ω ^ 2 - 2 * wmean w X * (w ω * X ω) + (wmean w X) ^ 2 * w ω := by
+    intro ω; ring
+  rw [wvar, Finset.sum_congr rfl fun ω _ => hexp ω, Finset.sum_add_distrib,
+    Finset.sum_sub_distrib, ← Finset.mul_sum, ← Finset.mul_sum, hw]
+  simp only [wmean]
+  ring
+
 /-- **Chebyshev's inequality**, over a finite weighted space.
 
 The total weight of the points where `X` deviates from its weighted mean by at least `a` is
