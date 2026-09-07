@@ -72,6 +72,31 @@ variable {Ω : Type*} [Fintype Ω]
 /-- The weighted mean of `X` against weights `w`. -/
 def wmean (w : Ω → ℝ) (X : Ω → ℝ) : ℝ := ∑ ω, w ω * X ω
 
+/-- The weight of an *event*, i.e. its probability when the weights total `1`. Events are
+`Finset`s of the sample space. -/
+def wprob (w : Ω → ℝ) (A : Finset Ω) : ℝ := ∑ ω ∈ A, w ω
+
+lemma wprob_nonneg {w : Ω → ℝ} (hw : ∀ ω, 0 ≤ w ω) (A : Finset Ω) : 0 ≤ wprob w A :=
+  Finset.sum_nonneg fun ω _ => hw ω
+
+lemma wprob_mono {w : Ω → ℝ} (hw : ∀ ω, 0 ≤ w ω) {A B : Finset Ω} (h : A ⊆ B) :
+    wprob w A ≤ wprob w B :=
+  Finset.sum_le_sum_of_subset_of_nonneg h fun ω _ _ => hw ω
+
+@[simp] lemma wprob_empty (w : Ω → ℝ) : wprob w (∅ : Finset Ω) = 0 := by
+  simp [wprob]
+
+lemma wprob_univ (w : Ω → ℝ) : wprob w (univ : Finset Ω) = ∑ ω, w ω := rfl
+
+/-- Complement: `P(Aᶜ) = P(univ) - P(A)`. -/
+lemma wprob_compl [DecidableEq Ω] (w : Ω → ℝ) (A : Finset Ω) :
+    wprob w Aᶜ = (∑ ω, w ω) - wprob w A := by
+  have h : wprob w A + wprob w Aᶜ = ∑ ω, w ω := by
+    rw [wprob, wprob, ← Finset.sum_union (disjoint_compl_right)]
+    congr 1
+    simp
+  linarith
+
 /-- The weighted variance of `X`, taken about its own weighted mean. -/
 def wvar (w : Ω → ℝ) (X : Ω → ℝ) : ℝ := ∑ ω, w ω * (X ω - wmean w X) ^ 2
 

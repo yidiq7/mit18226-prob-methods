@@ -16,4 +16,5 @@ import ProbMethods.Chapter04.SecondMoment
 import ProbMethods.Chapter04.Variance
 import ProbMethods.Chapter05.Chernoff
 import ProbMethods.Chapter05.Discrepancy
+import ProbMethods.Chapter06.LocalLemma
 import ProbMethods.Chapter07.Correlation

@@ -863,13 +863,57 @@
     },
     "lll": {
       "kind": "theorem",
-      "parent": "concentration",
-      "doc": "mathlib-survey.md",
+      "parent": "localLemmaGroup",
+      "file": "ProbMethods/Chapter06/LocalLemma.lean",
+      "decl": "PMC.lovasz_local_lemma",
+      "doc": "local-lemma.md#lll--stated-not-proved",
+      "statement": "formalized",
+      "proof": "planned",
+      "uses": [
+        "noneOfDef"
+      ],
+      "proof_uses": [],
+      "note": "Asymmetric LLL. Two nested inductions; keep everything multiplicative since the informal proof divides by a quantity not yet known positive."
+    },
+    "localLemmaGroup": {
+      "kind": "group",
+      "doc": "local-lemma.md"
+    },
+    "wprobDef": {
+      "kind": "definition",
+      "parent": "localLemmaGroup",
+      "file": "ProbMethods/Weighted.lean",
+      "decl": "PMC.wprob",
+      "doc": "local-lemma.md#the-framework",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": []
+    },
+    "noneOfDef": {
+      "kind": "definition",
+      "parent": "localLemmaGroup",
+      "file": "ProbMethods/Chapter06/LocalLemma.lean",
+      "decl": "PMC.noneOf",
+      "doc": "local-lemma.md#the-framework",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [
+        "wprobDef"
+      ],
+      "proof_uses": []
+    },
+    "lll_symmetric": {
+      "kind": "theorem",
+      "parent": "localLemmaGroup",
+      "doc": "local-lemma.md#symmetric-form-and-applications",
       "statement": "planned",
       "proof": "planned",
-      "uses": [],
+      "uses": [
+        "lll"
+      ],
       "proof_uses": [],
-      "note": "Chapter 6. Absent from Mathlib but expressible in this project's finite weighted framework. Best next target."
+      "note": "Symmetric form: x i = 1/(d+1) and (1 - 1/(d+1))^d > 1/e. Every application in 6.2-6.6 uses this version."
     }
   }
 }
