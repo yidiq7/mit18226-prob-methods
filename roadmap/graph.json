@@ -424,13 +424,18 @@
       "kind": "theorem",
       "parent": "secondMoment",
       "doc": "second-moment.md#distinct-sums-46--the-tractable-node",
-      "statement": "planned",
-      "proof": "planned",
+      "statement": "formalized",
+      "proof": "formalized",
       "uses": [
-        "chebyshev"
+        "linear_mean",
+        "linear_var",
+        "chebyshev",
+        "interval_count"
       ],
       "proof_uses": [],
-      "note": "Section 4.6 (Erdos distinct subset sums). Now reachable: wmean_bweight_linear and wvar_bweight_linear supply the moments, wchebyshev the tail bound. What remains is the counting step -- distinct subset sums make S -> sum injective, so the number of subsets whose sum lies within lambda sigma of the mean is at most the number of integers in an interval of that length. State with an explicit constant."
+      "note": "Section 4.6 (Erdos distinct subset sums), DONE. Stated finitely and explicitly, no o(1): 3*2^n <= 8*sqrt(n)*M + 4 for any upper bound M on the a_i, i.e. the largest element is at least (3*2^n - 4)/(8 sqrt n). Chebyshev at t = sqrt(n)*M puts three quarters of the 2^n subsets within t of the mean; distinctness makes those sums distinct integers in an interval of length 2t. Non-vacuity checked by instantiating at n = 1 and at a = (1,2) on two elements, both with decide-checked distinctness.",
+      "file": "ProbMethods/Chapter04/DistinctSums.lean",
+      "decl": "PMC.three_mul_two_pow_le_of_distinct_sums"
     },
     "chebyshev": {
       "kind": "definition",
@@ -1624,6 +1629,30 @@
       ],
       "proof_uses": [],
       "note": "Variance of a linear form under bweight p: p(1-p) * sum a^2. No general independence lemma is invoked; it falls out of sum_bweight_mem_pair. Verified numerically against brute force at three values of p with non-constant a."
+    },
+    "interval_count": {
+      "kind": "lemma",
+      "parent": "secondMoment",
+      "file": "ProbMethods/Chapter04/DistinctSums.lean",
+      "decl": "PMC.card_le_of_inj_bounded",
+      "doc": "second-moment.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "Counting integers in an interval: a family carrying distinct integer values all inside [lo, hi] has at most hi - lo + 1 members. Needs A nonempty, not just lo <= hi -- for empty A the conclusion can fail outright when hi - lo + 1 < 0, and nonemptiness also supplies 0 <= hi, which Nat.floor_le requires."
+    },
+    "uniform_weight_counting": {
+      "kind": "lemma",
+      "parent": "secondMoment",
+      "file": "ProbMethods/Chapter04/DistinctSums.lean",
+      "decl": "PMC.wprob_bweight_half",
+      "doc": "second-moment.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "bweight (1/2) is the uniform weight 2^(-n) on subsets, so probability is counting."
     }
   }
 }
