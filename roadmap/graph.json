@@ -475,13 +475,15 @@
       "kind": "theorem",
       "parent": "secondMoment",
       "doc": "second-moment.md#random-graph-sections-4144--pending-the-weighted-counting-layer",
-      "statement": "planned",
-      "proof": "planned",
+      "statement": "formalized",
+      "proof": "formalized",
       "uses": [
-        "gnp_weights"
+        "first_moment"
       ],
       "proof_uses": [],
-      "note": "First-moment half is the general lemma sum_bweight_mul_card_filter instantiated at H's edge set; only the copy-counting is left. The asymptotic threshold statement stays deferred."
+      "note": "Expected number of labelled copies of a fixed H is (#embeddings) * p^e(H). The asymptotic threshold statement stays deferred.",
+      "file": "ProbMethods/Chapter04/FirstMoment.lean",
+      "decl": "PMC.sum_bweight_mul_card_copies"
     },
     "thresholds": {
       "kind": "theorem",

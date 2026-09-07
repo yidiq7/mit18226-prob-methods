@@ -111,10 +111,20 @@ subset is `#patterns * p ^ m`.** That is the first moment method stated once. `g
 be injective, so coincident patterns are counted with multiplicity and no side condition is
 needed.
 
+### subgraph_threshold (§4.2) — proved
+`PMC.sum_bweight_mul_card_copies`: the expected number of *labelled* copies of a fixed
+graph `H` is exactly `(number of embeddings W ↪ V) * p ^ e(H)`.
+
+Copies are indexed by embeddings rather than by subgraphs, which is the notes' labelled
+count and avoids the automorphism factor entirely. The one fact needed beyond the general
+lemma is that `Sym2.map` of an injection is injective, so an embedding carries `H` to an
+edge set of the same size — Mathlib has `Sym2.map` but no injectivity lemma for it, so it is
+proved here.
+
 ### Still to do
-§4.2 (thresholds for fixed subgraphs) is the same lemma instantiated at an arbitrary fixed
-`H`; all that is left is counting the potential copies, which is combinatorics rather than
-probability. §4.3's general threshold theorem is the one whose natural statement is
-genuinely asymptotic; expect it to stay deferred longest. The *second*-moment directions of
-§4.1–4.2 need the variance of the subgraph count, which is what `wvar` and `wchebyshev` are
-there for.
+§4.3's general threshold theorem is the one whose natural statement is genuinely
+asymptotic; expect it to stay deferred longest. The *second*-moment directions of §4.1–4.2
+need the variance of the subgraph count, which is what `wvar` and `wchebyshev` are there
+for — and the variance needs the weight of two overlapping patterns, i.e. a two-pattern
+version of `sum_bweight_superset` (the weight of `X ⊇ B₁ ∪ B₂` is `p ^ #(B₁ ∪ B₂)`, which
+the existing lemma already gives).
