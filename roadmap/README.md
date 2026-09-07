@@ -22,7 +22,7 @@ written when the phase opens, so the plan never claims more precision than it ha
 | 1 | 2 Linearity of Expectations (§2.3) | [linearity.md](linearity.md) | **complete** (3 of 3) |
 | 2 | 2 (rest) | [linearity.md](linearity.md) | `szele` + `sampling` proved; `sumfree`/`unbalancing` open; §2.6 deferred |
 | 3 | 3 Alterations | [alterations.md](alterations.md) | `dominating` proved; §3.3 upstream, §3.2 deferred, §3.4/§3.5 need design |
-| 4 | 4 Second Moment | [second-moment.md](second-moment.md) | `random_triangle` proved; §4.7 upstream; layer built |
+| 4 | 4 Second Moment | [second-moment.md](second-moment.md) | §4.1 + §4.4 proved; §4.7 upstream; first-moment lemma general |
 | 5 | 5 Chernoff Bound | — | not started |
 | 6 | 6 Lovász Local Lemma | — | not started |
 | 7 | 7 Correlation Inequalities, 8 Janson Inequalities | — | not started |

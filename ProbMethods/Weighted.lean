@@ -35,8 +35,13 @@ easier to normalise at the point of use.
   `p ^ (its edge count)`", the fact every first-moment random-graph argument opens with.
 * `PMC.sum_bweight_disjoint` — the subsets *avoiding* `B` carry weight `(1 - p) ^ #B`.
 
-`ProbMethods/Chapter03/Dominating.lean` proves private special cases of the last two; those
-should be golfed away in favour of these.
+* `PMC.sum_bweight_mul_card_filter` — **the first moment method**, once and for all: if
+  every pattern in a family has `m` elements, the weighted expected number of patterns
+  contained in a random subset is `#patterns * p ^ m`. Chapter 4's §4.1, §4.2 and §4.4 are
+  all this lemma with different pattern families.
+
+`ProbMethods/Chapter03/Dominating.lean` proves private special cases of the disjoint and
+superset lemmas; those should be golfed away in favour of these.
 -/
 
 open Finset
@@ -197,6 +202,45 @@ theorem sum_bweight_superset (p : ℝ) (B : Finset α) :
       rw [bweight, hexp, ← hcardX, pow_add]
       ring
   rw [key, ← Finset.mul_sum, sum_bernoulli_on, mul_one]
+
+/-- **The first moment method.**
+
+Let `g i` be a family of "patterns" indexed by `i ∈ I`, each with exactly `m` elements. The
+weighted count of patterns contained in a random subset is `#I * p ^ m`.
+
+This is an identity and needs no hypothesis on `p`. Every first-moment argument about
+`G(n, p)` is an instance: take `α := Sym2 V`, let `I` index the potential copies of some
+fixed subgraph and `g` send each to its edge set, and `m` is that subgraph's edge count.
+Note that `g` need not be injective — coincident patterns are counted with multiplicity,
+which is what makes this usable without a side condition. -/
+theorem sum_bweight_mul_card_filter {ι : Type*} [DecidableEq ι]
+    (p : ℝ) (I : Finset ι) (g : ι → Finset α) (m : ℕ) (hm : ∀ i ∈ I, #(g i) = m) :
+    ∑ X ∈ (univ : Finset α).powerset, bweight p X * (#(I.filter fun i => g i ⊆ X) : ℝ)
+      = #I * p ^ m := by
+  classical
+  have hcard : ∀ X : Finset α, (#(I.filter fun i => g i ⊆ X) : ℝ)
+      = ∑ i ∈ I, (if g i ⊆ X then (1 : ℝ) else 0) := by
+    intro X
+    rw [Finset.card_filter, Nat.cast_sum]
+    refine Finset.sum_congr rfl fun i _ => ?_
+    by_cases h : g i ⊆ X <;> simp [h]
+  calc ∑ X ∈ (univ : Finset α).powerset, bweight p X * (#(I.filter fun i => g i ⊆ X) : ℝ)
+      = ∑ X ∈ (univ : Finset α).powerset, ∑ i ∈ I,
+          bweight p X * (if g i ⊆ X then (1 : ℝ) else 0) := by
+        refine Finset.sum_congr rfl fun X _ => ?_
+        rw [hcard X, Finset.mul_sum]
+    _ = ∑ i ∈ I, ∑ X ∈ (univ : Finset α).powerset,
+          bweight p X * (if g i ⊆ X then (1 : ℝ) else 0) := Finset.sum_comm
+    _ = ∑ _i ∈ I, p ^ m := by
+        refine Finset.sum_congr rfl fun i hi => ?_
+        have hconv : ∑ X ∈ (univ : Finset α).powerset,
+            bweight p X * (if g i ⊆ X then (1 : ℝ) else 0)
+              = ∑ X ∈ (univ : Finset α).powerset.filter (fun X => g i ⊆ X), bweight p X := by
+          rw [Finset.sum_filter]
+          refine Finset.sum_congr rfl fun X _ => ?_
+          by_cases h : g i ⊆ X <;> simp [h]
+        rw [hconv, sum_bweight_superset, hm i hi]
+    _ = #I * p ^ m := by rw [Finset.sum_const, nsmul_eq_mul]
 
 end Bernoulli
 

@@ -28,8 +28,8 @@ where `statement-immutability` can guard it.
 * `PMC.SumFree` — sum-free sets in an additive structure (§2.2).
 * `PMC.IsThreeGraph`, `PMC.HasTetrahedron` — 3-uniform hypergraphs (§2.4).
 * `PMC.IsDominating` — dominating sets in a graph (§3.1).
-* `PMC.spannedEdges`, `PMC.triangles`, `PMC.HasTriangle` — edges spanned by a vertex set,
-  the triples spanning a triangle, and containing a triangle (§4.1).
+* `PMC.spannedEdges`, `PMC.cliqueSets`, `PMC.triangles`, `PMC.HasTriangle` — edges spanned
+  by a vertex set, the `k`-sets spanning a clique, and containing a triangle (§4.1, §4.4).
 -/
 
 open Finset
@@ -118,9 +118,14 @@ def spannedEdges (t : Finset V) : Finset (Sym2 V) :=
 lemma card_spannedEdges (t : Finset V) : #(spannedEdges t) = (#t).choose 2 :=
   Sym2.card_image_offDiag t
 
+/-- The `k`-element vertex sets spanning a clique of `E`. -/
+def cliqueSets [Fintype V] (k : ℕ) (E : Finset (Sym2 V)) : Finset (Finset V) :=
+  (powersetCard k (univ : Finset V)).filter fun t => spannedEdges t ⊆ E
+
 /-- The vertex triples spanning a triangle of `E`. -/
-def triangles [Fintype V] (E : Finset (Sym2 V)) : Finset (Finset V) :=
-  (powersetCard 3 (univ : Finset V)).filter fun t => spannedEdges t ⊆ E
+def triangles [Fintype V] (E : Finset (Sym2 V)) : Finset (Finset V) := cliqueSets 3 E
+
+lemma triangles_eq [Fintype V] (E : Finset (Sym2 V)) : triangles E = cliqueSets 3 E := rfl
 
 /-- An edge set contains a *triangle*: three vertices, all three of whose pairs are edges.
 
@@ -134,7 +139,7 @@ def HasTriangle [Fintype V] (E : Finset (Sym2 V)) : Prop :=
 
 lemma hasTriangle_iff_triangles_nonempty [Fintype V] {E : Finset (Sym2 V)} :
     HasTriangle E ↔ (triangles E).Nonempty := by
-  simp [HasTriangle, triangles, Finset.filter_nonempty_iff]
+  simp [HasTriangle, triangles, cliqueSets, Finset.filter_nonempty_iff]
 
 end Spanned
 

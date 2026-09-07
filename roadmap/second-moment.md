@@ -99,10 +99,22 @@ is deliberately not stated, per the asymptotics convention.
 **This is the proof that the layer works.** A random-graph result, in a project with no
 `MeasureTheory` and no `PMF`, in about thirty lines on top of `Weighted.lean`.
 
-### Still to do (§4.2–4.4)
-4.2 (thresholds for fixed subgraphs) generalises §4.1 by replacing the triangle with an
-arbitrary fixed graph `H`: the same argument gives `#(copies of H) * p ^ e(H)`. 4.4 (clique
-number) is the same first-moment shape with `powersetCard k`. Both should now be short.
-4.3's general threshold theorem is the one whose natural statement is genuinely asymptotic;
-expect it to stay deferred longest. The *second*-moment directions of 4.1–4.2 need the
-variance of the triangle count, which is where `wvar` and `wchebyshev` come in.
+### clique_number (§4.4) — proved
+`PMC.sum_bweight_mul_card_cliqueSets`: the expected number of `k`-cliques is exactly
+`C(n, k) * p ^ C(k, 2)`. Again an identity, with no hypothesis on `p` or `k`, and §4.1 is
+now literally its `k = 3` case.
+
+### The general lemma
+Both are instances of `PMC.sum_bweight_mul_card_filter` (`Weighted.lean`): **if every
+pattern in a family has `m` elements, the weighted count of patterns contained in a random
+subset is `#patterns * p ^ m`.** That is the first moment method stated once. `g` need not
+be injective, so coincident patterns are counted with multiplicity and no side condition is
+needed.
+
+### Still to do
+§4.2 (thresholds for fixed subgraphs) is the same lemma instantiated at an arbitrary fixed
+`H`; all that is left is counting the potential copies, which is combinatorics rather than
+probability. §4.3's general threshold theorem is the one whose natural statement is
+genuinely asymptotic; expect it to stay deferred longest. The *second*-moment directions of
+§4.1–4.2 need the variance of the subgraph count, which is what `wvar` and `wchebyshev` are
+there for.

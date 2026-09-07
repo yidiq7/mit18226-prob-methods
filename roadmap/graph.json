@@ -468,7 +468,7 @@
       ],
       "proof_uses": [],
       "note": "First-moment identity: expected triangle count is C(n,3) p^3. The n -> infinity threshold statement is deliberately not stated.",
-      "file": "ProbMethods/Chapter04/RandomTriangle.lean",
+      "file": "ProbMethods/Chapter04/FirstMoment.lean",
       "decl": "PMC.sum_bweight_mul_card_triangles"
     },
     "subgraph_threshold": {
@@ -481,7 +481,7 @@
         "gnp_weights"
       ],
       "proof_uses": [],
-      "note": "Needs the weighted-counting layer; state in explicit finite-n form."
+      "note": "First-moment half is the general lemma sum_bweight_mul_card_filter instantiated at H's edge set; only the copy-counting is left. The asymptotic threshold statement stays deferred."
     },
     "thresholds": {
       "kind": "theorem",
@@ -499,13 +499,16 @@
       "kind": "theorem",
       "parent": "secondMoment",
       "doc": "second-moment.md#random-graph-sections-4144--pending-the-weighted-counting-layer",
-      "statement": "planned",
-      "proof": "planned",
+      "statement": "formalized",
+      "proof": "formalized",
       "uses": [
-        "gnp_weights"
+        "gnp_weights",
+        "trianglesDef"
       ],
       "proof_uses": [],
-      "note": "Needs the weighted-counting layer; state in explicit finite-n form."
+      "note": "Expected k-clique count is C(n,k) p^C(k,2). First-moment half; the n -> infinity threshold is not stated.",
+      "file": "ProbMethods/Chapter04/FirstMoment.lean",
+      "decl": "PMC.sum_bweight_mul_card_cliqueSets"
     },
     "hardy_ramanujan": {
       "kind": "theorem",
@@ -534,7 +537,7 @@
       "kind": "definition",
       "parent": "secondMoment",
       "file": "ProbMethods/Basic.lean",
-      "decl": "PMC.triangles",
+      "decl": "PMC.cliqueSets",
       "doc": "second-moment.md",
       "statement": "formalized",
       "proof": "formalized",
@@ -542,6 +545,20 @@
         "spannedEdgesDef"
       ],
       "proof_uses": []
+    },
+    "first_moment": {
+      "kind": "theorem",
+      "parent": "secondMoment",
+      "file": "ProbMethods/Weighted.lean",
+      "decl": "PMC.sum_bweight_mul_card_filter",
+      "doc": "second-moment.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [
+        "gnp_weights"
+      ],
+      "proof_uses": [],
+      "note": "The first moment method, once: patterns of size m are contained with total weight #patterns * p^m. Instances: 4.1, 4.2, 4.4."
     }
   }
 }
