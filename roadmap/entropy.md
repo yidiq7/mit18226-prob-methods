@@ -29,6 +29,9 @@ distribution, and `PMC.wentropy w X = ∑ b, negMulLog (P (X = b))` is its entro
 | `PMC.wcondDist`, `PMC.wcondEntropy` | proved |
 | `PMC.wentropy_chain` — chain rule `H(X,Y) = H(X) + H(Y\|X)` | proved |
 | `PMC.wcondEntropy_le` — conditioning reduces entropy | proved |
+| `PMC.wentropy_equiv` — relabelling invariance | proved |
+| `PMC.wentropy_submodular` — `H(X,Y,Z) + H(X) ≤ H(X,Y) + H(X,Z)` | proved |
+| `PMC.wcondEntropy_le_of_pair` — `H(Y\|X,Z) ≤ H(Y\|X)` | proved |
 | Shearer's lemma | open |
 | Applications (counting, Loomis–Whitney, triangle bound) | open |
 
@@ -64,14 +67,28 @@ division, and taking Lean's `x/0 = 0`, is what buys that.
 `PMC.wcondEntropy_le` (`H(Y|X) ≤ H(Y)`) then falls straight out of the chain rule and
 subadditivity: the two inequalities are the same fact read in opposite directions.
 
+## Submodularity, and one Lean-level annoyance
+
+`PMC.wentropy_submodular` is Gibbs against `Q(x,y,z) = P(x,y) P(x,z) / P(x)`. Two things
+worth knowing before writing the next one of these:
+
+* **`Fintype.sum_prod_type` leaves projections behind.** Rewriting `∑ q : β × γ × δ` into
+  `∑ b, ∑ c, ∑ d` produces summands containing `(c, d).1`, not `c`. Those are *definitionally*
+  `c` but not syntactically, so every subsequent `rw [← Finset.sum_mul]` fails with
+  "pattern not found" for no visible reason. The fix that worked is the private helper
+  `sum_triple`, stated with `f` in **curried** form: its own proof closes by `exact` (which
+  is up to defeq), and callers instantiate `f` explicitly, so `rw` never has to guess a
+  higher-order pattern and the result comes back projection-free.
+* **`set` fights defeq here.** Abbreviating the distributions with `set` means every
+  hypothesis produced *after* the `set` (e.g. from `wdist_nonneg`) mentions the unfolded
+  form while the goal mentions the abbreviation, and each `rw` then needs a direction-correct
+  `hPX`. Writing the terms out in full was shorter overall.
+
 ## Next: Shearer
 
-Both inputs Shearer's induction runs on are now proved. What remains:
-
-* the **n-fold chain rule** over a linearly ordered index set, and
-* the stronger monotonicity `H(Y | X, Z) ≤ H(Y | X)`.
-
-Then Shearer is the usual argument: expand `H(X_S)` along the chain rule within `S`, weaken
+Every structural inequality Shearer's induction needs is now proved — the chain rule,
+`H(Y|X) ≤ H(Y)`, `H(Y|X,Z) ≤ H(Y|X)`, and relabelling invariance. What remains is
+bookkeeping: the **n-fold chain rule** over a linearly ordered index set. Then Shearer is the usual argument: expand `H(X_S)` along the chain rule within `S`, weaken
 each conditional entropy to condition on the whole prefix, and sum over the family — each
 coordinate is counted at least `k` times, giving `k · H(X) ≤ ∑_{S ∈ F} H(X_S)`.
 

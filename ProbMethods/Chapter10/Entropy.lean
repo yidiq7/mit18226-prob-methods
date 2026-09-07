@@ -264,6 +264,216 @@ theorem wcondEntropy_le {w : Ω → ℝ} (hw : ∀ ω, 0 ≤ w ω) (hsum : ∑ �
   have h2 := wentropy_pair_le hw hsum X Y
   linarith
 
+/-! ### Relabelling, and submodularity
+
+Submodularity, `H(X,Y,Z) + H(X) ≤ H(X,Y) + H(X,Z)`, is the last of the structural entropy
+inequalities and the one Shearer's lemma runs on. It is Gibbs' inequality again, now
+against `Q(x,y,z) = P(x,y) P(x,z) / P(x)`, whose total mass is `∑ x P(x)² / P(x) = 1` where
+`P(x)` is positive and `0` elsewhere — hence `≤ 1`, which is all Gibbs needs.
+-/
+
+/-- Entropy depends only on the distribution, so relabelling the values changes nothing.
+This is what lets `(β × γ) × δ` and `β × γ × δ` be used interchangeably. -/
+lemma wdist_equiv {β' : Type*} [Fintype β'] [DecidableEq β'] (w : Ω → ℝ) (X : Ω → β)
+    (e : β ≃ β') (b' : β') : wdist w (fun ω => e (X ω)) b' = wdist w X (e.symm b') := by
+  simp only [wdist]
+  congr 1
+  ext ω
+  simp [Equiv.eq_symm_apply]
+
+lemma wentropy_equiv {β' : Type*} [Fintype β'] [DecidableEq β'] (w : Ω → ℝ) (X : Ω → β)
+    (e : β ≃ β') : wentropy w (fun ω => e (X ω)) = wentropy w X := by
+  rw [wentropy, wentropy, Finset.sum_congr rfl fun b' _ => by rw [wdist_equiv w X e b']]
+  exact Equiv.sum_comp e.symm fun b => Real.negMulLog (wdist w X b)
+
+variable {δ : Type*} [Fintype δ] [DecidableEq δ]
+
+/-- Iterated sums over a triple product, with the projections already reduced away. Stated
+with `f` in curried form so that `rw` never has to guess a higher-order pattern. -/
+private lemma sum_triple {M : Type*} [AddCommMonoid M] (f : β → γ → δ → M) :
+    ∑ q : β × γ × δ, f q.1 q.2.1 q.2.2 = ∑ b, ∑ c, ∑ d, f b c d := by
+  rw [Fintype.sum_prod_type]
+  exact Finset.sum_congr rfl fun b _ => Fintype.sum_prod_type ..
+
+lemma sum_wdist_triple_right (w : Ω → ℝ) (X : Ω → β) (Y : Ω → γ) (Z : Ω → δ) (b : β) (c : γ) :
+    ∑ d, wdist w (fun ω => (X ω, Y ω, Z ω)) (b, c, d)
+      = wdist w (fun ω => (X ω, Y ω)) (b, c) := by
+  simp only [wdist, wprob]
+  rw [Finset.sum_congr rfl fun d _ => by
+    rw [show (univ : Finset Ω).filter (fun ω => (X ω, Y ω, Z ω) = (b, c, d))
+        = ((univ : Finset Ω).filter fun ω => (X ω, Y ω) = (b, c)).filter fun ω => Z ω = d from by
+      ext ω; simp [Prod.ext_iff, and_assoc]]]
+  exact Finset.sum_fiberwise _ Z w
+
+lemma sum_wdist_triple_mid (w : Ω → ℝ) (X : Ω → β) (Y : Ω → γ) (Z : Ω → δ) (b : β) (d : δ) :
+    ∑ c, wdist w (fun ω => (X ω, Y ω, Z ω)) (b, c, d)
+      = wdist w (fun ω => (X ω, Z ω)) (b, d) := by
+  simp only [wdist, wprob]
+  rw [Finset.sum_congr rfl fun c _ => by
+    rw [show (univ : Finset Ω).filter (fun ω => (X ω, Y ω, Z ω) = (b, c, d))
+        = ((univ : Finset Ω).filter fun ω => (X ω, Z ω) = (b, d)).filter fun ω => Y ω = c from by
+      ext ω
+      simp only [mem_filter, mem_univ, true_and, Prod.ext_iff]
+      tauto]]
+  exact Finset.sum_fiberwise _ Y w
+
+lemma wdist_triple_le_pair_right {w : Ω → ℝ} (hw : ∀ ω, 0 ≤ w ω) (X : Ω → β) (Y : Ω → γ)
+    (Z : Ω → δ) (b : β) (c : γ) (d : δ) :
+    wdist w (fun ω => (X ω, Y ω, Z ω)) (b, c, d) ≤ wdist w (fun ω => (X ω, Y ω)) (b, c) :=
+  wprob_mono hw fun ω hω => by
+    simp only [mem_filter, mem_univ, true_and, Prod.ext_iff] at hω ⊢
+    exact ⟨hω.1, hω.2.1⟩
+
+lemma wdist_triple_le_pair_mid {w : Ω → ℝ} (hw : ∀ ω, 0 ≤ w ω) (X : Ω → β) (Y : Ω → γ)
+    (Z : Ω → δ) (b : β) (c : γ) (d : δ) :
+    wdist w (fun ω => (X ω, Y ω, Z ω)) (b, c, d) ≤ wdist w (fun ω => (X ω, Z ω)) (b, d) :=
+  wprob_mono hw fun ω hω => by
+    simp only [mem_filter, mem_univ, true_and, Prod.ext_iff] at hω ⊢
+    exact ⟨hω.1, hω.2.2⟩
+
+lemma wdist_triple_le_left {w : Ω → ℝ} (hw : ∀ ω, 0 ≤ w ω) (X : Ω → β) (Y : Ω → γ)
+    (Z : Ω → δ) (b : β) (c : γ) (d : δ) :
+    wdist w (fun ω => (X ω, Y ω, Z ω)) (b, c, d) ≤ wdist w X b :=
+  wprob_mono hw fun ω hω => by
+    simp only [mem_filter, mem_univ, true_and, Prod.ext_iff] at hω ⊢
+    exact hω.1
+
+/-- **Entropy is submodular**: `H(X,Y,Z) + H(X) ≤ H(X,Y) + H(X,Z)` (Zhao, §10.1).
+
+Gibbs' inequality against `Q(x,y,z) = P(x,y) P(x,z) / P(x)`. As with subadditivity,
+absolute continuity is free: the joint distribution is dominated by each of its marginals,
+so every factor of `Q` is positive wherever `P` is. -/
+theorem wentropy_submodular {w : Ω → ℝ} (hw : ∀ ω, 0 ≤ w ω) (hsum : ∑ ω, w ω = 1)
+    (X : Ω → β) (Y : Ω → γ) (Z : Ω → δ) :
+    wentropy w (fun ω => (X ω, Y ω, Z ω)) + wentropy w X
+      ≤ wentropy w (fun ω => (X ω, Y ω)) + wentropy w (fun ω => (X ω, Z ω)) := by
+  have hP0 : ∀ q : β × γ × δ, 0 ≤ wdist w (fun ω => (X ω, Y ω, Z ω)) q :=
+    fun q => wdist_nonneg hw _ q
+  have hforce : ∀ (q : β × γ × δ) (r : ℝ),
+      wdist w (fun ω => (X ω, Y ω, Z ω)) q ≤ r → r = 0 →
+      wdist w (fun ω => (X ω, Y ω, Z ω)) q = 0 := by
+    intro q r hle hr
+    exact le_antisymm (by rw [← hr]; exact hle) (hP0 q)
+  -- per-fibre bound on the total mass of `Q`
+  have hper : ∀ b : β, ∑ c : γ, ∑ d : δ,
+      wdist w (fun ω => (X ω, Y ω)) (b, c) * wdist w (fun ω => (X ω, Z ω)) (b, d)
+        / wdist w X b ≤ wdist w X b := by
+    intro b
+    have h1 : ∑ c : γ, ∑ d : δ,
+        wdist w (fun ω => (X ω, Y ω)) (b, c) * wdist w (fun ω => (X ω, Z ω)) (b, d)
+          / wdist w X b
+        = (∑ c, wdist w (fun ω => (X ω, Y ω)) (b, c))
+            * (∑ d, wdist w (fun ω => (X ω, Z ω)) (b, d)) / wdist w X b := by
+      rw [Finset.sum_mul_sum, Finset.sum_div]
+      exact Finset.sum_congr rfl fun c _ => (Finset.sum_div ..).symm
+    rw [h1, sum_wdist_pair_right, sum_wdist_pair_right]
+    rcases eq_or_lt_of_le (wdist_nonneg hw X b) with h | h
+    · rw [← h]; simp
+    · rw [mul_div_assoc, div_self (ne_of_gt h), mul_one]
+  have hQsum : ∑ q : β × γ × δ,
+      wdist w (fun ω => (X ω, Y ω)) (q.1, q.2.1) * wdist w (fun ω => (X ω, Z ω)) (q.1, q.2.2)
+        / wdist w X q.1 ≤ 1 := by
+    rw [sum_triple fun (b : β) (c : γ) (d : δ) =>
+      wdist w (fun ω => (X ω, Y ω)) (b, c) * wdist w (fun ω => (X ω, Z ω)) (b, d)
+        / wdist w X b]
+    calc ∑ b : β, ∑ c : γ, ∑ d : δ,
+          wdist w (fun ω => (X ω, Y ω)) (b, c) * wdist w (fun ω => (X ω, Z ω)) (b, d)
+            / wdist w X b
+        ≤ ∑ b : β, wdist w X b := Finset.sum_le_sum fun b _ => hper b
+      _ = 1 := by rw [sum_wdist, hsum]
+  have hgibbs := sum_mul_log_div_le (wdist w fun ω => (X ω, Y ω, Z ω))
+    (fun q => wdist w (fun ω => (X ω, Y ω)) (q.1, q.2.1)
+      * wdist w (fun ω => (X ω, Z ω)) (q.1, q.2.2) / wdist w X q.1)
+    hP0
+    (fun q => div_nonneg (mul_nonneg (wdist_nonneg hw _ _) (wdist_nonneg hw _ _))
+      (wdist_nonneg hw X q.1))
+    (fun q hq => div_ne_zero
+      (mul_ne_zero (fun h => hq (hforce q _ (wdist_triple_le_pair_right hw X Y Z _ _ _) h))
+        (fun h => hq (hforce q _ (wdist_triple_le_pair_mid hw X Y Z _ _ _) h)))
+      (fun h => hq (hforce q _ (wdist_triple_le_left hw X Y Z _ _ _) h)))
+    (by rw [sum_wdist, hsum]) hQsum
+  -- termwise decomposition of the Gibbs summand
+  have hterm : ∀ q : β × γ × δ,
+      wdist w (fun ω => (X ω, Y ω, Z ω)) q
+          * Real.log (wdist w (fun ω => (X ω, Y ω)) (q.1, q.2.1)
+              * wdist w (fun ω => (X ω, Z ω)) (q.1, q.2.2) / wdist w X q.1
+              / wdist w (fun ω => (X ω, Y ω, Z ω)) q)
+        = Real.negMulLog (wdist w (fun ω => (X ω, Y ω, Z ω)) q)
+            + wdist w (fun ω => (X ω, Y ω, Z ω)) q
+                * Real.log (wdist w (fun ω => (X ω, Y ω)) (q.1, q.2.1))
+            + wdist w (fun ω => (X ω, Y ω, Z ω)) q
+                * Real.log (wdist w (fun ω => (X ω, Z ω)) (q.1, q.2.2))
+            - wdist w (fun ω => (X ω, Y ω, Z ω)) q * Real.log (wdist w X q.1) := by
+    intro q
+    rcases eq_or_lt_of_le (hP0 q) with h | h
+    · rw [← h]
+      simp [Real.negMulLog]
+    · have h1 : wdist w (fun ω => (X ω, Y ω)) (q.1, q.2.1) ≠ 0 := fun hz =>
+        (ne_of_gt h) (hforce q _ (wdist_triple_le_pair_right hw X Y Z _ _ _) hz)
+      have h2 : wdist w (fun ω => (X ω, Z ω)) (q.1, q.2.2) ≠ 0 := fun hz =>
+        (ne_of_gt h) (hforce q _ (wdist_triple_le_pair_mid hw X Y Z _ _ _) hz)
+      have h3 : wdist w X q.1 ≠ 0 := fun hz =>
+        (ne_of_gt h) (hforce q _ (wdist_triple_le_left hw X Y Z _ _ _) hz)
+      rw [Real.log_div (div_ne_zero (mul_ne_zero h1 h2) h3) (ne_of_gt h),
+        Real.log_div (mul_ne_zero h1 h2) h3, Real.log_mul h1 h2, Real.negMulLog]
+      ring
+  rw [Finset.sum_congr rfl fun q _ => hterm q, Finset.sum_sub_distrib,
+    Finset.sum_add_distrib, Finset.sum_add_distrib] at hgibbs
+  -- identify the four sums
+  have hXY : ∑ q : β × γ × δ, wdist w (fun ω => (X ω, Y ω, Z ω)) q
+        * Real.log (wdist w (fun ω => (X ω, Y ω)) (q.1, q.2.1))
+      = -wentropy w (fun ω => (X ω, Y ω)) := by
+    rw [sum_triple fun (b : β) (c : γ) (d : δ) => wdist w (fun ω => (X ω, Y ω, Z ω)) (b, c, d)
+      * Real.log (wdist w (fun ω => (X ω, Y ω)) (b, c))]
+    rw [wentropy, Fintype.sum_prod_type, ← Finset.sum_neg_distrib]
+    refine Finset.sum_congr rfl fun b _ => ?_
+    rw [← Finset.sum_neg_distrib]
+    refine Finset.sum_congr rfl fun c _ => ?_
+    rw [← Finset.sum_mul, sum_wdist_triple_right, Real.negMulLog]
+    ring
+  have hXZ : ∑ q : β × γ × δ, wdist w (fun ω => (X ω, Y ω, Z ω)) q
+        * Real.log (wdist w (fun ω => (X ω, Z ω)) (q.1, q.2.2))
+      = -wentropy w (fun ω => (X ω, Z ω)) := by
+    rw [sum_triple fun (b : β) (c : γ) (d : δ) => wdist w (fun ω => (X ω, Y ω, Z ω)) (b, c, d)
+      * Real.log (wdist w (fun ω => (X ω, Z ω)) (b, d))]
+    rw [Finset.sum_congr rfl fun b _ => Finset.sum_comm ..]
+    rw [wentropy, Fintype.sum_prod_type, ← Finset.sum_neg_distrib]
+    refine Finset.sum_congr rfl fun b _ => ?_
+    rw [← Finset.sum_neg_distrib]
+    refine Finset.sum_congr rfl fun d _ => ?_
+    rw [← Finset.sum_mul, sum_wdist_triple_mid, Real.negMulLog]
+    ring
+  have hX : ∑ q : β × γ × δ, wdist w (fun ω => (X ω, Y ω, Z ω)) q
+        * Real.log (wdist w X q.1) = -wentropy w X := by
+    rw [sum_triple fun (b : β) (c : γ) (d : δ) => wdist w (fun ω => (X ω, Y ω, Z ω)) (b, c, d)
+      * Real.log (wdist w X b)]
+    rw [wentropy, ← Finset.sum_neg_distrib]
+    refine Finset.sum_congr rfl fun b _ => ?_
+    rw [Finset.sum_congr rfl fun c _ => (Finset.sum_mul ..).symm,
+      Finset.sum_congr rfl fun c _ => by rw [sum_wdist_triple_right w X Y Z b c],
+      ← Finset.sum_mul, sum_wdist_pair_right, Real.negMulLog]
+    ring
+  have hjoint : ∑ q : β × γ × δ, Real.negMulLog (wdist w (fun ω => (X ω, Y ω, Z ω)) q)
+      = wentropy w (fun ω => (X ω, Y ω, Z ω)) := rfl
+  rw [hXY, hXZ, hX, hjoint] at hgibbs
+  linarith
+
+/-- **Conditioning on more reduces entropy**: `H(Y | X, Z) ≤ H(Y | X)`.
+
+Submodularity, re-read through the chain rule. This is the step Shearer's induction takes
+for each coordinate. -/
+theorem wcondEntropy_le_of_pair {w : Ω → ℝ} (hw : ∀ ω, 0 ≤ w ω) (hsum : ∑ ω, w ω = 1)
+    (X : Ω → β) (Y : Ω → γ) (Z : Ω → δ) :
+    wcondEntropy w (fun ω => (X ω, Z ω)) Y ≤ wcondEntropy w X Y := by
+  have hsub := wentropy_submodular hw hsum X Z Y
+  have hc1 := wentropy_chain hw (fun ω => (X ω, Z ω)) Y
+  have hc2 := wentropy_chain hw X Y
+  have heq : wentropy w (fun ω => ((X ω, Z ω), Y ω))
+      = wentropy w (fun ω => (X ω, Z ω, Y ω)) :=
+    (wentropy_equiv w (fun ω => ((X ω, Z ω), Y ω)) (Equiv.prodAssoc β δ γ)).symm
+  rw [heq] at hc1
+  linarith
+
 end Entropy
 
 end PMC

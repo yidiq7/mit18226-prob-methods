@@ -863,7 +863,7 @@
         "entropy_chain_rule"
       ],
       "proof_uses": [],
-      "note": "Shearer's lemma. The two inputs it runs on are now proved (wentropy_chain, wcondEntropy_le); what remains is the n-fold chain rule over a linearly ordered index set and the stronger monotonicity H(Y | X, Z) <= H(Y | X). Plan: keep all coordinate types equal and represent the restriction X_S by masking coordinates outside S to a default value, which has the same entropy as the genuine restriction and avoids dependent types entirely."
+      "note": "Shearer's lemma. Every structural inequality it needs is now proved (wentropy_chain, wcondEntropy_le, wcondEntropy_le_of_pair, wentropy_equiv). What remains is bookkeeping: the n-fold chain rule over a linearly ordered index set, and representing the restriction X_S by masking coordinates outside S to a default value, which keeps every variable at type Omega -> iota -> beta and avoids dependent types."
     },
     "lll": {
       "kind": "theorem",
@@ -1297,6 +1297,51 @@
       ],
       "proof_uses": [],
       "note": "Conditioning reduces entropy: H(Y|X) <= H(Y). Immediate from the chain rule and subadditivity -- the two are the same fact read in opposite directions. This is the monotonicity Shearer's induction runs on."
+    },
+    "entropy_relabel": {
+      "kind": "theorem",
+      "parent": "entropyGroup",
+      "file": "ProbMethods/Chapter10/Entropy.lean",
+      "decl": "PMC.wentropy_equiv",
+      "doc": "entropy.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [
+        "wentropyDef"
+      ],
+      "proof_uses": [],
+      "note": "Entropy depends only on the distribution, so relabelling values changes nothing. What lets (b x g) x d and b x g x d be used interchangeably -- needed because Lean's (a,b,c) is a,(b,c) and the pair lemmas associate the other way."
+    },
+    "entropy_submodular": {
+      "kind": "theorem",
+      "parent": "entropyGroup",
+      "file": "ProbMethods/Chapter10/Entropy.lean",
+      "decl": "PMC.wentropy_submodular",
+      "doc": "entropy.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [
+        "gibbs",
+        "wentropyDef"
+      ],
+      "proof_uses": [],
+      "note": "H(X,Y,Z) + H(X) <= H(X,Y) + H(X,Z). Gibbs against Q(x,y,z) = P(x,y)P(x,z)/P(x), whose total mass is 1 where P(x) > 0 and 0 elsewhere, hence <= 1, which is all Gibbs needs. Absolute continuity again free: the joint is dominated by each marginal."
+    },
+    "cond_more_reduces": {
+      "kind": "theorem",
+      "parent": "entropyGroup",
+      "file": "ProbMethods/Chapter10/Entropy.lean",
+      "decl": "PMC.wcondEntropy_le_of_pair",
+      "doc": "entropy.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [
+        "entropy_submodular",
+        "entropy_chain_rule",
+        "entropy_relabel"
+      ],
+      "proof_uses": [],
+      "note": "H(Y | X, Z) <= H(Y | X): submodularity re-read through the chain rule. The step Shearer's induction takes for each coordinate."
     }
   }
 }
