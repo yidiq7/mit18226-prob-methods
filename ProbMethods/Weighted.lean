@@ -1,6 +1,7 @@
 import ProbMethods.Basic
 import Mathlib.Algebra.Order.BigOperators.Ring.Finset
 import Mathlib.Tactic.Linarith
+import Mathlib.Combinatorics.SetFamily.FourFunctions
 
 /-!
 # Weighted counting over a finite space
@@ -525,6 +526,58 @@ theorem sum_pweight_superset (p : α → ℝ) (B : Finset α) :
         = ∏ i ∈ (univ : Finset α) \ B, (p i + (1 - p i)) := h.symm
       _ = 1 := by simp
   rw [hone, mul_one]
+
+/-- `pweight` as a single product over the ground set. -/
+lemma pweight_eq_prod (p : α → ℝ) (T : Finset α) :
+    pweight p T = ∏ i : α, (if i ∈ T then p i else 1 - p i) := by
+  classical
+  rw [pweight, Finset.prod_ite]
+  congr 1
+  · congr 1
+    ext i
+    simp
+  · congr 1
+    ext i
+    simp [mem_sdiff]
+
+/-- **Product weights are log-modular**: `w T * w U = w (T ∩ U) * w (T ∪ U)`, with
+*equality*.
+
+This is exactly the hypothesis Mathlib's `fkg` needs (it asks only for `≤`), and it holds
+with equality precisely because the coordinates are independent. -/
+lemma pweight_mul_pweight (p : α → ℝ) (T U : Finset α) :
+    pweight p T * pweight p U = pweight p (T ∩ U) * pweight p (T ∪ U) := by
+  classical
+  rw [pweight_eq_prod, pweight_eq_prod, pweight_eq_prod, pweight_eq_prod,
+    ← Finset.prod_mul_distrib, ← Finset.prod_mul_distrib]
+  refine Finset.prod_congr rfl fun i _ => ?_
+  by_cases hT : i ∈ T <;> by_cases hU : i ∈ U <;>
+    simp [hT, hU, mem_inter, mem_union] <;> ring
+
+/-- **The Harris–FKG inequality** for independent coordinates (Zhao, §7.1).
+
+Two monotone increasing nonnegative functions are positively correlated under a product
+measure: `E[f] * E[g] ≤ E[f * g]`.
+
+**Mathlib proves the general FKG inequality** (`fkg`, in
+`Mathlib/Combinatorics/SetFamily/FourFunctions.lean`) for any log-supermodular measure on a
+distributive lattice, via the Ahlswede–Daykin four functions theorem. All this does is
+supply the log-supermodularity — which for a product measure holds with equality — and
+normalise by `∑ w = 1`. Zhao's §7.1 is therefore upstream, not work. -/
+theorem pweight_fkg (p : α → ℝ) (hp0 : ∀ i, 0 ≤ p i) (hp1 : ∀ i, p i ≤ 1)
+    {f g : Finset α → ℝ} (hf0 : 0 ≤ f) (hg0 : 0 ≤ g)
+    (hf : Monotone f) (hg : Monotone g) :
+    wmean (pweight p) f * wmean (pweight p) g
+      ≤ wmean (pweight p) (fun T => f T * g T) := by
+  classical
+  have hw0 : (0 : Finset α → ℝ) ≤ pweight p := fun T => pweight_nonneg hp0 hp1 T
+  have hwsum : ∑ T : Finset α, pweight p T = 1 := by
+    have h := sum_pweight (α := α) p
+    rwa [Finset.powerset_univ] at h
+  have h := fkg (μ := pweight p) (f := f) (g := g) hw0 hf0 hg0 hf hg
+    (fun T U => le_of_eq (pweight_mul_pweight p T U))
+  rw [hwsum, one_mul] at h
+  simpa only [wmean] using h
 
 end Bernoulli
 

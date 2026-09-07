@@ -25,10 +25,11 @@ written when the phase opens, so the plan never claims more precision than it ha
 | 4 | 4 Second Moment | [second-moment.md](second-moment.md) | **§4.1 complete** (moments + variance), §4.2, §4.4 proved; §4.7 upstream; §4.3 deferred |
 | 5 | 5 Chernoff Bound | [chernoff.md](chernoff.md) | **Thm 5.0.1, Cor 5.0.3, §5.1 proved**; 5.0.5/5.0.7, §5.2/§5.3 open |
 | 6 | 6 Lovász Local Lemma | — | not started |
-| 7 | 7 Correlation Inequalities, 8 Janson Inequalities | — | not started |
-| 8 | 9 Concentration of Measure | — | not started |
-| 9 | 10 Entropy | — | not started |
-| 10 | 11 Containers | — | not started |
+| 7 | 7 Correlation Inequalities | [correlation.md](correlation.md) | **§7.1 upstream in Mathlib**; bridge proved; §7.2 reachable |
+| 8 | 8 Janson Inequalities | — | not started |
+| 9 | 9 Concentration of Measure | — | not started |
+| 10 | 10 Entropy | — | not started |
+| 11 | 11 Containers | — | not started |
 
 ## Conventions that shape the route
 
@@ -239,3 +240,20 @@ bound `P ≥ 3/4` with the distinctness bound `P ≤ 2 n sqrt k 2^(-k)` and prin
 conclusion `n ≳ 2^k / sqrt k`; the correct combination is `3/4 ≤ 2 n sqrt k 2^(-k)`. Unlike
 the Proposition 2.4.4 erratum, this one is confined to the proof — the theorem as stated is
 true. Worth reporting upstream along with the other.
+
+**2026-09-07 — Chapter 7's main theorem was already in Mathlib, and the near-miss is the
+point.** `Mathlib/Combinatorics/SetFamily/FourFunctions.lean` contains `fkg` — the
+Fortuin–Kasteleyn–Ginibre inequality for any log-supermodular measure on a distributive
+lattice — derived from the Ahlswede–Daykin four functions theorem, which is there too,
+along with Holley's inequality and Harris–Kleitman. Zhao §7.1 is upstream. I had begun
+planning a `Finset`-induction proof of it before checking.
+
+**So: search `Combinatorics/SetFamily` before planning any remaining chapter.** That one
+directory holds FKG, Ahlswede–Daykin, Holley, Harris–Kleitman, Kleitman and
+Kruskal–Katona. §1.2's Sperner/LYM/EKR were caught at bootstrap; this is the same lesson
+recurring five chapters later, and it will recur again — Chapter 11's containers and
+Chapter 10's entropy inequalities are exactly the kind of thing that may be partly present.
+
+The bridge `PMC.pweight_fkg` is what makes the upstream result usable here: a product
+measure is log-modular **with equality** (`pweight_mul_pweight`), which is the precise
+sense in which independence is what FKG needs.

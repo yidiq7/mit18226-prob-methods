@@ -766,6 +766,57 @@
       ],
       "proof_uses": [],
       "note": "Var <= 3 n C(n,3) p^3. Pairs sharing at most one vertex span exactly 6 edges and cancel against E[X]^2 term by term; only overlapping pairs survive."
+    },
+    "correlation": {
+      "kind": "group",
+      "doc": "correlation.md"
+    },
+    "fkg_upstream": {
+      "kind": "theorem",
+      "parent": "correlation",
+      "decl": "fkg",
+      "upstream": true,
+      "note": "Fortuin-Kasteleyn-Ginibre, in Mathlib/Combinatorics/SetFamily/FourFunctions.lean, via Ahlswede-Daykin. Mathlib also has holley, four_functions_theorem and Harris-Kleitman."
+    },
+    "harris_fkg": {
+      "kind": "theorem",
+      "parent": "correlation",
+      "file": "ProbMethods/Weighted.lean",
+      "decl": "PMC.pweight_fkg",
+      "doc": "correlation.md#harris_fkg--the-bridge-proved",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [
+        "pweights",
+        "fkg_upstream"
+      ],
+      "proof_uses": [],
+      "note": "Bridge: product measures are log-modular (pweight_mul_pweight, with equality), so Mathlib's fkg applies and gives E[f]E[g] <= E[fg]."
+    },
+    "fkg_random_graphs": {
+      "kind": "theorem",
+      "parent": "correlation",
+      "doc": "correlation.md#applications-to-random-graphs-72--reachable",
+      "statement": "planned",
+      "proof": "planned",
+      "uses": [
+        "harris_fkg"
+      ],
+      "proof_uses": [],
+      "note": "Section 7.2. Take alpha := Sym2 V in pweight_fkg; what remains per application is monotonicity of the specific property, which is combinatorics."
+    },
+    "bweight_pweight_bridge": {
+      "kind": "theorem",
+      "parent": "correlation",
+      "doc": "correlation.md#applications-to-random-graphs-72--reachable",
+      "statement": "planned",
+      "proof": "planned",
+      "uses": [
+        "gnp_weights",
+        "pweights"
+      ],
+      "proof_uses": [],
+      "note": "bweight p = pweight (fun _ => p). Needed to combine Chapter 4's results with FKG."
     }
   }
 }
