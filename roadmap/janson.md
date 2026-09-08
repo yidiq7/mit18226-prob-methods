@@ -53,32 +53,35 @@ is an *equality* and therefore symmetric in `⊓` and `⊔`. So Mathlib's `fkg` 
 the dual verbatim, where `Monotone` means `Antitone`. Worth remembering: when a hypothesis
 is stated as an equality rather than an inequality, order-reversal is usually free.
 
-## The upper bound: both blockers cleared, and the plan
+## The upper bound — proved
 
-The upper bound is not a correlation inequality — informally it conditions on a prefix of
-the family and bounds `P(Ā_i | ⋂_{j<i} Ā_j)`. Two ingredients were missing; both now exist:
+`PMC.janson_upper`, and `PMC.janson` states both halves together in the notes' form. The
+decision that made it tractable was a negative one: **no conditional-probability layer.**
+The informal proof divides by `P(⋂_{j<i} Ā_j)`, and that division is the only thing that
+would force a case analysis on whether the prefix has positive probability. Stating each
+step as `P(D ∩ Āᵢ) ≤ c · P(D)` avoids it entirely — the same choice §6.1 made for the local
+lemma, and it was right both times.
 
-* `PMC.pweight_anticorrelate` — Harris in its **mixed** form, `P(A ∧ B) ≤ P(A) P(B)` for `A`
-  increasing and `B` decreasing. Here `A` is "this bad set appears" and `B` is "none of the
-  earlier ones does".
-* `PMC.sum_pweight_inter_of_determinedBy` — block independence for `pweight`, the
-  non-uniform analogue of `PMC.card_inter_mul_of_determinedBy`. Needed because the bad sets
-  *disjoint* from `g i` live on the complementary coordinate block, where the events really
-  are independent rather than merely correlated.
+The pieces:
 
-**Do not build a conditional-probability layer.** The right move is the one §6.1 already
-made for the local lemma: keep everything multiplicative. Division by `P(⋂_{j<i} Ā_j)` is
-exactly what forces case analysis on whether that probability vanishes. The per-step
-estimate to prove is
+* `PMC.janson_step` — the contraction. It holds for **any** finite `T` with `i ∉ T` and
+  needs no ordering: split `T` into the `j` whose bad set meets `g i`, handled by mixed
+  Harris (`PMC.wprob_pweight_anticorrelate`, since `Aᵢ ∩ A_j` is increasing and "none of the
+  far part occurs" is decreasing), and those disjoint from it, handled by block independence
+  (`PMC.sum_pweight_inter_of_determinedBy`, since they live on the complementary coordinate
+  block and so are genuinely independent rather than merely correlated). The union bound in
+  between is `PMC.wprob_le_of_subset_union`.
+* `PMC.janson_prod_le` — the induction. Peel the **largest** index each time, so the peeled
+  set is always a prefix; the same pattern as `PMC.sum_chain_eq` in Chapter 10.
+* `PMC.jansonFactor_le_exp` — `1 + x ≤ exp x`, turning the product into `exp(-μ + …)`.
+* `PMC.two_mul_sum_lt_eq_sum_ne` — the lower-triangular sum is exactly `Δ/2`. Worth having
+  so the statement matches the notes rather than an equivalent-but-different convention.
 
-    wprob (noneOf A (insert i T))
-      ≤ exp (-P (A i) + ∑_{j ∈ T, g j ∩ g i ≠ ∅} P (A i ∩ A j)) · wprob (noneOf A T),
+Checked numerically at six configurations, several of them tight (`0.625` against `0.687`),
+which pins down both the exponent and the lower-triangular convention.
 
-and it holds for **any** finite `T` with `i ∉ T`: split `T` into the `j` whose bad set meets
-`g i` (mixed Harris) and those disjoint from it (block independence). No ordering is needed
-for the step itself.
+## Still open in Chapter 8
 
-A linear order enters only in the induction, and only to make the double sum come out as
-`Δ/2`: peel the **largest** element each time — the same pattern as `PMC.sum_chain_eq` in
-Chapter 10 — so the remaining `T` is always a prefix and `∑_i ∑_{j < i, j ∼ i}` is the
-lower-triangular half of the ordered-pair sum `Δ`.
+§8.2 (the extended Janson inequality, for the regime `Δ ≥ μ`) and §8.3's applications
+(triangle-free `G(n,p)`, the chromatic number), which are asymptotic and need the project's
+explicit-constant treatment.

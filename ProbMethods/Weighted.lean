@@ -121,6 +121,44 @@ lemma wprob_compl_inter [DecidableEq Ω] (w : Ω → ℝ) (B S : Finset Ω) :
   linarith
 
 /-- Complement: `P(Aᶜ) = P(univ) - P(A)`. -/
+lemma wprob_union_le [DecidableEq Ω] {w : Ω → ℝ} (hw : ∀ ω, 0 ≤ w ω) (A B : Finset Ω) :
+    wprob w (A ∪ B) ≤ wprob w A + wprob w B := by
+  classical
+  have hdisj : Disjoint A (B \ A) := Finset.disjoint_sdiff
+  have hunion : A ∪ B \ A = A ∪ B := by
+    ext x
+    simp only [mem_union, mem_sdiff]
+    tauto
+  calc wprob w (A ∪ B) = wprob w A + wprob w (B \ A) := by
+        rw [wprob, wprob, wprob, ← Finset.sum_union hdisj, hunion]
+    _ ≤ wprob w A + wprob w B := by
+        have := wprob_mono hw (Finset.sdiff_subset (s := B) (t := A))
+        linarith
+
+lemma wprob_biUnion_le [DecidableEq Ω] {ι : Type*} [DecidableEq ι] {w : Ω → ℝ}
+    (hw : ∀ ω, 0 ≤ w ω) (T : Finset ι) (Z : ι → Finset Ω) :
+    wprob w (T.biUnion Z) ≤ ∑ j ∈ T, wprob w (Z j) := by
+  classical
+  induction T using Finset.induction_on with
+  | empty => simp [wprob]
+  | @insert a T ha ih =>
+      rw [Finset.biUnion_insert, Finset.sum_insert ha]
+      exact le_trans (wprob_union_le hw _ _) (by linarith)
+
+/-- If `X` is covered by `Y` together with a finite family, its weight is bounded by the
+sum of theirs. This is the union bound, in the shape the Janson argument needs. -/
+lemma wprob_le_of_subset_union [DecidableEq Ω] {ι : Type*} [DecidableEq ι] {w : Ω → ℝ}
+    (hw : ∀ ω, 0 ≤ w ω) {X Y : Finset Ω} {T : Finset ι} {Z : ι → Finset Ω}
+    (h : X ⊆ Y ∪ T.biUnion Z) :
+    wprob w X ≤ wprob w Y + ∑ j ∈ T, wprob w (Z j) :=
+  le_trans (wprob_mono hw h)
+    (le_trans (wprob_union_le hw _ _) (by linarith [wprob_biUnion_le hw T Z]))
+
+lemma wprob_le_one {w : Ω → ℝ} (hw : ∀ ω, 0 ≤ w ω) (hsum : ∑ ω, w ω = 1) (A : Finset Ω) :
+    wprob w A ≤ 1 := by
+  rw [← hsum, ← wprob_univ]
+  exact wprob_mono hw (subset_univ A)
+
 lemma wprob_compl [DecidableEq Ω] (w : Ω → ℝ) (A : Finset Ω) :
     wprob w Aᶜ = (∑ ω, w ω) - wprob w A := by
   have h : wprob w A + wprob w Aᶜ = ∑ ω, w ω := by

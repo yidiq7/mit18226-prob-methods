@@ -214,6 +214,44 @@ theorem pweight_correlate_anti_family (p : α → ℝ) (hp0 : ∀ i, 0 ≤ p i) 
         _ = ∑ S ∈ (univ : Finset (Finset α)).filter (fun S => ∀ i ∈ insert a I, A i S),
               pweight p S := by rw [hset]
 
+/-! ### Finset-flavoured forms
+
+The two correlation inequalities above are stated with `Prop`-valued events and `filter`,
+which is convenient when the event is given by a property. Applications that carry events
+around as `Finset (Finset α)` — the local lemma, Janson — want them in terms of
+`PMC.wprob`. -/
+
+lemma filter_mem_self (A : Finset (Finset α)) :
+    (univ : Finset (Finset α)).filter (fun S => S ∈ A) = A := by
+  ext S
+  simp
+
+/-- Harris for upward-closed events, as `PMC.wprob`. -/
+theorem wprob_pweight_correlate (p : α → ℝ) (hp0 : ∀ i, 0 ≤ p i) (hp1 : ∀ i, p i ≤ 1)
+    {A B : Finset (Finset α)}
+    (hA : ∀ S T : Finset α, S ⊆ T → S ∈ A → T ∈ A)
+    (hB : ∀ S T : Finset α, S ⊆ T → S ∈ B → T ∈ B) :
+    wprob (pweight p) A * wprob (pweight p) B ≤ wprob (pweight p) (A ∩ B) := by
+  classical
+  have h := pweight_correlate p hp0 hp1 (fun S => S ∈ A) (fun S => S ∈ B) hA hB
+  rw [filter_mem_self, filter_mem_self,
+    show (univ : Finset (Finset α)).filter (fun S => S ∈ A ∧ S ∈ B) = A ∩ B from by
+      ext S; simp] at h
+  exact h
+
+/-- Mixed Harris — increasing against decreasing — as `PMC.wprob`. -/
+theorem wprob_pweight_anticorrelate (p : α → ℝ) (hp0 : ∀ i, 0 ≤ p i) (hp1 : ∀ i, p i ≤ 1)
+    {A B : Finset (Finset α)}
+    (hA : ∀ S T : Finset α, S ⊆ T → S ∈ A → T ∈ A)
+    (hB : ∀ S T : Finset α, S ⊆ T → T ∈ B → S ∈ B) :
+    wprob (pweight p) (A ∩ B) ≤ wprob (pweight p) A * wprob (pweight p) B := by
+  classical
+  have h := pweight_anticorrelate p hp0 hp1 (fun S => S ∈ A) (fun S => S ∈ B) hA hB
+  rw [filter_mem_self, filter_mem_self,
+    show (univ : Finset (Finset α)).filter (fun S => S ∈ A ∧ S ∈ B) = A ∩ B from by
+      ext S; simp] at h
+  exact h
+
 end Monotone
 
 /-- Containing a triangle is an upward-closed property of the edge set. -/

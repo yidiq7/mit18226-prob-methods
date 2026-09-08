@@ -1140,13 +1140,14 @@
       "file": "ProbMethods/Chapter08/Janson.lean",
       "decl": "PMC.janson_upper",
       "doc": "janson.md",
-      "statement": "planned",
-      "proof": "planned",
+      "statement": "formalized",
+      "proof": "formalized",
       "uses": [
-        "janson_lower"
+        "janson_prod",
+        "jansonFactorDef"
       ],
       "proof_uses": [],
-      "note": "Theorem 8.1.1, UPPER BOUND exp(-mu + Delta/2). Both blockers are now cleared: pweight_anticorrelate (mixed Harris) and pweight_block_indep (block independence for pweight). PLAN, worked out and worth following: avoid conditional probability entirely and keep everything multiplicative, as in the LLL. The per-step estimate is wprob (noneOf A (insert i T)) <= exp(-P(A i) + sum over j in T sharing an element with i of P(A i inter A j)) * wprob (noneOf A T), and it holds for ANY finite T not containing i -- split T into the js whose bad set meets g i (handled by mixed Harris) and those disjoint from it (handled by block independence). No ordering is needed for the step. A linear order enters only in the induction: peel the LARGEST element each time, as in sum_chain_eq, so the remaining T is a prefix and the double sum becomes the lower-triangular half of Delta."
+      "note": "Theorem 8.1.1 UPPER BOUND, DONE. exp(-mu + Delta/2). Kept multiplicative throughout -- no conditional probabilities, hence no case analysis on whether a prefix has positive probability, which is the same decision 6.1 made for the local lemma. Checked numerically at six configurations, several of them tight (0.625 vs 0.687), which confirms both the exponent and the lower-triangular convention."
     },
     "entropyGroup": {
       "kind": "group",
@@ -1738,6 +1739,105 @@
       "uses": [],
       "proof_uses": [],
       "note": "Events determined by disjoint blocks are independent for pweight -- the non-uniform analogue of card_inter_mul_of_determinedBy. An application only has to exhibit the blocks and check they are disjoint."
+    },
+    "badEventDef": {
+      "kind": "definition",
+      "parent": "jansonGroup",
+      "file": "ProbMethods/Chapter08/Janson.lean",
+      "decl": "PMC.badEvent",
+      "doc": "janson.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "The event that the bad set g i survives in full."
+    },
+    "badEvent_determined": {
+      "kind": "theorem",
+      "parent": "jansonGroup",
+      "file": "ProbMethods/Chapter08/Janson.lean",
+      "decl": "PMC.determinedBy_badEvent",
+      "doc": "janson.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [
+        "badEventDef"
+      ],
+      "proof_uses": [],
+      "note": "g i surviving depends only on the coordinates of g i -- what makes the far-away part of the family genuinely independent rather than merely correlated."
+    },
+    "jansonFactorDef": {
+      "kind": "definition",
+      "parent": "jansonGroup",
+      "file": "ProbMethods/Chapter08/Janson.lean",
+      "decl": "PMC.jansonFactor",
+      "doc": "janson.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [
+        "badEventDef"
+      ],
+      "proof_uses": [],
+      "note": "The per-step contraction factor 1 - P(A i) + sum over j in U meeting g i of P(A i inter A j)."
+    },
+    "janson_step": {
+      "kind": "theorem",
+      "parent": "jansonGroup",
+      "file": "ProbMethods/Chapter08/Janson.lean",
+      "decl": "PMC.janson_step",
+      "doc": "janson.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [
+        "jansonFactorDef",
+        "harris_mixed",
+        "pweight_block_indep",
+        "badEvent_determined"
+      ],
+      "proof_uses": [],
+      "note": "The Janson step. Holds for ANY finite T with no ordering hypothesis: split T into the j whose bad set meets g i (mixed Harris, since A i inter A j is increasing and 'none of M occurs' is decreasing) and those disjoint from it (block independence, since they live on the complementary coordinate block)."
+    },
+    "janson_prod": {
+      "kind": "theorem",
+      "parent": "jansonGroup",
+      "file": "ProbMethods/Chapter08/Janson.lean",
+      "decl": "PMC.janson_prod_le",
+      "doc": "janson.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [
+        "janson_step"
+      ],
+      "proof_uses": [],
+      "note": "The multiplicative upper bound. Peels the LARGEST index each time so the peeled set is always a prefix -- the same induction as sum_chain_eq in Chapter 10."
+    },
+    "delta_halving": {
+      "kind": "theorem",
+      "parent": "jansonGroup",
+      "file": "ProbMethods/Chapter08/Janson.lean",
+      "decl": "PMC.two_mul_sum_lt_eq_sum_ne",
+      "doc": "janson.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "The lower-triangular double sum is exactly half of Zhao's Delta. The relation 'share an element' is symmetric and P(A i inter A j) is too, so the ordered sum splits into the j<i and i<j halves and (i,j) -> (j,i) matches them term by term."
+    },
+    "janson_full": {
+      "kind": "theorem",
+      "parent": "jansonGroup",
+      "file": "ProbMethods/Chapter08/Janson.lean",
+      "decl": "PMC.janson",
+      "doc": "janson.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [
+        "janson_lower",
+        "janson_upper",
+        "delta_halving"
+      ],
+      "proof_uses": [],
+      "note": "Theorem 8.1.1 in the notes' form, both bounds together. The two halves have nothing in common as proofs: the lower bound is Harris (decreasing events are positively correlated, no hypothesis relating the g i needed), the upper peels the family one index at a time."
     }
   }
 }
