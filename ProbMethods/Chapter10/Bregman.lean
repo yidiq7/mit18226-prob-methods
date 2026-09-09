@@ -433,6 +433,25 @@ theorem card_hamCycleSet_le_prod (out : Fin n → Finset (Fin n)) :
   exact_mod_cast hsub
 
 
+/-- **Log-concavity of `x ↦ (x!)^{1/x}`**, the step Theorem 10.2.6's proof omits ("One can
+check (omitted)"). It is what makes the smoothing argument work: with `g` log-concave,
+balancing two unequal degrees *increases* `∏ᵢ g(dᵢ)`, so the maximum over degree sequences of
+a given total is at the balanced one.
+
+**Erratum.** The notes display this as `g(n) g(n+2) ≥ g(n+1)²`, which is log-*convexity* and
+is false for every `n ≥ 1` — at `n = 1` it reads `1 · 6^{1/3} ≥ 2`, i.e. `1.817 ≥ 2`. The word
+"log-concave" is the correct one and the displayed inequality is flipped; the direction below
+is the one that holds, and the one the smoothing argument needs.
+
+`1 ≤ m` is required: at `m = 0` the left side involves `(0!)^{1/0}`, which under Mathlib's
+`1/0 = 0` is `1`, and the inequality genuinely fails there. -/
+theorem factorial_rpow_log_concave {m : ℕ} (hm : 1 ≤ m) :
+    (Nat.factorial m : ℝ) ^ (1 / (m : ℝ))
+        * (Nat.factorial (m + 2) : ℝ) ^ (1 / ((m : ℝ) + 2))
+      ≤ ((Nat.factorial (m + 1) : ℝ) ^ (1 / ((m : ℝ) + 1))) ^ 2 := by
+  sorry
+
+
 end Bregman
 
 end PMC

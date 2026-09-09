@@ -291,8 +291,17 @@ transitive one (`per = 0`, since the sink has out-degree `0`).
 **Theorems 10.2.6 and 10.2.4 themselves are not claimed.** Reaching `O(√n · n!/2ⁿ)` needs
 log-concavity of `x ↦ (x!)^{1/x}` — which the notes state as "One can check (omitted)" — plus
 a smoothing argument over degree sequences of total `C(n,2)`, and Stirling. That is an
-analysis project, not a missing line, and the log-concavity is worth publishing as a task on
-its own.
+analysis project, not a missing line, so the log-concavity is published as a task
+(`PMC.factorial_rpow_log_concave`).
+
+**Erratum (Theorem 10.2.6's omitted step).** The notes write "the function `g(x) = (x!)^{1/x}`
+is log-concave, i.e., `g(n) g(n+2) ≥ g(n+1)²` for all `n ≥ 0`". The displayed inequality is
+log-*convexity* and is **false for every `n ≥ 1`**: at `n = 1` it reads `1 · 6^{1/3} ≥ 2`,
+i.e. `1.817 ≥ 2`. The word is right and the inequality is flipped. Checked numerically for
+`n` up to 4000: the notes' direction fails at every `n ≥ 1`, and the concave direction holds
+at every `n ≥ 1`, failing only at `n = 0` — where `(0!)^{1/0}` is a convention artifact, so
+the committed statement carries `1 ≤ m`. The smoothing argument needs the concave direction,
+so this is a typo rather than a hole in the proof.
 
 **Only the bipartite case of Corollary 10.2.2 is claimed, and that is deliberate.** The notes derive the general
 statement from `pm(G ⊔ G) ≤ pm(G × K₂)`, which they leave as an exercise — and that

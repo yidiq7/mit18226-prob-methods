@@ -3127,6 +3127,18 @@
    ],
    "proof_uses": [],
    "note": "Theorem 10.2.6's Bregman step: the number of Hamilton cycles of a tournament is at most prod_i (d_i!)^(1/d_i) with d_i the out-degree. The first inequality of the notes' displayed chain -- that a Hamilton cycle IS a 1-factor -- is literally a subset relation in this encoding, so the whole content is Bregman. Getting from here to O(sqrt(n) n!/2^n) needs log-concavity of x -> (x!)^(1/x), a smoothing argument over degree sequences of total C(n,2), and Stirling; the notes omit the first ('One can check (omitted)') and it is a genuine analysis project, so 10.2.6 and 10.2.4 are NOT claimed. Checked on the cyclic tournament on Fin 3 (per = 1, bound 1, equality) and the transitive one (per = 0, since the sink has out-degree 0)."
+  },
+  "factorial_log_concave": {
+   "kind": "theorem",
+   "parent": "entropyGroup",
+   "file": "ProbMethods/Chapter10/Bregman.lean",
+   "decl": "PMC.factorial_rpow_log_concave",
+   "doc": "entropy.md",
+   "statement": "formalized",
+   "proof": "planned",
+   "uses": [],
+   "proof_uses": [],
+   "note": "Log-concavity of x -> (x!)^(1/x), the step Theorem 10.2.6 omits ('One can check (omitted)'). ERRATUM: the notes display it as g(n)g(n+2) >= g(n+1)^2, which is log-CONVEXITY and is false for every n >= 1 -- at n = 1 it reads 1 * 6^(1/3) >= 2, i.e. 1.817 >= 2. Checked numerically for n up to 4000: the notes' direction fails at every n >= 1 and the concave direction holds at every n >= 1, failing only at n = 0, where (0!)^(1/0) is a convention artifact. So the statement committed has the flipped inequality and the hypothesis 1 <= m. STATEMENT COMMITTED, published as a task."
   }
  }
 }
