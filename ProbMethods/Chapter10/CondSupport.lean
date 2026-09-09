@@ -29,6 +29,7 @@ section CondSupport
 variable {Ω : Type*} [Fintype Ω] [DecidableEq Ω]
 variable {β : Type*} [Fintype β] [DecidableEq β]
 variable {γ : Type*} [Fintype γ] [DecidableEq γ]
+variable {δ : Type*} [Fintype δ] [DecidableEq δ]
 
 /-- **A distribution supported in `T` has entropy at most `log #T`.** Gibbs' inequality
 against the uniform distribution on `T`. -/
@@ -110,6 +111,42 @@ lemma wmean_comp_eq_sum_wdist (w : Ω → ℝ) (Y : Ω → γ) (f : γ → ℝ) 
   rw [wdist, wprob, Finset.sum_mul]
   refine Finset.sum_congr rfl fun ω hω => ?_
   rw [(mem_filter.mp hω).2]
+
+/-! ### Conditional independence
+
+The step §10.3's proofs use and this library lacked: **if the conditional distribution of `X`
+given `(Y, Z)` depends only on `Y`, then `H(X | Y, Z) = H(X | Y)`.** The notes invoke it as
+"[cond indep]" when computing the entropy of a random walk or of two conditionally
+independent copies.
+
+The proof is a regrouping, not an inequality: the conditioning fibres of `(Y, Z)` above a
+fixed `y` all carry the *same* conditional distribution, so their weights collapse onto the
+marginal of `Y` — which is `PMC.sum_wdist_pair_right`. -/
+
+/-- **Conditional independence removes a variable from the conditioning.** If the conditional
+distribution of `X` given `(Y, Z)` agrees with the one given `Y` alone on every fibre of
+positive weight, the two conditional entropies coincide. -/
+theorem wcondEntropy_pair_eq_of_condIndep {w : Ω → ℝ} (hw : ∀ ω, 0 ≤ w ω)
+    (X : Ω → δ) (Y : Ω → β) (Z : Ω → γ)
+    (h : ∀ (b : β) (c : γ), 0 < wdist w (fun ω => (Y ω, Z ω)) (b, c) →
+      ∀ d : δ, wcondDist w (fun ω => (Y ω, Z ω)) X (b, c) d = wcondDist w Y X b d) :
+    wcondEntropy w (fun ω => (Y ω, Z ω)) X = wcondEntropy w Y X := by
+  classical
+  simp only [wcondEntropy]
+  rw [Fintype.sum_prod_type]
+  refine Finset.sum_congr rfl fun b _ => ?_
+  have hterm : ∀ c : γ, wdist w (fun ω => (Y ω, Z ω)) (b, c)
+        * ∑ d, Real.negMulLog (wcondDist w (fun ω => (Y ω, Z ω)) X (b, c) d)
+      = wdist w (fun ω => (Y ω, Z ω)) (b, c)
+        * ∑ d, Real.negMulLog (wcondDist w Y X b d) := by
+    intro c
+    by_cases hpos : 0 < wdist w (fun ω => (Y ω, Z ω)) (b, c)
+    · refine congrArg (fun t => wdist w (fun ω => (Y ω, Z ω)) (b, c) * t) ?_
+      exact Finset.sum_congr rfl fun d _ => by rw [h b c hpos d]
+    · have hz : wdist w (fun ω => (Y ω, Z ω)) (b, c) = 0 :=
+        le_antisymm (not_lt.mp hpos) (wdist_nonneg hw _ _)
+      rw [hz, zero_mul, zero_mul]
+  rw [Finset.sum_congr rfl fun c _ => hterm c, ← Finset.sum_mul, sum_wdist_pair_right]
 
 end CondSupport
 

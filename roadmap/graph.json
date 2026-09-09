@@ -3407,6 +3407,18 @@
    ],
    "proof_uses": [],
    "note": "THEOREM 10.3.6 (Sidorenko for complete bipartite graphs) IN FULL: hom(K_{s,t},G) n^(2st-s-t) >= (2m)^(st). The notes demonstrate the case K_{2,2} by entropy and remark that the same proof extends to all K_{s,t}; with the star case in hand the extension needs no entropy at all -- power mean over the n^s tuples, then the star bound on sum_a N(a) = sum_b d(b)^s. Parametrised by s+1 and t+1 so every exponent is a genuine natural number with no truncated subtraction. This SUBSUMES both earlier cases: s = t = 1 is C4 and s = 0 is the star."
+  },
+  "cond_indep": {
+   "kind": "theorem",
+   "parent": "entropyGroup",
+   "file": "ProbMethods/Chapter10/CondSupport.lean",
+   "decl": "PMC.wcondEntropy_pair_eq_of_condIndep",
+   "doc": "entropy.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [],
+   "proof_uses": [],
+   "note": "CONDITIONAL INDEPENDENCE, the step the notes invoke as '[cond indep]' and this library lacked: if the conditional distribution of X given (Y,Z) depends only on Y, then H(X|Y,Z) = H(X|Y). The proof is a regrouping rather than an inequality -- the fibres of (Y,Z) above a fixed Y-value all carry the same conditional distribution, so their weights collapse onto the marginal of Y via sum_wdist_pair_right. Recorded twice in the roadmap as the missing tool for 10.3.5 (all trees) and the notes' own route to 10.3.6; adding it removes that gap from the LIBRARY, though each application still has to verify the hypothesis for its own distribution, which for trees means building the tree-indexed Markov distribution."
   }
  }
 }

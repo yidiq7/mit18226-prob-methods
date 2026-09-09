@@ -391,6 +391,22 @@ genuine natural number, with no truncated subtraction. **This subsumes both earl
 `s = t = 1` is `C₄` and `s = 0` is the star. Checked on `K₃`, where the `(2,2)` count is `18`,
 agreeing with the closed-4-walk count as it must since `C₄ = K₂,₂`.
 
+### The conditional-independence tool now exists
+
+`PMC.wcondEntropy_pair_eq_of_condIndep`: if the conditional distribution of `X` given
+`(Y, Z)` depends only on `Y`, then `H(X | Y, Z) = H(X | Y)`. This is the step the notes invoke
+as "[cond indep]", and the one whose absence was recorded twice above as the reason for taking
+Cauchy–Schwarz routes instead.
+
+The proof is a regrouping, not an inequality: the fibres of `(Y, Z)` above a fixed `Y`-value
+all carry the same conditional distribution, so their weights collapse onto the marginal of
+`Y` (`PMC.sum_wdist_pair_right`).
+
+**What this does and does not unblock.** The gap in the *library* is closed. Each application
+still has to verify the hypothesis for its own distribution, and for trees that means
+building the tree-indexed Markov distribution and proving its marginals are degree-biased —
+which is the remaining work in Theorem 10.3.5, not the entropy identity.
+
 What remains in §10.3: Theorem 10.3.5 in full (all trees — the same argument, but the entropy
 bookkeeping is over a tree rather than a path, so it does need the conditional-independence
 step), Theorem 10.3.6 (complete bipartite), and Theorem 10.3.7. Remark 10.3.8's Möbius graph
