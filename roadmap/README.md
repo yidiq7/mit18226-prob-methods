@@ -28,7 +28,7 @@ written when the phase opens, so the plan never claims more precision than it ha
 | 7 | 7 Correlation Inequalities | [correlation.md](correlation.md) | **complete in finite form**: §7.1 upstream, §7.2 proved |
 | 8 | 8 Janson Inequalities | [janson.md](janson.md) | **Thm 8.1.1 complete** (both bounds); §8.2 extended Janson, §8.3 applications open |
 | 9 | 9 Concentration of Measure | [mathlib-survey.md](mathlib-survey.md) | **§9.1–§9.2 upstream** (Azuma–Hoeffding); §9.5 Talagrand absent |
-| 10 | 10 Entropy | [entropy.md](entropy.md) | **§10.1, §10.2, §10.4**: Thms 10.4.1/10.4.3/10.4.5/**10.4.9**, Cors 10.4.6/10.4.7, and **Thm 10.2.1 (Brégman–Minc)**; **Thms 10.3.3 (Blakey–Roy) and 10.3.6 for K₂,₂**; §10.2's Cor 10.2.2 general case, §10.3's remaining cases open |
+| 10 | 10 Entropy | [entropy.md](entropy.md) | **§10.1, §10.2, §10.4**: Thms 10.4.1/10.4.3/10.4.5/**10.4.9**, Cors 10.4.6/10.4.7, and **Thm 10.2.1 (Brégman–Minc)**; **Thms 10.3.3 (Blakey–Roy), 10.3.5 for stars, 10.3.6 for K₂,₂**; §10.2's Cor 10.2.2 general case, §10.3's remaining cases open |
 | 11 | 11 Containers | [containers.md](containers.md) | **lower bound of Thm 11.0.2 proved** (2^⌊n²/4⌋ triangle-free graphs, exact for every n); the upper bound and §11.1–§11.3 need the container theorem, and every other result there is asymptotic |
 
 ## Conventions that shape the route

@@ -365,7 +365,19 @@ implying the entropy proof was formalized.
 
 Checked on `K₃`: `hom(C₄, K₃) = 18 = tr(A⁴)`, and `6⁴ = 1296 ≤ 18 · 81`.
 
-What remains in §10.3: Theorem 10.3.5 (all trees — the same argument, but the entropy
+### Theorem 10.3.5 for stars — proved, and it locates the difficulty
+
+`PMC.sidorenko_star`: `hom(K₁,ₜ, G) · n^{t-1} ≥ (2m)^t`. A star-homomorphism is a centre
+together with `t` independent neighbours of it, so `hom(K₁,ₜ, G) = ∑_v d(v)^t`
+(`PMC.card_starHom`), and the inequality is then exactly the power-mean inequality
+`pow_sum_div_card_le_sum_pow`. Checked on `K₃` at `t = 2`: `36 = 12 · 3`, equality.
+
+Stars are trees, so this is an infinite family of cases of Theorem 10.3.5 — and it is worth
+recording next to the harder ones because it **locates the difficulty**: the obstacle in
+Sidorenko's conjecture is not trees with a single branch vertex, where the count factorises
+outright, but the ones whose entropy bookkeeping needs a genuine chain rule along the tree.
+
+What remains in §10.3: Theorem 10.3.5 in full (all trees — the same argument, but the entropy
 bookkeeping is over a tree rather than a path, so it does need the conditional-independence
 step), Theorem 10.3.6 (complete bipartite), and Theorem 10.3.7. Remark 10.3.8's Möbius graph
 is an open case of the conjecture and is not a node.

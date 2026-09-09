@@ -549,6 +549,74 @@ theorem sidorenko_C4 :
     _ = #(walk4 G) * (Fintype.card V : ℝ) ^ 4 := by ring
 
 
+/-! ### Theorem 10.3.5 for stars
+
+Stars are trees, so Sidorenko's conjecture for `K₁,ₜ` is a case of Theorem 10.3.5. It is the
+case that needs nothing at all: `hom(K₁,ₜ, G) = ∑_v d(v)^t`, because a star-homomorphism is a
+choice of centre together with `t` independent neighbours of it, and the inequality is then
+the power-mean inequality `pow_sum_div_card_le_sum_pow`.
+
+Worth recording alongside the harder cases, because it shows where the difficulty in
+Sidorenko's conjecture actually sits: not in trees with a single branch vertex, but in the
+ones whose entropy bookkeeping needs a genuine chain rule. -/
+
+/-- The homomorphisms from the star `K₁,ₜ`: a centre together with `t` neighbours of it,
+chosen independently. -/
+def starHom (t : ℕ) : Finset (V × (Fin t → V)) :=
+  (univ : Finset (V × (Fin t → V))).filter fun p => ∀ i, G.Adj p.1 (p.2 i)
+
+/-- `hom(K₁,ₜ, G) = ∑_v d(v)^t`. -/
+lemma card_starHom (t : ℕ) : #(starHom G t) = ∑ v, G.degree v ^ t := by
+  classical
+  have hmaps : ∀ p ∈ starHom G t, p.1 ∈ (univ : Finset V) := fun p _ => mem_univ _
+  rw [Finset.card_eq_sum_card_fiberwise (fun p hp => hmaps p (by rwa [← mem_coe]))]
+  refine Finset.sum_congr rfl fun v _ => ?_
+  rw [← SimpleGraph.card_neighborFinset_eq_degree,
+    ← Fintype.card_piFinset_const (G.neighborFinset v) t]
+  refine Finset.card_bij (fun p _ => p.2) ?_ ?_ ?_
+  · intro p hp
+    rw [mem_filter, starHom, mem_filter] at hp
+    rw [Fintype.mem_piFinset]
+    intro i
+    rw [SimpleGraph.mem_neighborFinset]
+    exact hp.2 ▸ hp.1.2 i
+  · intro p hp p' hp' h
+    rw [mem_filter] at hp hp'
+    exact Prod.ext (hp.2.trans hp'.2.symm) h
+  · intro f hf
+    rw [Fintype.mem_piFinset] at hf
+    refine ⟨(v, f), ?_, rfl⟩
+    rw [mem_filter, starHom, mem_filter]
+    refine ⟨⟨mem_univ _, fun i => ?_⟩, rfl⟩
+    exact (SimpleGraph.mem_neighborFinset _ _ _).mp (hf i)
+
+/-- **Sidorenko's conjecture for stars** (a case of Theorem 10.3.5):
+`hom(K₁,ₜ, G) · n^{t-1} ≥ (2m)^t`, i.e. `t(K₁,ₜ, G) ≥ t(K₂, G)^t`. The power-mean
+inequality, once `hom(K₁,ₜ, G)` is recognised as `∑_v d(v)^t`. -/
+theorem sidorenko_star (t : ℕ) :
+    ((∑ v, G.degree v : ℕ) : ℝ) ^ (t + 1)
+      ≤ #(starHom G (t + 1)) * (Fintype.card V : ℝ) ^ t := by
+  classical
+  have hpm := pow_sum_div_card_le_sum_pow (s := (univ : Finset V))
+    (f := fun v => (G.degree v : ℝ)) (fun v _ => by positivity) t
+  rw [card_univ] at hpm
+  have hsum : ∑ v, ((G.degree v : ℝ)) ^ (t + 1) = #(starHom G (t + 1)) := by
+    rw [card_starHom]
+    push_cast
+    rfl
+  rw [hsum] at hpm
+  have hcast : ((∑ v, G.degree v : ℕ) : ℝ) = ∑ v, (G.degree v : ℝ) := by push_cast; rfl
+  rw [hcast]
+  rcases Nat.eq_zero_or_pos (Fintype.card V) with h0 | hpos
+  · -- no vertices: both sides vanish
+    have hempty : IsEmpty V := Fintype.card_eq_zero_iff.mp h0
+    rw [Finset.univ_eq_empty, Finset.sum_empty, zero_pow (Nat.succ_ne_zero t)]
+    positivity
+  · have hnR : (0 : ℝ) < Fintype.card V := by exact_mod_cast hpos
+    rw [div_le_iff₀ (by positivity)] at hpm
+    exact hpm
+
+
 end Sidorenko
 
 end PMC
