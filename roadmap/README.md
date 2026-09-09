@@ -65,6 +65,34 @@ PRs. This is worth keeping true: `sorry-delta` is at policy `block`, so any regr
 caught at the gate, but a `sorry` that never enters is cheaper than one that has to be
 chased out.
 
+### Choir upgrade 2026-09-08: protocol 7 → 8
+
+Overlay now matches Choir commit `4f4e2ed` (`Weber-GeoML/Choir@main`). `choir_protocol` in
+`.choir/project.toml` went `7 → 8`; the fingerprint guard passes and `orchestrator-init.sh`
+is green.
+
+**The checkout was pointed at the wrong repo, and it is worth knowing how that looked.**
+`~/.choir/checkout` tracked `yidiq7/choir@main` (protocol 7, last commit 2026-09-06) rather
+than the canonical `Weber-GeoML/Choir`. Comparing branches by commit count was actively
+misleading: `yidiq7/choir@main` vs `@public` showed "70 ahead / 42 behind", and
+`@main` vs canonical showed "506 / 10", which looks like two divergent bodies of work. It
+is not. `yidiq7/choir@public` and `Weber-GeoML/Choir@main` have **byte-identical trees**
+(`75249c1b`) and differ only in commit objects. **Compare trees, not commit counts**, when
+a repo publishes through a rebased or squashed branch — commit-count divergence across such
+lines is noise.
+
+The old dev line is preserved locally as branch `fork-main` and as remote `fork`; `origin`
+is now the canonical repo.
+
+Two changes that affect how this project is run:
+
+* `gate.checks.REQUIRED_PRESENT` is now **seven** checks, not nine — `style` and
+  `trust-report` are informational. That is a relaxation, so no PR can be caught by the
+  "absent check counts as failing" trap on account of this upgrade.
+* The CLI split into peer roles, `choir orch` and `choir worker`. Contributors keep claiming
+  with protocol-7 code until they run `choir worker update` (note the new spelling), so any
+  contributor active on this project needs nudging toward it.
+
 ### Hard constraints
 
 **Toolchain must be an `x.y.0` release: Lean `v4.33.0` + Mathlib `v4.33.0`.** The first
