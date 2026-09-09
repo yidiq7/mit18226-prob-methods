@@ -28,6 +28,7 @@ import ProbMethods.Chapter06.Coloring
 import ProbMethods.Chapter06.ProductLLL
 import ProbMethods.Chapter06.TransversalBlocks
 import ProbMethods.Chapter06.Transversal
+import ProbMethods.Chapter06.LatinTransversal
 import ProbMethods.Chapter06.DivisibleCycle
 import ProbMethods.Chapter06.Derangement
 import ProbMethods.Chapter07.Correlation

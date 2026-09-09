@@ -466,6 +466,44 @@ is why the fibering runs over `univ.erase j₁`.
 So of Theorem 6.5.11 (Erdős–Spencer) the probability side is done and the dependency side
 waits on 6.5.5, i.e. on task #44.
 
+### §6.5 — Theorem 6.5.11 proved, modulo the dependency input
+
+`ProbMethods/Chapter06/LatinTransversal.lean`. `PMC.exists_latin_transversal`: if every entry
+of an `n × n` array appears at most `m` times and `4 e m ≤ n`, the array has a Latin
+transversal — a permutation `σ` with the entries `c i (σ i)` pairwise distinct.
+
+The negative-dependence input (Theorem 6.5.5, which waits on task #44) is an **explicit
+hypothesis** `hlop`, in exactly the shape `PMC.lovasz_local_lemma_symmetric_lopsided` consumes.
+So the theorem is sorry-free and does not depend on `PMC.exists_perm_extend`'s `sorry`; what is
+missing is visible in its statement, and discharging it later is a one-line change.
+
+Everything else in the notes' proof is done:
+
+* the probability `1/(n(n-1))` — `PMC.wprob_pairEvent`, already proved;
+* the degree count `PMC.card_badNbrs_le`: `#N(p) ≤ 4n(m-1)`. A neighbour has one of its two
+  cells on one of `p`'s four lines (`PMC.crossCells`, of size at most `4n`) and its other cell
+  among the at most `m - 1` remaining cells with that entry, so the neighbourhood is covered by
+  a `biUnion` over the lines;
+* the arithmetic `e(4n(m-1) + 2) ≤ n(n-1)`, which is where `4 e m ≤ n` enters.
+
+Two decisions worth recording.
+
+**Each unordered bad pair must be one index.** Indexing the bad events by *ordered* pairs of
+cells lists every event twice, which doubles the degree — and the constant `n/(4e)` does not
+survive a factor of two. Orienting each pair by `i₁ < i₂` fixes this, and it also gives the
+row-distinctness `i₁ ≠ i₂` for free.
+
+**The crude `4n` beats the notes' `4n - 4`.** The notes count the four lines by
+inclusion–exclusion; here they are a union bound over two rows and two columns, because the
+slack in `e p (d+1) ≤ 1` is of order `4en` against `n` and four cells' worth of over-count
+costs nothing. The degree bound also holds for the non-bad indices (whose events are empty),
+so no case split on badness is needed anywhere.
+
+Spot-checked by evaluation on the cyclic Latin square of order 3: `9` bad pairs — three pairs
+of equal entries for each of the three symbols — and a maximum neighbourhood of `9`, against
+the bound `4·3·(3−1) = 24`. (The theorem itself says nothing at `n = 3`: `4em ≤ 3` forces
+`m = 0`.)
+
 What remains of §6.5 is Theorem 6.5.5 in **full generality** (arbitrary vertex-disjoint
 matchings in the random injection model) and the Latin-transversal application built on it.
 The single-edge case above is the same argument, so the generalization is a matter of

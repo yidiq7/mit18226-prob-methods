@@ -4468,6 +4468,21 @@
    ],
    "proof_uses": [],
    "note": "LEMMA 10.2.7 plus THEOREM 10.2.4's lower bound, DONE: an (m+1)-vertex tournament with P Hamilton paths extends by a vertex to one with at least P/4 Hamilton cycles, so some (m+2)-vertex tournament has (m+1)! <= 4*#cycles*2^m. 2 <= n is NECESSARY: for a one-vertex path the two closing constraints fall on the same edge, and a 2-vertex tournament has a Hamilton path but no Hamilton cycle. Cycles are counted as the orderings starting at the NEW vertex, which is an honest count (each directed cycle meets it once) and avoids dividing by n. The averaging is a double count of orientation/path pairs, exact in the checked cases: sum over orientations of #cycles is 6 = 3*2^3/4 for the 3-cycle and 2 = 1*2^3/4 for the transitive tournament."
+  },
+  "latin_transversal": {
+   "kind": "theorem",
+   "parent": "localLemmaGroup",
+   "file": "ProbMethods/Chapter06/LatinTransversal.lean",
+   "decl": "PMC.exists_latin_transversal",
+   "doc": "local-lemma.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "lopsided_symmetric",
+    "pair_probability"
+   ],
+   "proof_uses": [],
+   "note": "THEOREM 6.5.11 (Erdos-Spencer 1991), the original application of the lopsided local lemma: an n x n array whose every entry appears at most m times with 4em <= n has a Latin transversal. The negative-dependence input (Theorem 6.5.5, waiting on task #44) is an EXPLICIT HYPOTHESIS in the shape lovasz_local_lemma_symmetric_lopsided consumes, so the theorem is sorry-free and independent of exists_perm_extend's sorry. Proved here: the degree count #N(p) <= 4n(m-1) by covering the neighbourhood with a biUnion over p's four lines, and the arithmetic e(4n(m-1)+2) <= n(n-1). Each unordered bad pair must be ONE index -- ordered pairs double the degree and the constant does not survive that. Spot-checked on the cyclic Latin square of order 3: 9 bad pairs, max degree 9, bound 24."
   }
  }
 }
