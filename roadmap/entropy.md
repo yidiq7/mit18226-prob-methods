@@ -222,10 +222,32 @@ distribution and not the function is the content.
 Checked numerically on `Fin 3`: uniform over the three ranks with two orders each, and on the
 proper subset `{0,2}`, two ranks with three orders each.
 
-**What remains for Theorem 10.2.1**: (a) conditional entropy bounded by the expected log of
-the conditional support, (b) the chain rule along an arbitrary order — as a telescoping sum of
-`PMC.tupleEntropy` increments, which avoids conditional entropy altogether — and (c) the
-assembly, where `PMC.wentropy_uniform_of_injective` turns `H(σ)` back into `log (per A)`.
+### The other two entropy inputs are proved
+
+* `PMC.wcondEntropy_le_sum_log_card` (`CondSupport.lean`) — **conditional entropy is at most
+  the expected log of the conditional support**: if `Y ω ∈ T (X ω)` always, then
+  `H(Y | X) ≤ ∑_b P(X = b) log #(T b)`. This is the step that turns entropy back into
+  counting; in the application `T b` is the set of columns still free for a row once the
+  earlier rows are known. It rests on `PMC.sum_negMulLog_le_log_card`, the same fact stated
+  for a bare *distribution* — which is what makes it reusable here, since a conditional
+  distribution is a `PMC.wcondDist` with no underlying map to speak of. Fibres of probability
+  zero contribute nothing to either side, so there is no side condition.
+
+* `PMC.tupleEntropy_univ_eq_sum_predSet` (`OrderChain.lean`) — **the chain rule along an
+  arbitrary order**: for every permutation `τ`,
+  `H(X_univ) = ∑ᵢ H(Xᵢ | X_{predecessors of i})`. A telescoping sum over the prefixes of `τ`
+  (`Finset.sum_range_sub`), reindexed by `τ.symm`, on top of `PMC.tupleEntropy_insert`
+  (adding one coordinate to a mask adds exactly that coordinate's conditional entropy).
+
+That identity holding for *every* order is the structural half of Radhakrishnan's proof; the
+probabilistic half is averaging over a random one.
+
+**What remains for Theorem 10.2.1** is the assembly: take `σ` uniform on the permutations
+compatible with the matrix, so `PMC.wentropy_uniform_of_injective` gives
+`H(σ) = log (per A)`; apply the order chain rule for each fixed `τ`; bound each conditional
+term by `PMC.wcondEntropy_le_sum_log_card` with `T` the free columns; then average over `τ`
+and use `PMC.wmean_log_tauRank` for the per-row `log (dᵢ!)/dᵢ`, exchanging the two
+expectations with `Finset.sum_comm`.
 
 * **§10.2** — Theorem 10.2.1 (Brégman–Minc): `per A ≤ ∏ (dᵢ!)^{1/dᵢ}` for a 0–1 matrix with
   row sums `dᵢ`. **Harder than anything in §10.4**, and worth knowing why before starting:

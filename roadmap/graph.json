@@ -2947,6 +2947,58 @@
    ],
    "proof_uses": [],
    "note": "Bregman-Minc's per-row bound: E[log(rank)] = log(d!)/d, by averaging log k over k = 1..d. The general form wmean_comp_tauRank takes an arbitrary f, since the distribution -- not the function -- is the content."
+  },
+  "dist_entropy_le_log_card": {
+   "kind": "theorem",
+   "parent": "entropyGroup",
+   "file": "ProbMethods/Chapter10/CondSupport.lean",
+   "decl": "PMC.sum_negMulLog_le_log_card",
+   "doc": "entropy.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [],
+   "proof_uses": [],
+   "note": "A probability vector supported in a finite set T has entropy at most log #T. Stated for a bare DISTRIBUTION rather than a random variable, which is what makes it reusable for conditional distributions -- there the 'random variable' is wcondDist and there is no underlying map to speak of. Generalises 10.1's wentropy_le_log_card_image."
+  },
+  "cond_entropy_le_expected_log": {
+   "kind": "theorem",
+   "parent": "entropyGroup",
+   "file": "ProbMethods/Chapter10/CondSupport.lean",
+   "decl": "PMC.wcondEntropy_le_sum_log_card",
+   "doc": "entropy.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "dist_entropy_le_log_card"
+   ],
+   "proof_uses": [],
+   "note": "Conditional entropy is at most the EXPECTED LOG of the conditional support: if Y is always in T(X), then H(Y|X) <= sum_b P(X=b) log #(T b). This is the step of Bregman-Minc that turns entropy back into counting -- in the application T b is the set of columns still free for a row once the earlier rows are known. Fibres of probability zero contribute nothing to either side, so no side condition is needed."
+  },
+  "tuple_entropy_insert": {
+   "kind": "theorem",
+   "parent": "entropyGroup",
+   "file": "ProbMethods/Chapter10/OrderChain.lean",
+   "decl": "PMC.tupleEntropy_insert",
+   "doc": "entropy.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [],
+   "proof_uses": [],
+   "note": "Extending a mask by one coordinate adds exactly that coordinate's conditional entropy. The pair (masked P, X i) and the mask of insert i P have value types with no bijection between them, so this goes through wentropy_congr, which only asks the two maps to invert each other along the ranges -- the same reason wentropy_masked_pair needed it."
+  },
+  "order_chain_rule": {
+   "kind": "theorem",
+   "parent": "entropyGroup",
+   "file": "ProbMethods/Chapter10/OrderChain.lean",
+   "decl": "PMC.tupleEntropy_univ_eq_sum_predSet",
+   "doc": "entropy.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "tuple_entropy_insert"
+   ],
+   "proof_uses": [],
+   "note": "The chain rule ALONG AN ARBITRARY ORDER: for every permutation tau of the coordinates, H(X_univ) = sum_i H(X_i | X_{predecessors of i under tau}). A telescoping sum over the prefixes of tau (Finset.sum_range_sub), reindexed by tau.symm. This is the structural half of Radhakrishnan's proof of Bregman-Minc: the identity holds for EVERY order, and the argument then averages the resulting bounds over a uniformly random one."
   }
  }
 }
