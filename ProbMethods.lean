@@ -18,6 +18,7 @@ import ProbMethods.Chapter02.UnbalancingLights
 import ProbMethods.Chapter02.Sampling
 import ProbMethods.Chapter03.Dominating
 import ProbMethods.Chapter03.GirthChromatic
+import ProbMethods.Chapter03.GreedyColoring
 import ProbMethods.Chapter04.FirstMoment
 import ProbMethods.Chapter04.SecondMoment
 import ProbMethods.Chapter04.Threshold

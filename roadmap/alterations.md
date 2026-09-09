@@ -106,16 +106,65 @@ Checked numerically before committing: at `(k,ℓ) = (1,1), (2,2), (3,3)` all th
 hypotheses hold with large slack (`n ≈ 10^17, 10^46, 10^97`). The parameters are astronomical,
 as they are in the notes' proof — the theorem is an existence statement.
 
-## Random greedy colouring (§3.5) — not yet stated
+## Random greedy colouring (§3.5) — proved
 
-Theorem 3.5.1 (Radhakrishnan–Srinivasan 2000): there is a constant `c > 0` such that every
-`k`-uniform hypergraph with at most `c * sqrt (k / log k) * 2 ^ k` edges is 2-colourable.
-This strengthens `property_b_lower` (§1.3), which is proved.
+`PMC.twoColorable_of_card_le`: every `k`-uniform hypergraph with at most
+`(1/4) · 2^k · √(k / log k)` edges is 2-colourable (Radhakrishnan–Srinivasan 2000, by the
+argument of Cherkashin–Kozik 2015). **The constant is explicit**; the notes leave it
+existential, and say the small `k` "can be handled exceptionally by later reducing the
+constant `c`" — here `k = 2` falls to §1.3's `2^{k-1}` bound, which the hypothesis already
+implies at `k = 2`.
 
-The constant is existential, so the statement is expressible. The proof maps each vertex
-independently and uniformly into `[0, 1]` and splits the interval into `L`, `M`, `R` — a
-continuous construction, and unlike §3.1 the weights are not a finite Bernoulli product
-over subsets, since the ordering induced on the vertices is what carries the argument. A
-discretisation (random ordering plus a random three-way split of the positions) looks
-workable and would keep it finite, but that is a reformulation to design rather than a
-proof to write, so it is not stated yet.
+This entry previously said the proof "maps each vertex independently and uniformly into
+`[0,1]`… a continuous construction", and that a discretisation "is a reformulation to design
+rather than a proof to write". The reformulation is small, and two changes made it so.
+
+**Levels instead of the unit interval.** Vertices get independent uniform values in `Fin (32k)`,
+so all three events are *product* events over disjoint coordinate blocks and the entire
+probabilistic input is `PMC.wprob_unifProd_forall`, already in `ProbMethods/Product.lean`:
+
+* an edge inside `L` or `R` — `(lo/N)^k` and `((N-hi)/N)^k` (`PMC.wprob_lowEvent`,
+  `PMC.wprob_highEvent`);
+* a conflict whose shared vertex sits at level `j` — the blocks `{v}`, `e \ {v}` and `f \ e` are
+  disjoint when `e ∩ f = {v}`, so the probability is exactly
+  `(1/N)·((j+1)/N)^{k-1}·((N-j)/N)^{k-1}` (`PMC.wprob_confEvent`). The notes' Beta integral
+  `∫_M x^{k-1}(1-x)^{k-1}` is the `N → ∞` limit of the sum of these; the discrete version needs
+  only `4(j+1)(N-j) ≤ (N+1)²`, i.e. AM–GM.
+
+Conflicts can only come from pairs meeting in *exactly one* vertex — a second shared vertex
+would have to lie both before and after the first (`PMC.inter_eq_singleton_of_conflict`) — which
+is why the union bound runs over `≤ m²` pairs.
+
+**A middle block that does not depend on `m`.** The notes minimise over `p` and land on
+`p = log(2^{k-1}k/m)/k`. Taking
+
+    p = log k / (2k)
+
+instead, both conditions hold with room to spare: writing `u = m 2^{1-k}`,
+
+    u(1-p)^k < u e^{-pk} = u/√k ≤ 1/(2√(log k)) ≤ 1/2,   u²p ≤ (k/(4 log k))·(log k/(2k)) = 1/8.
+
+`N = 32k` is then large enough that rounding `p` to a multiple of `1/N` and the factor
+`(1+1/N)^{2(k-1)} ≤ 2` both stay inside that room, so every estimate is an inequality between
+explicit rationals and `log k`.
+
+### pluhar_coloring — the deterministic half, without the recursion
+
+`PMC.exists_bichromatic_of_no_conflict`. The notes colour greedily from left to right, which as
+a *definition* makes the colour of `v` depend on every earlier vertex. That recursion is not
+needed. Colour `v` **red exactly when `v` is the last vertex of some edge** — non-recursive, and
+the same two lines prove it works:
+
+* no edge is all blue: an edge's own last vertex is red;
+* no edge is all red: its *first* vertex `v` is red, so `v` ends some edge `f`, and
+  `last(f) = v = first(e)` is a conflict.
+
+Ties among vertex values are broken by the vertex index (`PMC.vkey`, the lexicographic key),
+which is what makes the induced order total so that every nonempty edge has a first and a last
+vertex — `Finset.exists_max_image` and `exists_min_image` then supply them.
+
+Checked numerically before committing, at `k = 3, 4, 5, 6, 8, 12, 20, 40, 100, 400` with
+`m = ⌊(1/4)2^k√(k/log k)⌋`: the two block terms total `0.20–0.40` and the conflict term
+`0.11–0.14`, so the union bound lands at `0.33–0.51` against the required `< 1` — comfortable
+at every `k`, and the slack grows with `k`.
+

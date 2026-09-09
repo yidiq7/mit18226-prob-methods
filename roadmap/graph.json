@@ -4772,6 +4772,36 @@
     "chromatic_vs_indep"
    ],
    "note": "THEOREM 3.4.1 (Erdos 1959): for all k, l a finite graph with girth > l and chromatic number > k. Two design choices carried it. (1) The deterministic heart is support_mem_badSets: a cycle of length <= l has a vertex set t with 3 <= #t <= l spanning at least #t edges. Replacing 'carries a short cycle' by that plain EDGE COUNT is what lets the first moment method reach it -- no cyclic orderings, no Fin-modular index arithmetic, and the probabilistic side never mentions walks. (2) The parameters are explicit: with L = l+1, M = 4L-2 and r > max(6k, 4L 2^{L^2}), take n = r^{M+2}, p = r^{-M}, x = 3 r^{M+1}. Then n^j p^j = r^{2j} <= r^{2L} for every j <= L, and p C(x,2) >= p x^2/4 = (9/4) n, so the independent-set bound 2^n e^{-(9/4)n} < 1/2 holds for EVERY r since 9/4 > log 2. The notes take p = (log n)^2/n and argue asymptotically; powers of r turn every estimate into an exponent comparison, with no o(1) and no logarithm beyond log 2 < 0.694. Stated with egirth (the ENat girth), since girth = 0 for an acyclic graph would additionally demand the graph HAVE a cycle."
+  },
+  "pluhar_coloring": {
+   "kind": "lemma",
+   "parent": "alterationsGroup",
+   "file": "ProbMethods/Chapter03/GreedyColoring.lean",
+   "decl": "PMC.exists_bichromatic_of_no_conflict",
+   "doc": "alterations.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [],
+   "proof_uses": [],
+   "note": "PLUHAR'S OBSERVATION, and the choice that avoids a recursion. The notes colour greedily from left to right -- blue unless that completes a blue edge -- which as a definition needs the value at v to depend on every earlier vertex. Not needed: colour v RED exactly when v is the last vertex of some edge. Non-recursive, and the same two lines prove it: no edge is all blue (its own last vertex is red), and no edge is all red (its FIRST vertex ends some edge f, so last(f) = first(e) is a conflict). Ties in the vertex values are broken by the vertex index (PMC.vkey), which is what makes the induced order total so that every edge has a first and a last."
+  },
+  "greedy_coloring": {
+   "kind": "theorem",
+   "parent": "alterationsGroup",
+   "file": "ProbMethods/Chapter03/GreedyColoring.lean",
+   "decl": "PMC.twoColorable_of_card_le",
+   "doc": "alterations.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "pluhar_coloring",
+    "property_b_lower"
+   ],
+   "proof_uses": [
+    "pluhar_coloring",
+    "property_b_lower"
+   ],
+   "note": "THEOREM 3.5.1 (Radhakrishnan-Srinivasan 2000, proof of Cherkashin-Kozik 2015), with an EXPLICIT constant: every k-uniform hypergraph with at most (1/4) 2^k sqrt(k / log k) edges is 2-colourable. The notes map the vertices into [0,1] and integrate a Beta density; the model here is finitely many LEVELS (Fin (32k)) with vertices independent and uniform, so the three events are product events and the whole probabilistic input is PMC.wprob_unifProd_forall. Second departure: the notes optimise the middle-block width p = log(2^{k-1}k/m)/k, which depends on the number of edges; taking p = log k/(2k) instead is independent of m and both conditions still hold with room -- u(1-p)^k < u e^{-pk} = u/sqrt k <= 1/2 and u^2 p <= 1/8 where u = m 2^{1-k}. k = 2 falls to section 1.3's 2^{k-1} bound, which the hypothesis already implies there."
   }
  }
 }
