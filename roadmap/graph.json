@@ -5266,7 +5266,7 @@
    "doc": "second-moment.md",
    "statement": "formalized",
    "proof": "planned",
-   "origin": "orchestrator",
+   "origin": "task:61",
    "uses": [
     "bollobas_thomason",
     "threshold_strictmono"
