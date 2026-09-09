@@ -4727,6 +4727,22 @@
    "uses": [],
    "proof_uses": [],
    "note": "LEMMA 6.2.7, the compactness argument in the variable model, in the generality the notes state it: variables with finitely many choices each, possibly infinitely many events, each depending on a finite set of variables; avoiding every finite subset of events implies avoiding all of them. Tychonoff on prod C i (discrete finite factors) plus the directed-intersection lemma. What makes each bad set CLOPEN is that bad j factors through the restriction to dep j, whose codomain is finite discrete -- which is exactly why Remark 6.2.8's warning bites without the variable model. PMC.exists_two_coloring_of_finite (the compactness step of 6.2.6) is the C i = Bool case and is re-derived from it as PMC.exists_two_coloring_of_avoid."
+  },
+  "ramsey_lll": {
+   "kind": "theorem",
+   "parent": "introGroup",
+   "file": "ProbMethods/Chapter01/RamseyLLL.lean",
+   "decl": "PMC.not_ramseyProp_of_lll",
+   "doc": "introduction.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "lll_product"
+   ],
+   "proof_uses": [
+    "lll_product"
+   ],
+   "note": "THEOREM 1.1.9 (Spencer 1977): if e(C(k,2)C(n,k-2)+1)2^{1-C(k,2)} <= 1 then R(k,k) > n. Theorem 1.1.8 (exists_avoiding_of_lll) on the uniform random 2-colouring, one bad event per k-subset. Coordinates are ALL subsets of Fin n, not just the 2-element ones -- the extra coordinates are independent and no event depends on them, and S.powersetCard 2 then gives the edges inside S with card_powersetCard supplying C(k,2) for free. The dependency count needs NO canonical choice of the two shared vertices: S' |-> (T, S' minus T) is injective for ANY 2-subset T of S cap S', because T subset S' makes S' recoverable. n < k is separated off since d = C(k,2)C(n,k-2) can vanish there. Checked numerically: the bound overtakes the union-bound Theorem 1.1.2 at k = 11 and the ratio of admissible n tends to sqrt 2, which is Spencer's factor-2 improvement in the constant."
   }
  }
 }

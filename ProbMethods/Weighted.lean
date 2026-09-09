@@ -226,7 +226,7 @@ theorem wchebyshev' (w : Ω → ℝ) (X : Ω → ℝ) (hw : ∀ ω, 0 ≤ w ω) 
     rw [← add_mul, hsplit]
   linarith
 
-/-- **Markov's inequality** over a finite weighted space.
+/-- **Markov's inequality** over a finite weighted space (Zhao, Theorem 3.3.1).
 
 The total weight of the points where a nonnegative `X` reaches `a` is at most
 `wmean w X / a`. Stated multiplicatively. Mathlib's Markov is `MeasureTheory`-only. -/

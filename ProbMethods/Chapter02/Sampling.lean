@@ -62,13 +62,12 @@ section BaseCase
 
 variable {n : ℕ}
 
-/-- **The base case.** On five vertices a tetrahedron-free 3-graph has at most `7` of the
-`10` triples.
+/-- **Lemma 2.4.3 (the base case).** On five vertices a tetrahedron-free 3-graph has at most
+`7` of the `10` triples — the base case of Proposition 2.4.4, and exactly tight.
 
 Counting incidences between the `5` four-subsets and the triples *missing* from `H`: every
 four-subset must miss at least one of its own triples, or it would be a tetrahedron, and
 every missing triple lies in exactly `2` four-subsets. So `2 * #M ≥ 5`, hence `#M ≥ 3`. -/
--- Zhao, Lemma 2.4.3: the base case of Proposition 2.4.4, and exactly tight.
 private lemma card_le_seven_of_card_eq_five (H : Finset (Finset (Fin n)))
     (hH : IsThreeGraph H) (hfree : ¬ HasTetrahedron H) {S : Finset (Fin n)} (hS : #S = 5) :
     #{T ∈ H | T ⊆ S} ≤ 7 := by
