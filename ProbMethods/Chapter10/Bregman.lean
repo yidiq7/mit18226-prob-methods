@@ -333,6 +333,64 @@ theorem card_matchSet_le_prod :
     exact log_card_matchSet_le_sum_log_factorial row
 
 
+/-! ### Corollary 10.2.2 for bipartite graphs
+
+The notes' Corollary 10.2.2 (Kahn–Lovász) is `pm(G) ≤ ∏_v (d_v!)^{1/(2d_v)}` over *all*
+vertices. For a bipartite graph it follows from Brégman applied to each side in turn, which
+is what is proved here. The non-bipartite case is not: it needs `pm(G ⊔ G) ≤ pm(G × K₂)`,
+which the notes leave as an exercise and which is the actual content of Kahn–Lovász.
+
+Applying Brégman to the other side needs the permanent to be transpose-invariant, and that is
+the inversion `σ ↦ σ⁻¹`. -/
+
+/-- The rows meeting column `j` — the transpose of `row`. -/
+def colOf (row : Fin n → Finset (Fin n)) (j : Fin n) : Finset (Fin n) :=
+  (univ : Finset (Fin n)).filter fun i => j ∈ row i
+
+/-- **The permanent is transpose-invariant**, by `σ ↦ σ⁻¹`. -/
+theorem card_matchSet_colOf : #(matchSet (colOf row)) = #(matchSet row) := by
+  refine Finset.card_bij' (fun σ _ => σ⁻¹) (fun σ _ => σ⁻¹) ?_ ?_ ?_ ?_
+  · intro σ hσ
+    rw [mem_matchSet] at hσ ⊢
+    intro i
+    have h := hσ (σ⁻¹ i)
+    rw [colOf, mem_filter] at h
+    have hsi : σ (σ⁻¹ i) = i := by simp
+    rw [hsi] at h
+    exact h.2
+  · intro σ hσ
+    rw [mem_matchSet] at hσ ⊢
+    intro j
+    rw [colOf, mem_filter]
+    refine ⟨mem_univ _, ?_⟩
+    have h := hσ (σ⁻¹ j)
+    have hsj : σ (σ⁻¹ j) = j := by simp
+    rw [hsj] at h
+    exact h
+  · intro σ _
+    exact inv_inv σ
+  · intro σ _
+    exact inv_inv σ
+
+/-- **Corollary 10.2.2 for bipartite graphs.** The number of perfect matchings satisfies
+
+    pm(G)² ≤ ∏_{x ∈ X} (d_x!)^{1/d_x} · ∏_{y ∈ Y} (d_y!)^{1/d_y},
+
+i.e. `pm(G) ≤ ∏_{v} (d_v!)^{1/(2d_v)}` over all `2n` vertices. Brégman on each side. -/
+theorem card_matchSet_sq_le_prod :
+    (#(matchSet row) : ℝ) ^ 2
+      ≤ (∏ i : Fin n, (Nat.factorial #(row i) : ℝ) ^ (1 / (#(row i) : ℝ)))
+        * ∏ j : Fin n, (Nat.factorial #(colOf row j) : ℝ) ^ (1 / (#(colOf row j) : ℝ)) := by
+  have h1 := card_matchSet_le_prod row
+  have h2 := card_matchSet_le_prod (colOf row)
+  rw [card_matchSet_colOf row] at h2
+  have hnn : (0 : ℝ) ≤ #(matchSet row) := Nat.cast_nonneg _
+  calc (#(matchSet row) : ℝ) ^ 2 = (#(matchSet row) : ℝ) * #(matchSet row) := by ring
+    _ ≤ (∏ i : Fin n, (Nat.factorial #(row i) : ℝ) ^ (1 / (#(row i) : ℝ)))
+          * ∏ j : Fin n, (Nat.factorial #(colOf row j) : ℝ) ^ (1 / (#(colOf row j) : ℝ)) :=
+        mul_le_mul h1 h2 hnn (Finset.prod_nonneg fun i _ => Real.rpow_nonneg (by positivity) _)
+
+
 end Bregman
 
 end PMC

@@ -3084,6 +3084,35 @@
    ],
    "proof_uses": [],
    "note": "The log form of Bregman-Minc: log(per A) <= sum_i log(d_i!)/d_i. The two expectations are exchanged by Finset.sum_comm -- the bound holds for each order, and for each matching the rank is uniform as the order varies. THE KEY POINT of the whole proof: bounding each conditional entropy by log d_i (the naive worst case) would be too lossy; revealing in a random order replaces log d_i by the average of log 1, ..., log d_i."
+  },
+  "perm_transpose": {
+   "kind": "theorem",
+   "parent": "entropyGroup",
+   "file": "ProbMethods/Chapter10/Bregman.lean",
+   "decl": "PMC.card_matchSet_colOf",
+   "doc": "entropy.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "matchSet"
+   ],
+   "proof_uses": [],
+   "note": "The permanent is transpose-invariant, by sigma -> sigma inverse. Needed to apply Bregman to the OTHER side of a bipartite graph. Checked on an asymmetric example (rows {0,1},{0} on Fin 2, columns of sizes 2 and 1, permanent 1 both ways)."
+  },
+  "kahn_lovasz_bipartite": {
+   "kind": "theorem",
+   "parent": "entropyGroup",
+   "file": "ProbMethods/Chapter10/Bregman.lean",
+   "decl": "PMC.card_matchSet_sq_le_prod",
+   "doc": "entropy.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "bregman",
+    "perm_transpose"
+   ],
+   "proof_uses": [],
+   "note": "Corollary 10.2.2 (Kahn-Lovasz) FOR BIPARTITE GRAPHS: pm(G)^2 <= prod over X of (d_x!)^(1/d_x) times prod over Y of (d_y!)^(1/d_y), i.e. pm(G) <= prod over all 2n vertices of (d_v!)^(1/(2 d_v)). Bregman applied to each side in turn. The NON-bipartite case is not this: it needs pm(G + G) <= pm(G x K_2), which the notes leave as an exercise and which is the actual content of Kahn-Lovasz -- so only the bipartite case is claimed here."
   }
  }
 }

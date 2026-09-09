@@ -272,8 +272,18 @@ constant is right, since a mis-stated exponent would break them: the all-ones `3
 block-diagonal matrix has `per = 2 = (2!)^{1/2}(2!)^{1/2}·1`. A strict case was checked too
 (rows `{0,1}, {0}` on `Fin 2`: `per = 1 < √2`).
 
-Next in §10.2: Corollary 10.2.2 (Kahn–Lovász), `pm(G) ≤ ∏_v (d_v!)^{1/(2d_v)}`, which
-Alon–Friedland derive from Brégman by passing to the bipartite double cover.
+### Corollary 10.2.2, bipartite case — proved
+
+`PMC.card_matchSet_sq_le_prod`: for a bipartite graph,
+`pm(G)² ≤ ∏_{x ∈ X} (d_x!)^{1/d_x} · ∏_{y ∈ Y} (d_y!)^{1/d_y}`, i.e.
+`pm(G) ≤ ∏_v (d_v!)^{1/(2d_v)}` over all `2n` vertices. Brégman applied to each side in
+turn, which needs the permanent to be transpose-invariant — that is the inversion `σ ↦ σ⁻¹`
+(`PMC.card_matchSet_colOf`, checked on an asymmetric example).
+
+**Only the bipartite case is claimed, and that is deliberate.** The notes derive the general
+statement from `pm(G ⊔ G) ≤ pm(G × K₂)`, which they leave as an exercise — and that
+inequality, not the appeal to Brégman, is the actual content of Kahn–Lovász. Formalizing the
+general case means proving that exercise, which is a separate combinatorial project.
 
 <!-- superseded plan -->
 **The former plan for Theorem 10.2.1** was: take `σ` uniform on the permutations
