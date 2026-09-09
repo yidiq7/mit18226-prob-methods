@@ -223,8 +223,15 @@ Three things, in the notes' own order:
      since the `LinearOrder` hypothesis is gone;
   2. **done**: `PMC.card_within` gives `#(edges inside S) = C(#S,2)`, so
      `#(A_S) = C(a,2) + C(b,2)` follows by disjointness of the two blocks;
-  3. the covering multiplicity, a direct binomial count (above) — still to do;
-  4. the double-count identity `k · C(n,2) = r · C(n,⌊n/2⌋)` — still to do;
+  3. **done**: `PMC.card_blocks_containing` — for a fixed edge, the number of `m`-sets
+     putting both endpoints on the same side is `C(n-2,m-2) + C(n-2,m)`, a direct count with
+     no symmetry argument. Note `2 ≤ m` is required and not cosmetic: at `m = 0` the
+     truncated `m - 2` makes the first term `C(n-2,0) = 1` while no `0`-set contains both
+     endpoints;
+  4. the double-count identity `k · C(n,2) = r · C(n,⌊n/2⌋)` — still to do. Note both sides
+     are now *available* as proved quantities: `r` from `PMC.card_within` and `k` from
+     `PMC.card_blocks_containing`, so this is `Finset.sum_comm` over the pairs
+     `(edge, S)` with the edge inside a part of `S`;
   5. **done**: `r ≤ C(n,2)/2` is `PMC.two_mul_choose_two_add_le`, resting on
      `PMC.two_mul_choose_two`;
   6. the exponent arithmetic — still to do.
@@ -306,8 +313,15 @@ Three things, in the notes' own order:
      since the `LinearOrder` hypothesis is gone;
   2. **done**: `PMC.card_within` gives `#(edges inside S) = C(#S,2)`, so
      `#(A_S) = C(a,2) + C(b,2)` follows by disjointness of the two blocks;
-  3. the covering multiplicity, a direct binomial count (above) — still to do;
-  4. the double-count identity `k · C(n,2) = r · C(n,⌊n/2⌋)` — still to do;
+  3. **done**: `PMC.card_blocks_containing` — for a fixed edge, the number of `m`-sets
+     putting both endpoints on the same side is `C(n-2,m-2) + C(n-2,m)`, a direct count with
+     no symmetry argument. Note `2 ≤ m` is required and not cosmetic: at `m = 0` the
+     truncated `m - 2` makes the first term `C(n-2,0) = 1` while no `0`-set contains both
+     endpoints;
+  4. the double-count identity `k · C(n,2) = r · C(n,⌊n/2⌋)` — still to do. Note both sides
+     are now *available* as proved quantities: `r` from `PMC.card_within` and `k` from
+     `PMC.card_blocks_containing`, so this is `Finset.sum_comm` over the pairs
+     `(edge, S)` with the edge inside a part of `S`;
   5. **done**: `r ≤ C(n,2)/2` is `PMC.two_mul_choose_two_add_le`, resting on
      `PMC.two_mul_choose_two`;
   6. the exponent arithmetic — still to do.
