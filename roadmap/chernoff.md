@@ -56,6 +56,29 @@ unlike everything else in Chapters 1–5. Formalizing it means either `MeasureTh
 restating it for finitely-supported variables. This is the first place where the finite
 approach genuinely runs out, as opposed to merely needing more work.
 
+## Corollary 5.0.6 — proved
+
+`ProbMethods/Chapter05/HoeffdingBernoulli.lean`. For a sum of independent Bernoullis with mean
+`μ`, both tails:
+
+    P(X ≥ μ + t) ≤ exp(-2t²/n),   P(X ≤ μ - t) ≤ exp(-2t²/n),
+
+and the notes' form `P(X ≥ μ + λ√n) ≤ e^{-λ²/2}` as the instance `t = λ√n` (the sharp bound
+gives `e^{-2λ²}`).
+
+The engine is **Hoeffding's lemma at a single Bernoulli**, `PMC.bernoulli_mgf_le`:
+`p e^λ + (1-p) ≤ exp(λp + λ²/8)`, which is `PMC.wmean_exp_le_of_mem_Icc` — task #47, now proved
+through the measure bridge — on the two-point space. Multiplying over coordinates uses
+`PMC.sum_pweight_mul_exp`, the *exact* moment generating function already proved for Theorem
+5.0.7, so the argument is: exact MGF, coordinatewise Hoeffding, Markov, optimise `λ = 4t/n`.
+
+The lower tail is complementation rather than a second argument: `#S ≤ μ - t` says the
+complement sits `t` above *its* mean `n - μ`, and `PMC.pweight_compl` (`pweight (1-p) Sᶜ =
+pweight p S`) carries the weight across.
+
+This is the first result in Chapter 5 that needed the measure bridge, and it is worth noting
+what the bridge bought: 5.0.6 was previously listed as blocked on task #47.
+
 ## Theorem 5.0.7 (Bernoulli, differing probabilities) — proved
 
 `PMC.sum_pweight_upper_tail`, in `ProbMethods/Chapter05/ChernoffBernoulli.lean`. With

@@ -4567,6 +4567,33 @@
    ],
    "proof_uses": [],
    "note": "COROLLARY 9.5.22 plus the median it needs. exists_isMedian builds a median for any real-valued function on a nonempty finite type by counting, not compactness: take the least attained value with half the points below it, and minimality forces half at or above. Then Talagrand's product bound at r = M gives P(f <= M - t) <= 2 exp(-t^2/(4s)), since a median makes the second factor at least 1/2. Kept in a separate file because Talagrand.lean holds task #49's target and is left byte-for-byte as published."
+  },
+  "measure_bridge": {
+   "kind": "theorem",
+   "parent": "weightedGroup",
+   "file": "ProbMethods/MeasureBridge.lean",
+   "decl": "PMC.wmean_eq_integral",
+   "doc": "chernoff.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [],
+   "proof_uses": [],
+   "note": "THE MEASURE BRIDGE: a finite weight packaged as a PMF, with wmean identified with the Bochner integral against its measure. Costs two instances (the discrete sigma-algebra on a finite type and its MeasurableSingletonClass) and nothing else. With it Mathlib's probability library applies to this development: it closed task #47 (Hoeffding's lemma) from hasSubgaussianMGF_of_mem_Icc_of_integral_eq_zero, which in turn made 9.1.1, 9.1.3, 9.1.2, 9.3.1 and 9.4.6 unconditional and unblocked Corollary 5.0.6. Azuma-Hoeffding and the martingale library are now reachable the same way."
+  },
+  "hoeffding_bernoulli": {
+   "kind": "theorem",
+   "parent": "chernoffGroup",
+   "file": "ProbMethods/Chapter05/HoeffdingBernoulli.lean",
+   "decl": "PMC.sum_pweight_ge_sqrt_le",
+   "doc": "chernoff.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "hoeffding_lemma",
+    "chernoff_bernoulli"
+   ],
+   "proof_uses": [],
+   "note": "COROLLARY 5.0.6, both tails: P(X >= mu + t) <= exp(-2t^2/n) and the notes' P(X >= mu + lambda sqrt n) <= e^{-lambda^2/2}. Engine: Hoeffding's lemma at a SINGLE Bernoulli (bernoulli_mgf_le, from wmean_exp_le_of_mem_Icc on the two-point space), multiplied over coordinates against the exact MGF already proved for 5.0.7, then Markov at lambda = 4t/n. The lower tail is complementation, not a second argument: pweight (1-p) of the complement equals pweight p."
   }
  }
 }
