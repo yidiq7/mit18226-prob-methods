@@ -4049,6 +4049,64 @@
    ],
    "proof_uses": [],
    "note": "THEOREM 9.5.21 (Talagrand's inequality for certifiable functions), proved GIVEN Talagrand's inequality as a hypothesis: P(f <= r - t) P(f >= r) <= exp(-t^2/(4s)) for f 1-Lipschitz in Hamming distance with {f >= r} s-certifiable. This is the COMBINATORIAL half of 9.5 and needed no convex geometry -- the normalised indicator of a certificate is already a unit weight vector witnessing d_T(y,A) >= t/sqrt(s), and the rest is counting. It is also the form the section's applications use (longest increasing subsequence, Euclidean TSP). Sorry-free: Talagrand enters as the hypothesis in exactly the form task #49 proves."
+  },
+  "lisLength": {
+   "kind": "definition",
+   "parent": "concentrationGroup",
+   "file": "ProbMethods/Chapter09/LIS.lean",
+   "decl": "PMC.lisLength",
+   "doc": "mathlib-survey.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [],
+   "proof_uses": [],
+   "note": "The length of the longest increasing subsequence, as the sup of the sizes of increasing index sets. Checked on the identity sequence of Fin 3, where it is 3."
+  },
+  "lis_lipschitz": {
+   "kind": "theorem",
+   "parent": "concentrationGroup",
+   "file": "ProbMethods/Chapter09/LIS.lean",
+   "decl": "PMC.hammingLipschitz_lisLength",
+   "doc": "mathlib-survey.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "lisLength",
+    "hammingLipschitz"
+   ],
+   "proof_uses": [],
+   "note": "lisLength is 1-Lipschitz for the Hamming distance. The general bound comes from deleting the disagreeing indices from a witness: what is left is increasing for the other point, so the length drops by at most the number of disagreements."
+  },
+  "lis_certifiable": {
+   "kind": "theorem",
+   "parent": "concentrationGroup",
+   "file": "ProbMethods/Chapter09/LIS.lean",
+   "decl": "PMC.certifiable_lisLength",
+   "doc": "mathlib-survey.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "lisLength",
+    "certifiable"
+   ],
+   "proof_uses": [],
+   "note": "{lis >= k} is k-CERTIFIABLE: k indices of a witnessing subsequence certify it, since any point agreeing there has the same subsequence increasing. This is why s-certifiability is the right hypothesis in 9.5.21 -- it is exactly what 'a witness of size s' means."
+  },
+  "lis_concentration": {
+   "kind": "theorem",
+   "parent": "concentrationGroup",
+   "file": "ProbMethods/Chapter09/LIS.lean",
+   "decl": "PMC.card_mul_card_lisLength_le",
+   "doc": "mathlib-survey.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "talagrand_certifiable",
+    "lis_lipschitz",
+    "lis_certifiable"
+   ],
+   "proof_uses": [],
+   "note": "COROLLARY 9.5.23's CONTENT, given Talagrand: #{x : lis x <= k - t} * #{x : lis x >= k} <= |beta|^(2n) exp(-t^2/(4k)). The notes wrap this in an asymptotic statement about the median (P(|X - MX| <= C n^(1/4)) >= 1 - eps); the inequality itself is finite and is what 9.5.21 delivers directly, so it is what gets stated here."
   }
  }
 }

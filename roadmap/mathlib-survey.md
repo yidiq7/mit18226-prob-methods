@@ -88,8 +88,17 @@ availability of the mathematics. Recorded as upstream in `graph.json`.
   all** — the normalised indicator of a certificate is already a unit weight vector
   witnessing `d_T(y,A) ≥ t/√s` (`PMC.unitWeights_indicator`), and the rest is counting, with
   `PMC.card_disagree_ge` supplying the key step by *splicing* the certificate's coordinates
-  in. It is also the form the section's applications use (longest increasing subsequence,
-  Euclidean TSP), so those become reachable once task #49 lands.
+  in. It is also the form the section's applications use, and **the first of those is done**:
+  `PMC.card_mul_card_lisLength_le` (`Chapter09/LIS.lean`) concentrates the length of the
+  longest increasing subsequence. Corollary 9.5.23 is stated asymptotically in the notes
+  (`P(|X - M X| ≤ Cn^{1/4}) ≥ 1 - ε`), but its content is the finite tail bound, which is what
+  9.5.21 delivers. Both hypotheses hold for clean reasons: deleting the disagreeing indices
+  from a witness gives the Lipschitz bound, and `k` indices of a witnessing subsequence
+  certify `{lis ≥ k}` — which is exactly what "a witness of size `s`" means, and why
+  `s`-certifiability is the right hypothesis.
+
+  §9.6 (Euclidean TSP) remains out of reach: it lives on `[0,1]²`, so it needs continuous
+  measure rather than more combinatorics.
 
   **Why it is worth the trouble**: the bounded differences bound degrades as `exp(-t²/n)`,
   while Talagrand's has no `n` in the exponent at all. The proof is an induction on
