@@ -135,6 +135,50 @@ theorem tupleEntropy_univ_eq_sum_predSet {n : ℕ} {w : Ω → ℝ} (hw : ∀ ω
     _ = ∑ i : Fin n, wcondEntropy w (masked X (predSet τ i)) (X i) :=
         Equiv.sum_comp τ.symm fun i => wcondEntropy w (masked X (predSet τ i)) (X i)
 
+
+/-- **Conditioning on more coordinates reduces entropy**, in masked form:
+`H(X_i | X_T) ≤ H(X_i | X_S)` for `S ⊆ T`.
+
+Submodularity of `S ↦ H(X_S)` read through `PMC.tupleEntropy_insert`, which is the same
+fact stated as a difference of two set-function values. -/
+theorem wcondEntropy_masked_antitone {w : Ω → ℝ} (hw : ∀ ω, 0 ≤ w ω) (hsum : ∑ ω, w ω = 1)
+    (X : ι → Ω → β) {S T : Finset ι} (hST : S ⊆ T) {i : ι} (hi : i ∉ T) :
+    wcondEntropy w (masked X T) (X i) ≤ wcondEntropy w (masked X S) (X i) := by
+  have h1 := tupleEntropy_insert hw hsum X i T hi
+  have h2 := tupleEntropy_insert hw hsum X i S fun h => hi (hST h)
+  have h3 := tupleEntropy_submodular hw hsum X hST i
+  linarith
+
+/-- **Block subadditivity**: revealing a block one coordinate at a time, and forgetting the
+coordinates of the block already revealed,
+
+    H(X_{S ∪ T}) ≤ H(X_S) + ∑_{i ∈ T} H(X_i | X_S).
+
+This is the `H(X_B | X_A) ≤ ∑_{b ∈ B} H(X_b | X_A)` step of Kahn–Zhao (Theorem 10.4.12),
+combined with the chain rule that produces `H(X_B | X_A)` in the first place. -/
+theorem tupleEntropy_union_le {w : Ω → ℝ} (hw : ∀ ω, 0 ≤ w ω) (hsum : ∑ ω, w ω = 1)
+    (X : ι → Ω → β) (S : Finset ι) :
+    ∀ T : Finset ι, Disjoint S T →
+      tupleEntropy w X (S ∪ T)
+        ≤ tupleEntropy w X S + ∑ i ∈ T, wcondEntropy w (masked X S) (X i) := by
+  classical
+  intro T
+  induction T using Finset.induction_on with
+  | empty => intro _; simp
+  | @insert i T' hi ih =>
+    intro hdisj
+    have hiS : i ∉ S := fun h => (Finset.disjoint_left.mp hdisj h) (Finset.mem_insert_self i T')
+    have hdisj' : Disjoint S T' := hdisj.mono_right (Finset.subset_insert i T')
+    have hiU : i ∉ S ∪ T' := by
+      rw [Finset.mem_union]
+      exact fun h => h.elim hiS hi
+    have hstep := tupleEntropy_insert hw hsum X i (S ∪ T') hiU
+    have hdrop := wcondEntropy_masked_antitone hw hsum X (Finset.subset_union_left
+      (s₂ := T')) hiU
+    have hih := ih hdisj'
+    rw [Finset.union_insert, hstep, Finset.sum_insert hi]
+    linarith
+
 end OrderChain
 
 end PMC

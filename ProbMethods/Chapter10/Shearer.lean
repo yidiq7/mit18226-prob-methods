@@ -102,7 +102,7 @@ private theorem shearer_of_submodular_aux (hempty : f ∅ = 0)
     (hsub : ∀ {T T' : Finset ι}, T ⊆ T' → ∀ i,
       f (insert i T') - f T' ≤ f (insert i T) - f T)
     {κ : Type*} [DecidableEq κ] (F : Finset κ) (A : κ → Finset ι) (k : ℕ)
-    (hcov : ∀ i : ι, k ≤ #(F.filter fun j => i ∈ A j)) :
+    (hcov : ∀ i : ι, k ≤ #(F.filter fun j => i ∈ A j) ∨ ∀ T : Finset ι, f (insert i T) = f T) :
     (k : ℝ) * f univ ≤ ∑ j ∈ F, f (A j) := by
   classical
   have hswap : ∑ j ∈ F, ∑ i ∈ A j, gain f i
@@ -119,8 +119,11 @@ private theorem shearer_of_submodular_aux (hempty : f ∅ = 0)
   calc (k : ℝ) * f univ = (k : ℝ) * ∑ i : ι, gain f i := by rw [sum_gain_eq f hempty]
     _ = ∑ i : ι, (k : ℝ) * gain f i := Finset.mul_sum ..
     _ ≤ ∑ i : ι, (#(F.filter fun j => i ∈ A j) : ℝ) * gain f i :=
-        Finset.sum_le_sum fun i _ =>
-          mul_le_mul_of_nonneg_right (by exact_mod_cast hcov i) (gain_nonneg f hmono i)
+        Finset.sum_le_sum fun i _ => by
+          rcases hcov i with h | h
+          · exact mul_le_mul_of_nonneg_right (by exact_mod_cast h) (gain_nonneg f hmono i)
+          · rw [show gain f i = 0 from by rw [gain, h (prefixLt i), sub_self]]
+            simp
     _ = ∑ j ∈ F, ∑ i ∈ A j, gain f i := hswap.symm
     _ ≤ ∑ j ∈ F, f (A j) := Finset.sum_le_sum fun j _ => sum_gain_le f hempty hsub (A j)
 
@@ -155,6 +158,25 @@ theorem shearer_of_submodular (hempty : f ∅ = 0)
   let lo : LinearOrder ι := LinearOrder.lift' e e.injective
   have hDE : inst = @LinearOrder.toDecidableEq ι lo := Subsingleton.elim _ _
   subst hDE
+  exact shearer_of_submodular_aux f hempty hmono hsub F A k fun i => Or.inl (hcov i)
+
+/-- **Shearer's lemma with null coordinates allowed.**
+
+The covering hypothesis only has to hold at the coordinates that `f` can actually see: a
+coordinate `i` whose addition never changes `f` needs no cover at all. This is what lets a
+Shearer bound be applied to a *sub-tuple* — see `PMC.shearer_subset` — where the coordinates
+outside the sub-tuple are invisible to the set function and are covered zero times. -/
+theorem shearer_of_submodular_null (hempty : f ∅ = 0)
+    (hmono : ∀ {S T : Finset ι}, S ⊆ T → f S ≤ f T)
+    (hsub : ∀ {T T' : Finset ι}, T ⊆ T' → ∀ i,
+      f (insert i T') - f T' ≤ f (insert i T) - f T)
+    {κ : Type*} [DecidableEq κ] (F : Finset κ) (A : κ → Finset ι) (k : ℕ)
+    (hcov : ∀ i : ι, k ≤ #(F.filter fun j => i ∈ A j) ∨ ∀ T : Finset ι, f (insert i T) = f T) :
+    (k : ℝ) * f univ ≤ ∑ j ∈ F, f (A j) := by
+  refine Trunc.induction_on (Fintype.truncEquivFin ι) fun e => ?_
+  let lo : LinearOrder ι := LinearOrder.lift' e e.injective
+  have hDE : inst = @LinearOrder.toDecidableEq ι lo := Subsingleton.elim _ _
+  subst hDE
   exact shearer_of_submodular_aux f hempty hmono hsub F A k hcov
 
 end SubmodularNoOrder
@@ -175,5 +197,41 @@ theorem shearer {Ω : Type*} [Fintype Ω] [DecidableEq Ω] {β : Type*} [Fintype
   shearer_of_submodular (tupleEntropy w X) (tupleEntropy_empty hsum X)
     (fun h => tupleEntropy_mono hw X h)
     (fun h i => tupleEntropy_submodular hw hsum X h i) F A k hcov
+
+/-- **Shearer's lemma for a sub-tuple** (the form Kahn–Zhao's proof uses).
+
+Shearer applied to the coordinates in `S` alone: if the sets `A j` all lie inside `S` and
+every coordinate *of `S`* is covered at least `k` times, then `k · H(X_S) ≤ ∑_j H(X_{A j})`.
+The coordinates outside `S` need no cover, because the set function `T ↦ H(X_{T ∩ S})` does
+not see them — `PMC.shearer_of_submodular_null` is exactly that allowance.
+
+The bipartite Kahn–Zhao bound needs this: it covers one side `A` of the bipartition by the
+neighbourhoods `N(b)`, `b ∈ B`, and the vertices of `B` lie in none of them. -/
+theorem shearer_subset {Ω : Type*} [Fintype Ω] [DecidableEq Ω] {β : Type*} [Fintype β]
+    [DecidableEq β] {ι : Type*} [Fintype ι] [DecidableEq ι] {w : Ω → ℝ}
+    (hw : ∀ ω, 0 ≤ w ω) (hsum : ∑ ω, w ω = 1) (X : ι → Ω → β) (S : Finset ι)
+    {κ : Type*} [DecidableEq κ] (F : Finset κ) (A : κ → Finset ι) (k : ℕ)
+    (hAS : ∀ j ∈ F, A j ⊆ S)
+    (hcov : ∀ i ∈ S, k ≤ #(F.filter fun j => i ∈ A j)) :
+    (k : ℝ) * tupleEntropy w X S ≤ ∑ j ∈ F, tupleEntropy w X (A j) := by
+  classical
+  set f : Finset ι → ℝ := fun T => tupleEntropy w X (T ∩ S) with hf
+  have hnull : ∀ i ∉ S, ∀ T : Finset ι, f (insert i T) = f T := by
+    intro i hi T
+    rw [hf]
+    simp only [Finset.insert_inter_of_notMem hi]
+  have hkey := shearer_of_submodular_null f (by rw [hf]; simpa using tupleEntropy_empty hsum X)
+    (fun {T T'} h => tupleEntropy_mono hw X (Finset.inter_subset_inter h (le_refl S)))
+    (fun {T T'} h i => by
+      by_cases hi : i ∈ S
+      · rw [hf]
+        simp only [Finset.insert_inter_of_mem hi]
+        exact tupleEntropy_submodular hw hsum X (Finset.inter_subset_inter h (le_refl S)) i
+      · rw [hnull i hi T, hnull i hi T', sub_self, sub_self])
+    F A k fun i => if hi : i ∈ S then Or.inl (hcov i hi) else Or.inr (hnull i hi)
+  rw [show f univ = tupleEntropy w X S from by rw [hf]; simp] at hkey
+  refine hkey.trans (le_of_eq (Finset.sum_congr rfl fun j hj => ?_))
+  rw [hf]
+  simp only [Finset.inter_eq_left.mpr (hAS j hj)]
 
 end PMC

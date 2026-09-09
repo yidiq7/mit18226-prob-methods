@@ -100,6 +100,60 @@ theorem wcondEntropy_le_sum_log_card {w : Ω → ℝ} (hw : ∀ ω, 0 ≤ w ω)
       exact hc this
     rw [wcondDist, hzero, zero_div]
 
+/-- **The Gibbs variational principle.** For a distribution `P` supported in `T` and any
+"energy" `a`,
+
+    H(P) + E_P[a] ≤ log ∑_{t ∈ T} exp (a t),
+
+with equality at the Gibbs measure `P ∝ exp a`. Taking `a = 0` recovers
+`PMC.sum_negMulLog_le_log_card`; the case that matters below gives one point of `T` a
+weight of `2^d` and the rest a weight of `1`, which is how `i(K_{d,d}) = 2^{d+1} - 1`
+appears in Kahn–Zhao.
+
+Like the `a = 0` case this is Gibbs' inequality against an explicit comparison
+distribution, here `exp (a c) / Z` on `T`. -/
+theorem sum_negMulLog_add_le_log_sum_exp {P : γ → ℝ} (hP0 : ∀ c, 0 ≤ P c)
+    (hPsum : ∑ c, P c = 1) (a : γ → ℝ) {T : Finset γ} (hsupp : ∀ c, c ∉ T → P c = 0) :
+    ∑ c, Real.negMulLog (P c) + ∑ c, P c * a c ≤ Real.log (∑ t ∈ T, Real.exp (a t)) := by
+  classical
+  have hTne : T.Nonempty := by
+    rw [Finset.nonempty_iff_ne_empty]
+    intro hT
+    have hzero : ∑ c, P c = 0 :=
+      Finset.sum_eq_zero fun c _ => hsupp c (by rw [hT]; exact Finset.notMem_empty c)
+    rw [hzero] at hPsum
+    exact zero_ne_one hPsum
+  set Z := ∑ t ∈ T, Real.exp (a t) with hZ
+  have hZpos : 0 < Z := Finset.sum_pos (fun t _ => Real.exp_pos (a t)) hTne
+  have hQsum : ∑ c : γ, (if c ∈ T then Real.exp (a c) / Z else 0) = 1 := by
+    rw [Finset.sum_ite_mem, Finset.univ_inter, ← Finset.sum_div, ← hZ,
+      div_self (ne_of_gt hZpos)]
+  have hgibbs := sum_mul_log_div_le P (fun c => if c ∈ T then Real.exp (a c) / Z else 0) hP0
+    (fun c => by by_cases hc : c ∈ T <;> simp only [if_pos, if_neg, hc] <;> positivity)
+    (fun c hc => by
+      have hcT : c ∈ T := by
+        by_contra hcon
+        exact hc (hsupp c hcon)
+      simp only [if_pos hcT]
+      positivity)
+    hPsum (le_of_eq hQsum)
+  have hterm : ∀ c : γ, P c * Real.log ((if c ∈ T then Real.exp (a c) / Z else 0) / P c)
+      = Real.negMulLog (P c) + P c * a c - P c * Real.log Z := by
+    intro c
+    rcases eq_or_lt_of_le (hP0 c) with h | h
+    · rw [← h]
+      simp [Real.negMulLog]
+    · have hcT : c ∈ T := by
+        by_contra hcon
+        exact (ne_of_gt h) (hsupp c hcon)
+      rw [if_pos hcT, Real.log_div (by positivity) (ne_of_gt h),
+        Real.log_div (ne_of_gt (Real.exp_pos (a c))) (ne_of_gt hZpos), Real.log_exp,
+        Real.negMulLog]
+      ring
+  rw [Finset.sum_congr rfl fun c _ => hterm c, Finset.sum_sub_distrib, Finset.sum_add_distrib,
+    ← Finset.sum_mul, hPsum, one_mul] at hgibbs
+  linarith
+
 /-- The mean of a function of `Y` read off `Y`'s distribution. The bridge between the
 `PMC.wmean` the applications average over and the `PMC.wdist` the entropy bounds produce. -/
 lemma wmean_comp_eq_sum_wdist (w : Ω → ℝ) (Y : Ω → γ) (f : γ → ℝ) :
@@ -111,6 +165,26 @@ lemma wmean_comp_eq_sum_wdist (w : Ω → ℝ) (Y : Ω → γ) (f : γ → ℝ) 
   rw [wdist, wprob, Finset.sum_mul]
   refine Finset.sum_congr rfl fun ω hω => ?_
   rw [(mem_filter.mp hω).2]
+
+/-- **The Gibbs variational principle for a random variable.** If `Z` takes values in `T`,
+
+    H(Z) + E[a(Z)] ≤ log ∑_{t ∈ T} exp (a t).
+
+`PMC.sum_negMulLog_add_le_log_sum_exp` transported to `wentropy`/`wmean`; the support
+hypothesis becomes the (much easier to supply) pointwise `Z ω ∈ T`. -/
+theorem wentropy_add_wmean_le_log_sum_exp {w : Ω → ℝ} (hw : ∀ ω, 0 ≤ w ω)
+    (hsum : ∑ ω, w ω = 1) (Z : Ω → γ) (a : γ → ℝ) {T : Finset γ} (hZ : ∀ ω, Z ω ∈ T) :
+    wentropy w Z + wmean w (fun ω => a (Z ω)) ≤ Real.log (∑ t ∈ T, Real.exp (a t)) := by
+  classical
+  have hsupp : ∀ c, c ∉ T → wdist w Z c = 0 := by
+    intro c hc
+    rw [wdist, wprob, Finset.filter_false_of_mem, Finset.sum_empty]
+    intro ω _ hω
+    exact hc (hω ▸ hZ ω)
+  have hkey := sum_negMulLog_add_le_log_sum_exp (P := wdist w Z)
+    (fun c => wdist_nonneg hw Z c) (by rw [sum_wdist, hsum]) a hsupp
+  rw [wmean_comp_eq_sum_wdist]
+  exact hkey
 
 /-! ### Conditional independence
 
