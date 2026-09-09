@@ -72,6 +72,21 @@ availability of the mathematics. Recorded as upstream in `graph.json`.
   **Azuma–Hoeffding inequality**. `Mathlib/Probability/Martingale/` supplies the martingale
   theory around it (`Basic`, `Convergence`, `OptionalStopping`, `OptionalSampling`,
   `Upcrossing`, `BorelCantelli`, `Centering`).
+* **§9.5's median statements — the median is now built.** `PMC.exists_isMedian`: every
+  real-valued function on a nonempty finite type has a median, by a counting argument rather
+  than compactness — take the *least* attained value with half the points below it, and
+  minimality forces half the points at or above. `PMC.card_filter_le_median_le` is then
+  **Corollary 9.5.22**, `P(f ≤ M f - t) ≤ 2 exp(-t²/(4s))`: Talagrand's inequality bounds a
+  *product* `P(f ≤ r-t) P(f ≥ r)`, and being a median is exactly what makes the second factor
+  at least `1/2`.
+
+  Kept in a separate file (`Chapter09/Median.lean`) because `Chapter09/Talagrand.lean` holds
+  task #49's target declaration and is left byte-for-byte as published.
+
+  The notes' exponent is `-t²/(4 M f)`, taking `s = r` from "`{f ≥ r}` is `r`-certifiable for
+  every `r`"; keeping `s` explicit avoids rounding a real median to a certificate size, and the
+  notes' form is the instance `s = ⌈M⌉`.
+
 * **§9.5 Talagrand's inequality** — absent from Mathlib; the **convex distance is now set up
   here** (`Chapter09/Talagrand.lean`) and the inequality itself is published as a task.
 

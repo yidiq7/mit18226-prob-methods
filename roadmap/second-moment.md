@@ -44,7 +44,7 @@ probability.
 ## One modelling point, worth stating plainly
 
 The ground set is `Sym2 V`, which **includes the diagonal**: `N = card (Sym2 V) = n(n+1)/2`,
-not `C(n,2)`. So the weight `PMG.bweight p` tosses `n` extra coins, one per loop `s(v,v)`.
+not `C(n,2)`. So the weight `PMC.bweight p` tosses `n` extra coins, one per loop `s(v,v)`.
 
 This does not affect anything proved here, and the reason is worth recording rather than
 rediscovering. Every event and count in Chapters 4 and 8 is a function of the *off-diagonal*

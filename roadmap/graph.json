@@ -4553,6 +4553,20 @@
    "uses": [],
    "proof_uses": [],
    "note": "PROPOSITION 2.4.2: a tetrahedron-free 3-graph on n >= 4 vertices has 4#H <= 3C(n,3). The same double count as 2.4.4 with four vertices instead of five, where the base case IS the hypothesis. The pair 2.4.2/2.4.4 shows what sampling one more vertex buys (3/4 -> 7/10) and costs (a base case, which is also where the notes' n >= 4 slips to n >= 5)."
+  },
+  "median_talagrand": {
+   "kind": "theorem",
+   "parent": "concentrationGroup",
+   "file": "ProbMethods/Chapter09/Median.lean",
+   "decl": "PMC.card_filter_le_median_le",
+   "doc": "mathlib-survey.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "talagrand_certifiable"
+   ],
+   "proof_uses": [],
+   "note": "COROLLARY 9.5.22 plus the median it needs. exists_isMedian builds a median for any real-valued function on a nonempty finite type by counting, not compactness: take the least attained value with half the points below it, and minimality forces half at or above. Then Talagrand's product bound at r = M gives P(f <= M - t) <= 2 exp(-t^2/(4s)), since a median makes the second factor at least 1/2. Kept in a separate file because Talagrand.lean holds task #49's target and is left byte-for-byte as published."
   }
  }
 }

@@ -46,6 +46,7 @@ import ProbMethods.Chapter09.BoundedDifferences
 import ProbMethods.Chapter09.ChromaticConcentration
 import ProbMethods.Chapter09.CubeExpansion
 import ProbMethods.Chapter09.Talagrand
+import ProbMethods.Chapter09.Median
 import ProbMethods.Chapter09.LIS
 import ProbMethods.Chapter10.Entropy
 import ProbMethods.Chapter10.CondSupport
