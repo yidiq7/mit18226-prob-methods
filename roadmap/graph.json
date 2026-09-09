@@ -836,13 +836,17 @@
   },
   "talagrand": {
    "kind": "theorem",
-   "parent": "concentration",
+   "parent": "concentrationGroup",
+   "file": "ProbMethods/Chapter09/Talagrand.lean",
+   "decl": "PMC.card_mul_card_filter_convexDist_le",
    "doc": "mathlib-survey.md",
-   "statement": "deferred",
-   "proof": "deferred",
-   "uses": [],
+   "statement": "formalized",
+   "proof": "planned",
+   "uses": [
+    "convexDist"
+   ],
    "proof_uses": [],
-   "note": "Section 9.5. Absent from Mathlib; large."
+   "note": "THEOREM 9.5.11 (Talagrand's inequality, general form). STATEMENT COMMITTED, published as a task. In counting form #A * #{x : t <= d_T(x,A)} <= |beta|^(2n) exp(-t^2/4). Unlike the bounded differences inequality, whose bound degrades as exp(-t^2/n), this one has NO n in the exponent -- which is the whole point of the section. The proof is an induction on the number of coordinates using Holder's inequality, plus the delicate elementary fact inf over lambda in [0,1] of exp((1-lambda)^2/4) r^(-lambda) <= 2 - r for r in (0,1]; the notes prove neither. DESIGN NOTE: the sample space is the uniform product Fin n -> beta, as in 9.1, rather than a product of distinct factors with an arbitrary product measure; the notes' applications reach that generality by padding coordinates, the device ChromaticConcentration.lean already uses for graphs."
   },
   "shearer": {
    "kind": "theorem",
@@ -3922,6 +3926,60 @@
    ],
    "proof_uses": [],
    "note": "THEOREM 9.4.6 WITHOUT HARPER, the notes' SECOND proof: with epsilon = exp(-2t^2/n), a set of more than epsilon 2^n cube points expands in 2t steps to at least (1-epsilon) 2^n. Apply the bounded differences inequality to f = dist(., A): it vanishes on A, which is more than an epsilon fraction, so the lower tail forces E f < t, and the upper tail then puts all but an epsilon fraction within 2t of A. Compare rapid_expansion_eps, the same statement in the SUBSET encoding, which follows the notes' first proof and therefore carries Harper as a hypothesis -- this version carries none, only Hoeffding via 9.1. Both encodings are kept deliberately: a transfer layer whose only purpose is to restate a proved theorem is not worth its weight."
+  },
+  "wHamDist": {
+   "kind": "definition",
+   "parent": "concentrationGroup",
+   "file": "ProbMethods/Chapter09/Talagrand.lean",
+   "decl": "PMC.wHamDist",
+   "doc": "mathlib-survey.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [],
+   "proof_uses": [],
+   "note": "The weighted Hamming distance: the total weight of the coordinates where two points differ. Checked on the 2-cube."
+  },
+  "wDistToSet": {
+   "kind": "definition",
+   "parent": "concentrationGroup",
+   "file": "ProbMethods/Chapter09/Talagrand.lean",
+   "decl": "PMC.wDistToSet",
+   "doc": "mathlib-survey.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "wHamDist"
+   ],
+   "proof_uses": [],
+   "note": "The weighted distance to a set, defined to be 0 on the empty set so that it is total."
+  },
+  "wDistToSet_bound": {
+   "kind": "theorem",
+   "parent": "concentrationGroup",
+   "file": "ProbMethods/Chapter09/Talagrand.lean",
+   "decl": "PMC.wDistToSet_le_sqrt",
+   "doc": "mathlib-survey.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "wDistToSet"
+   ],
+   "proof_uses": [],
+   "note": "For a unit weight vector the weighted distance is at most sqrt(n), by Cauchy-Schwarz over the coordinates where the points differ. This is what makes the supremum defining the convex distance a genuine real number rather than a junk value."
+  },
+  "convexDist": {
+   "kind": "definition",
+   "parent": "concentrationGroup",
+   "file": "ProbMethods/Chapter09/Talagrand.lean",
+   "decl": "PMC.convexDist",
+   "doc": "mathlib-survey.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "wDistToSet_bound"
+   ],
+   "proof_uses": [],
+   "note": "TALAGRAND'S CONVEX DISTANCE: the supremum of the weighted distance over the unit sphere of nonnegative weights, as an sSup. Nonempty and bounded above, so well defined. Vanishes on A (convexDist_eq_zero_of_mem) and is nonnegative."
   }
  }
 }

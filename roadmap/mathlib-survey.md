@@ -72,7 +72,21 @@ availability of the mathematics. Recorded as upstream in `graph.json`.
   **Azuma–Hoeffding inequality**. `Mathlib/Probability/Martingale/` supplies the martingale
   theory around it (`Basic`, `Convergence`, `OptionalStopping`, `OptionalSampling`,
   `Upcrossing`, `BorelCantelli`, `Centering`).
-* **§9.5 Talagrand's inequality** — absent.
+* **§9.5 Talagrand's inequality** — absent from Mathlib; the **convex distance is now set up
+  here** (`Chapter09/Talagrand.lean`) and the inequality itself is published as a task.
+
+  The definitions are where the design choices sit, so they are recorded rather than left to
+  whoever proves the analytic core: `PMC.wHamDist` (weighted Hamming distance),
+  `PMC.wDistToSet` (total, taken to be `0` on the empty set), and `PMC.convexDist` as an
+  `sSup` over the unit sphere of nonnegative weights — well defined because
+  `PMC.wDistToSet_le_sqrt` bounds the set by `√n` via Cauchy–Schwarz. It vanishes on `A` and
+  is nonnegative.
+
+  **Why it is worth the trouble**: the bounded differences bound degrades as `exp(-t²/n)`,
+  while Talagrand's has no `n` in the exponent at all. The proof is an induction on
+  coordinates with Hölder, plus the delicate elementary fact
+  `inf_{0≤λ≤1} e^{(1-λ)²/4} r^{-λ} ≤ 2 - r`; the notes prove neither, which is why this is a
+  task rather than a gap to fill inline.
 * **§9.4 isoperimetric inequalities** — absent from Mathlib, and now **started here**
   (`ProbMethods/Chapter09/HammingCube.lean`). The cube is `Finset (Fin n)`, as in Chapter 5.
   Proved: `PMC.cubeNbhd_lowBall` (the `t`-neighbourhood of a Hamming ball is the ball of
