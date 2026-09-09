@@ -44,7 +44,7 @@ namespace PMC
 
 section Compactness
 
-variable {V : Type*} {ι : Type*}
+variable {V : Type*} [DecidableEq V] {ι : Type*}
 
 /-- Edge `i` is bichromatic under `c`: it has two vertices of different colours. -/
 def Bichromatic (edge : ι → Finset V) (c : V → Bool) (i : ι) : Prop :=
@@ -145,6 +145,22 @@ mathematics — recorded here so it is visible, and published as a task:
 
 The same transport turns `PMC.exists_two_coloring_of_weight_sum` (Theorem 6.2.4) into its
 infinite form, and it is the mechanism Theorems 6.2.10 and 6.2.11 use on `ℤ`. -/
+
+
+/-- **Theorem 6.2.6** (Zhao): a hypergraph on a possibly infinite vertex set, whose edges are
+finite with at least `k` vertices and meet at most `d` others, is 2-colourable once
+`e (d+1) 2^{1-k} ≤ 1`.
+
+The compactness half is `PMC.exists_two_coloring_of_finite`; what this statement needs in
+addition is the transport of `PMC.exists_two_coloring_of_local_lemma'` onto each finite vertex
+set, whose route is recorded above. -/
+theorem exists_two_coloring_infinite (edge : ι → Finset V) {k d : ℕ}
+    (hk : 1 ≤ k) (hd : 0 < d) (hcard : ∀ i, k ≤ #(edge i))
+    (hdeg : ∀ i, ∃ N : Finset ι, #N ≤ d ∧
+      ∀ j, j ≠ i → (edge i ∩ edge j).Nonempty → j ∈ N)
+    (hep : Real.exp 1 * ((d : ℝ) + 1) * (2 / 2 ^ k) ≤ 1) :
+    ∃ c : V → Bool, ∀ i, Bichromatic edge c i := by
+  sorry
 
 end Compactness
 
