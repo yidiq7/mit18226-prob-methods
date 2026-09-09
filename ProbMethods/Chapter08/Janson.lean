@@ -91,6 +91,44 @@ theorem janson_lower_const (p : ℝ) (hp0 : 0 ≤ p) (hp1 : p ≤ 1)
   rw [bweight_eq_pweight]
 
 
+/-- **Theorem 7.2.2** — the triangle-free lower bound for `G(n, p)`:
+
+    P(G(n, p) is triangle-free) ≥ (1 - p³)^{C(n,3)}.
+
+The notes prove this in §7.2 from Harris' inequality applied to the `C(n,3)` decreasing
+events "`ijk` does not span a triangle"; here it is `PMC.janson_lower_const` at the family
+of triangle edge sets, indexed by the `3`-element vertex sets, each of which spans
+`C(3,2) = 3` edges. It is also the lower half of §8.3's estimate, whose matching upper
+bound is `PMC.janson_upper`.
+
+Read with `PMC.wmean_card_triangles` (`E[#triangles] = C(n,3)p³`), this says the
+first-moment count and the correlation bound see the same quantity `n³p³`. -/
+theorem prob_not_hasTriangle_ge {V : Type*} [Fintype V] [DecidableEq V] (p : ℝ)
+    (hp0 : 0 ≤ p) (hp1 : p ≤ 1) :
+    (1 - p ^ 3) ^ ((Fintype.card V).choose 3)
+      ≤ ∑ E ∈ (univ : Finset (Finset (Sym2 V))).filter (fun E => ¬ HasTriangle E),
+          bweight p E := by
+  classical
+  have h := janson_lower_const (α := Sym2 V) p hp0 hp1
+    (ι := {t : Finset V // t ∈ powersetCard 3 (univ : Finset V)})
+    (fun t => spannedEdges t.1)
+  have hcard : ∀ t : {t : Finset V // t ∈ powersetCard 3 (univ : Finset V)},
+      #(spannedEdges t.1) = 3 := by
+    intro t
+    rw [card_spannedEdges, (Finset.mem_powersetCard.mp t.2).2]
+    decide
+  rw [Finset.prod_congr rfl fun t _ => by rw [hcard t], Finset.prod_const, card_univ,
+    Fintype.card_coe, Finset.card_powersetCard, card_univ] at h
+  refine h.trans (le_of_eq (Finset.sum_congr ?_ fun _ _ => rfl))
+  ext E
+  simp only [mem_filter, mem_univ, true_and]
+  constructor
+  · intro hE hT
+    obtain ⟨t, ht, hsub⟩ := hT
+    exact hE ⟨t, ht⟩ hsub
+  · intro hE t hsub
+    exact hE ⟨t.1, t.2, hsub⟩
+
 /-! ## The upper bound
 
 Kept **multiplicative**, exactly as §6.1 kept the local lemma multiplicative: the informal

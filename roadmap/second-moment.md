@@ -43,9 +43,17 @@ probability.
 
 ## Weierstrass approximation (§4.7) — UPSTREAM
 
-Theorem 4.7.x is in Mathlib as `bernsteinApproximation_uniform`
+Theorem 4.7.1 is in Mathlib as `bernsteinApproximation_uniform`
 (`Mathlib/Analysis/SpecialFunctions/Bernstein.lean`), which is exactly the Bernstein-polynomial
-proof the notes give. Recorded as `upstream`; never published as a task.
+proof the notes give — down to the variance computation `bernstein.variance`, which is the
+notes' `Var(X̄) = x(1-x)/n`. Recorded as `upstream`; never published as a task.
+
+**The bridge is now proved**: `PMC.exists_polynomial_approx`
+(`ProbMethods/Chapter04/Weierstrass.lean`) states the theorem in the notes' form — for every
+`ε` there is a polynomial uniformly within `ε` on `[0,1]` — and derives it from Mathlib's
+density statement. Worth having for the same reason the FKG bridge in Chapter 7 was: Mathlib
+says "the polynomial functions are dense in `C([a,b], ℝ)`" and an application wants an
+explicit `ε`, so the unravelling should happen once.
 
 ## Distinct sums (§4.6) — the tractable node
 

@@ -185,7 +185,7 @@ lemma wvar_eq_wmean_sq_sub (w : Ω → ℝ) (X : Ω → ℝ) (hw : ∑ ω, w ω 
   simp only [wmean]
   ring
 
-/-- **Chebyshev's inequality**, over a finite weighted space.
+/-- **Chebyshev's inequality** (Zhao, Theorem 4.1.5), over a finite weighted space.
 
 The total weight of the points where `X` deviates from its weighted mean by at least `a` is
 at most `wvar w X / a ^ 2`. Stated multiplicatively so no division or positivity side
