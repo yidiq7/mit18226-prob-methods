@@ -263,6 +263,99 @@ theorem card_digraph_dependency_le (r : V → V → Prop) [DecidableRel r] {δ D
         | zero => omega
         | succ d => simp; ring
 
+/-- §6.4's bad event at `v`: no out-neighbour of `v` carries the next label. -/
+abbrev dEvent (r : V → V → Prop) [DecidableRel r] {k : ℕ} [NeZero k] (v : V) :
+    Finset (V → ZMod k) :=
+  (univ : Finset (V → ZMod k)).filter fun x => ∀ u, r v u → x u ≠ x v + 1
+
+/-- **§6.4's probability bound**: `P(A_v) ≤ ((k-1)/k) ^ δ`.
+
+The event is not of the form "each coordinate in a block satisfies a fixed predicate",
+because what the out-neighbours must avoid depends on `x v`. Splitting on the value of
+`x v` fixes that: each piece *is* of that form, so
+`PMC.wprob_unifProd_forall` applies, and the `k` pieces each have probability
+`(1/k)((k-1)/k)^δ`. Subadditivity over the `k` pieces then gives the bound — no exact
+computation is needed, since the local lemma only wants an upper bound. -/
+theorem wprob_dEvent_le (r : V → V → Prop) [DecidableRel r] {k δ : ℕ} [NeZero k]
+    (hloop : ∀ v, ¬ r v v)
+    (hout : ∀ v, #((univ : Finset V).filter fun u => r v u) = δ) (v : V) :
+    wprob (unifProd V (ZMod k)) (dEvent r v) ≤ (((k : ℝ) - 1) / k) ^ δ := by
+  classical
+  have hk : Fintype.card (ZMod k) = k := ZMod.card k
+  have hkpos : 0 < k := Nat.pos_of_neZero k
+  have hkR : (0 : ℝ) < k := by exact_mod_cast hkpos
+  set N := (univ : Finset V).filter fun u => r v u with hN
+  have hvN : v ∉ N := by
+    rw [hN, mem_filter]
+    exact fun h => hloop v h.2
+  -- split on the value of `x v`
+  have hsub : dEvent r v ⊆ (univ : Finset (ZMod k)).biUnion
+      (fun a => (univ : Finset (V → ZMod k)).filter fun x =>
+        ∀ i ∈ insert v N, (if i = v then x i = a else x i ≠ a + 1)) := by
+    intro x hx
+    rw [mem_filter] at hx
+    rw [Finset.mem_biUnion]
+    refine ⟨x v, mem_univ _, ?_⟩
+    rw [mem_filter]
+    refine ⟨mem_univ _, fun i hi => ?_⟩
+    rcases Finset.mem_insert.mp hi with rfl | hi'
+    · rw [if_pos rfl]
+    · rw [hN, mem_filter] at hi'
+      have hri : r v i := hi'.2
+      have hiv : i ≠ v := by
+        intro h
+        subst h
+        exact hloop _ hri
+      rw [if_neg hiv]
+      exact hx.2 i hri
+  -- each piece has probability `(1/k) ((k-1)/k) ^ δ`
+  have hpiece : ∀ a : ZMod k,
+      wprob (unifProd V (ZMod k)) ((univ : Finset (V → ZMod k)).filter fun x =>
+        ∀ i ∈ insert v N, (if i = v then x i = a else x i ≠ a + 1))
+      = (1 / (k : ℝ)) * (((k : ℝ) - 1) / k) ^ δ := by
+    intro a
+    -- `P` must be given explicitly: matching `?P i (f i)` against a body where `f i`
+    -- occurs in both branches of an `if` is beyond `rw`'s higher-order unification
+    rw [wprob_unifProd_forall (C := insert v N)
+      (P := fun i b => if i = v then b = a else b ≠ a + 1),
+      Finset.prod_insert hvN]
+    -- the `v` factor: `if v = v` is under a binder, so let `simp` collapse it
+    have h1 : #((univ : Finset (ZMod k)).filter
+        fun b => (if v = v then b = a else b ≠ a + 1)) = 1 := by
+      simp [Finset.filter_eq']
+    have h2 : ∀ u ∈ N, ((#((univ : Finset (ZMod k)).filter
+        fun b => (if u = v then b = a else b ≠ a + 1)) : ℝ)) / Fintype.card (ZMod k)
+        = ((k : ℝ) - 1) / k := by
+      intro u hu
+      have huv : u ≠ v := by
+        intro h
+        subst h
+        exact hvN hu
+      have hcard : #((univ : Finset (ZMod k)).filter
+          fun b => (if u = v then b = a else b ≠ a + 1)) = k - 1 := by
+        simp only [if_neg huv]
+        rw [Finset.filter_ne' univ (a + 1), Finset.card_erase_of_mem (mem_univ _),
+          card_univ, hk]
+      rw [hcard, hk]
+      have h1k : (1 : ℕ) ≤ k := hkpos
+      rw [Nat.cast_sub h1k]
+      norm_num
+    rw [Finset.prod_congr rfl h2, Finset.prod_const, hout v, hk, h1]
+    norm_num
+  calc wprob (unifProd V (ZMod k)) (dEvent r v)
+      ≤ wprob (unifProd V (ZMod k)) ((univ : Finset (ZMod k)).biUnion
+          (fun a => (univ : Finset (V → ZMod k)).filter fun x =>
+            ∀ i ∈ insert v N, (if i = v then x i = a else x i ≠ a + 1))) :=
+        wprob_mono unifProd_nonneg hsub
+    _ ≤ ∑ a : ZMod k, wprob (unifProd V (ZMod k))
+          ((univ : Finset (V → ZMod k)).filter fun x =>
+            ∀ i ∈ insert v N, (if i = v then x i = a else x i ≠ a + 1)) :=
+        wprob_biUnion_le unifProd_nonneg _ _
+    _ = (((k : ℝ) - 1) / k) ^ δ := by
+        rw [Finset.sum_congr rfl fun a _ => hpiece a, Finset.sum_const, card_univ, hk,
+          nsmul_eq_mul]
+        field_simp
+
 end DigraphDependency
 
 end PMC
