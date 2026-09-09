@@ -41,3 +41,4 @@ import ProbMethods.Chapter10.EdgeCount
 import ProbMethods.Chapter10.TriangleIntersecting
 import ProbMethods.Chapter10.LoomisWhitney
 import ProbMethods.Chapter10.TriangleCount
+import ProbMethods.Chapter11.TriangleFree

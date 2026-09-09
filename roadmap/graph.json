@@ -3271,6 +3271,77 @@
    ],
    "proof_uses": [],
    "note": "THEOREM 10.3.6's demonstrated case F = K_{2,2}, DONE: hom(C4,G) n^4 >= (2m)^4, i.e. t(C4,G) >= t(K2,G)^4. Grouping a C4-homomorphism by its pair of OPPOSITE vertices gives hom(C4,G) = sum over pairs of codeg^2, and the codegrees sum to sum_v d(v)^2, so two applications of sq_sum_le_card_mul_sum_sq (Cauchy-Schwarz) -- over the n^2 pairs and then over the n vertices -- give the bound. DELIBERATE DEVIATION from the notes: their entropy proof for C4 needs a conditional-independence step this library does not have, while Cauchy-Schwarz needs nothing new. The statement is theirs."
+  },
+  "containersGroup": {
+   "kind": "group",
+   "doc": "containers.md"
+  },
+  "triangleFreeGraphs": {
+   "kind": "definition",
+   "parent": "containersGroup",
+   "file": "ProbMethods/Chapter11/TriangleFree.lean",
+   "decl": "PMC.triangleFreeGraphs",
+   "doc": "containers.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [],
+   "proof_uses": [],
+   "note": "The triangle-free graphs on n labelled vertices, the objects Question 11.0.1 counts."
+  },
+  "graphOfPairs": {
+   "kind": "definition",
+   "parent": "containersGroup",
+   "file": "ProbMethods/Chapter11/TriangleFree.lean",
+   "decl": "PMC.graphOfPairs",
+   "doc": "containers.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [],
+   "proof_uses": [],
+   "note": "The graph whose edges are a given set of pairs. Used to inject sets of CROSSING pairs into triangle-free graphs."
+  },
+  "bipartite_cliqueFree": {
+   "kind": "theorem",
+   "parent": "containersGroup",
+   "file": "ProbMethods/Chapter11/TriangleFree.lean",
+   "decl": "PMC.cliqueFree_three_of_pairs",
+   "doc": "containers.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "graphOfPairs"
+   ],
+   "proof_uses": [],
+   "note": "A graph whose every edge crosses a bipartition is triangle-free: two of any three vertices lie on the same side, and same-side vertices are never adjacent."
+  },
+  "ekr_lower_bipartition": {
+   "kind": "theorem",
+   "parent": "containersGroup",
+   "file": "ProbMethods/Chapter11/TriangleFree.lean",
+   "decl": "PMC.card_triangleFreeGraphs_ge_of_bipartition",
+   "doc": "containers.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "bipartite_cliqueFree",
+    "triangleFreeGraphs"
+   ],
+   "proof_uses": [],
+   "note": "The lower bound of Theorem 11.0.2 for an ARBITRARY bipartition: a split into A and its complement gives 2^(#A * (n - #A)) triangle-free graphs. Stating it for an arbitrary A avoids computing the card of a filter on Fin n and makes the balanced case a one-line corollary. The injectivity needs care: graphOfPairs symmetrises, so Adj u v could come from (u,v) or (v,u), and only one of the two can lie in A x Acomplement -- that is what makes the pair set recoverable from the graph."
+  },
+  "ekr_lower": {
+   "kind": "theorem",
+   "parent": "containersGroup",
+   "file": "ProbMethods/Chapter11/TriangleFree.lean",
+   "decl": "PMC.card_triangleFreeGraphs_ge",
+   "doc": "containers.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "ekr_lower_bipartition"
+   ],
+   "proof_uses": [],
+   "note": "THE LOWER BOUND OF THEOREM 11.0.2 (Erdos-Kleitman-Rothschild), DONE: at least 2^(floor(n^2/4)) triangle-free graphs on n labelled vertices, since floor(n/2) * ceil(n/2) = floor(n^2/4). EXACT for every n, with no error term -- the o(n^2) of 11.0.2 lives entirely in the upper bound, which is why this half needs no restatement decision. The upper bound is the container method's whole purpose and needs Theorem 11.1.1 and behind it the hypergraph container theorem. Checked: with A = {0,1} in Fin 4 there are 4 crossing pairs and 16 subsets, so at least 16 of the 41 triangle-free graphs on 4 vertices are produced."
   }
  }
 }
