@@ -377,6 +377,20 @@ recording next to the harder ones because it **locates the difficulty**: the obs
 Sidorenko's conjecture is not trees with a single branch vertex, where the count factorises
 outright, but the ones whose entropy bookkeeping needs a genuine chain rule along the tree.
 
+### Theorem 10.3.6 in full — proved
+
+`PMC.sidorenko_biclique`: `hom(K_{s,t}, G) · n^{2st-s-t} ≥ (2m)^{st}` for **all** `s, t`. The
+notes demonstrate `K₂,₂` and remark that the same proof extends; with the star case in hand
+the extension needs no entropy at all —
+
+    hom(K_{s,t}, G) = ∑_{a ∈ Vˢ} N(a)^t ≥ (∑_a N(a))^t / (nˢ)^{t-1}     [power mean]
+    ∑_a N(a) = ∑_b d(b)ˢ ≥ (2m)ˢ / n^{s-1}                              [the star case]
+
+and multiplying out gives the exponent. Parametrising by `s+1`, `t+1` keeps every exponent a
+genuine natural number, with no truncated subtraction. **This subsumes both earlier cases**:
+`s = t = 1` is `C₄` and `s = 0` is the star. Checked on `K₃`, where the `(2,2)` count is `18`,
+agreeing with the closed-4-walk count as it must since `C₄ = K₂,₂`.
+
 What remains in §10.3: Theorem 10.3.5 in full (all trees — the same argument, but the entropy
 bookkeeping is over a tree rather than a path, so it does need the conditional-independence
 step), Theorem 10.3.6 (complete bipartite), and Theorem 10.3.7. Remark 10.3.8's Möbius graph

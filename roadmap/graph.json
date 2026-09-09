@@ -3368,6 +3368,45 @@
    ],
    "proof_uses": [],
    "note": "Sidorenko's conjecture for STARS, a case of Theorem 10.3.5: hom(K_{1,t},G) n^(t-1) >= (2m)^t. Once hom(K_{1,t},G) is recognised as sum_v d(v)^t -- a centre plus t independent neighbours -- this is exactly the power-mean inequality (pow_sum_div_card_le_sum_pow). Worth recording next to the harder cases because it locates the difficulty in Sidorenko's conjecture: not in trees with a single branch vertex, but in the ones whose entropy bookkeeping needs a genuine chain rule. Checked on K3 at t = 2: (2m)^2 = 36 = 12 * 3, equality, as it must be for a regular graph."
+  },
+  "commonNbrs": {
+   "kind": "definition",
+   "parent": "entropyGroup",
+   "file": "ProbMethods/Chapter10/Sidorenko.lean",
+   "decl": "PMC.commonNbrs",
+   "doc": "entropy.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [],
+   "proof_uses": [],
+   "note": "The common neighbours of a tuple of vertices."
+  },
+  "biHom": {
+   "kind": "definition",
+   "parent": "entropyGroup",
+   "file": "ProbMethods/Chapter10/Sidorenko.lean",
+   "decl": "PMC.biHom",
+   "doc": "entropy.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [],
+   "proof_uses": [],
+   "note": "The homomorphisms from K_{s,t}: an s-tuple and a t-tuple with every pair adjacent. Checked on K3: 18 for (2,2), agreeing with the closed-4-walk count walk4 as it must since C4 = K_{2,2}, and 24 for (1,3), the star count."
+  },
+  "sidorenko_biclique": {
+   "kind": "theorem",
+   "parent": "entropyGroup",
+   "file": "ProbMethods/Chapter10/Sidorenko.lean",
+   "decl": "PMC.sidorenko_biclique",
+   "doc": "entropy.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "biHom",
+    "sidorenko_star"
+   ],
+   "proof_uses": [],
+   "note": "THEOREM 10.3.6 (Sidorenko for complete bipartite graphs) IN FULL: hom(K_{s,t},G) n^(2st-s-t) >= (2m)^(st). The notes demonstrate the case K_{2,2} by entropy and remark that the same proof extends to all K_{s,t}; with the star case in hand the extension needs no entropy at all -- power mean over the n^s tuples, then the star bound on sum_a N(a) = sum_b d(b)^s. Parametrised by s+1 and t+1 so every exponent is a genuine natural number with no truncated subtraction. This SUBSUMES both earlier cases: s = t = 1 is C4 and s = 0 is the star."
   }
  }
 }

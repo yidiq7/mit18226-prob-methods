@@ -617,6 +617,154 @@ theorem sidorenko_star (t : ℕ) :
     exact hpm
 
 
+/-! ### Theorem 10.3.6 in full: all complete bipartite graphs
+
+The notes demonstrate Theorem 10.3.6 on `K₂,₂` and remark that "the same proof extends to all
+`K_{s,t}`". With the star case in hand the extension is short and needs no entropy at all:
+
+    hom(K_{s,t}, G) = ∑_{a ∈ Vˢ} N(a)^t   ≥   (∑_a N(a))^t / (nˢ)^{t-1}      [power mean]
+    ∑_a N(a) = ∑_b d(b)ˢ = hom(K₁,ₛ, G)   ≥   (2m)ˢ / n^{s-1}                [the star case]
+
+and multiplying out gives the exponent `2st - s - t`. Parametrising by `s+1` and `t+1` keeps
+every exponent a genuine natural number, with no truncated subtraction.
+
+This subsumes both earlier cases: `s = t = 1` is `C₄` and `s = 0` is the star. -/
+
+/-- The common neighbours of a tuple of vertices. -/
+def commonNbrs {s : ℕ} (a : Fin s → V) : Finset V :=
+  (univ : Finset V).filter fun b => ∀ i, G.Adj (a i) b
+
+/-- The homomorphisms from `K_{s,t}`: an `s`-tuple and a `t`-tuple, every pair adjacent. -/
+def biHom (s t : ℕ) : Finset ((Fin s → V) × (Fin t → V)) :=
+  (univ : Finset ((Fin s → V) × (Fin t → V))).filter fun p => ∀ i j, G.Adj (p.1 i) (p.2 j)
+
+/-- `hom(K_{s,t}, G) = ∑_{a} N(a)^t`: given the first side, the second side is `t`
+independent common neighbours. -/
+lemma card_biHom (s t : ℕ) :
+    #(biHom G s t) = ∑ a : Fin s → V, #(commonNbrs G a) ^ t := by
+  classical
+  have hmaps : ∀ p ∈ biHom G s t, p.1 ∈ (univ : Finset (Fin s → V)) := fun p _ => mem_univ _
+  rw [Finset.card_eq_sum_card_fiberwise (fun p hp => hmaps p (by rwa [← mem_coe]))]
+  refine Finset.sum_congr rfl fun a _ => ?_
+  rw [← Fintype.card_piFinset_const (commonNbrs G a) t]
+  refine Finset.card_bij (fun p _ => p.2) ?_ ?_ ?_
+  · intro p hp
+    rw [mem_filter, biHom, mem_filter] at hp
+    rw [Fintype.mem_piFinset]
+    intro j
+    rw [commonNbrs, mem_filter]
+    exact ⟨mem_univ _, fun i => hp.2 ▸ hp.1.2 i j⟩
+  · intro p hp p' hp' h
+    rw [mem_filter] at hp hp'
+    exact Prod.ext (hp.2.trans hp'.2.symm) h
+  · intro f hf
+    rw [Fintype.mem_piFinset] at hf
+    refine ⟨(a, f), ?_, rfl⟩
+    rw [mem_filter, biHom, mem_filter]
+    refine ⟨⟨mem_univ _, fun i j => ?_⟩, rfl⟩
+    have := hf j
+    rw [commonNbrs, mem_filter] at this
+    exact this.2 i
+
+/-- Summing the common-neighbour count over all `s`-tuples counts star-homomorphisms the
+other way round: `∑_a N(a) = ∑_b d(b)ˢ`. -/
+lemma sum_card_commonNbrs (s : ℕ) :
+    ∑ a : Fin s → V, #(commonNbrs G a) = ∑ b, G.degree b ^ s := by
+  classical
+  have hfib : ∀ b : V, #((univ : Finset (Fin s → V)).filter fun a => ∀ i, G.Adj (a i) b)
+      = G.degree b ^ s := by
+    intro b
+    rw [← SimpleGraph.card_neighborFinset_eq_degree,
+      ← Fintype.card_piFinset_const (G.neighborFinset b) s]
+    refine Finset.card_bij (fun a _ => a) ?_ ?_ ?_
+    · intro a ha
+      rw [mem_filter] at ha
+      rw [Fintype.mem_piFinset]
+      intro i
+      rw [SimpleGraph.mem_neighborFinset]
+      exact (ha.2 i).symm
+    · intro a _ a' _ h
+      exact h
+    · intro a ha
+      rw [Fintype.mem_piFinset] at ha
+      refine ⟨a, ?_, rfl⟩
+      rw [mem_filter]
+      refine ⟨mem_univ _, fun i => ?_⟩
+      exact ((SimpleGraph.mem_neighborFinset _ _ _).mp (ha i)).symm
+  calc ∑ a : Fin s → V, #(commonNbrs G a)
+      = ∑ a : Fin s → V, ∑ b : V, (if ∀ i, G.Adj (a i) b then 1 else 0) := by
+        refine Finset.sum_congr rfl fun a _ => ?_
+        rw [commonNbrs, Finset.card_filter]
+    _ = ∑ b : V, ∑ a : Fin s → V, (if ∀ i, G.Adj (a i) b then 1 else 0) := Finset.sum_comm
+    _ = ∑ b : V, G.degree b ^ s := by
+        refine Finset.sum_congr rfl fun b _ => ?_
+        rw [← Finset.card_filter]
+        exact hfib b
+
+/-- **Theorem 10.3.6 (Sidorenko for complete bipartite graphs).** For all `s, t`,
+
+    hom(K_{s,t}, G) · n^{2st - s - t} ≥ (2m)^{st},
+
+i.e. `t(K_{s,t}, G) ≥ t(K₂, G)^{st}`. Parametrised by `s+1`, `t+1` so that every exponent is
+a natural number. Power mean over the `n^{s+1}` tuples, then the star case. -/
+theorem sidorenko_biclique (s t : ℕ) :
+    ((∑ v, G.degree v : ℕ) : ℝ) ^ ((s + 1) * (t + 1))
+      ≤ #(biHom G (s + 1) (t + 1)) * (Fintype.card V : ℝ) ^ (2 * s * t + s + t) := by
+  classical
+  have hDcast : ((∑ v, G.degree v : ℕ) : ℝ) = ∑ v, (G.degree v : ℝ) := by push_cast; rfl
+  rw [hDcast]
+  rcases Nat.eq_zero_or_pos (Fintype.card V) with h0 | hpos
+  · have hempty : IsEmpty V := Fintype.card_eq_zero_iff.mp h0
+    rw [Finset.univ_eq_empty, Finset.sum_empty, zero_pow (by positivity)]
+    positivity
+  have hnR : (0 : ℝ) < Fintype.card V := by exact_mod_cast hpos
+  -- power mean over the `s+1`-tuples, in multiplied form
+  have hpm := pow_sum_div_card_le_sum_pow (s := (univ : Finset (Fin (s + 1) → V)))
+    (f := fun a => (#(commonNbrs G a) : ℝ)) (fun a _ => by positivity) t
+  rw [card_univ, Fintype.card_fun, Fintype.card_fin] at hpm
+  push_cast at hpm
+  rw [div_le_iff₀ (by positivity)] at hpm
+  have hbi : ∑ a : Fin (s + 1) → V, ((#(commonNbrs G a) : ℝ)) ^ (t + 1)
+      = #(biHom G (s + 1) (t + 1)) := by
+    rw [card_biHom]
+    push_cast
+    rfl
+  have hstar : ∑ a : Fin (s + 1) → V, (#(commonNbrs G a) : ℝ)
+      = ∑ b, (G.degree b : ℝ) ^ (s + 1) := by
+    have hnat := sum_card_commonNbrs G (s + 1)
+    have hcast : ((∑ a : Fin (s + 1) → V, #(commonNbrs G a) : ℕ) : ℝ)
+        = ((∑ b, G.degree b ^ (s + 1) : ℕ) : ℝ) := by exact_mod_cast hnat
+    push_cast at hcast
+    exact hcast
+  rw [hbi, hstar] at hpm
+  -- the star case bounds the inner sum below
+  have hstarbound : (∑ v, (G.degree v : ℝ)) ^ (s + 1)
+      ≤ (∑ b, (G.degree b : ℝ) ^ (s + 1)) * (Fintype.card V : ℝ) ^ s := by
+    have h := sidorenko_star G s
+    rw [card_starHom] at h
+    push_cast at h
+    exact h
+  have hkey : ((∑ v, (G.degree v : ℝ)) ^ (s + 1) / (Fintype.card V : ℝ) ^ s) ^ (t + 1)
+      ≤ (∑ b, (G.degree b : ℝ) ^ (s + 1)) ^ (t + 1) := by
+    refine pow_le_pow_left₀ (by positivity) ?_ (t + 1)
+    rw [div_le_iff₀ (by positivity)]
+    exact hstarbound
+  calc (∑ v, (G.degree v : ℝ)) ^ ((s + 1) * (t + 1))
+      = ((∑ v, (G.degree v : ℝ)) ^ (s + 1)) ^ (t + 1) := by rw [← pow_mul]
+    _ = (((∑ v, (G.degree v : ℝ)) ^ (s + 1) / (Fintype.card V : ℝ) ^ s) ^ (t + 1))
+          * ((Fintype.card V : ℝ) ^ s) ^ (t + 1) := by
+        rw [div_pow]
+        field_simp
+    _ ≤ ((∑ b, (G.degree b : ℝ) ^ (s + 1)) ^ (t + 1)) * ((Fintype.card V : ℝ) ^ s) ^ (t + 1) :=
+        mul_le_mul_of_nonneg_right hkey (by positivity)
+    _ ≤ ((#(biHom G (s + 1) (t + 1)) : ℝ) * ((Fintype.card V : ℝ) ^ (s + 1)) ^ t)
+          * ((Fintype.card V : ℝ) ^ s) ^ (t + 1) :=
+        mul_le_mul_of_nonneg_right hpm (by positivity)
+    _ = #(biHom G (s + 1) (t + 1)) * (Fintype.card V : ℝ) ^ (2 * s * t + s + t) := by
+        rw [← pow_mul, ← pow_mul, mul_assoc, ← pow_add]
+        congr 2
+        ring
+
 end Sidorenko
 
 end PMC
