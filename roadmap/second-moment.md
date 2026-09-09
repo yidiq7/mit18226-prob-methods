@@ -41,6 +41,31 @@ state the explicit-constant forms. None of it needs machinery Mathlib lacks.
 All axiom-clean. What remains for §4.1–§4.4 is the combinatorics on top, not the
 probability.
 
+## One modelling point, worth stating plainly
+
+The ground set is `Sym2 V`, which **includes the diagonal**: `N = card (Sym2 V) = n(n+1)/2`,
+not `C(n,2)`. So the weight `PMG.bweight p` tosses `n` extra coins, one per loop `s(v,v)`.
+
+This does not affect anything proved here, and the reason is worth recording rather than
+rediscovering. Every event and count in Chapters 4 and 8 is a function of the *off-diagonal*
+coordinates only — `PMC.spannedEdges t` contains no loop, so `HasTriangle`, `triangles`,
+`cliqueSets`, and the copies of `H` never look at one — and the marginal of the off-diagonal
+coordinates under `bweight p` is exactly independent `Bernoulli(p)`. The loop coins integrate
+out.
+
+Where it *would* bite is a statement about the whole edge set, e.g. "`P(G` is empty`)`", which
+here is `(1-p)^{n(n+1)/2}` rather than `(1-p)^{C(n,2)}`. No such statement is claimed.
+
+## Corollary 4.1.8 — proved
+
+`PMC.tendsto_wprob_zero_of_var_div_sq_mean`: if `Var X_n = o((E X_n)²)` along a sequence of
+finite weighted spaces then the weight of `{X_n = 0}` tends to `0`. `PMC.wsecond_moment`
+divided by `(E X)²` and squeezed.
+
+Stated over a *family* of spaces `Ω : ℕ → Type*`, which is what an asymptotic statement about
+`G(n,p)` needs — the sample space changes with `n` — and which costs nothing in Lean. The
+concrete instance is §4.1's threshold, where `Ω n = Finset (Sym2 (Fin n))`.
+
 ## Weierstrass approximation (§4.7) — UPSTREAM
 
 Theorem 4.7.1 is in Mathlib as `bernsteinApproximation_uniform`

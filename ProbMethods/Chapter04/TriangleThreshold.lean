@@ -240,6 +240,29 @@ theorem tendsto_probHasTriangle_one {p : ℕ → ℝ} (hp0 : ∀ n, 0 ≤ p n) (
   rw [sub_zero] at this
   exact this.congr fun n => (hsum n).symm
 
+
+/-! ### Corollary 4.1.8, the asymptotic second moment method
+
+The limit form of `PMC.wsecond_moment`. It is stated over a *family* of spaces `Ω n`, which is
+what an asymptotic statement needs — the sample space of `G(n,p)` changes with `n` — and which
+costs nothing in Lean. -/
+
+/-- **Corollary 4.1.8** (first half). If the variance is `o` of the squared mean along a
+sequence of finite weighted spaces, then the weight of any set where the count vanishes tends
+to `0`: the random object contains the structure being counted, whp.
+
+`PMC.wsecond_moment` divided by `(E X)²`, then squeezed. -/
+theorem tendsto_wprob_zero_of_var_div_sq_mean {Ω : ℕ → Type*} [∀ n, Fintype (Ω n)]
+    [∀ n, DecidableEq (Ω n)] (w : ∀ n, Ω n → ℝ) (X : ∀ n, Ω n → ℝ)
+    (hw : ∀ n, ∀ ω, 0 ≤ w n ω) (hmean : ∀ n, 0 < wmean (w n) (X n))
+    (S : ∀ n, Finset (Ω n)) (hS : ∀ n, ∀ ω ∈ S n, X n ω = 0)
+    (h : Tendsto (fun n => wvar (w n) (X n) / (wmean (w n) (X n)) ^ 2) atTop (nhds 0)) :
+    Tendsto (fun n => ∑ ω ∈ S n, w n ω) atTop (nhds 0) := by
+  refine squeeze_zero (fun n => Finset.sum_nonneg fun ω _ => hw n ω) (fun n => ?_) h
+  have hsq : (0 : ℝ) < (wmean (w n) (X n)) ^ 2 := pow_pos (hmean n) 2
+  rw [le_div_iff₀ hsq]
+  exact wsecond_moment (w n) (X n) (hw n) (hmean n) (hS n)
+
 end TriangleThreshold
 
 end PMC
