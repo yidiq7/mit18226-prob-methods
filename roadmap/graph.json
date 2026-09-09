@@ -873,7 +873,7 @@
     "noneOfDef"
    ],
    "proof_uses": [],
-   "note": "Asymmetric LLL, proved. Two inductions: lll_peel (inner, on the index set) and lll_key (outer, strong induction on cardinality). Kept multiplicative throughout -- no division by a probability not known to be positive."
+   "note": "Asymmetric LLL, proved. Two inductions: lll_peel (inner, on the index set) and lll_key (outer, strong induction on cardinality). Kept multiplicative throughout -- no division by a probability not known to be positive. Now a corollary of lll_lopsided (the inequality hypothesis), which subsumes it."
   },
   "localLemmaGroup": {
    "kind": "group",
@@ -2404,13 +2404,13 @@
    "decl": "PMC.exists_independent_transversal",
    "doc": "local-lemma.md",
    "statement": "formalized",
-   "proof": "in-review",
+   "proof": "formalized",
    "uses": [
     "product_lll",
     "trim_enumerate"
    ],
    "proof_uses": [],
-   "note": "Theorem 6.3.1. STATEMENT COMMITTED and published as task #41; a contributor's self-contained proof is PR #43, awaiting the gate. The orchestrator also proved it concurrently (commit 01dd647) -- a process error, since the task was already claimed -- and that proof's modular pieces now live in TransversalBlocks.lean, where they stay available for 6.5 without competing with the contributor's proof of the theorem itself."
+   "note": "Theorem 6.3.1, DONE -- by a CONTRIBUTOR, through the Choir loop: task #41 published the statement, it was claimed 36 seconds later, and PR #43 landed a verified self-contained proof that passed all nine checks. The orchestrator proved it concurrently and closed the issue four minutes before the PR arrived, which was a process error: a published task belongs to whoever claims it. The resolution kept both -- Transversal.lean was restored to the exact published base so the contributor's patch applied byte-for-byte, and the orchestrator's modular pieces moved to TransversalBlocks.lean. Check the lease with 'choir orch tasks' before proving anything yourself."
   },
   "adj_pairs_count": {
    "kind": "theorem",
@@ -2740,6 +2740,34 @@
    ],
    "proof_uses": [],
    "note": "Theorem 6.4.3 in the notes' shape: k (1 + log (1 + D + delta*D)) <= delta, i.e. k <= delta / (1 + log (1 + D + delta*D)). The analytic step is (k-1)/k = 1 - 1/k <= exp(-1/k), hence ((k-1)/k)^delta <= exp(-delta/k), so the left side is at most exp(1 - delta/k) M, which is <= 1 exactly when 1 + log M <= delta/k. The notes' constant has delta*D where this has D + delta*D; the gap is the first-pass dependency digraph, and closing it needs their final trick, which only shrinks N and so plugs into the same assembly. Non-vacuity checked on the complete digraph on 25 vertices at k = 2, where 2 (1 + log 601) = 14.8 <= 24."
+  },
+  "lll_lopsided": {
+   "kind": "theorem",
+   "parent": "localLemmaGroup",
+   "file": "ProbMethods/Chapter06/LocalLemma.lean",
+   "decl": "PMC.lovasz_local_lemma_lopsided",
+   "doc": "local-lemma.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "lll"
+   ],
+   "proof_uses": [],
+   "note": "Section 6.5's lopsided local lemma (Erdos-Spencer), asymmetric form: the dependency hypothesis is NEGATIVE CORRELATION, P(A_i and none of T) <= P(A_i) P(none of T), an inequality rather than the independence equality. The existing proof already sufficed -- it uses the hypothesis exactly once in a calc chain that only travels upward, so one '=' became one '<=' in lll_key. The independence forms are now one-line corollaries, leaving every 6.2-6.4 application untouched. General lesson: a proof written multiplicatively, with no division, generalizes from equality to inequality hypotheses for free."
+  },
+  "lll_symmetric_lopsided": {
+   "kind": "theorem",
+   "parent": "localLemmaGroup",
+   "file": "ProbMethods/Chapter06/LocalLemma.lean",
+   "decl": "PMC.lovasz_local_lemma_symmetric_lopsided",
+   "doc": "local-lemma.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "lll_lopsided"
+   ],
+   "proof_uses": [],
+   "note": "The symmetric lopsided form, which is what an application uses: probability at most p, negative correlation outside the neighbourhood, degree at most d, e p (d+1) <= 1. What remains of 6.5 is the Latin-transversal application, where the sample space is a set of permutations and the negative-correlation hypothesis has to be established for random permutations."
   }
  }
 }

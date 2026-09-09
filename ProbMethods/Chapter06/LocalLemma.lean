@@ -94,8 +94,8 @@ private lemma lll_key (w : Ω → ℝ) (hw : ∀ ω, 0 ≤ w ω)
     (A : ι → Finset Ω) (N : ι → Finset ι) (x : ι → ℝ)
     (hx0 : ∀ i, 0 ≤ x i) (hx1 : ∀ i, x i < 1)
     (hself : ∀ i, i ∉ N i)
-    (hindep : ∀ (i : ι) (T : Finset ι), Disjoint T (insert i (N i)) →
-      wprob w (A i ∩ noneOf A T) = wprob w (A i) * wprob w (noneOf A T))
+    (hlop : ∀ (i : ι) (T : Finset ι), Disjoint T (insert i (N i)) →
+      wprob w (A i ∩ noneOf A T) ≤ wprob w (A i) * wprob w (noneOf A T))
     (hbound : ∀ i, wprob w (A i) ≤ x i * ∏ j ∈ N i, (1 - x j)) :
     ∀ (n : ℕ) (T : Finset ι), #T = n → ∀ i, i ∉ T →
       wprob w (A i ∩ noneOf A T) ≤ x i * wprob w (noneOf A T) := by
@@ -127,7 +127,7 @@ private lemma lll_key (w : Ω → ℝ) (hw : ∀ ω, 0 ≤ w ω)
       rcases ha' with rfl | ha'
       · exact hi (mem_sdiff.mp ha).1
       · exact (mem_sdiff.mp ha).2 ha'
-    have hind := hindep i (T \ N i) hdisjT2
+    have hind := hlop i (T \ N i) hdisjT2
     -- the numerator only gets smaller when we drop the constraints in `T ∩ N i`
     have hmono : wprob w (A i ∩ noneOf A T) ≤ wprob w (A i ∩ noneOf A (T \ N i)) := by
       refine wprob_mono hw (Finset.inter_subset_inter Subset.rfl ?_)
@@ -146,7 +146,7 @@ private lemma lll_key (w : Ω → ℝ) (hw : ∀ ω, 0 ≤ w ω)
       Finset.prod_nonneg fun j _ => by linarith [hx1 j]
     calc wprob w (A i ∩ noneOf A T)
         ≤ wprob w (A i ∩ noneOf A (T \ N i)) := hmono
-      _ = wprob w (A i) * wprob w (noneOf A (T \ N i)) := hind
+      _ ≤ wprob w (A i) * wprob w (noneOf A (T \ N i)) := hind
       _ ≤ (x i * ∏ j ∈ N i, (1 - x j)) * wprob w (noneOf A (T \ N i)) :=
           mul_le_mul_of_nonneg_right (hbound i) hp2nonneg
       _ ≤ (x i * ∏ j ∈ T ∩ N i, (1 - x j)) * wprob w (noneOf A (T \ N i)) := by
@@ -155,16 +155,25 @@ private lemma lll_key (w : Ω → ℝ) (hw : ∀ ω, 0 ≤ w ω)
       _ = x i * ((∏ j ∈ T ∩ N i, (1 - x j)) * wprob w (noneOf A (T \ N i))) := by ring
       _ ≤ x i * wprob w (noneOf A T) := mul_le_mul_of_nonneg_left hpeel (hx0 i)
 
-/-- **The Lovász Local Lemma**, asymmetric form (Zhao, Theorem 6.1.x).
+/-- **The lopsided Lovász Local Lemma**, asymmetric form (Erdős–Spencer; Zhao, §6.5).
 
 If each event `A i` has probability at most `x i * ∏ j ∈ N i, (1 - x j)`, and each `A i` is
-independent of any family of complements drawn from outside `insert i (N i)`, then with
-positive probability none of the events occurs — indeed the probability is at least
-`∏ i, (1 - x i)`, which is positive because each `x i < 1`.
+*negatively correlated* with any family of complements drawn from outside `insert i (N i)` —
 
-The independence hypothesis is the standard one, stated here as an equality of weights for
-every subfamily `T` disjoint from `insert i (N i)`. That "for every subfamily" is essential
-and is what mutual independence means; pairwise independence is not enough.
+    P(A i ∩ noneOf A T) ≤ P(A i) · P(noneOf A T),
+
+an **inequality**, not the independence equality — then with positive probability none of the
+events occurs, the probability being at least `∏ i, (1 - x i)`.
+
+This is the general form, with `PMC.lovasz_local_lemma` the special case where the
+hypothesis holds with equality. The weakening is free: the standard proof uses independence
+exactly once, in the upward direction, to replace `P(A i ∩ noneOf A T₂)` by
+`P(A i) P(noneOf A T₂)` — so an inequality in that direction is all it ever needed. That is
+worth stating explicitly, because it is what makes §6.5's applications reachable: for
+random permutations the events are not independent, and only the inequality holds.
+
+The quantification over *every* subfamily `T` disjoint from `insert i (N i)` is essential,
+just as for mutual independence; a pairwise hypothesis is not enough.
 
 **Proof strategy** (the part a prover has to supply). By induction on `#T`, show
 
@@ -183,17 +192,17 @@ The conclusion then follows by a second induction, on `S`, from
 Both inductions are genuinely needed, and the conditional-probability bookkeeping of the
 informal proof has to be replaced by multiplicative inequalities to avoid dividing by a
 quantity not yet known to be positive. -/
-theorem lovasz_local_lemma (w : Ω → ℝ) (hw : ∀ ω, 0 ≤ w ω) (hsum : ∑ ω, w ω = 1)
+theorem lovasz_local_lemma_lopsided (w : Ω → ℝ) (hw : ∀ ω, 0 ≤ w ω) (hsum : ∑ ω, w ω = 1)
     (A : ι → Finset Ω) (N : ι → Finset ι) (x : ι → ℝ)
     (hx0 : ∀ i, 0 ≤ x i) (hx1 : ∀ i, x i < 1)
     (hself : ∀ i, i ∉ N i)
-    (hindep : ∀ (i : ι) (T : Finset ι), Disjoint T (insert i (N i)) →
-      wprob w (A i ∩ noneOf A T) = wprob w (A i) * wprob w (noneOf A T))
+    (hlop : ∀ (i : ι) (T : Finset ι), Disjoint T (insert i (N i)) →
+      wprob w (A i ∩ noneOf A T) ≤ wprob w (A i) * wprob w (noneOf A T))
     (hbound : ∀ i, wprob w (A i) ≤ x i * ∏ j ∈ N i, (1 - x j)) :
     ∏ i, (1 - x i) ≤ wprob w (noneOf A (univ : Finset ι)) := by
   have hIH : ∀ m, m < Fintype.card ι + 1 → ∀ T : Finset ι, #T = m → ∀ i, i ∉ T →
       wprob w (A i ∩ noneOf A T) ≤ x i * wprob w (noneOf A T) :=
-    fun m _ => lll_key w hw A N x hx0 hx1 hself hindep hbound m
+    fun m _ => lll_key w hw A N x hx0 hx1 hself hlop hbound m
   have h := lll_peel w hw A x hx1 (Fintype.card ι + 1) hIH
     (univ : Finset ι) (∅ : Finset ι) (by simp) (by simp)
   rw [Finset.union_empty, noneOf_empty, wprob_univ, hsum, mul_one] at h
@@ -228,10 +237,32 @@ private lemma inv_exp_le_pow {d : ℕ} (hd : 0 < d) :
     _ ≤ ((d : ℝ) / (d + 1)) ^ d * Real.exp 1 :=
         mul_le_mul_of_nonneg_left hle (by positivity)
 
-/-- **The Lovász Local Lemma**, symmetric form (Zhao, §6.1).
+/-- **The Lovász Local Lemma**, asymmetric form (Zhao, Theorem 6.1.x), where the dependency
+hypothesis is genuine mutual independence: `A i` is independent of every family of
+complements drawn from outside `insert i (N i)`.
 
-If every event has probability at most `p`, every event depends on at most `d` others, and
+The special case of `PMC.lovasz_local_lemma_lopsided` at which the hypothesis is an
+equality. Every application in §6.2–§6.4 uses this form, since there the events live on
+disjoint blocks of independent coordinates. -/
+theorem lovasz_local_lemma (w : Ω → ℝ) (hw : ∀ ω, 0 ≤ w ω) (hsum : ∑ ω, w ω = 1)
+    (A : ι → Finset Ω) (N : ι → Finset ι) (x : ι → ℝ)
+    (hx0 : ∀ i, 0 ≤ x i) (hx1 : ∀ i, x i < 1)
+    (hself : ∀ i, i ∉ N i)
+    (hindep : ∀ (i : ι) (T : Finset ι), Disjoint T (insert i (N i)) →
+      wprob w (A i ∩ noneOf A T) = wprob w (A i) * wprob w (noneOf A T))
+    (hbound : ∀ i, wprob w (A i) ≤ x i * ∏ j ∈ N i, (1 - x j)) :
+    ∏ i, (1 - x i) ≤ wprob w (noneOf A (univ : Finset ι)) :=
+  lovasz_local_lemma_lopsided w hw hsum A N x hx0 hx1 hself
+    (fun i T hT => (hindep i T hT).le) hbound
+
+/-- **The lopsided Lovász Local Lemma**, symmetric form (Zhao, §6.5).
+
+If every event has probability at most `p`, is negatively correlated with the complements of
+any subfamily outside its own neighbourhood, that neighbourhood has at most `d` members, and
 `e * p * (d + 1) ≤ 1`, then with positive probability none of the events occurs.
+
+`PMC.lovasz_local_lemma_symmetric` is the special case where the correlation hypothesis
+holds with equality, which is the form §6.2–§6.4 use.
 
 This is the form every application in §6.2–§6.6 uses. It follows from the asymmetric form
 at `x i = 1 / (d + 1)`: the hypothesis `e p (d+1) ≤ 1` gives `p ≤ 1 / (e (d+1))`, and
@@ -242,12 +273,13 @@ at `x i = 1 / (d + 1)`: the hypothesis `e p (d+1) ≤ 1` gives `p ≤ 1 / (e (d+
 `x i = 1/(d+1) = 1` violates the asymmetric form's `x i < 1`; that case is separately
 trivial, since independence gives `P(none) = ∏ (1 - P(A i))` directly. Textbook statements
 generally leave this implicit. -/
-theorem lovasz_local_lemma_symmetric (w : Ω → ℝ) (hw : ∀ ω, 0 ≤ w ω) (hsum : ∑ ω, w ω = 1)
+theorem lovasz_local_lemma_symmetric_lopsided (w : Ω → ℝ) (hw : ∀ ω, 0 ≤ w ω)
+    (hsum : ∑ ω, w ω = 1)
     (A : ι → Finset Ω) (N : ι → Finset ι) {d : ℕ} (hd : 0 < d) {p : ℝ} (hp0 : 0 ≤ p)
     (hself : ∀ i, i ∉ N i)
     (hdeg : ∀ i, #(N i) ≤ d)
-    (hindep : ∀ (i : ι) (T : Finset ι), Disjoint T (insert i (N i)) →
-      wprob w (A i ∩ noneOf A T) = wprob w (A i) * wprob w (noneOf A T))
+    (hlop : ∀ (i : ι) (T : Finset ι), Disjoint T (insert i (N i)) →
+      wprob w (A i ∩ noneOf A T) ≤ wprob w (A i) * wprob w (noneOf A T))
     (hprob : ∀ i, wprob w (A i) ≤ p)
     (hep : Real.exp 1 * p * (d + 1) ≤ 1) :
     0 < wprob w (noneOf A (univ : Finset ι)) := by
@@ -287,10 +319,28 @@ theorem lovasz_local_lemma_symmetric (w : Ω → ℝ) (hw : ∀ ω, 0 ≤ w ω) 
       _ ≤ (1 / ((d : ℝ) + 1)) * ((d : ℝ) / ((d : ℝ) + 1)) ^ #(N i) :=
           mul_le_mul_of_nonneg_left hmono (by positivity)
       _ = x i * ∏ j ∈ N i, (1 - x j) := by rw [hprodeq, hxdef]
-  have h := lovasz_local_lemma w hw hsum A N x hx0 hx1 hself hindep hbound
+  have h := lovasz_local_lemma_lopsided w hw hsum A N x hx0 hx1 hself hlop hbound
   have hprodpos : (0 : ℝ) < ∏ i, (1 - x i) :=
     Finset.prod_pos fun i _ => by linarith [hx1 i]
   linarith
+
+/-- **The Lovász Local Lemma**, symmetric form (Zhao, §6.1), under genuine independence.
+
+If every event has probability at most `p`, every event is independent of any subfamily
+outside `insert i (N i)`, each `N i` has at most `d` members, and `e * p * (d + 1) ≤ 1`, then
+with positive probability none of the events occurs. This is the form every application in
+§6.2–§6.4 uses. -/
+theorem lovasz_local_lemma_symmetric (w : Ω → ℝ) (hw : ∀ ω, 0 ≤ w ω) (hsum : ∑ ω, w ω = 1)
+    (A : ι → Finset Ω) (N : ι → Finset ι) {d : ℕ} (hd : 0 < d) {p : ℝ} (hp0 : 0 ≤ p)
+    (hself : ∀ i, i ∉ N i)
+    (hdeg : ∀ i, #(N i) ≤ d)
+    (hindep : ∀ (i : ι) (T : Finset ι), Disjoint T (insert i (N i)) →
+      wprob w (A i ∩ noneOf A T) = wprob w (A i) * wprob w (noneOf A T))
+    (hprob : ∀ i, wprob w (A i) ≤ p)
+    (hep : Real.exp 1 * p * (d + 1) ≤ 1) :
+    0 < wprob w (noneOf A (univ : Finset ι)) :=
+  lovasz_local_lemma_symmetric_lopsided w hw hsum A N hd hp0 hself hdeg
+    (fun i T hT => (hindep i T hT).le) hprob hep
 
 end LocalLemma
 

@@ -252,7 +252,7 @@ that set, and the dependency neighbourhood excludes `e` itself, so `d ≤ 2kΔ -
 `e p (d + 1) ≤ e (1/k²)(2kΔ) = 2eΔ/k ≤ 1` exactly when `k ≥ 2eΔ`. The theorem is correct;
 the displayed inequality is off by that one edge. **Formalize with `d + 1 ≤ 2kΔ`.**
 
-### §6.3 — proved by a contributor, and the orchestrator raced the claim
+### §6.3 — proved by a contributor (PR #43, merged)
 
 Task #41 published the statement with a `sorry`. A contributor claimed it 36 seconds later
 and delivered a verified, self-contained proof (PR #43). **The orchestrator proved it
@@ -260,7 +260,10 @@ concurrently and closed the issue four minutes before that PR arrived — a proc
 A published task belongs to whoever claims it; proving a claimed task discards a
 contributor's compute and, worse, the reason to contribute at all.
 
-The resolution keeps both: `Transversal.lean` is restored to the exact published base so the
+All nine checks passed and the PR is merged, so Theorem 6.3.1 is the first result in this
+project proved by someone other than the orchestrator.
+
+The resolution kept both: `Transversal.lean` is restored to the exact published base so the
 contributor's patch applies to it byte-for-byte, and the orchestrator's modular pieces —
 `PMC.tEvent`, `PMC.determinedOn_tEvent`, `PMC.wprob_tEvent_le`, `PMC.card_tNbr_le` — move to
 `TransversalBlocks.lean`, where they remain verified and available for §6.5 without
@@ -362,7 +365,28 @@ direct numeric form, and on 25 vertices at `k = 2` for the log form
 is the first-pass dependency digraph, and their final trick only *shrinks* `N`, so it plugs
 into the same assembly without touching anything above.
 
-The remaining sections (§6.5 lopsided local lemma, §6.6 algorithmic local lemma) each need
-their own setup; §6.5 in particular
-needs a different independence hypothesis (lopsidependency) and so a variant statement, not
-just an application.
+### §6.5 — the lopsided local lemma is proved, and the weakening was free
+
+`PMC.lovasz_local_lemma_lopsided` and `PMC.lovasz_local_lemma_symmetric_lopsided`
+(Erdős–Spencer). The dependency hypothesis is negative correlation,
+
+    P(A i ∩ noneOf A T) ≤ P(A i) · P(noneOf A T),
+
+an inequality rather than the independence equality. **The existing proof already sufficed.**
+It uses the hypothesis exactly once, in a `calc` chain that only ever travels upward, to
+replace `P(A i ∩ noneOf A T₂)` by `P(A i) P(noneOf A T₂)` — so an inequality in that
+direction is all it needed. The change is one `=` to one `≤` in `lll_key`, and the
+independence forms `PMC.lovasz_local_lemma` and `PMC.lovasz_local_lemma_symmetric` become
+one-line corollaries, so every §6.2–§6.4 application is untouched.
+
+This is worth recording as a general lesson: **a proof written multiplicatively, with no
+division, tends to generalize from equality hypotheses to inequality hypotheses for free.**
+The earlier decision to avoid dividing by `P(noneOf A T)` was made to dodge a positivity
+problem, and it paid a second time here.
+
+What remains of §6.5 is the *application*, Latin transversals: the sample space is a set of
+permutations rather than a product, so the negative-correlation hypothesis has to be
+established for random permutations — that, not the local lemma, is now the work.
+
+§6.6 (algorithmic local lemma, Moser–Tardos) needs its own setup: an entropy-compression or
+witness-tree argument, which is a different proof technique rather than a variant statement.
