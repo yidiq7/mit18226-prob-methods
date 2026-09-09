@@ -32,6 +32,10 @@ variable {ι : Type*} [Fintype ι] [LinearOrder ι] {β : Type*} [Fintype β] [D
 def projSet (S : Finset ι) (A : Finset (ι → β)) : Finset (ι → Option β) :=
   A.image fun x i => if i ∈ S then some (x i) else none
 
+lemma mem_projSet {S : Finset ι} {A : Finset (ι → β)} {u : ι → Option β} :
+    u ∈ projSet S A ↔ ∃ x ∈ A, (fun i => if i ∈ S then some (x i) else none) = u := by
+  rw [projSet, Finset.mem_image]
+
 lemma projSet_nonempty {A : Finset (ι → β)} (hA : A.Nonempty) (S : Finset ι) :
     (projSet S A).Nonempty := hA.image _
 

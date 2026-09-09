@@ -1838,6 +1838,61 @@
       ],
       "proof_uses": [],
       "note": "Theorem 8.1.1 in the notes' form, both bounds together. The two halves have nothing in common as proofs: the lower bound is Harris (decreasing events are positively correlated, no hypothesis relating the g i needed), the upper peels the family one index at a time."
+    },
+    "orderedTrianglesDef": {
+      "kind": "definition",
+      "parent": "entropyGroup",
+      "file": "ProbMethods/Chapter10/TriangleCount.lean",
+      "decl": "PMC.orderedTriangles",
+      "doc": "entropy.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "Ordered triangles as functions Fin 3 -> V, so they are already in the shape card_pow_le_prod_card_projSet wants. Checked by #eval: 24 on K4, 0 on a 4-cycle."
+    },
+    "orderedEdges_card": {
+      "kind": "theorem",
+      "parent": "entropyGroup",
+      "file": "ProbMethods/Chapter10/TriangleCount.lean",
+      "decl": "PMC.card_orderedEdges",
+      "doc": "entropy.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "There are exactly 2m ordered edges. Fibring over the first endpoint turns the count into the degree sum, which is Mathlib's handshake lemma. Checked by #eval: 12 on K4 (m=6), 8 on a 4-cycle (m=4)."
+    },
+    "projSet_pair_bound": {
+      "kind": "theorem",
+      "parent": "entropyGroup",
+      "file": "ProbMethods/Chapter10/TriangleCount.lean",
+      "decl": "PMC.card_projSet_pair_le",
+      "doc": "entropy.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [
+        "projSetDef"
+      ],
+      "proof_uses": [],
+      "note": "The trace on two coordinates injects into a set of pairs. Stated for arbitrary indices and an arbitrary target so the caller supplies only the adjacency fact."
+    },
+    "triangle_count": {
+      "kind": "theorem",
+      "parent": "entropyGroup",
+      "file": "ProbMethods/Chapter10/TriangleCount.lean",
+      "decl": "PMC.card_orderedTriangles_sq_le",
+      "doc": "entropy.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [
+        "shearer_counting",
+        "projSet_pair_bound",
+        "orderedEdges_card",
+        "orderedTrianglesDef"
+      ],
+      "proof_uses": [],
+      "note": "The triangle-counting bound t^2 <= (2m)^3 for t the number of ORDERED triangles, so #triangles <= (2m)^(3/2)/6. The SAME Shearer instance as Loomis-Whitney (Fin 3, k = 2) plus one observation: the trace of the ordered triangles on any two coordinates consists of ordered edges, of which there are exactly 2m. Asymptotically tight on K_n, where the ratio tends to 1."
     }
   }
 }

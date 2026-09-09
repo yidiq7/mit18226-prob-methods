@@ -28,7 +28,7 @@ written when the phase opens, so the plan never claims more precision than it ha
 | 7 | 7 Correlation Inequalities | [correlation.md](correlation.md) | **complete in finite form**: §7.1 upstream, §7.2 proved |
 | 8 | 8 Janson Inequalities | [janson.md](janson.md) | **Thm 8.1.1 complete** (both bounds); §8.2 extended Janson, §8.3 applications open |
 | 9 | 9 Concentration of Measure | [mathlib-survey.md](mathlib-survey.md) | **§9.1–§9.2 upstream** (Azuma–Hoeffding); §9.5 Talagrand absent |
-| 10 | 10 Entropy | [entropy.md](entropy.md) | **§10.1–§10.3 proved**: Gibbs through **Shearer's lemma** and **Loomis–Whitney**; remaining applications open |
+| 10 | 10 Entropy | [entropy.md](entropy.md) | **§10.1–§10.3 proved**: Gibbs through Shearer, **Loomis–Whitney** and the **triangle bound**; Bregman/Kahn open |
 | 11 | 11 Containers | — | not started |
 
 ## Conventions that shape the route

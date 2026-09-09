@@ -41,7 +41,8 @@ distribution, and `PMC.wentropy w X = ∑ b, negMulLog (P (X = b))` is its entro
 | `PMC.wentropy_uniform_of_injective` — `H = log \|Ω\|` | proved |
 | `PMC.card_pow_le_prod_card_projSet` — Shearer as a count | proved |
 | **`PMC.loomis_whitney`** | proved |
-| Further applications (triangle bound, Kahn/Bregman) | open |
+| **`PMC.card_orderedTriangles_sq_le`** — the triangle bound | proved |
+| Further applications (Bregman, Kahn) | open |
 
 ## The one trap: `log 0 = 0`
 
@@ -147,8 +148,30 @@ made for `PMC.tupleEntropy`, so the two fit together with no conversion.
 `4`-point shadows, and `8² = 64 = 4 · 4 · 4`. A loose or mis-stated exponent would not
 achieve equality, so this is a stronger check than non-vacuity.
 
+## The triangle bound reuses the Loomis–Whitney instance exactly
+
+`PMC.card_orderedTriangles_sq_le`: `t² ≤ (2m)³` where `t` counts *ordered* triangles, so
+`#triangles ≤ (2m)^{3/2}/6`. What is worth noticing is that this is **the same Shearer
+instance** as Loomis–Whitney — `ι = Fin 3`, `k = 2`, the three 2-subsets — with exactly one
+extra observation: the trace of the ordered triangles on any two coordinates consists of
+*ordered edges*, of which there are `2m`. So the general counting form did all the work and
+the graph theory contributed one line.
+
+The two supporting lemmas are worth keeping separate:
+
+* `PMC.card_orderedEdges` — there are exactly `2m` ordered edges, by fibring over the first
+  endpoint and quoting Mathlib's handshake lemma.
+* `PMC.card_projSet_pair_le` — a two-coordinate trace injects into any set of pairs
+  containing the corresponding pairs. Stated for arbitrary indices and an arbitrary target,
+  so the caller supplies only the adjacency fact and nothing about triangles.
+
+Counts were `#eval`-checked rather than assumed: `24` ordered triangles and `12` ordered
+edges on `K₄` (against `4·3·2` and `2·6`), and `0` and `8` on a 4-cycle. The bound is
+asymptotically tight on `K_n`, where the two sides' ratio tends to `1`.
+
 ## Next
 
-Remaining Chapter 10 applications: the triangle-counting bound and the
-Kahn/Bregman-type results. Both are further instances of
-`PMC.card_pow_le_prod_card_projSet` or of `PMC.shearer_of_submodular` directly.
+Remaining Chapter 10 applications are the Bregman/Kahn-type results (permanents, counting
+independent sets in bipartite graphs). Both should go through
+`PMC.shearer_of_submodular` directly rather than the counting corollary, since the set
+function they need is not `S ↦ H(X_S)` for a masked tuple.
