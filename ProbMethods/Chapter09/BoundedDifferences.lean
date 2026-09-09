@@ -320,7 +320,12 @@ Dividing by `|β|ᴺ` gives the notes' `P(f ≥ E f + t) ≤ exp(-2t²/∑cᵢ²
 
 Markov applied to the moment generating function of `PMC.pAvg_exp_le`, at the optimal
 `λ = 4t/∑cᵢ²`. Hoeffding's lemma enters through `PMC.hoeffdingUnif_holds`, so the statement
-is unconditional. -/
+is unconditional.
+
+This is also **Theorem 9.2.9** — Azuma for Doob martingales — and with the sharper constant
+that statement carries: the exponent is `-2t²/∑cᵢ²`, four times better than
+`PMC.wprob_martingale_ge_le`'s `-t²/(2∑cᵢ²)`, because the `cᵢ` here bound the *conditional
+range* of the increment rather than the increment itself. -/
 theorem card_filter_ge_le {N : ℕ} (f : (Fin N → β) → ℝ)
     (c : Fin N → ℝ) (hf : BddDiff f c) {t : ℝ} (ht : 0 < t) (hS : 0 < ∑ i, c i ^ 2) :
     (#((univ : Finset (Fin N → β)).filter fun x => pAvg f + t ≤ f x) : ℝ)

@@ -46,6 +46,7 @@ import ProbMethods.Chapter08.JansonTriangle
 import ProbMethods.Chapter08.JansonII
 import ProbMethods.Chapter09.HammingCube
 import ProbMethods.Chapter09.Hoeffding
+import ProbMethods.Chapter09.Azuma
 import ProbMethods.Chapter09.BoundedDifferences
 import ProbMethods.Chapter09.ChromaticConcentration
 import ProbMethods.Chapter09.CubeExpansion

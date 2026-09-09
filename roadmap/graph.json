@@ -825,10 +825,17 @@
   },
   "azuma": {
    "kind": "theorem",
-   "parent": "concentration",
-   "decl": "ProbabilityTheory.measure_sum_ge_le_of_HasCondSubgaussianMGF",
-   "upstream": true,
-   "note": "Azuma-Hoeffding, in Mathlib SubGaussian.lean. Covers 9.1-9.2 in MeasureTheory form."
+   "parent": "concentrationGroup",
+   "file": "ProbMethods/Chapter09/Azuma.lean",
+   "decl": "PMC.wprob_martingale_ge_le",
+   "doc": "mathlib-survey.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "hoeffding_lemma"
+   ],
+   "proof_uses": [],
+   "note": "THEOREMS 9.2.7 and 9.2.8 (Azuma), proved in the finite framework. Mathlib's Azuma takes conditional sub-Gaussianity as a hypothesis and the step the notes need -- bounded increments implies conditionally sub-Gaussian -- is NOT upstream, so 'section 9.2 is upstream' was too quick. The design decision that made this short: CONDITIONING BY REWEIGHTING. fibreWeight renormalises the weight on a fibre and zeroes it elsewhere, so it is again a weight on the same Omega and Hoeffding's lemma applies fibrewise with no subtypes and no change of sample space; the induction is then wmean_exp_step applied n times. Theorem 9.2.9 (the Doob case) is section 9.1's card_filter_ge_le, with the sharper constant -2t^2/sum c_i^2 because there the c_i bound the conditional range rather than the increment."
   },
   "concentration": {
    "kind": "group",
