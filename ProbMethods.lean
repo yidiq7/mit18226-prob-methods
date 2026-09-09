@@ -1,6 +1,7 @@
 import ProbMethods.Basic
 import ProbMethods.Weighted
 import ProbMethods.Product
+import ProbMethods.Permutation
 import ProbMethods.Chapter01.Bipartite
 import ProbMethods.Chapter01.Ramsey
 import ProbMethods.Chapter01.Bollobas
@@ -25,6 +26,7 @@ import ProbMethods.Chapter06.ProductLLL
 import ProbMethods.Chapter06.TransversalBlocks
 import ProbMethods.Chapter06.Transversal
 import ProbMethods.Chapter06.DivisibleCycle
+import ProbMethods.Chapter06.Derangement
 import ProbMethods.Chapter07.Correlation
 import ProbMethods.Chapter08.Janson
 import ProbMethods.Chapter10.Entropy

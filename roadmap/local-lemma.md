@@ -384,9 +384,38 @@ division, tends to generalize from equality hypotheses to inequality hypotheses 
 The earlier decision to avoid dividing by `P(noneOf A T)` was made to dodge a positivity
 problem, and it paid a second time here.
 
-What remains of §6.5 is the *application*, Latin transversals: the sample space is a set of
-permutations rather than a product, so the negative-correlation hypothesis has to be
-established for random permutations — that, not the local lemma, is now the work.
+**Corollary 6.5.6, the derangement bound, is also proved**
+(`PMC.wprob_derangeOn_univ_ge`): a uniform random permutation of an `n`-element set has no
+fixed point with probability at least `(1 - 1/n)^n`. It is the smallest application of the
+lopsided form and shows why that form is needed: the events `σ i = i` are **not**
+independent, so `PMC.lovasz_local_lemma` cannot be used, but they are negatively correlated,
+and the dependency neighbourhood is *empty*.
+
+The supporting layer is `ProbMethods/Permutation.lean`, and it rests on a single device:
+**composing with a transposition.** `σ ↦ Equiv.swap t t' * σ` is a bijection between the
+permutations sending `i` to `t` and those sending `i` to `t'`, which gives
+
+* `PMC.wprob_unifPerm_apply_eq` — `P(σ i = t) = 1/n`, *exactly*. An upper bound would not do:
+  the lopsided hypothesis has `P(A i)` itself on the right-hand side.
+* `PMC.card_filter_fix_le` and `PMC.wprob_fix_inter_derangeOn_le` — the same transposition,
+  now applied to permutations that avoid fixed points on a set `S` with `i ∉ S`. It cannot
+  create a fixed point at `j ∈ S`, because that needs `σ j = swap i t j`, which forces `j = t`
+  and `σ t = i` — impossible when `σ i = i` already. **This is Theorem 6.5.5's random
+  injection argument for single-edge matchings**, with the transposition in the role of the
+  permutation of `Y` carrying `F₀` to `T`.
+
+The negative correlation was checked to be *strict* (`Fin 3` with `S = {1}`: `3 < 4`, i.e.
+`1/6 < 2/9`), so this is not independence in disguise.
+
+**Erratum in Corollary 6.5.6's proof.** The notes write "Since `P(A_i) = 1 - 1/n`, we can set
+`x_i = 1 - 1/n`". Both numbers are the same slip: `P(A_i) = 1/n` and the choice is
+`x_i = 1/n`, which is what makes the displayed `(1 - 1/n)^n` come out.
+
+What remains of §6.5 is Theorem 6.5.5 in **full generality** (arbitrary vertex-disjoint
+matchings in the random injection model) and the Latin-transversal application built on it.
+The single-edge case above is the same argument, so the generalization is a matter of
+replacing the transposition by a permutation carrying one matching to another; the
+bookkeeping, not the idea, is the work.
 
 §6.6 (algorithmic local lemma, Moser–Tardos) needs its own setup: an entropy-compression or
 witness-tree argument, which is a different proof technique rather than a variant statement.
