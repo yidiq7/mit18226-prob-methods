@@ -79,7 +79,7 @@ lemma card_le_of_inj_bounded {A : Finset (Finset α)} (hA : A.Nonempty) (f : Fin
   have h3 : lo ≤ (⌈lo⌉₊ : ℝ) := Nat.le_ceil lo
   linarith
 
-/-- **Erdős' distinct subset sums bound** (Zhao, §4.6).
+/-- **Theorem 4.6.3** — Erdős' distinct subset sums bound (Zhao, §4.6), in explicit form.
 
 If every subset sum of `a` is distinct and `a i ≤ M` for all `i`, then
 `3 · 2 ^ n ≤ 8 √n M + 4` — so the largest element is at least `(3 · 2 ^ n - 4) / (8 √n)`,

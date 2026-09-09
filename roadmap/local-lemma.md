@@ -545,3 +545,20 @@ bookkeeping, not the idea, is the work.
 
 §6.6 (algorithmic local lemma, Moser–Tardos) needs its own setup: an entropy-compression or
 witness-tree argument, which is a different proof technique rather than a variant statement.
+
+### sphere_regions — Lemma 6.2.14, the arithmetic half
+
+`PMC.region_count_le_cube` (`ProbMethods/Chapter06/SphereRegions.lean`): from `f 1 = 2`,
+`f (m+1) ≤ f m + 2m`, `g 1 = 2` and `g (m+1) ≤ g m + f m`, one gets `g m ≤ m³` for `m ≥ 2`.
+Statement published as a task; proof open.
+
+The two geometric facts — a new circle meets `m` old circles in at most `2m` points, and a new
+sphere is cut by the others into at most `f m` pieces — are **hypotheses**, and the docstring
+says so. Establishing them for actual spheres needs a theory of arrangements Mathlib does not
+have (the intersection count is Bézout for circles on a sphere), so this is honestly the
+arithmetic half of 6.2.14 rather than the lemma. Theorem 6.2.12 (Mani-Levitska–Pach) consumes
+it to bound how many other edges an edge of the covering hypergraph meets, and remains out of
+reach for the same geometric reason.
+
+The recursions actually give `g m ≤ 2m + (m-1)m(m-2)/3`, which is `m³/3` asymptotically; `m³`
+is what the notes state.

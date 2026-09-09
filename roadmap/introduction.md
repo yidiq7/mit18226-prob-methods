@@ -103,7 +103,14 @@ Zhao's proof: a uniformly random 2-colouring makes each edge monochromatic with
 probability `2^(1-k)`, so the expected number of monochromatic edges is
 `#E · 2^(1-k) < 1`. Counting form: fewer than `2 ^ #V` of the colourings are bad.
 
-Theorem 1.3.3 (`m(k) = O(k² 2^k)`) is asymptotic and is not a node in this phase.
+Theorem 1.3.3 (`m(k) = O(k² 2^k)`) was recorded here as "asymptotic and not a node in this
+phase". The `O(·)` is the only asymptotic part, and the proof pins the constant down:
+`PMC.exists_not_twoColorable_card_le` states that some `k`-uniform hypergraph on `k²` vertices
+with at most `2 k² 2^k` edges is not 2-colourable, which is the theorem with `O(k² 2^k)`
+replaced by an explicit bound. Statement published as a task; the route is in the file's
+docstring, and the constant has slack (`1.386 k² 2^k` is what the estimates give). With
+Theorem 1.3.1 below (`m k ≥ 2^{k-1}`) and Theorem 3.5.1 (`m k ≳ √(k/log k) 2^k`) this brackets
+`m k`.
 
 ### ramsey_lll — Theorem 1.1.9 (Spencer 1977)
 

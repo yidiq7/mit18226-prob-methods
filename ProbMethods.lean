@@ -9,6 +9,7 @@ import ProbMethods.Chapter01.Ramsey
 import ProbMethods.Chapter01.RamseyLLL
 import ProbMethods.Chapter01.Bollobas
 import ProbMethods.Chapter01.PropertyB
+import ProbMethods.Chapter01.PropertyBUpper
 import ProbMethods.Chapter01.ListChromatic
 import ProbMethods.Chapter02.CaroWei
 import ProbMethods.Chapter02.PolyCube
@@ -22,6 +23,7 @@ import ProbMethods.Chapter03.GreedyColoring
 import ProbMethods.Chapter04.FirstMoment
 import ProbMethods.Chapter04.SecondMoment
 import ProbMethods.Chapter04.Threshold
+import ProbMethods.Chapter04.BollobasThomason
 import ProbMethods.Chapter04.Weierstrass
 import ProbMethods.Chapter04.DubroffFoxXu
 import ProbMethods.Chapter04.Variance
@@ -44,6 +46,7 @@ import ProbMethods.Chapter06.Transversal
 import ProbMethods.Chapter06.LatinTransversal
 import ProbMethods.Chapter06.Compactness
 import ProbMethods.Chapter06.AvoidEvents
+import ProbMethods.Chapter06.SphereRegions
 import ProbMethods.Chapter06.DivisibleCycle
 import ProbMethods.Chapter06.Derangement
 import ProbMethods.Chapter07.Correlation

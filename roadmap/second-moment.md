@@ -300,3 +300,23 @@ and this project does not state asymptotics.
 ### Still to do
 §4.3's general threshold theorem is the one whose natural statement is genuinely
 asymptotic; expect it to stay deferred longest.
+
+### bollobas_thomason — Lemma 4.3.7
+
+`PMC.sum_bweight_notMem_le_pow` (`ProbMethods/Chapter04/BollobasThomason.lean`):
+`P(Ω_p ∉ F) ≤ P(Ω_{p/m} ∉ F)^m` for upward-closed `F`. Statement published as a task; proof
+open.
+
+This is the non-asymptotic engine behind **Theorem 4.3.6** ("every sequence of non-trivial
+monotone properties has a threshold"), which the notes derive from it — so it is the piece
+worth having, and 4.3.6 follows from it without further probability. Two steps, only the first
+a coupling:
+
+* `m` independent copies of `Ω_{p/m}` have union distributed as `Ω_q` with
+  `q = 1 - (1-p/m)^m`, and upward-closure makes "union outside `F`" imply "every copy outside
+  `F`", so independence gives the `m`-th power;
+* `q ≤ p` by Bernoulli, and `p ↦ P(Ω_p ∉ F)` is *antitone* — the non-strict form of task #50
+  (`PMC.strictMonoOn_sum_bweight`), provable directly by the same one-coordinate coupling.
+
+Stated without the notes' non-triviality hypothesis on `F`, which the inequality does not need:
+at `F = ∅` both sides are `1`, and at `F = univ` the left side is `0`.

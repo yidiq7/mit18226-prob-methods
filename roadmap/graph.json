@@ -5188,6 +5188,47 @@
    ],
    "proof_uses": [],
    "note": "THEOREM 6.2.6 on a possibly infinite vertex set. Statement published as task #54; proof open. Both halves exist -- PMC.exists_two_coloring_of_finite for the compactness step (and PMC.exists_avoid_all_of_avoid_finite, Lemma 6.2.7, in the notes' full generality) and PMC.exists_two_coloring_of_local_lemma' for the finite one -- so what remains is the transport of the finite result onto each finite vertex set, recorded in the file's docstring."
+  },
+  "property_b_upper": {
+   "kind": "theorem",
+   "parent": "introGroup",
+   "file": "ProbMethods/Chapter01/PropertyBUpper.lean",
+   "decl": "PMC.exists_not_twoColorable_card_le",
+   "doc": "introduction.md",
+   "statement": "formalized",
+   "proof": "planned",
+   "origin": "orchestrator",
+   "uses": [],
+   "proof_uses": [],
+   "note": "THEOREM 1.3.3 (Erdos 1964) with an EXPLICIT constant: some k-uniform hypergraph on k^2 vertices with at most 2 k^2 2^k edges is not 2-colourable, so m k = O(k^2 2^k). Statement published; proof open. Route: m random k-subsets of [k^2]; a random k-set lands inside the larger colour class with probability at least 2^{-k-1} (the estimate C(s,k)/C(k^2,k) >= 2^{-k}(1 - k(k-1)/(2(k^2-k))) = 2^{-k-1} uses only prod(1-x_i) >= 1 - sum x_i, and k(k-1)/(2(k^2-k)) = 1/2 EXACTLY at k^2 vertices); union bound over 2^{k^2} colourings needs m > k^2 log 2 . 2^{k+1} = 1.386 k^2 2^k, so 2 k^2 2^k is comfortable. Duplicate draws are harmless because the event depends only on the SET of chosen edges, which is why the conclusion is #E <= m. Brackets m k together with Theorem 1.3.1 (2^{k-1}) and Theorem 3.5.1."
+  },
+  "bollobas_thomason": {
+   "kind": "lemma",
+   "parent": "secondMomentGroup",
+   "file": "ProbMethods/Chapter04/BollobasThomason.lean",
+   "decl": "PMC.sum_bweight_notMem_le_pow",
+   "doc": "second-moment.md",
+   "statement": "formalized",
+   "proof": "planned",
+   "origin": "orchestrator",
+   "uses": [
+    "threshold_strictmono"
+   ],
+   "proof_uses": [],
+   "note": "LEMMA 4.3.7 (Bollobas-Thomason): P(Omega_p not in F) <= P(Omega_{p/m} not in F)^m for upward-closed F. Statement published; proof open. This is the non-asymptotic engine behind Theorem 4.3.6 (every sequence of non-trivial monotone properties has a threshold), so it is the piece worth having. Route in two steps, only the first a coupling: m independent copies of Omega_{p/m} have union distributed as Omega_q with q = 1-(1-p/m)^m, and upward-closure makes 'union outside F' imply 'every copy outside F', giving the m-th power by independence; then q <= p by Bernoulli and p |-> P(Omega_p not in F) is ANTITONE, which is the non-strict form of task #50. Stated without the notes' non-triviality hypothesis, which the inequality does not need."
+  },
+  "sphere_regions": {
+   "kind": "lemma",
+   "parent": "localLemmaGroup",
+   "file": "ProbMethods/Chapter06/SphereRegions.lean",
+   "decl": "PMC.region_count_le_cube",
+   "doc": "local-lemma.md",
+   "statement": "formalized",
+   "proof": "planned",
+   "origin": "orchestrator",
+   "uses": [],
+   "proof_uses": [],
+   "note": "LEMMA 6.2.14's ARITHMETIC HALF: from f 1 = 2, f(m+1) <= f m + 2m, g 1 = 2 and g(m+1) <= g m + f m, one gets g m <= m^3 for m >= 2. The two geometric inputs -- a new circle meets m old ones in at most 2m points, and a new sphere is cut by the others into at most f m pieces -- are HYPOTHESES, not smuggled in: establishing them needs a theory of arrangements Mathlib does not have (Bezout for circles on a sphere). Statement published; proof open. The recursions actually give g m <= 2m + (m-1)m(m-2)/3, about m^3/3; m^3 is what the notes state and what Theorem 6.2.12 consumes."
   }
  }
 }
