@@ -239,6 +239,71 @@ theorem card_blocks_containing (e : Edge V) {m : ℕ} (hm : 2 ≤ m) :
         rw [hPdef, mem_sdiff, mem_insert, mem_singleton] at h
         exact h.2 (Or.inr rfl)
 
+/-- The block splits as a disjoint union: edges inside `S`, and edges inside its
+complement. An edge cannot be in both, because it has a vertex. -/
+theorem card_block (S : Finset V) :
+    #(block S) = (#S).choose 2 + (Fintype.card V - #S).choose 2 := by
+  classical
+  have hsplit : block S = within S ∪ within ((univ : Finset V) \ S) := by
+    ext e
+    simp [block, within]
+  have hdisj : Disjoint (within S) (within ((univ : Finset V) \ S)) := by
+    rw [Finset.disjoint_left]
+    intro e he he'
+    obtain ⟨x, y, -, hz⟩ := exists_pair_of_edge e
+    rw [within, mem_filter] at he he'
+    have h1 : x ∈ S := he.2 x (by rw [hz]; simp)
+    have h2 : x ∈ (univ : Finset V) \ S := he'.2 x (by rw [hz]; simp)
+    exact (mem_sdiff.mp h2).2 h1
+  rw [hsplit, Finset.card_union_of_disjoint hdisj, card_within, card_within,
+    card_sdiff_of_subset (subset_univ S), card_univ]
+
+/-- Counting the pairs `(S, e)` with `e` inside a part of `S`, both ways round. -/
+theorem sum_card_block (m : ℕ) :
+    ∑ S ∈ (univ : Finset V).powersetCard m, #(block S)
+      = ∑ e : Edge V, #(((univ : Finset V).powersetCard m).filter fun S => e ∈ block S) := by
+  classical
+  have hself : ∀ S : Finset V,
+      (univ : Finset (Edge V)).filter (fun e => e ∈ block S) = block S := by
+    intro S
+    ext e
+    simp
+  have h1 : ∀ S : Finset V, #(block S) = ∑ e : Edge V, if e ∈ block S then 1 else 0 := by
+    intro S
+    rw [← Finset.sum_filter, hself S, Finset.card_eq_sum_ones]
+  calc ∑ S ∈ (univ : Finset V).powersetCard m, #(block S)
+      = ∑ S ∈ (univ : Finset V).powersetCard m,
+          ∑ e : Edge V, (if e ∈ block S then 1 else 0) :=
+        Finset.sum_congr rfl fun S _ => h1 S
+    _ = ∑ e : Edge V,
+          ∑ S ∈ (univ : Finset V).powersetCard m, (if e ∈ block S then 1 else 0) :=
+        Finset.sum_comm
+    _ = ∑ e : Edge V,
+          #(((univ : Finset V).powersetCard m).filter fun S => e ∈ block S) := by
+        refine Finset.sum_congr rfl fun e _ => ?_
+        rw [Finset.card_filter]
+
+/-- **Step (4) of Theorem 10.4.9: the double-count identity.**
+
+`C(n,m) · r = C(n,2) · k`, where `r = C(m,2) + C(n-m,2)` is the size of every block and
+`k = C(n-2,m-2) + C(n-2,m)` is the number of blocks containing any given edge. Both sides
+count the pairs `(S, e)` with `S` an `m`-set and `e` an edge inside one of its two parts;
+the point is that both `r` and `k` are *constant*, so each side collapses to a product. -/
+theorem choose_mul_block_eq {m : ℕ} (hm : 2 ≤ m) :
+    (Fintype.card V).choose m * (m.choose 2 + (Fintype.card V - m).choose 2)
+      = (Fintype.card V).choose 2
+        * ((Fintype.card V - 2).choose (m - 2) + (Fintype.card V - 2).choose m) := by
+  classical
+  have h := sum_card_block (V := V) m
+  rw [Finset.sum_congr rfl (fun S hS => by
+        rw [Finset.mem_powersetCard] at hS
+        rw [card_block, hS.2] : ∀ S ∈ (univ : Finset V).powersetCard m,
+          #(block S) = m.choose 2 + (Fintype.card V - m).choose 2),
+    Finset.sum_const, Finset.card_powersetCard, card_univ,
+    Finset.sum_congr rfl (fun e _ => card_blocks_containing e hm), Finset.sum_const,
+    card_univ, card_Edge] at h
+  simpa [nsmul_eq_mul] using h
+
 end EdgeCount
 
 end PMC

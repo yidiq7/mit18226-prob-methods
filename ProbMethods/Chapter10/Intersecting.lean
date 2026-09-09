@@ -244,4 +244,30 @@ lemma two_mul_choose_two_add_le {a b : ℕ} (hab : b ≤ a + 1) (hba : a ≤ b +
   have hs := two_mul_choose_two (a + b)
   omega
 
+/-- The **strict** form, which is what makes Theorem 10.4.9's bound strict.
+
+`(a-b)² ≤ 1`, so as soon as `a + b ≥ 2` the inequality `(a-b)² ≤ a+b` has room to spare.
+Equality in the non-strict version happens only at `a + b ≤ 1`. -/
+lemma two_mul_choose_two_add_lt {a b : ℕ} (hab : b ≤ a + 1) (hba : a ≤ b + 1)
+    (hn : 2 ≤ a + b) : 2 * (a.choose 2 + b.choose 2) < (a + b).choose 2 := by
+  have hsq : ∀ m : ℕ, m ≤ m * m := by
+    intro m
+    cases m with
+    | zero => simp
+    | succ k => nlinarith
+  have keyfree :
+      2 * (a * a) + 2 * (b * b) + (a + b) < (a + b) * (a + b) + 2 * a + 2 * b := by
+    have h : b = a ∨ b = a + 1 ∨ a = b + 1 := by omega
+    rcases h with rfl | rfl | rfl <;> nlinarith
+  have key : 2 * (a * (a - 1)) + 2 * (b * (b - 1)) < (a + b) * (a + b - 1) := by
+    rw [Nat.mul_sub_one, Nat.mul_sub_one, Nat.mul_sub_one]
+    have h1 := hsq a
+    have h2 := hsq b
+    have h3 := hsq (a + b)
+    omega
+  have ha := two_mul_choose_two a
+  have hb := two_mul_choose_two b
+  have hs := two_mul_choose_two (a + b)
+  omega
+
 end PMC

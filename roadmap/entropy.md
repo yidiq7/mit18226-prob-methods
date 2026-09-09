@@ -228,13 +228,23 @@ Three things, in the notes' own order:
      no symmetry argument. Note `2 ≤ m` is required and not cosmetic: at `m = 0` the
      truncated `m - 2` makes the first term `C(n-2,0) = 1` while no `0`-set contains both
      endpoints;
-  4. the double-count identity `k · C(n,2) = r · C(n,⌊n/2⌋)` — still to do. Note both sides
-     are now *available* as proved quantities: `r` from `PMC.card_within` and `k` from
-     `PMC.card_blocks_containing`, so this is `Finset.sum_comm` over the pairs
-     `(edge, S)` with the edge inside a part of `S`;
+  4. **done**: `PMC.choose_mul_block_eq` — `C(n,m) · r = C(n,2) · k`. Both sides count the
+     pairs `(S, e)` with `e` inside a part of `S`; the point is that `r` and `k` are both
+     *constant*, so each side collapses to a product;
   5. **done**: `r ≤ C(n,2)/2` is `PMC.two_mul_choose_two_add_le`, resting on
      `PMC.two_mul_choose_two`;
-  6. the exponent arithmetic — still to do.
+  6. the exponent assembly — the only step left, and it is worked out:
+
+     the container bound gives `#𝒢^k ≤ (2^r/2)^N` with `N = C(n,m)`; `rN = k·C(n,2)` is
+     step (4); and `2r < C(n,2)` (`PMC.two_mul_choose_two_add_lt`, the strict form) gives
+     `2k < N`, whence `(r-1)N < k(C(n,2)-2)` and the conclusion follows on taking `k`-th
+     roots. Side conditions: `k ≥ 1` (true for `m ≤ n`) and `C(n,2) ≥ 2` (so `n ≥ 3`).
+     `n ≤ 2` is separate and trivial — with at most one edge no intersection can contain a
+     triangle, so the family is empty.
+
+     Still to define: "`G ∩ G'` contains a triangle", and the trace-intersecting hypothesis,
+     which follows from `PMC.exists_pair_same_side` — two of the triangle's three vertices
+     lie on the same side of `S`, and the edge between them is in `PMC.block S`.
 
   On (5), the balance hypothesis is load-bearing rather than decorative: `a = 7, b = 0`
   gives `2 · 21 = 42 > 21`, so an unbalanced split breaks the bound outright. That is checked
@@ -318,13 +328,23 @@ Three things, in the notes' own order:
      no symmetry argument. Note `2 ≤ m` is required and not cosmetic: at `m = 0` the
      truncated `m - 2` makes the first term `C(n-2,0) = 1` while no `0`-set contains both
      endpoints;
-  4. the double-count identity `k · C(n,2) = r · C(n,⌊n/2⌋)` — still to do. Note both sides
-     are now *available* as proved quantities: `r` from `PMC.card_within` and `k` from
-     `PMC.card_blocks_containing`, so this is `Finset.sum_comm` over the pairs
-     `(edge, S)` with the edge inside a part of `S`;
+  4. **done**: `PMC.choose_mul_block_eq` — `C(n,m) · r = C(n,2) · k`. Both sides count the
+     pairs `(S, e)` with `e` inside a part of `S`; the point is that `r` and `k` are both
+     *constant*, so each side collapses to a product;
   5. **done**: `r ≤ C(n,2)/2` is `PMC.two_mul_choose_two_add_le`, resting on
      `PMC.two_mul_choose_two`;
-  6. the exponent arithmetic — still to do.
+  6. the exponent assembly — the only step left, and it is worked out:
+
+     the container bound gives `#𝒢^k ≤ (2^r/2)^N` with `N = C(n,m)`; `rN = k·C(n,2)` is
+     step (4); and `2r < C(n,2)` (`PMC.two_mul_choose_two_add_lt`, the strict form) gives
+     `2k < N`, whence `(r-1)N < k(C(n,2)-2)` and the conclusion follows on taking `k`-th
+     roots. Side conditions: `k ≥ 1` (true for `m ≤ n`) and `C(n,2) ≥ 2` (so `n ≥ 3`).
+     `n ≤ 2` is separate and trivial — with at most one edge no intersection can contain a
+     triangle, so the family is empty.
+
+     Still to define: "`G ∩ G'` contains a triangle", and the trace-intersecting hypothesis,
+     which follows from `PMC.exists_pair_same_side` — two of the triangle's three vertices
+     lie on the same side of `S`, and the edge between them is in `PMC.block S`.
 
   On (5), the balance hypothesis is load-bearing rather than decorative: `a = 7, b = 0`
   gives `2 · 21 = 42 > 21`, so an unbalanced split breaks the bound outright. That is checked

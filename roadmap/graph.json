@@ -2009,7 +2009,7 @@
         "shearer"
       ],
       "proof_uses": [],
-      "note": "Theorem 10.4.9: every triangle-intersecting family of graphs on n labelled vertices has size < 2^(C(n,2)-2). ALL non-arithmetic content is now proved: card_pow_le_prod_of_traces_intersecting combines Corollary 10.4.7 (in set-family form) with the intersecting bound, giving #F^k <= product over j of 2^#(A j)/2. What remains is purely finite counting on the edge set: (i) the edge type is {e : Sym2 (Fin n) // not e.IsDiag}, whose card is C(n,2) by Mathlib's Sym2.card_subtype_not_diag, and it now works with the container bound since the LinearOrder hypothesis is gone; (ii) DONE: #(edges inside S) = C(#S,2) is card_within, so #(A_S) = C(a,2)+C(b,2) follows by disjointness; (iii) DONE: the covering multiplicity is card_blocks_containing, a direct count needing no symmetry argument; (iv) the double-count identity k*C(n,2) = r*C(n,floor(n/2)); (v) DONE: r <= C(n,2)/2 is two_mul_choose_two_add_le; (vi) the exponent arithmetic. The pigeonhole input (every triangle has an edge in A_S) is exists_pair_same_side."
+      "note": "Theorem 10.4.9: every triangle-intersecting family of graphs on n labelled vertices has size < 2^(C(n,2)-2). FIVE OF SIX STEPS DONE. Remaining: the exponent assembly. Worked out and ready to execute: the container bound gives #G^k <= (2^r/2)^N with N = C(n,m), r the block size, k the multiplicity; rN = k*C(n,2) by choose_mul_block_eq; and 2r < C(n,2) by two_mul_choose_two_add_lt gives 2k < N, whence (r-1)N < k*(C(n,2)-2) and the conclusion follows on dividing the k-th powers. Needs k >= 1 (true for m <= n) and C(n,2) >= 2 (so n >= 3); n <= 2 is separate and trivial, since with at most one edge no intersection can contain a triangle and the family must be empty. Still to define: 'G inter G' contains a triangle', and the trace-intersecting hypothesis, which follows from exists_pair_same_side -- two of the triangle's three vertices lie on the same side of S, and the edge between them is in block S."
     },
     "traceOnDef": {
       "kind": "definition",
@@ -2246,6 +2246,54 @@
       ],
       "proof_uses": [],
       "note": "Step (3) of Theorem 10.4.9: for a fixed edge, the number of m-element vertex sets putting both endpoints on the same side is C(n-2,m-2) + C(n-2,m). It visibly does not depend on WHICH edge, so the notes' appeal to 'symmetry and averaging' -- which in Lean would mean a transitive action of S_n on edges -- is unnecessary. 2 <= m is required and not cosmetic: at m = 0 the truncated m-2 makes the first term C(n-2,0) = 1 while no 0-set contains both endpoints. Checked at two different edges: Fin 5 with m=2 gives 4 = 1+3, Fin 6 with m=3 gives 8 = 4+4."
+    },
+    "card_block": {
+      "kind": "theorem",
+      "parent": "entropyGroup",
+      "file": "ProbMethods/Chapter10/EdgeCount.lean",
+      "decl": "PMC.card_block",
+      "doc": "entropy.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "The block splits as a disjoint union -- edges inside S and edges inside its complement -- so #(block S) = C(#S,2) + C(n-#S,2). Disjointness holds because an edge has a vertex, which cannot be both in S and outside it."
+    },
+    "sum_card_block": {
+      "kind": "theorem",
+      "parent": "entropyGroup",
+      "file": "ProbMethods/Chapter10/EdgeCount.lean",
+      "decl": "PMC.sum_card_block",
+      "doc": "entropy.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "Counting the pairs (S, e) with e inside a part of S, both ways round."
+    },
+    "double_count": {
+      "kind": "theorem",
+      "parent": "entropyGroup",
+      "file": "ProbMethods/Chapter10/EdgeCount.lean",
+      "decl": "PMC.choose_mul_block_eq",
+      "doc": "entropy.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "Step (4) of Theorem 10.4.9, the double-count identity: C(n,m)*r = C(n,2)*k with r the block size and k the number of blocks containing a given edge. Both r and k are CONSTANT, which is why each side collapses to a product. Checked numerically at (n,m) = (6,3) giving 120 = 120 and (7,3) giving 315 = 315."
+    },
+    "balanced_split_strict": {
+      "kind": "theorem",
+      "parent": "entropyGroup",
+      "file": "ProbMethods/Chapter10/Intersecting.lean",
+      "decl": "PMC.two_mul_choose_two_add_lt",
+      "doc": "entropy.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "The STRICT form of the balanced-split bound, which is what makes Theorem 10.4.9's conclusion strict. (a-b)^2 <= 1, so once a+b >= 2 there is room to spare; equality in the non-strict version happens only at a+b <= 1."
     }
   }
 }
