@@ -298,7 +298,79 @@ theorem exists_independent_transversal (G : SimpleGraph V) [DecidableRel G.Adj]
     (hsize : ∀ i, k ≤ #(part i))
     (hk : 2 * Real.exp 1 * Δ ≤ k) :
     ∃ v : Fin r → V, (∀ i, v i ∈ part i) ∧ ∀ i j, i ≠ j → ¬ G.Adj (v i) (v j) := by
-  sorry
+  classical
+  have hexp1 : (1 : ℝ) < Real.exp 1 := by
+    have := Real.add_one_le_exp (1 : ℝ)
+    linarith
+  have hΔR : (1 : ℝ) ≤ Δ := by exact_mod_cast hΔpos
+  have hkR : (2 : ℝ) < k := by
+    have hepos : (0 : ℝ) < 2 * Real.exp 1 := by positivity
+    have h1 : 2 * Real.exp 1 * 1 ≤ 2 * Real.exp 1 * Δ :=
+      mul_le_mul_of_nonneg_left hΔR (le_of_lt hepos)
+    rw [mul_one] at h1
+    have h2 : 2 * Real.exp 1 ≤ (k : ℝ) := le_trans h1 hk
+    calc (2 : ℝ) = 2 * 1 := by ring
+      _ < 2 * Real.exp 1 := by linarith
+      _ ≤ (k : ℝ) := h2
+  have hk2N : 2 < k := by exact_mod_cast hkR
+  have hkpos : 0 < k := by omega
+  have hkR0 : (0 : ℝ) < k := by exact_mod_cast hkpos
+  haveI : Nonempty (Fin k) := ⟨⟨0, hkpos⟩⟩
+  -- trim the parts to size `k` and enumerate them
+  obtain ⟨w, hwmem, hwinj, hwsep⟩ := exists_enumeration part hdisj hsize
+  have hw_eq : ∀ i j a b, w i a = w j b → i = j ∧ a = b := by
+    intro i j a b h
+    by_cases hij : i = j
+    · subst hij
+      exact ⟨rfl, hwinj i h⟩
+    · exact absurd h (hwsep i j a b hij)
+  have hdpos : 0 < 2 * k * Δ - 1 := by
+    have h1 : 1 ≤ Δ := hΔpos
+    have h2 : 3 ≤ k := by omega
+    have h3 : 6 ≤ 2 * k * Δ := by nlinarith
+    omega
+  have hself : ∀ c, c ∉ tNbr G w c := by
+    intro c hc
+    rw [mem_filter] at hc
+    exact hc.2.1 rfl
+  have hfar : ∀ c c', c' ∉ insert c (tNbr G w c) →
+      Disjoint (tBlock G w c) (tBlock G w c') := by
+    intro c c' hc'
+    rw [Finset.mem_insert] at hc'
+    push_neg at hc'
+    by_contra hdis
+    exact hc'.2 (by rw [mem_filter]; exact ⟨mem_univ _, hc'.1, hdis⟩)
+  -- `e (1/k²) (2kΔ) = 2eΔ/k ≤ 1` is exactly the hypothesis `2eΔ ≤ k`
+  have hep : Real.exp 1 * (1 / (k : ℝ) ^ 2) * ((2 * k * Δ - 1 : ℕ) + 1) ≤ 1 := by
+    have hcast : (((2 * k * Δ - 1 : ℕ) : ℝ) + 1) = 2 * (k : ℝ) * Δ := by
+      have hk1 : 1 ≤ k := by omega
+      have h1 : 1 ≤ 2 * k * Δ := by nlinarith [hΔpos]
+      -- with the product as an atom, `omega` can cancel the truncated subtraction
+      have h2 : (2 * k * Δ - 1 : ℕ) + 1 = 2 * k * Δ := by omega
+      calc (((2 * k * Δ - 1 : ℕ) : ℝ) + 1)
+          = (((2 * k * Δ - 1 : ℕ) + 1 : ℕ) : ℝ) := by push_cast; ring
+        _ = ((2 * k * Δ : ℕ) : ℝ) := by rw [h2]
+        _ = 2 * (k : ℝ) * Δ := by push_cast; ring
+    rw [hcast]
+    have hid : Real.exp 1 * (1 / (k : ℝ) ^ 2) * (2 * (k : ℝ) * Δ)
+        = 2 * Real.exp 1 * Δ / k := by
+      field_simp
+    rw [hid, div_le_one hkR0]
+    exact hk
+  obtain ⟨f, hf⟩ := exists_avoiding_of_lll (tEvent G w) (tBlock G w)
+    (determinedOn_tEvent G w) (tNbr G w) hdpos (by positivity) hself
+    (fun c => card_tNbr_le G w hΔ hw_eq c) hfar (wprob_tEvent_le G w) hep
+  refine ⟨fun i => w i (f i), fun i => hwmem i (f i), ?_⟩
+  intro i j hij hadj
+  rcases lt_or_gt_of_ne hij with hlt | hgt
+  · refine hf (i, j, f i, f j) ?_
+    rw [show tEvent G w (i, j, f i, f j) = (univ : Finset (Fin r → Fin k)).filter
+        (fun g => g i = f i ∧ g j = f j) from if_pos ⟨hlt, hadj⟩, mem_filter]
+    exact ⟨mem_univ _, rfl, rfl⟩
+  · refine hf (j, i, f j, f i) ?_
+    rw [show tEvent G w (j, i, f j, f i) = (univ : Finset (Fin r → Fin k)).filter
+        (fun g => g j = f j ∧ g i = f i) from if_pos ⟨hgt, hadj.symm⟩, mem_filter]
+    exact ⟨mem_univ _, rfl, rfl⟩
 
 end Transversal
 

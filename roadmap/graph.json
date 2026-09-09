@@ -2404,13 +2404,13 @@
       "decl": "PMC.exists_independent_transversal",
       "doc": "local-lemma.md",
       "statement": "formalized",
-      "proof": "planned",
+      "proof": "formalized",
       "uses": [
         "product_lll",
         "trim_enumerate"
       ],
       "proof_uses": [],
-      "note": "Theorem 6.3.1. STATEMENT COMMITTED, published as task #41. All four probabilistic components are proved (exists_avoiding_of_lll, exists_enumeration, card_adj_pairs_le, wprob_unifProd_coord); the task is the graph bookkeeping. The file's module docstring carries the intended event indexing, why c.1 < c.2.1 is load-bearing twice, the errata (use d = 2k*Delta - 1), and the two Lean pitfalls that made my own attempt fail."
+      "note": "Theorem 6.3.1, DONE. A graph of maximum degree Delta whose vertex set is partitioned into parts of size at least 2 e Delta has an independent transversal. Built in three separately-compiled blocks after a one-shot attempt failed: (A) tValid/tEvent/tBlock as ABBREVS plus determinedOn_tEvent and wprob_tEvent_le, (B) card_tNbr_le, (C) the assembly. The abbrev choice matters -- plain rw [if_pos hc] still fails because rw matches syntactically and will not see through reducibility, so the working idiom is rw [show tEvent G w c = ... from if_pos hc], which typechecks by defeq. Non-vacuity checked: two parts of size 6 in Fin 12 with maximum degree 1, since 2e = 5.436 <= 6."
     },
     "adj_pairs_count": {
       "kind": "theorem",
@@ -2509,6 +2509,54 @@
       "uses": [],
       "proof_uses": [],
       "note": "Statement-layer definition for 8.2. jansonDelta uses Zhao's ORDERED-pair convention, so 8.1.1 reads exp(-mu + Delta/2)."
+    },
+    "tEventDefs": {
+      "kind": "theorem",
+      "parent": "localLemmaGroup",
+      "file": "ProbMethods/Chapter06/Transversal.lean",
+      "decl": "PMC.tEvent",
+      "doc": "local-lemma.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "The bad event for 6.3: both chosen slots are the ones joined by an edge. Invalid indices get the empty event, which is never violated, has probability 0, and is determined on the empty block."
+    },
+    "tEvent_determined": {
+      "kind": "theorem",
+      "parent": "localLemmaGroup",
+      "file": "ProbMethods/Chapter06/Transversal.lean",
+      "decl": "PMC.determinedOn_tEvent",
+      "doc": "local-lemma.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "Each 6.3 bad event depends only on the two part-indices in its block."
+    },
+    "tEvent_prob": {
+      "kind": "theorem",
+      "parent": "localLemmaGroup",
+      "file": "ProbMethods/Chapter06/Transversal.lean",
+      "decl": "PMC.wprob_tEvent_le",
+      "doc": "local-lemma.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "A 6.3 bad event has probability 1/k^2, by block independence over the two distinct coordinates it pins down."
+    },
+    "tNbr_degree": {
+      "kind": "theorem",
+      "parent": "localLemmaGroup",
+      "file": "ProbMethods/Chapter06/Transversal.lean",
+      "decl": "PMC.card_tNbr_le",
+      "doc": "local-lemma.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "The 6.3 dependency degree is at most 2k*Delta - 1. tPair injects the neighbourhood, plus the event itself, into the ordered adjacent pairs starting in V_i union V_j. The -1 is the self-exclusion from the errata; without it the notes' displayed inequality is false at Delta = 2. Injectivity is where c.1 < c.2.1 earns its keep."
     }
   }
 }
