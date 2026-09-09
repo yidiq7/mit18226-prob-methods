@@ -25,5 +25,6 @@ import ProbMethods.Chapter07.Correlation
 import ProbMethods.Chapter08.Janson
 import ProbMethods.Chapter10.Entropy
 import ProbMethods.Chapter10.Shearer
+import ProbMethods.Chapter10.Intersecting
 import ProbMethods.Chapter10.LoomisWhitney
 import ProbMethods.Chapter10.TriangleCount

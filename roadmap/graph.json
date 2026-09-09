@@ -2009,7 +2009,43 @@
         "shearer"
       ],
       "proof_uses": [],
-      "note": "Theorem 10.4.9 (Chung, Graham, Frankl, Shearer 1986): every triangle-intersecting family of graphs on n labelled vertices has size < 2^(C(n,2)-2). This is 10.4's actual triangle theorem. Not started."
+      "note": "Theorem 10.4.9 (Chung, Graham, Frankl, Shearer 1986): every triangle-intersecting family of graphs on n labelled vertices has size < 2^(C(n,2)-2). The two non-entropy ingredients are now proved (two_mul_card_traceOn_le, exists_pair_same_side) and Corollary 10.4.7 is card_pow_le_prod_card_projSet. SIMPLIFICATION over the notes, worth using: the notes get the covering multiplicity k 'by symmetry and averaging', which would need a transitive group action in Lean. It is instead a DIRECT count -- the number of S with |S| = floor(n/2) putting a given edge {u,v} inside a part is C(n-2, floor(n/2)-2) + C(n-2, floor(n/2)), which visibly does not depend on the edge. What is still needed: modelling graphs as subsets of the edge set, the double-count identity k*C(n,2) = r*C(n,floor(n/2)) where r = C(floor(n/2),2)+C(ceil(n/2),2), the bound r <= C(n,2)/2 which reduces to (a-b)^2 <= a+b for a = floor(n/2), b = ceil(n/2), and the final exponent arithmetic."
+    },
+    "traceOnDef": {
+      "kind": "definition",
+      "parent": "entropyGroup",
+      "file": "ProbMethods/Chapter10/Intersecting.lean",
+      "decl": "PMC.traceOn",
+      "doc": "entropy.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "The trace of a family on A, recorded in Finset of the coercion of A rather than Finset alpha. That is the whole reason the intersecting bound comes out relative to #A instead of the size of the whole ground set, which would be useless."
+    },
+    "trace_intersecting": {
+      "kind": "theorem",
+      "parent": "entropyGroup",
+      "file": "ProbMethods/Chapter10/Intersecting.lean",
+      "decl": "PMC.two_mul_card_traceOn_le",
+      "doc": "entropy.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "If every two members of a family meet INSIDE A, the trace on A has at most 2^(#A - 1) members. Mathlib's Set.Intersecting.card_le does the work; the content is that 'meet inside A' is exactly what makes the traces pairwise non-disjoint."
+    },
+    "pigeonhole_two_sides": {
+      "kind": "theorem",
+      "parent": "entropyGroup",
+      "file": "ProbMethods/Chapter10/Intersecting.lean",
+      "decl": "PMC.exists_pair_same_side",
+      "doc": "entropy.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "Any set with more than two elements has two distinct members on the same side of a two-part split -- the notes' observation that every triangle has an edge in A_S."
     }
   }
 }

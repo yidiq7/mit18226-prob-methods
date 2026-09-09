@@ -195,5 +195,19 @@ Three things, in the notes' own order:
   tuple.
 * **§10.3** — Sidorenko's inequality.
 * **Theorem 10.4.9** — every triangle-intersecting family of graphs on `n` labelled vertices
-  has size `< 2^(C(n,2) - 2)`. This is the one remaining result in the section the library
-  already has the tools for, so it is the cheapest of the three.
+  has size `< 2^(C(n,2) - 2)`. The cheapest of the three, and its two non-entropy ingredients
+  are now proved in `ProbMethods/Chapter10/Intersecting.lean`
+  (`PMC.two_mul_card_traceOn_le`, `PMC.exists_pair_same_side`), with Corollary 10.4.7 already
+  available as `PMC.card_pow_le_prod_card_projSet`.
+
+  **One simplification over the notes is worth taking.** The notes obtain the covering
+  multiplicity `k` "by symmetry and averaging", which in Lean would mean a transitive action
+  of `Sₙ` on edges. It is unnecessary: the number of `S` with `|S| = ⌊n/2⌋` that put a given
+  edge `{u,v}` inside a part is
+  `C(n-2, ⌊n/2⌋-2) + C(n-2, ⌊n/2⌋)` — both endpoints in `S`, or both outside — which
+  visibly does not depend on which edge it is. A **direct count, no symmetry argument.**
+
+  What remains: modelling graphs as subsets of the edge set, the double-count identity
+  `k · C(n,2) = r · C(n,⌊n/2⌋)` with `r = C(⌊n/2⌋,2) + C(⌈n/2⌉,2)`, the bound
+  `r ≤ C(n,2)/2` (which reduces to `(a-b)² ≤ a+b` for `a = ⌊n/2⌋`, `b = ⌈n/2⌉`), and the
+  final exponent arithmetic.
