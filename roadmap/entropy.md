@@ -10,7 +10,7 @@ file had it wrong, which is worth flagging because the mistake was silent):
 | 10.1 | Basic properties | proved |
 | 10.2 | Permanent, perfect matchings, Steiner triple systems | not started |
 | 10.3 | Sidorenko's inequality | not started |
-| 10.4 | Shearer's lemma | Thm 10.4.1, 10.4.3, 10.4.5, Cor 10.4.7 proved; Thm 10.4.9 open |
+| 10.4 | Shearer's lemma | **complete** — Thms 10.4.1, 10.4.3, 10.4.5, 10.4.9; Cors 10.4.6, 10.4.7 |
 
 The named results now in the library: **Theorem 10.4.1** (`PMC.wentropy_shearer_triple`),
 **Theorem 10.4.3** (`PMC.loomis_whitney`), **Theorem 10.4.5** (`PMC.shearer`),
@@ -188,16 +188,39 @@ asymptotically tight on `K_n`, where the two sides' ratio tends to `1`.
 
 ## Next
 
-Three things, in the notes' own order:
+Two things, in the notes' own order:
 
 * **§10.2** — permanents, perfect matchings, Steiner triple systems (the Bregman-type
   results). These should go through `PMC.shearer_of_submodular` directly rather than the
   counting corollary, since the set function they need is not `S ↦ H(X_S)` for a masked
   tuple.
 * **§10.3** — Sidorenko's inequality.
-* **Theorem 10.4.9** — every triangle-intersecting family of graphs on `n` labelled vertices
-  has size `< 2^(C(n,2) - 2)`. The cheapest of the three, and its two non-entropy ingredients
-  are now proved in `ProbMethods/Chapter10/Intersecting.lean`
+* **Theorem 10.4.9 — proved** (`PMC.card_lt_of_triangle_intersecting`). Every
+  triangle-intersecting family of graphs on `n` labelled vertices has size
+  `< 2 ^ (C(n,2) - 2)`, so §10.4 is complete.
+
+  Two choices worth recording. The split uses `⌈n/2⌉`, not `⌊n/2⌋`, because
+  `PMC.card_blocks_containing` needs blocks of size at least two and `⌈n/2⌉ ≥ 2` already at
+  `n = 3`, whereas `⌊3/2⌋ = 1`; the two give the same block size `r`, so nothing is lost.
+  And `PMC.HasTri` is phrased through a 3-element *vertex set* rather than three explicit
+  edges, which keeps non-diagonality proofs out of the statement.
+
+  The simplification over the notes held up: the covering multiplicity is a direct binomial
+  count, and no group action on edges was ever needed. Non-vacuity was checked with a
+  **nonempty** family — on 3 vertices `{all edges}` is triangle-intersecting and
+  `1 < 2^(3-2) = 2` — since a mis-stated `HasTri` would have made the hypothesis
+  unsatisfiable and the theorem vacuous.
+
+## Next
+
+Two things, in the notes' own order:
+
+* **§10.2** — permanents, perfect matchings, Steiner triple systems (the Bregman-type
+  results). These should go through `PMC.shearer_of_submodular` directly rather than the
+  counting corollary, since the set function they need is not `S ↦ H(X_S)` for a masked
+  tuple.
+* **§10.3** — Sidorenko's inequality.
+* (done — see above) in `ProbMethods/Chapter10/Intersecting.lean`
   (`PMC.two_mul_card_traceOn_le`, `PMC.exists_pair_same_side`), with Corollary 10.4.7 already
   available as `PMC.card_pow_le_prod_card_projSet`.
 
@@ -288,16 +311,14 @@ setting Theorem 10.4.9 needs, so its remaining work really is only arithmetic no
 
 ## Next
 
-Three things, in the notes' own order:
+Two things, in the notes' own order:
 
 * **§10.2** — permanents, perfect matchings, Steiner triple systems (the Bregman-type
   results). These should go through `PMC.shearer_of_submodular` directly rather than the
   counting corollary, since the set function they need is not `S ↦ H(X_S)` for a masked
   tuple.
 * **§10.3** — Sidorenko's inequality.
-* **Theorem 10.4.9** — every triangle-intersecting family of graphs on `n` labelled vertices
-  has size `< 2^(C(n,2) - 2)`. The cheapest of the three, and its two non-entropy ingredients
-  are now proved in `ProbMethods/Chapter10/Intersecting.lean`
+* (done — see above) in `ProbMethods/Chapter10/Intersecting.lean`
   (`PMC.two_mul_card_traceOn_le`, `PMC.exists_pair_same_side`), with Corollary 10.4.7 already
   available as `PMC.card_pow_le_prod_card_projSet`.
 
