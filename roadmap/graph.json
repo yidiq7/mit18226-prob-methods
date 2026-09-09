@@ -4606,6 +4606,18 @@
    "uses": [],
    "proof_uses": [],
    "note": "THEOREM 5.0.5, and a CORRECTED SCOPE DECISION. This was recorded as unreachable -- arbitrary independent variables in [-1,1], so the sample space is a product of continua and the counting framework does not reach it. True, but Mathlib does: forty lines from hasSubgaussianMGF_of_mem_Icc_of_integral_eq_zero (mean zero in an interval of length 2 is sub-Gaussian with parameter 1) and HasSubgaussianMGF.measure_sum_ge_le_of_iIndepFun, giving exp(-eps^2/(2n)) and hence the notes' e^{-lambda^2/2} at eps = lambda sqrt n. Stated over an arbitrary probability space, as the notes state it. The lesson: a STRUCTURAL reason to give up is exactly the kind that needs checking against Mathlib."
+  },
+  "compactness_coloring": {
+   "kind": "theorem",
+   "parent": "localLemmaGroup",
+   "file": "ProbMethods/Chapter06/Compactness.lean",
+   "decl": "PMC.exists_two_coloring_of_finite",
+   "doc": "local-lemma.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [],
+   "proof_uses": [],
+   "note": "THE COMPACTNESS STEP of Theorem 6.2.6, in the generality of the notes' remark: finite edges on an ARBITRARY vertex set, colourings of every finite piece assembled into a global one. V -> Bool is compact (Tychonoff), the good sets are closed (bichromaticity of an edge is a FINITE union of preimages of sets in a discrete space), the family is directed downwards, and every edge lies inside its own vertex set. Another deferral -- 'compactness over infinite ground sets' -- that Mathlib supplied directly, via IsCompact.nonempty_iInter_of_directed_nonempty_isCompact_isClosed. What remains of 6.2.6 is transporting the finite local lemma into it: restrict to the finite vertex set and to the finitely many indices inside it, which the degree bound makes finite."
   }
  }
 }

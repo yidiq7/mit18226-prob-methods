@@ -61,9 +61,11 @@ Theorem 9.4.5's unconditional forms (need #46), §9.1/§9.3's unconditional form
 body* and Euclidean distance are not; §9.6 (Euclidean TSP); §5.2; §10.2.10
 (Linial–Luria, which randomises over `[0,1]^{C(n,2)}`).
 
-**4. Infinite ground sets.** §6.2.6, §6.2.10, §6.2.11 apply the local lemma to `ℤ` or `ℝ^d`
-through a **compactness argument**, which needs the infinite-to-finite transfer this
-development does not have.
+**4. Infinite ground sets — the compactness step is now proved.**
+`PMC.exists_two_coloring_of_finite` assembles finite colourings into a global one for an
+arbitrary vertex set, so §6.2.6's mechanism is in place; what is left of 6.2.6, 6.2.10 and
+6.2.11 is transporting the finite local lemma into it (a task) and, for 6.2.11, the arithmetic
+progressions themselves.
 
 **5. Algorithm semantics.** §6.6 (Moser–Tardos) is about a *procedure* and its expected
 running time.
