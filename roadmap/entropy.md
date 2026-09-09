@@ -221,7 +221,8 @@ Three things, in the notes' own order:
   1. the edge type is `{e : Sym2 (Fin n) // ¬ e.IsDiag}`, whose cardinality is `C(n,2)` from
      Mathlib's `Sym2.card_subtype_not_diag` — **and it now works with the container bound**,
      since the `LinearOrder` hypothesis is gone;
-  2. `#(A_S) = C(a,2) + C(b,2)` for `a = |S|`, `b = n - |S|` — still to do;
+  2. **done**: `PMC.card_within` gives `#(edges inside S) = C(#S,2)`, so
+     `#(A_S) = C(a,2) + C(b,2)` follows by disjointness of the two blocks;
   3. the covering multiplicity, a direct binomial count (above) — still to do;
   4. the double-count identity `k · C(n,2) = r · C(n,⌊n/2⌋)` — still to do;
   5. **done**: `r ≤ C(n,2)/2` is `PMC.two_mul_choose_two_add_le`, resting on
@@ -231,6 +232,14 @@ Three things, in the notes' own order:
   On (5), the balance hypothesis is load-bearing rather than decorative: `a = 7, b = 0`
   gives `2 · 21 = 42 > 21`, so an unbalanced split breaks the bound outright. That is checked
   numerically alongside the two balanced cases.
+
+  On (2), one trick is worth reusing. The bijection `PMC.within S ≃ PMC.Edge ↥S` needs, for
+  surjectivity, a *lift* of an edge of `V` with both ends in `S` to an edge of `↥S` — awkward
+  to write as a function. But surjectivity is a `Prop`, so `Sym2.ind` destructs the edge into
+  an actual pair and the lift is immediate. Choosing `Finset.card_bij` (which asks for
+  surjectivity) over `Finset.card_bij'` (which asks for an explicit inverse) is what makes
+  that available. Relatedly, `Sym2.ind` needs any hypothesis mentioning the element — here
+  the non-diagonality proof — `revert`ed first.
 
 ### The `LinearOrder` hypothesis is gone
 
@@ -295,7 +304,8 @@ Three things, in the notes' own order:
   1. the edge type is `{e : Sym2 (Fin n) // ¬ e.IsDiag}`, whose cardinality is `C(n,2)` from
      Mathlib's `Sym2.card_subtype_not_diag` — **and it now works with the container bound**,
      since the `LinearOrder` hypothesis is gone;
-  2. `#(A_S) = C(a,2) + C(b,2)` for `a = |S|`, `b = n - |S|` — still to do;
+  2. **done**: `PMC.card_within` gives `#(edges inside S) = C(#S,2)`, so
+     `#(A_S) = C(a,2) + C(b,2)` follows by disjointness of the two blocks;
   3. the covering multiplicity, a direct binomial count (above) — still to do;
   4. the double-count identity `k · C(n,2) = r · C(n,⌊n/2⌋)` — still to do;
   5. **done**: `r ≤ C(n,2)/2` is `PMC.two_mul_choose_two_add_le`, resting on
@@ -305,6 +315,14 @@ Three things, in the notes' own order:
   On (5), the balance hypothesis is load-bearing rather than decorative: `a = 7, b = 0`
   gives `2 · 21 = 42 > 21`, so an unbalanced split breaks the bound outright. That is checked
   numerically alongside the two balanced cases.
+
+  On (2), one trick is worth reusing. The bijection `PMC.within S ≃ PMC.Edge ↥S` needs, for
+  surjectivity, a *lift* of an edge of `V` with both ends in `S` to an edge of `↥S` — awkward
+  to write as a function. But surjectivity is a `Prop`, so `Sym2.ind` destructs the edge into
+  an actual pair and the lift is immediate. Choosing `Finset.card_bij` (which asks for
+  surjectivity) over `Finset.card_bij'` (which asks for an explicit inverse) is what makes
+  that available. Relatedly, `Sym2.ind` needs any hypothesis mentioning the element — here
+  the non-diagonality proof — `revert`ed first.
 
 ### The one real obstacle, and it is not mathematical
 

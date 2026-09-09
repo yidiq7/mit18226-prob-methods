@@ -1,0 +1,98 @@
+import ProbMethods.Chapter10.Intersecting
+import Mathlib.Data.Sym.Card
+
+/-!
+# Counting the edges of a complete graph inside a vertex set
+
+Step (2) of Theorem 10.4.9: the block `A_S` is the set of edges lying inside `S` together
+with those lying inside its complement, and its size is `C(|S|,2) + C(n-|S|,2)`.
+
+The edge type is `PMC.Edge V = {e : Sym2 V // ¬ e.IsDiag}`, chosen because Mathlib's
+`Sym2.card_subtype_not_diag` gives `#(Edge V) = C(#V, 2)` for free and because — since the
+`LinearOrder` hypothesis came off Shearer's chain — it now works directly with
+`PMC.card_pow_le_prod_of_traces_intersecting`.
+
+`PMC.card_within` is proved by exhibiting a bijection with `PMC.Edge ↥S` and quoting the
+same Mathlib count on the subtype. The one trick worth noting: the *surjectivity* half needs
+to lift an edge of `V` with both ends in `S` to an edge of `↥S`, which would be awkward as a
+function — but surjectivity is a `Prop`, so `Sym2.ind` destructs the edge into an actual
+pair and the lift is immediate. Using `Finset.card_bij` (surjectivity) rather than
+`Finset.card_bij'` (an explicit inverse) is what makes that available.
+-/
+
+open Finset
+
+namespace PMC
+
+section EdgeCount
+
+variable {V : Type*} [Fintype V] [DecidableEq V]
+
+/-- The edges of the complete graph on `V`: unordered pairs of distinct vertices.
+
+An `abbrev` rather than a `def`, so the subtype structure — coercions, `Fintype`,
+`DecidableEq` — stays visible to instance resolution. -/
+abbrev Edge (V : Type*) := {e : Sym2 V // ¬ e.IsDiag}
+
+@[simp] lemma card_Edge : Fintype.card (Edge V) = (Fintype.card V).choose 2 :=
+  Sym2.card_subtype_not_diag
+
+/-- Every edge is an unordered pair of distinct vertices. `Sym2.ind` needs the proof of
+non-diagonality reverted first, since it mentions the element being destructed. -/
+lemma exists_pair_of_edge (e : Edge V) : ∃ x y : V, x ≠ y ∧ e.1 = s(x, y) := by
+  obtain ⟨z, hz⟩ := e
+  revert hz
+  induction z using Sym2.ind with
+  | _ x y =>
+    intro hz
+    exact ⟨x, y, fun h => hz (Sym2.mk_isDiag_iff.mpr h), rfl⟩
+
+/-- An injection on vertices carries edges to edges. -/
+lemma map_not_isDiag {W : Type*} (g : W → V) (hg : Function.Injective g) {z : Sym2 W}
+    (hz : ¬ z.IsDiag) : ¬ (Sym2.map g z).IsDiag := by
+  revert hz
+  induction z using Sym2.ind with
+  | _ a b =>
+    intro hz
+    rw [Sym2.map_pair_eq, Sym2.mk_isDiag_iff]
+    intro h
+    exact hz (Sym2.mk_isDiag_iff.mpr (hg h))
+
+/-- The edge map induced by an injection on vertices. -/
+abbrev edgeMap {W : Type*} (g : W → V) (hg : Function.Injective g) (f : Edge W) : Edge V :=
+  ⟨Sym2.map g f.1, map_not_isDiag g hg f.2⟩
+
+/-- The edges with both endpoints in `S`. -/
+def within (S : Finset V) : Finset (Edge V) :=
+  univ.filter fun e => ∀ x ∈ e.1, x ∈ S
+
+/-- **The number of edges inside `S` is `C(#S, 2)`.** -/
+theorem card_within (S : Finset V) : #(within S) = (#S).choose 2 := by
+  classical
+  have hbij : #(univ : Finset (Edge ↥S)) = #(within S) := by
+    refine Finset.card_bij (fun f _ => edgeMap Subtype.val Subtype.val_injective f) ?_ ?_ ?_
+    · intro f _
+      rw [within, mem_filter]
+      refine ⟨mem_univ _, fun x hx => ?_⟩
+      rw [Sym2.mem_map] at hx
+      obtain ⟨a, -, rfl⟩ := hx
+      exact a.2
+    · intro f _ f' _ heq
+      exact Subtype.ext
+        (Sym2.map.injective Subtype.val_injective (Subtype.ext_iff.mp heq))
+    · intro e he
+      rw [within, mem_filter] at he
+      obtain ⟨x, y, hxy, hz⟩ := exists_pair_of_edge e
+      have hxS : x ∈ S := he.2 x (by rw [hz]; simp)
+      have hyS : y ∈ S := he.2 y (by rw [hz]; simp)
+      refine ⟨⟨s(⟨x, hxS⟩, ⟨y, hyS⟩), ?_⟩, mem_univ _, ?_⟩
+      · rw [Sym2.mk_isDiag_iff]
+        exact fun h => hxy (congrArg Subtype.val h)
+      · apply Subtype.ext
+        rw [hz]
+        exact Sym2.map_pair_eq _ _ _
+  rw [← hbij, card_univ, card_Edge, Fintype.card_coe]
+
+end EdgeCount
+
+end PMC
