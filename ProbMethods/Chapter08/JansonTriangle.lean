@@ -224,6 +224,29 @@ theorem probTriangleFree_le_exp (n : ℕ) {p : ℝ} (hp0 : 0 ≤ p) (hp1 : p ≤
   linarith [hdelta]
 
 
+/-- **The lower bracket for `1 - u`**: `exp(-u/(1-u)) ≤ 1 - u` for `0 ≤ u < 1`.
+
+`Real.add_one_le_exp` at `u/(1-u)` says `1/(1-u) ≤ exp(u/(1-u))`; multiplying by
+`exp(-u/(1-u))` gives this. Together with `1 - u ≤ exp(-u)` it brackets `1 - u` between two
+exponentials, which is what makes §8.1's limits elementary — no logarithm expansion, hence no
+error term to control. -/
+lemma exp_neg_div_one_sub_le {u : ℝ} (hu0 : 0 ≤ u) (hu1 : u < 1) :
+    Real.exp (-(u / (1 - u))) ≤ 1 - u := by
+  have h1u : 0 < 1 - u := by linarith
+  have h1u' : (1 : ℝ) - u ≠ 0 := ne_of_gt h1u
+  have hv : 1 + u / (1 - u) = 1 / (1 - u) := by
+    field_simp
+    ring
+  have hexp : 1 / (1 - u) ≤ Real.exp (u / (1 - u)) := by
+    have hle := Real.add_one_le_exp (u / (1 - u))
+    rw [add_comm, hv] at hle
+    exact hle
+  have hmul : Real.exp (-(u / (1 - u))) * (1 / (1 - u))
+      ≤ Real.exp (-(u / (1 - u))) * Real.exp (u / (1 - u)) :=
+    mul_le_mul_of_nonneg_left hexp (Real.exp_pos _).le
+  rw [← Real.exp_add, neg_add_cancel, Real.exp_zero] at hmul
+  rwa [mul_one_div, div_le_one h1u] at hmul
+
 /-! ### Corollary 8.1.7: the limit at `p = c/n`
 
 Both brackets tend to `e^{-c³/6}`, so the triangle-free probability does. -/
@@ -327,22 +350,7 @@ theorem tendsto_probTriangleFree_exp {c : ℝ} (hc0 : 0 ≤ c) :
         _ < 1 := hp1
     -- `exp(-u/(1-u)) ≤ (1-u)^k ≤ P`
     have hstep : Real.exp (-((c / (n : ℝ)) ^ 3 / (1 - (c / (n : ℝ)) ^ 3)))
-        ≤ 1 - (c / (n : ℝ)) ^ 3 := by
-      set u := (c / (n : ℝ)) ^ 3 with hu
-      have h1u : 0 < 1 - u := by linarith
-      have h1u' : (1 : ℝ) - u ≠ 0 := ne_of_gt h1u
-      have hv : 1 + u / (1 - u) = 1 / (1 - u) := by
-        field_simp
-        ring
-      have hexp : 1 / (1 - u) ≤ Real.exp (u / (1 - u)) := by
-        have hle := Real.add_one_le_exp (u / (1 - u))
-        rw [add_comm, hv] at hle
-        exact hle
-      have hmul : Real.exp (-(u / (1 - u))) * (1 / (1 - u))
-          ≤ Real.exp (-(u / (1 - u))) * Real.exp (u / (1 - u)) :=
-        mul_le_mul_of_nonneg_left hexp (Real.exp_pos _).le
-      rw [← Real.exp_add, neg_add_cancel, Real.exp_zero] at hmul
-      rwa [mul_one_div, div_le_one h1u] at hmul
+        ≤ 1 - (c / (n : ℝ)) ^ 3 := exp_neg_div_one_sub_le hu0 hu1
     have hpow : Real.exp (-((n.choose 3 : ℝ) * (c / (n : ℝ)) ^ 3 * (1 - (c / (n : ℝ)) ^ 3)⁻¹))
         ≤ (1 - (c / (n : ℝ)) ^ 3) ^ (n.choose 3) := by
       have hbase : Real.exp (-((c / (n : ℝ)) ^ 3 / (1 - (c / (n : ℝ)) ^ 3))) ^ (n.choose 3)
@@ -366,6 +374,116 @@ theorem tendsto_probTriangleFree_exp {c : ℝ} (hc0 : 0 ≤ c) :
       linarith
     have hp0 : 0 ≤ c / n := div_nonneg hc0 (le_of_lt hnpos)
     exact probTriangleFree_le_exp n hp0 (le_of_lt hp1)
+
+
+/-! ### Theorem 8.1.6: the exponent is `-(1 + o(1))μ` -/
+
+/-- **Theorem 8.1.6.** If `p = o(n^{-1/2})` then
+
+    log P(G(n,p) triangle-free) / μ → -1,   where μ = C(n,3)p³,
+
+which is the notes' `P = e^{-(1+o(1))μ}`.
+
+Both brackets divided by `μ` tend to `-1`: the Janson side gives
+`log P/μ ≤ -1 + Δ/(2μ) = -1 + 3np²/2`, and `np² → 0` is *exactly* the hypothesis
+`p = o(n^{-1/2})`; the Harris side gives `log P/μ ≥ -1/(1-p³)`. So the hypothesis is not an
+artifact — it is the condition under which `Δ` is negligible against `μ`, which is what
+Janson's inequality needs to be sharp. -/
+theorem tendsto_log_probTriangleFree_div {p : ℕ → ℝ} (hp0 : ∀ n, 0 < p n) (hp1 : ∀ n, p n ≤ 1)
+    (hhalf : Filter.Tendsto (fun n : ℕ => (n : ℝ) * p n ^ 2) Filter.atTop (nhds 0)) :
+    Filter.Tendsto
+      (fun n : ℕ => Real.log (probTriangleFree n (p n)) / ((n.choose 3 : ℝ) * p n ^ 3))
+      Filter.atTop (nhds (-1)) := by
+  -- `p n → 0` fast enough that `p n ^ 3 → 0`
+  have hsq : Filter.Tendsto (fun n : ℕ => p n ^ 2) Filter.atTop (nhds 0) := by
+    refine squeeze_zero' (Filter.Eventually.of_forall fun n => by positivity) ?_ hhalf
+    filter_upwards [Filter.eventually_ge_atTop 1] with n hn
+    have hnR : (1 : ℝ) ≤ (n : ℝ) := by exact_mod_cast hn
+    nlinarith [sq_nonneg (p n)]
+  have hcube : Filter.Tendsto (fun n : ℕ => p n ^ 3) Filter.atTop (nhds 0) := by
+    refine squeeze_zero' (Filter.Eventually.of_forall fun n => pow_nonneg (hp0 n).le 3)
+      (Filter.Eventually.of_forall fun n => ?_) hsq
+    exact pow_le_pow_of_le_one (hp0 n).le (hp1 n) (by norm_num)
+  have hplt : ∀ᶠ n : ℕ in Filter.atTop, p n ^ 3 < 1 :=
+    hcube.eventually_lt_const (show (0:ℝ) < 1 by norm_num)
+  -- the two brackets
+  have hupper : ∀ᶠ n : ℕ in Filter.atTop,
+      Real.log (probTriangleFree n (p n)) / ((n.choose 3 : ℝ) * p n ^ 3)
+        ≤ -1 + 3 * (n : ℝ) * p n ^ 2 / 2 := by
+    filter_upwards [Filter.eventually_ge_atTop 3, hplt] with n hn3 hp3
+    have hnR : (3 : ℝ) ≤ (n : ℝ) := by exact_mod_cast hn3
+    have hcpos : (0 : ℝ) < (n.choose 3 : ℝ) := by
+      have : 0 < n.choose 3 := Nat.choose_pos hn3
+      exact_mod_cast this
+    have hmu : (0 : ℝ) < (n.choose 3 : ℝ) * p n ^ 3 := mul_pos hcpos (pow_pos (hp0 n) 3)
+    have hu0 : 0 ≤ p n ^ 3 := pow_nonneg (hp0 n).le 3
+    have hharris : (1 - p n ^ 3) ^ (n.choose 3) ≤ probTriangleFree n (p n) := by
+      have h := prob_not_hasTriangle_ge (V := Fin n) (p n) (le_of_lt (hp0 n)) (hp1 n)
+      rw [Fintype.card_fin] at h
+      exact h
+    have hpos : 0 < probTriangleFree n (p n) :=
+      lt_of_lt_of_le (pow_pos (by linarith) _) hharris
+    have hle := probTriangleFree_le_exp n (le_of_lt (hp0 n)) (hp1 n)
+    have hlog : Real.log (probTriangleFree n (p n))
+        ≤ -((n.choose 3 : ℝ) * p n ^ 3) + 3 * (n : ℝ) * (n.choose 3 : ℝ) * p n ^ 5 / 2 := by
+      have := Real.log_le_log hpos hle
+      rwa [Real.log_exp] at this
+    rw [div_le_iff₀ hmu]
+    calc Real.log (probTriangleFree n (p n))
+        ≤ -((n.choose 3 : ℝ) * p n ^ 3) + 3 * (n : ℝ) * (n.choose 3 : ℝ) * p n ^ 5 / 2 := hlog
+      _ = (-1 + 3 * (n : ℝ) * p n ^ 2 / 2) * ((n.choose 3 : ℝ) * p n ^ 3) := by ring
+  have hlower : ∀ᶠ n : ℕ in Filter.atTop,
+      -1 / (1 - p n ^ 3) ≤ Real.log (probTriangleFree n (p n)) / ((n.choose 3 : ℝ) * p n ^ 3) := by
+    filter_upwards [Filter.eventually_ge_atTop 3, hplt] with n hn3 hp3
+    have hnR : (3 : ℝ) ≤ (n : ℝ) := by exact_mod_cast hn3
+    have hcpos : (0 : ℝ) < (n.choose 3 : ℝ) := by
+      have : 0 < n.choose 3 := Nat.choose_pos hn3
+      exact_mod_cast this
+    have hmu : (0 : ℝ) < (n.choose 3 : ℝ) * p n ^ 3 := mul_pos hcpos (pow_pos (hp0 n) 3)
+    have hu0 : 0 ≤ p n ^ 3 := pow_nonneg (hp0 n).le 3
+    have h1u : (0 : ℝ) < 1 - p n ^ 3 := by linarith
+    -- `exp(-u/(1-u)) ≤ 1 - u`, raised to the `C(n,3)`
+    have hstep := exp_neg_div_one_sub_le hu0 hp3
+    have hpow : Real.exp (-((n.choose 3 : ℝ) * p n ^ 3 / (1 - p n ^ 3)))
+        ≤ (1 - p n ^ 3) ^ (n.choose 3) := by
+      calc Real.exp (-((n.choose 3 : ℝ) * p n ^ 3 / (1 - p n ^ 3)))
+          = Real.exp (-(p n ^ 3 / (1 - p n ^ 3))) ^ (n.choose 3) := by
+            rw [← Real.exp_nat_mul]
+            congr 1
+            field_simp
+        _ ≤ (1 - p n ^ 3) ^ (n.choose 3) :=
+            pow_le_pow_left₀ (le_of_lt (Real.exp_pos _)) hstep _
+    have hharris : (1 - p n ^ 3) ^ (n.choose 3) ≤ probTriangleFree n (p n) := by
+      have h := prob_not_hasTriangle_ge (V := Fin n) (p n) (le_of_lt (hp0 n)) (hp1 n)
+      rw [Fintype.card_fin] at h
+      exact h
+    have hlog : -((n.choose 3 : ℝ) * p n ^ 3 / (1 - p n ^ 3))
+        ≤ Real.log (probTriangleFree n (p n)) := by
+      rw [Real.le_log_iff_exp_le (lt_of_lt_of_le (pow_pos h1u _) hharris)]
+      exact le_trans hpow hharris
+    rw [le_div_iff₀ hmu]
+    calc -1 / (1 - p n ^ 3) * ((n.choose 3 : ℝ) * p n ^ 3)
+        = -((n.choose 3 : ℝ) * p n ^ 3 / (1 - p n ^ 3)) := by
+          field_simp
+      _ ≤ Real.log (probTriangleFree n (p n)) := hlog
+  -- both brackets tend to `-1`
+  have hupperlim : Filter.Tendsto (fun n : ℕ => -1 + 3 * (n : ℝ) * p n ^ 2 / 2)
+      Filter.atTop (nhds (-1)) := by
+    have : Filter.Tendsto (fun n : ℕ => 3 * ((n : ℝ) * p n ^ 2) / 2) Filter.atTop (nhds 0) := by
+      have := (hhalf.const_mul (3 : ℝ)).div_const 2
+      simpa using this
+    have h2 := (tendsto_const_nhds (x := (-1 : ℝ))).add this
+    rw [add_zero] at h2
+    refine h2.congr fun n => ?_
+    ring
+  have hlowerlim : Filter.Tendsto (fun n : ℕ => -1 / (1 - p n ^ 3)) Filter.atTop (nhds (-1)) := by
+    have hden : Filter.Tendsto (fun n : ℕ => 1 - p n ^ 3) Filter.atTop (nhds 1) := by
+      simpa using (tendsto_const_nhds (x := (1 : ℝ))).sub hcube
+    have hinv : Filter.Tendsto (fun n : ℕ => (1 - p n ^ 3)⁻¹) Filter.atTop (nhds 1) := by
+      simpa using hden.inv₀ one_ne_zero
+    have := hinv.const_mul (-1 : ℝ)
+    simpa [div_eq_mul_inv] using this
+  exact tendsto_of_tendsto_of_tendsto_of_le_of_le' hlowerlim hupperlim hlower hupper
 
 end JansonTriangle
 

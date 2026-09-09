@@ -34,6 +34,7 @@ The theorem sandwiches the probability that no bad set appears:
 | **Thm 7.2.2 / §8.3's lower bound** (`prob_not_hasTriangle_ge`) | proved |
 | **Janson for triangles** (`probTriangleFree_le_exp`) | proved |
 | **Cor 8.1.7** — `P(triangle-free) → e^{-c³/6}` | proved |
+| **Thm 8.1.6** — `log P / μ → -1` for `p = o(n^{-1/2})` | proved |
 | §8.3's chromatic number application | open, asymptotic |
 
 ## The lower bound: how it went
@@ -89,6 +90,14 @@ the trap `Chapter10/Shearer.lean` documents.
 Checked by simulation at `c = 1` and `c = 2`, `n = 10, 20, 40`: the simulated probability sits
 between the two brackets throughout and both brackets close on `e^{-c³/6}` (at `c = 1`,
 `n = 40`: `0.857 ≤ 0.861 ≤ 0.862` against the limit `0.8465`).
+
+`PMC.tendsto_log_probTriangleFree_div` is **Theorem 8.1.6**, the same brackets divided by `μ`:
+
+    log P(G(n,p) triangle-free) / μ → -1   whenever p = o(n^{-1/2}),
+
+which is the notes' `P = e^{-(1+o(1))μ}`. The hypothesis is not an artifact of the proof — it
+is exactly the condition `Δ/(2μ) = 3np²/2 → 0` under which Janson's inequality is sharp, and
+it appears in the formalization as literally that quantity.
 
 ## The upper bound — proved
 
