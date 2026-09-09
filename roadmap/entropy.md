@@ -350,6 +350,21 @@ conditional-independence lemma the library does not have.
 `6³ = 216 = 24 · 3²`. Equality for regular graphs is the right behaviour — the conjecture says
 the random graph is the minimiser.
 
+### Theorem 10.3.6's case `F = K₂,₂` — proved, by Cauchy–Schwarz
+
+`PMC.sidorenko_C4`: `hom(C₄, G) · n⁴ ≥ (2m)⁴`, i.e. `t(C₄, G) ≥ t(K₂, G)⁴`. Grouping a
+`C₄`-homomorphism by its pair of *opposite* vertices gives `hom(C₄, G) = ∑_{a,c} N(a,c)²`
+with `N` the codegree (`PMC.card_walk4`), and `∑ N(a,c) = ∑_v d(v)²` (`PMC.sum_codeg`), so
+two applications of `sq_sum_le_card_mul_sum_sq` — over the `n²` pairs, then over the `n`
+vertices — give the bound.
+
+**This deviates from the notes deliberately.** Their entropy proof of the `K₂,₂` case needs a
+conditional-independence step the library does not have, while Cauchy–Schwarz needs nothing
+new. The statement is theirs; only the route differs, and the roadmap says so rather than
+implying the entropy proof was formalized.
+
+Checked on `K₃`: `hom(C₄, K₃) = 18 = tr(A⁴)`, and `6⁴ = 1296 ≤ 18 · 81`.
+
 What remains in §10.3: Theorem 10.3.5 (all trees — the same argument, but the entropy
 bookkeeping is over a tree rather than a path, so it does need the conditional-independence
 step), Theorem 10.3.6 (complete bipartite), and Theorem 10.3.7. Remark 10.3.8's Möbius graph

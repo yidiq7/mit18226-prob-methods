@@ -1,5 +1,6 @@
 import ProbMethods.Chapter10.Entropy
 import Mathlib.Combinatorics.SimpleGraph.DegreeSum
+import Mathlib.Algebra.Order.Chebyshev
 
 /-!
 # §10.3 — Sidorenko's inequality for the three-edge path
@@ -418,6 +419,134 @@ theorem sidorenko_path3_density (hn : 0 < Fintype.card V) :
       ≤ (#(walk3 G) * (Fintype.card V : ℝ) ^ 2) * (Fintype.card V : ℝ) ^ 4 := by
         exact mul_le_mul_of_nonneg_right h (by positivity)
     _ = #(walk3 G) * ((Fintype.card V : ℝ) ^ 2) ^ 3 := by ring
+
+
+/-! ### Theorem 10.3.6's case `F = K₂,₂`
+
+The notes demonstrate Theorem 10.3.6 (Sidorenko for complete bipartite graphs) on
+`F = K₂,₂ = C₄`, by the same entropy framework. **That case has a two-line proof by
+Cauchy–Schwarz instead**, and it is taken here: grouping a `C₄`-homomorphism by its pair of
+opposite vertices gives `hom(C₄, G) = ∑_{a,c} N(a,c)²` with `N` the codegree, and
+`∑ N(a,c) = ∑_v d(v)²`, so two applications of `sq_sum_le_card_mul_sum_sq` — over the `n²`
+pairs and then over the `n` vertices — give the bound.
+
+The deviation from the notes is deliberate: the entropy proof for `C₄` needs a
+conditional-independence step this library does not have, while Cauchy–Schwarz needs nothing
+new. The statement is the notes'. -/
+
+/-- The homomorphisms from `C₄`: closed walks `a–b–c–d–a`, repetitions allowed. -/
+def walk4 : Finset (V × V × V × V) :=
+  (univ : Finset (V × V × V × V)).filter fun q =>
+    G.Adj q.1 q.2.1 ∧ G.Adj q.2.1 q.2.2.1 ∧ G.Adj q.2.2.1 q.2.2.2 ∧ G.Adj q.2.2.2 q.1
+
+/-- The number of common neighbours of `a` and `c`. -/
+def codeg (a c : V) : ℕ := #((univ : Finset V).filter fun b => G.Adj a b ∧ G.Adj b c)
+
+/-- Grouping a `C₄`-homomorphism by its pair of opposite vertices: the other two vertices are
+independent common neighbours, so `hom(C₄, G) = ∑_{a,c} N(a,c)²`. -/
+lemma card_walk4 : #(walk4 G) = ∑ p : V × V, codeg G p.1 p.2 ^ 2 := by
+  classical
+  have hmaps : ∀ q ∈ walk4 G, (q.1, q.2.2.1) ∈ (univ : Finset (V × V)) :=
+    fun q _ => mem_univ _
+  rw [Finset.card_eq_sum_card_fiberwise (fun q hq => hmaps q (by rwa [← mem_coe]))]
+  refine Finset.sum_congr rfl fun p _ => ?_
+  rw [sq, codeg, ← Finset.card_product]
+  refine Finset.card_bij (fun q _ => (q.2.1, q.2.2.2)) ?_ ?_ ?_
+  · intro q hq
+    rw [mem_filter, walk4, mem_filter] at hq
+    obtain ⟨⟨-, h1, h2, h3, h4⟩, hop⟩ := hq
+    have ha : q.1 = p.1 := congrArg Prod.fst hop
+    have hc : q.2.2.1 = p.2 := congrArg Prod.snd hop
+    rw [Finset.mem_product, mem_filter, mem_filter]
+    rw [ha] at h1
+    rw [hc] at h2 h3
+    exact ⟨⟨mem_univ _, h1, h2⟩, ⟨mem_univ _, (ha ▸ h4).symm, h3.symm⟩⟩
+  · intro q hq q' hq' h
+    rw [mem_filter] at hq hq'
+    have ha : q.1 = q'.1 := (congrArg Prod.fst hq.2).trans (congrArg Prod.fst hq'.2).symm
+    have hc : q.2.2.1 = q'.2.2.1 :=
+      (congrArg Prod.snd hq.2).trans (congrArg Prod.snd hq'.2).symm
+    have hb : q.2.1 = q'.2.1 := by
+      have hh := congrArg Prod.fst h
+      simpa using hh
+    have hd : q.2.2.2 = q'.2.2.2 := by
+      have hh := congrArg Prod.snd h
+      simpa using hh
+    obtain ⟨a, b, c, d⟩ := q
+    obtain ⟨a', b', c', d'⟩ := q'
+    simp only [Prod.mk.injEq] at *
+    exact ⟨ha, hb, hc, hd⟩
+  · intro c hc
+    rw [Finset.mem_product, mem_filter, mem_filter] at hc
+    obtain ⟨⟨-, h1, h2⟩, ⟨-, h3, h4⟩⟩ := hc
+    exact ⟨(p.1, c.1, p.2, c.2), by
+      rw [mem_filter, walk4, mem_filter]
+      exact ⟨⟨mem_univ _, h1, h2, h4.symm, h3.symm⟩, rfl⟩, rfl⟩
+
+/-- Summing the codegree over all pairs counts walks of length two: `∑ N(a,c) = ∑_v d(v)²`. -/
+lemma sum_codeg : ∑ p : V × V, codeg G p.1 p.2 = ∑ v, G.degree v ^ 2 := by
+  classical
+  have hcount : ∀ b : V, #((univ : Finset (V × V)).filter
+      fun p => G.Adj p.1 b ∧ G.Adj b p.2) = G.degree b ^ 2 := by
+    intro b
+    rw [sq, ← SimpleGraph.card_neighborFinset_eq_degree, ← Finset.card_product]
+    refine Finset.card_bij (fun p _ => (p.1, p.2)) ?_ ?_ ?_
+    · intro p hp
+      rw [mem_filter] at hp
+      rw [Finset.mem_product, SimpleGraph.mem_neighborFinset, SimpleGraph.mem_neighborFinset]
+      exact ⟨hp.2.1.symm, hp.2.2⟩
+    · intro p _ p' _ h
+      exact h
+    · intro c hc
+      rw [Finset.mem_product, SimpleGraph.mem_neighborFinset,
+        SimpleGraph.mem_neighborFinset] at hc
+      exact ⟨(c.1, c.2), by rw [mem_filter]; exact ⟨mem_univ _, hc.1.symm, hc.2⟩, rfl⟩
+  calc ∑ p : V × V, codeg G p.1 p.2
+      = ∑ p : V × V, ∑ b : V, (if G.Adj p.1 b ∧ G.Adj b p.2 then 1 else 0) := by
+        refine Finset.sum_congr rfl fun p _ => ?_
+        rw [codeg, Finset.card_filter]
+    _ = ∑ b : V, ∑ p : V × V, (if G.Adj p.1 b ∧ G.Adj b p.2 then 1 else 0) :=
+        Finset.sum_comm
+    _ = ∑ b : V, G.degree b ^ 2 := by
+        refine Finset.sum_congr rfl fun b _ => ?_
+        rw [← Finset.card_filter]
+        exact hcount b
+
+/-- **Theorem 10.3.6 for `F = K₂,₂`.** Sidorenko's conjecture holds for the four-cycle:
+`hom(C₄, G) · n⁴ ≥ (2m)⁴`, i.e. `t(C₄, G) ≥ t(K₂, G)⁴`.
+
+Two applications of Cauchy–Schwarz: over the `n²` pairs of opposite vertices, then over the
+`n` vertices. -/
+theorem sidorenko_C4 :
+    ((∑ v, G.degree v : ℕ) : ℝ) ^ 4 ≤ #(walk4 G) * (Fintype.card V : ℝ) ^ 4 := by
+  classical
+  -- Cauchy–Schwarz over the pairs: `(∑ N)² ≤ n² ∑ N²`
+  have hcs1 : (∑ p : V × V, codeg G p.1 p.2) ^ 2
+      ≤ Fintype.card V ^ 2 * ∑ p : V × V, codeg G p.1 p.2 ^ 2 := by
+    have := sq_sum_le_card_mul_sum_sq (s := (univ : Finset (V × V)))
+      (f := fun p => codeg G p.1 p.2)
+    rw [card_univ, Fintype.card_prod] at this
+    calc (∑ p : V × V, codeg G p.1 p.2) ^ 2
+        ≤ Fintype.card V * Fintype.card V * ∑ p : V × V, codeg G p.1 p.2 ^ 2 := this
+      _ = Fintype.card V ^ 2 * ∑ p : V × V, codeg G p.1 p.2 ^ 2 := by ring
+  -- Cauchy–Schwarz over the vertices: `(∑ d)² ≤ n ∑ d²`
+  have hcs2 : (∑ v, G.degree v) ^ 2 ≤ Fintype.card V * ∑ v, G.degree v ^ 2 := by
+    have := sq_sum_le_card_mul_sum_sq (s := (univ : Finset V)) (f := fun v => G.degree v)
+    rwa [card_univ] at this
+  rw [sum_codeg] at hcs1
+  -- combine over `ℕ`, then cast
+  have hcomb : (∑ v, G.degree v) ^ 4
+      ≤ Fintype.card V ^ 4 * #(walk4 G) := by
+    calc (∑ v, G.degree v) ^ 4 = ((∑ v, G.degree v) ^ 2) ^ 2 := by ring
+      _ ≤ (Fintype.card V * ∑ v, G.degree v ^ 2) ^ 2 := Nat.pow_le_pow_left hcs2 2
+      _ = Fintype.card V ^ 2 * (∑ v, G.degree v ^ 2) ^ 2 := by ring
+      _ ≤ Fintype.card V ^ 2 * (Fintype.card V ^ 2 * ∑ p : V × V, codeg G p.1 p.2 ^ 2) := by
+          exact Nat.mul_le_mul_left _ hcs1
+      _ = Fintype.card V ^ 4 * #(walk4 G) := by rw [card_walk4]; ring
+  have hR : ((∑ v, G.degree v : ℕ) : ℝ) ^ 4
+      ≤ (Fintype.card V : ℝ) ^ 4 * #(walk4 G) := by exact_mod_cast hcomb
+  calc ((∑ v, G.degree v : ℕ) : ℝ) ^ 4 ≤ (Fintype.card V : ℝ) ^ 4 * #(walk4 G) := hR
+    _ = #(walk4 G) * (Fintype.card V : ℝ) ^ 4 := by ring
 
 
 end Sidorenko

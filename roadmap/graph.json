@@ -3232,6 +3232,45 @@
    ],
    "proof_uses": [],
    "note": "The same in the notes' density form t(P4,G) >= t(K2,G)^3, which is how Sidorenko's conjecture is stated."
+  },
+  "walk4": {
+   "kind": "definition",
+   "parent": "entropyGroup",
+   "file": "ProbMethods/Chapter10/Sidorenko.lean",
+   "decl": "PMC.walk4",
+   "doc": "entropy.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [],
+   "proof_uses": [],
+   "note": "The homomorphisms from C4 = K_{2,2}: closed walks a-b-c-d-a. Checked on K3: 18 = tr(A^4) = 2^4 + 1 + 1."
+  },
+  "codeg": {
+   "kind": "definition",
+   "parent": "entropyGroup",
+   "file": "ProbMethods/Chapter10/Sidorenko.lean",
+   "decl": "PMC.codeg",
+   "doc": "entropy.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [],
+   "proof_uses": [],
+   "note": "The number of common neighbours of two vertices. Checked on K3 (1 for distinct vertices, 2 for a vertex with itself)."
+  },
+  "sidorenko_C4": {
+   "kind": "theorem",
+   "parent": "entropyGroup",
+   "file": "ProbMethods/Chapter10/Sidorenko.lean",
+   "decl": "PMC.sidorenko_C4",
+   "doc": "entropy.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "walk4",
+    "codeg"
+   ],
+   "proof_uses": [],
+   "note": "THEOREM 10.3.6's demonstrated case F = K_{2,2}, DONE: hom(C4,G) n^4 >= (2m)^4, i.e. t(C4,G) >= t(K2,G)^4. Grouping a C4-homomorphism by its pair of OPPOSITE vertices gives hom(C4,G) = sum over pairs of codeg^2, and the codegrees sum to sum_v d(v)^2, so two applications of sq_sum_le_card_mul_sum_sq (Cauchy-Schwarz) -- over the n^2 pairs and then over the n vertices -- give the bound. DELIBERATE DEVIATION from the notes: their entropy proof for C4 needs a conditional-independence step this library does not have, while Cauchy-Schwarz needs nothing new. The statement is theirs."
   }
  }
 }
