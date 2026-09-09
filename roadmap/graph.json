@@ -1893,6 +1893,66 @@
       ],
       "proof_uses": [],
       "note": "The triangle-counting bound t^2 <= (2m)^3 for t the number of ORDERED triangles, so #triangles <= (2m)^(3/2)/6. The SAME Shearer instance as Loomis-Whitney (Fin 3, k = 2) plus one observation: the trace of the ordered triangles on any two coordinates consists of ordered edges, of which there are exactly 2m. Asymptotically tight on K_n, where the ratio tends to 1."
+    },
+    "spliceOnDef": {
+      "kind": "definition",
+      "parent": "localLemmaGroup",
+      "file": "ProbMethods/Product.lean",
+      "decl": "PMC.spliceOn",
+      "doc": "local-lemma.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "Take the coordinates in C from f and the rest from g. The whole content of product-space independence."
+    },
+    "splice_involution": {
+      "kind": "lemma",
+      "parent": "localLemmaGroup",
+      "file": "ProbMethods/Product.lean",
+      "decl": "PMC.spliceOn_spliceOn",
+      "doc": "local-lemma.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "Splicing is an INVOLUTION on pairs: (f,g) -> (splice f g, splice g f) applied twice is the identity. This single observation gives block independence with no case analysis and no subtypes."
+    },
+    "determinedOnDef": {
+      "kind": "definition",
+      "parent": "localLemmaGroup",
+      "file": "ProbMethods/Product.lean",
+      "decl": "PMC.DeterminedOn",
+      "doc": "local-lemma.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "An event on a product space depends only on the coordinates in C."
+    },
+    "product_block_indep": {
+      "kind": "theorem",
+      "parent": "localLemmaGroup",
+      "file": "ProbMethods/Product.lean",
+      "decl": "PMC.card_inter_mul_of_determinedOn",
+      "doc": "local-lemma.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "Events determined by disjoint blocks of coordinates are independent, counting form, on a PRODUCT sample space. Checked numerically on (Fin 2 -> Fin 3): 1 * 9 = 3 * 3."
+    },
+    "product_indep_prob": {
+      "kind": "theorem",
+      "parent": "localLemmaGroup",
+      "file": "ProbMethods/Product.lean",
+      "decl": "PMC.wprob_unifProd_mul_of_determinedOn",
+      "doc": "local-lemma.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "The same in probability form, ready for the local lemma's hindep hypothesis."
     }
   }
 }

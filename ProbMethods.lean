@@ -1,5 +1,6 @@
 import ProbMethods.Basic
 import ProbMethods.Weighted
+import ProbMethods.Product
 import ProbMethods.Chapter01.Bipartite
 import ProbMethods.Chapter01.Ramsey
 import ProbMethods.Chapter01.Bollobas

@@ -135,6 +135,28 @@ theorem is not true-by-empty-hypotheses. Worth doing for any statement whose hyp
 a numeric inequality — a mis-stated constant turns the whole result into a tautology, and
 nothing in the gate would catch it.
 
+### Product sample spaces are now available
+
+`ProbMethods/Product.lean`. §6.2 could use `PMC.DeterminedBy` because a 2-colouring *is* a
+subset. The remaining applications choose one value per coordinate — §6.4 colours vertices
+from `ZMod k`, §6.3 picks one vertex per part — so their sample space is a product `ι → β`
+and `DeterminedBy` does not reach it.
+
+`PMC.DeterminedOn` and `PMC.card_inter_mul_of_determinedOn` are the product analogue, with
+`PMC.wprob_unifProd_mul_of_determinedOn` in the shape the local lemma's `hindep` wants.
+
+The whole content is `PMC.spliceOn`: take the coordinates in `C` from one point and the
+rest from another. **Splicing is an involution on pairs** — `(f,g) ↦ (splice f g, splice g f)`
+twice is the identity — which identifies `A ×ˢ B` with `(A ∩ B) ×ˢ univ` in one step, with
+no case analysis. Avoiding the obvious route `(ι → β) ≃ (C → β) × (Cᶜ → β)` was deliberate:
+that drags dependent types through every step, whereas splicing keeps everything at
+`ι → β`. Same choice `PMC.masked` made for Chapter 10's tuples, and it paid off both times.
+
+What is still missing for §6.3 specifically is a *weighted* product version: picking one
+vertex from each part means the parts have different sizes, so the natural weight is a
+product of `1/|Vᵢ|` rather than the uniform counting measure. `PMC.pweightOn` is the model
+to copy.
+
 The remaining sections (§6.3 independent transversals, §6.4 directed cycles, §6.5 lopsided
 local lemma, §6.6 algorithmic local lemma) each need their own setup; §6.5 in particular
 needs a different independence hypothesis (lopsidependency) and so a variant statement, not
