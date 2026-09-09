@@ -1,6 +1,6 @@
 """CLI: environment-level trust report for a set of declarations.
 
-Design note 12 §4 — this is the "generalize RepoProver's #1 borrow"
+Design note 12 §4 — this is the "environment-level trust report"
 check: after a rebuild, ask the *built environment* (not text scanning)
 what a declaration's trust boundary actually is. Informational only:
 this check never blocks merge, so it always exits 0 on a successful

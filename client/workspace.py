@@ -53,6 +53,11 @@ class LeaseMetadata:
     target_decl: str
     task_type: str
     skills_commit: str = ""  # default-branch SHA skills were synced from (design note 06)
+    # The worker session that won this lease. One login can run several, so
+    # `heartbeat` and any later re-claim must present the id the claim was
+    # made under — a fresh one reads as a different session and would lose
+    # the race to itself. Empty for a workspace written before the field.
+    session: str = ""
 
     def write(self, path: Path) -> None:
         path.write_text(
@@ -151,6 +156,7 @@ def setup_workspace(
     record: TaskRecord,
     body_prose: str,
     claimed_by: str,
+    session: str = "",
 ) -> Path:
     """Clone, check out the pinned commit on a topic branch, write metadata.
 
@@ -203,6 +209,7 @@ def setup_workspace(
         target_decl=record.target_decl or "",
         task_type=record.type.value,
         skills_commit=skills_commit,
+        session=session,
     )
     meta.write(path / ".choir-lease.json")
 
@@ -320,7 +327,7 @@ is idempotent and reuses an existing PR rather than creating a duplicate.
 ## Pre-installed on the contributor's machine
 
 - {toolchain_line}
-- If your backend has library/lemma/theorem search tooling configured,
+- If you have library/lemma/theorem search tooling configured,
   use it before guessing or inventing a name — that's the single
   highest-leverage habit for proving here, whichever proof assistant
   this project uses.

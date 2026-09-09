@@ -12,12 +12,6 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 
-# Retired 2026-08-18 — do not re-add: `formalize` named a workflow spec D2
-# forbids (the orchestrator authors every statement; workers only fill
-# placeholders), `draft` and `refactor` had no plan behind them and zero
-# live use across all live projects, and `review` was removed by spec D1
-# (the review layer is retired — the orchestrator reviews every PR
-# itself). `index` stays (Phase 5 coherence indexer).
 class TaskType(StrEnum):
     """The kind of work a task asks for. `index` is reserved for the
     coherence indexer and is excluded from the worker default."""
@@ -141,12 +135,7 @@ class TaskRecord(BaseModel):
 
     @model_validator(mode="after")
     def _check_target_by_type(self) -> TaskRecord:
-        """Every task type requires a declaration in a file.
-
-        Pre-spec-D1 this branched on `type: review` (which pointed at a PR
-        via `target_pr` instead); spec D1 removed the review task type, so
-        every remaining type (prove/golf/index) takes the same shape.
-        """
+        """Every task type requires a declaration in a file."""
         if not self.target_file or not self.target_decl:
             raise ValueError(
                 f"type: {self.type.value} requires target_file and target_decl"

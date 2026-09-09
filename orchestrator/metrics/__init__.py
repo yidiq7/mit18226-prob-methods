@@ -10,7 +10,7 @@ those on top of the records this module produces.
 
 Privacy: only public GitHub data is read (issues + their labels +
 assignees). No contributor cost / API-spend data crosses the
-orchestrator surface (load-bearing per CLAUDE.md non-negotiable).
+orchestrator surface (load-bearing per AGENTS.md non-negotiable).
 """
 
 from orchestrator.metrics.collect import (

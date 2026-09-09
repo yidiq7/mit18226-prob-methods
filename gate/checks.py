@@ -272,7 +272,7 @@ def is_blocking(name: str, *, prover: str | None = None) -> bool:
 # `gate/verify/decide_instance_cli.py` prints a not-applicable line and
 # returns 0. So the check is present-and-green on all three provers, and
 # requiring its presence false-blocks nobody. It is a QUALITY check named in
-# CLAUDE.md's Day-1 audit floor; leaving it out let a PR delete
+# AGENTS.md's Day-1 audit floor; leaving it out let a PR delete
 # `verify-decide-instance.yml`, add a `Classical`/`Decidable` shortcut, and
 # merge with every other required name green.
 #

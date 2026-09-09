@@ -16,7 +16,7 @@ beat run from a machine that never held the workspace.
 
 Advisory and best-effort: every failure path returns `False` rather than
 raising, because a transient GitHub error must not break a claim or a
-backend run.
+proof.
 """
 
 from __future__ import annotations
@@ -29,30 +29,34 @@ from gate.state.lease_arbiter import (
     DEFAULT_STALE_AFTER_HOURS,
     LeaseComment,
     decide_lease,
-    latest_by_login,
+    latest_by_worker,
 )
 from gate.state.lease_comment import ACTION_HEARTBEAT
 
 
-def heartbeat_target(comments: list[LeaseComment], login: str) -> int | None:
-    """The comment id to edit for `login`'s next beat, or `None` to post one.
+def heartbeat_target(
+    comments: list[LeaseComment], login: str, session: str = ""
+) -> int | None:
+    """The comment id to edit for this session's next beat, or `None` to post one.
 
-    Two constraints. It must be `login`'s id-highest comment, the only one
-    `decide_lease` reads freshness from — hence `latest_by_login` rather than
-    a second copy of that rule here; refresh anything earlier and the beat is
-    invisible. And it must not be the claim comment, the lease's identity
+    Two constraints. It must be this *worker's* id-highest comment — its
+    login and session, since one login can run several — and that is the
+    only one `decide_lease` reads freshness from; hence `latest_by_worker`
+    rather than a second copy of that rule here. Refresh anything earlier,
+    or another session's, and the beat is invisible. And it must not be
+    the claim comment, the lease's identity
     anchor, which an edit could mangle and so destroy the lease it meant to
     refresh. So: edit the id-highest comment if it is already a heartbeat,
     else post a new one, which then *becomes* the id-highest — self-healing
     after a re-claim, one comment per beat thereafter.
     """
-    latest = latest_by_login(comments).get(login)
+    latest = latest_by_worker(comments).get((login, session))
     if latest is None or latest.action != ACTION_HEARTBEAT:
         return None
     return latest.id
 
 
-def heartbeat_comment_body(login: str, now: datetime) -> str:
+def heartbeat_comment_body(login: str, now: datetime, session: str = "") -> str:
     """The heartbeat comment body for `login` at `now`.
 
     The rendered lease block plus one line naming the beat time. That line
@@ -64,7 +68,7 @@ def heartbeat_comment_body(login: str, now: datetime) -> str:
     case where GitHub might reasonably leave `updated_at` alone, silently
     turning a live lease stale.
     """
-    block = lease_comment_body(login, ACTION_HEARTBEAT)
+    block = lease_comment_body(login, ACTION_HEARTBEAT, session)
     stamp = now.astimezone(UTC).isoformat(timespec="seconds")
     return f"{block}\n_Lease refreshed {stamp}; this comment is edited in place._\n"
 
@@ -74,6 +78,7 @@ def heartbeat(
     issue: int,
     *,
     login: str | None = None,
+    session: str = "",
     stale_after_hours: int = DEFAULT_STALE_AFTER_HOURS,
     now: datetime | None = None,
 ) -> bool:
@@ -97,14 +102,14 @@ def heartbeat(
     except gh.GitHubError:
         return False
 
-    holder = decide_lease(
-        comments, stale_after_hours=stale_after_hours, now=now
-    ).holder
-    if holder != login:
+    decision = decide_lease(comments, stale_after_hours=stale_after_hours, now=now)
+    # The pair, not the login: beating on a lease another session under our
+    # own login holds would keep *their* claim alive while we do nothing.
+    if (decision.holder, decision.holder_session) != (login, session):
         return False
 
-    body = heartbeat_comment_body(login, now)
-    target = heartbeat_target(comments, login)
+    body = heartbeat_comment_body(login, now, session)
+    target = heartbeat_target(comments, login, session)
     try:
         if target is None:
             gh.post_comment(repo, issue, body)

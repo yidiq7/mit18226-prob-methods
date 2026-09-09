@@ -2,7 +2,7 @@ name: verify-decide-instance
 
 # Phase 3 audit: catch PRs that introduce new Decidable instances or
 # pull in Classical.* helpers (choice, propDecidable, byContradiction,
-# decEq). Per CLAUDE.md non-negotiable, these block merge until human-
+# decEq). Per AGENTS.md non-negotiable, these block merge until human-
 # reviewed.
 #
 # Sibling to verify-axiom-honesty; same shape. See

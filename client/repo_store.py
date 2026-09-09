@@ -51,7 +51,7 @@ def project_lock(repo: str) -> Iterator[None]:
     """Serialize store-mutating ops for one project across processes (flock).
 
     Held only for the brief git metadata ops (clone / fetch / worktree add /
-    remove), never during the long backend run. Do not nest — re-acquiring in
+    remove), never while a proof is in progress. Do not nest — re-acquiring in
     the same process would deadlock.
     """
     lock = _lock_path(repo)

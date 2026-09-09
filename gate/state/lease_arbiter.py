@@ -47,6 +47,12 @@ class LeaseComment:
     login: str
     action: str
     updated_at: str
+    # Which session under `login` wrote this. One login can run several
+    # worker sessions at once; without this the arbiter cannot tell a
+    # second session's claim from the holder re-claiming, and hands the
+    # task to both. Empty for a comment written before the field existed,
+    # which keeps those arbitrating on their login alone.
+    session: str = ""
 
 
 @dataclass(frozen=True)
@@ -55,6 +61,10 @@ class LeaseDecision:
 
     holder: str | None
     reason: str
+    # The holder's session, when its claim carried one. `holder` stays the
+    # login because that is what a human reads and what the label logic
+    # keys on; identity for "is this me?" is the pair.
+    holder_session: str = ""
     # Claimants whose claim was not the earliest, in id order. Lets a client
     # tell "I lost the race" (back off, look elsewhere — `client.worker`'s
     # recently-lost cache) from "nobody holds it".
@@ -88,19 +98,33 @@ def _is_fresh(stamp: str, *, now: datetime, stale_after_hours: int) -> bool:
     return parsed >= now - timedelta(hours=stale_after_hours)
 
 
-def latest_by_login(comments: list[LeaseComment]) -> dict[str, LeaseComment]:
-    """Each login's id-highest comment — the one carrying its freshness.
+# A worker's identity in the thread: its login, plus which of that login's
+# sessions wrote the comment. `("alice", "")` is a pre-session client, and
+# is a different worker from `("alice", "9f2c…")` on purpose — the arbiter
+# has no way to know whether they are the same agent, and treating them as
+# one is the bug this pair exists to fix.
+WorkerId = tuple[str, str]
+
+
+def worker_id(comment: LeaseComment) -> WorkerId:
+    return (comment.login, comment.session)
+
+
+def latest_by_worker(comments: list[LeaseComment]) -> dict[WorkerId, LeaseComment]:
+    """Each worker's id-highest comment — the one carrying its freshness.
 
     `decide_lease` reads staleness off this and nothing else, so
     `client.heartbeat` refreshes what this returns rather than re-deriving
     the same rule: the two would otherwise drift, and a beat on the wrong
-    comment is invisible to the arbiter.
+    comment is invisible to the arbiter. Keyed per *session*, so one
+    session's heartbeat never refreshes another's lease.
     """
-    out: dict[str, LeaseComment] = {}
+    out: dict[WorkerId, LeaseComment] = {}
     for comment in comments:
-        prev = out.get(comment.login)
+        wid = worker_id(comment)
+        prev = out.get(wid)
         if prev is None or comment.id > prev.id:
-            out[comment.login] = comment
+            out[wid] = comment
     return out
 
 
@@ -127,29 +151,41 @@ def decide_lease(
       otherwise the lease returns to the pool rather than passing to a
       worker that also left.
     - A claim from the current holder is not a second claim, which makes a
-      re-claim after a crash harmless.
+      re-claim after a crash harmless. "The current holder" is a
+      `WorkerId` — a login *and* its session — so a second session under
+      one login is a competing claimant and loses the race. Before that
+      pair existed this compared logins alone, and two agents on one
+      account were both told they had won.
+    - A `release`, by contrast, is matched on **login only**. A worker
+      whose workspace is gone has lost the session id it claimed with, and
+      must still be able to hand the task back rather than wait out the
+      staleness window.
 
     Comments are sorted here rather than trusted to arrive sorted, because
     the caller passes whatever the API returned.
     """
     ordered = sorted(comments, key=lambda c: c.id)
-    latest = latest_by_login(ordered)
+    latest = latest_by_worker(ordered)
 
-    holder: str | None = None
-    claim_order: list[str] = []
+    holder: WorkerId | None = None
+    claim_order: list[WorkerId] = []
     superseded: list[str] = []
 
     for comment in ordered:
+        wid = worker_id(comment)
         if comment.action == ACTION_CLAIM:
             if holder is None:
-                holder = comment.login
-                claim_order.append(comment.login)
-            elif comment.login != holder:
-                if comment.login not in claim_order:
-                    claim_order.append(comment.login)
+                holder = wid
+                claim_order.append(wid)
+            elif wid != holder:
+                if wid not in claim_order:
+                    claim_order.append(wid)
+                # `superseded` stays a set of logins: its consumer is a
+                # "recently lost" cache, and which of a login's sessions
+                # lost is not something the next claim needs.
                 if comment.login not in superseded:
                     superseded.append(comment.login)
-        elif comment.action == ACTION_RELEASE and comment.login == holder:
+        elif comment.action == ACTION_RELEASE and holder is not None and comment.login == holder[0]:
             holder = None
 
     if holder is None:
@@ -159,27 +195,31 @@ def decide_lease(
             superseded=tuple(superseded),
         )
 
-    def _fresh(login: str) -> bool:
+    def _fresh(wid: WorkerId) -> bool:
         return _is_fresh(
-            latest[login].updated_at, now=now, stale_after_hours=stale_after_hours
+            latest[wid].updated_at, now=now, stale_after_hours=stale_after_hours
         )
 
     if _fresh(holder):
         return LeaseDecision(
-            holder=holder, reason="claimed", superseded=tuple(superseded)
+            holder=holder[0],
+            reason="claimed",
+            holder_session=holder[1],
+            superseded=tuple(superseded),
         )
 
     for candidate in claim_order:
         if candidate != holder and _fresh(candidate):
             return LeaseDecision(
-                holder=candidate,
-                reason=f"reclaimed from @{holder} (stale)",
-                superseded=tuple(s for s in superseded if s != candidate),
+                holder=candidate[0],
+                reason=f"reclaimed from @{holder[0]} (stale)",
+                holder_session=candidate[1],
+                superseded=tuple(s for s in superseded if s != candidate[0]),
             )
 
     return LeaseDecision(
         holder=None,
-        reason=f"stale — @{holder} went quiet with no live claimant behind them",
+        reason=f"stale — @{holder[0]} went quiet with no live claimant behind them",
         superseded=tuple(superseded),
     )
 
@@ -220,6 +260,11 @@ def lease_comments_from_api(items: object) -> list[LeaseComment]:
     body may name any login, and under D4 anyone can comment on a task
     issue, so the parsed `login` is discarded for the row's own.
 
+    `session` has no API counterpart and so comes from the body. That is
+    safe *because* the login does not: a forged session only invents
+    another identity under the forger's own login, which posting a second
+    claim would do anyway.
+
     Never raises: a non-list input yields `[]`, a malformed row is skipped,
     and non-lease rows are dropped by `parse_lease_comment` returning `None`
     — its cheap common path, since most comments are prose.
@@ -243,6 +288,7 @@ def lease_comments_from_api(items: object) -> list[LeaseComment]:
                 login=str(item.get("login") or ""),
                 action=claim.action,
                 updated_at=str(item.get("updated_at") or ""),
+                session=claim.session,
             )
         )
     return out

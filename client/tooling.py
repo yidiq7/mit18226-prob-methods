@@ -26,11 +26,11 @@ _ADVISORY = (
     "    (LeanSearch / Loogle / Lean Finder) — agents prove far better "
     "when they\n"
     "    can search Mathlib instead of guessing lemma names.\n"
-    "    Set one up (docs/agents/BACKENDS.md → \"Mathlib search tooling\"), then "
+    "    Set one up (docs/agents/CONTRIBUTOR.md → \"Mathlib search tooling\"), then "
     "declare it\n"
     "    in ~/.choir/config.json:  {\"tooling\": {\"search\": "
     "\"lean-lsp-mcp\"}}\n"
-    "    Backend already has search? Use \"backend-provided\". Going "
+    "    Agent already has search? Use \"agent-provided\". Going "
     "without? \"none\"."
 )
 
@@ -62,7 +62,7 @@ def tooling_advisory(recommendation: str, search: str | None) -> str | None:
 
     - ``recommendation == "off"`` → ``None`` (project opted out)
     - ``search`` is a non-empty, non-whitespace string → ``None``
-      (contributor declared a tool, ``"backend-provided"``, or ``"none"``)
+      (contributor declared a tool, ``"agent-provided"``, or ``"none"``)
     - otherwise → the advisory text
     """
     if recommendation == "off":

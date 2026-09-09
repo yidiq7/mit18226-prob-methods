@@ -132,7 +132,7 @@ def main(argv: list[str] | None = None) -> int:
         print()
         print(
             "PR introduces new Decidable instances or Classical.* usage not "
-            "present in the base. Per CLAUDE.md non-negotiable: these block "
+            "present in the base. Per AGENTS.md non-negotiable: these block "
             "merge until human-reviewed."
         )
         return 1

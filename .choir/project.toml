@@ -8,8 +8,8 @@ prover = "lean4"
 # was written from (design note 13 §3). Written by bootstrap/upgrade
 # only, never by hand; read gate-side (gate/protocol.py) and enforced
 # client-side at claim time.
-choir_protocol = 7
-choir_commit = "5115ba83455e1ceb2eb456ef15fb1c3f7650a456"
+choir_protocol = 8
+choir_commit = "4f4e2edbeb27bfbc6fe3a7c45ae29277cd79b30e"
 
 # Automation level — read by the orchestrator agent at loop start.
 # auto | approve | manual. See docs/agents/ORCHESTRATOR.md in the Choir repo.

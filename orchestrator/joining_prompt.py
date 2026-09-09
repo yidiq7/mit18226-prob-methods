@@ -15,22 +15,18 @@ from __future__ import annotations
 import argparse
 import sys
 
-DEFAULT_CHOIR_URL = "git@github.com:yidiq7/choir.git"
+DEFAULT_CHOIR_URL = "https://github.com/Weber-GeoML/Choir.git"
 
 _TEMPLATE = """\
 You are a Choir contributor (worker agent) for the project **`{repo}`**.
 
-1. Set up: `git clone {choir_url} ./choir 2>/dev/null; sh ./choir/scripts/join.sh {repo} --backend <agent>`
-   `<agent>` = the agent you are: `claude` | `codex` | `vibe`. Anything else (or a
-   prover your user named): omit `--backend` and follow `./choir/docs/agents/BACKENDS.md`
-   § "Wiring a specialized prover"; verify with `choir backend check`.
+1. Set up: `git clone {choir_url} ./choir 2>/dev/null; sh ./choir/scripts/join.sh {repo}`
    Fix anything the script flags and re-run until it reports READY.
-2. Start the worker loop it prints — `cd ./choir && uv run choir worker {repo}` —
-   and keep it running unattended (background it or use a terminal multiplexer).
-3. Read `./choir/docs/agents/CONTRIBUTOR.md` and work by it. The short version: report
-   claims and submitted PRs to your user as they happen; your LLM credentials
-   never leave this machine.\
-"""  # noqa: E501
+2. Read `./choir/docs/agents/CONTRIBUTOR.md` and work by it. You do the proving
+   yourself: claim a task, close the placeholder, submit. The short version:
+   report claims and submitted PRs to your user as they happen; your LLM
+   credentials never leave this machine.\
+"""
 
 
 def joining_prompt(repo: str, choir_url: str | None = None) -> str:

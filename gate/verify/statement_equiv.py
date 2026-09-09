@@ -5,7 +5,7 @@ silently *weakening* its statement — replacing `theorem foo : strong` +
 `sorry` with `theorem foo : weak` + a proof of `weak`. The rebuild
 passes (the file compiles) but the contract is broken.
 
-v0 is the naive string-based check CLAUDE.md anticipated: extract the
+v0 is the naive string-based check AGENTS.md anticipated: extract the
 signature substring for `target_decl` in both base and head versions of
 the file, normalize whitespace, compare. Extraction is delegated to the
 effective `ProverProfile`'s `extract_statement` hook (design note 12

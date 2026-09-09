@@ -141,7 +141,7 @@ def main(argv: list[str] | None = None) -> int:
         print()
         print(
             "PR introduces axiomatic constructs not present in the base. "
-            "Per CLAUDE.md non-negotiable: these block merge until "
+            "Per AGENTS.md non-negotiable: these block merge until "
             "human-reviewed."
         )
         return 1

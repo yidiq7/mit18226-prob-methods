@@ -1,7 +1,7 @@
 """Axiom-honesty audit (Phase 3).
 
 Flags PRs that introduce new uses of axiomatic or trust-eroding
-constructs without explicit human review. CLAUDE.md non-negotiable:
+constructs without explicit human review. AGENTS.md non-negotiable:
 
 > Axiom-dependency audit (any new `axiom`, `unsafe`, `native_decide`,
 > `partial`, `extern` blocks merge until human-reviewed)
@@ -24,7 +24,7 @@ What this catches and doesn't:
   for whichever prover's patterns are in effect.
 - Doesn't catch hypothesis-as-axiom (a theorem with `(h : P)` where
   the maintainer never intends to provide a witness for P — the
-  axiom is hidden in the hypothesis). CLAUDE.md flags this as a
+  axiom is hidden in the hypothesis). AGENTS.md flags this as a
   Phase 3+ concern; needs real per-prover parsing.
 - Doesn't catch reformulations that move axiomatic content elsewhere
   (e.g., declaring an axiom in a separate file, importing). v0 is

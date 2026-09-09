@@ -1,6 +1,6 @@
 """Decide-instance audit (Phase 3, sibling to axiom_honesty).
 
-CLAUDE.md non-negotiable lists this alongside the axiom-honesty audit:
+AGENTS.md non-negotiable lists this alongside the axiom-honesty audit:
 PRs that introduce new `Decidable` instances or pull in `Classical.*`
 helpers need human review before merge.
 

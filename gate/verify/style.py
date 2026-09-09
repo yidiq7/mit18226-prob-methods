@@ -1,6 +1,6 @@
 """Style audit (Phase 3 — minimal v0).
 
-CLAUDE.md lists "style audit (length, identifier reuse, definition
+AGENTS.md lists "style audit (length, identifier reuse, definition
 reuse)" in the verify pipeline. v0 ships the simplest of the three:
 
 - **Length check.** For each top-level declaration in changed files,

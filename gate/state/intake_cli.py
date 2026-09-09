@@ -8,7 +8,7 @@ stdout describing what the workflow should do next: post a comment, add
 labels, remove labels.
 
 The CLI itself does no GitHub API calls — that's the workflow's job. This
-keeps the CLI unit-testable without mocking `gh` and matches the CLAUDE.md
+keeps the CLI unit-testable without mocking `gh` and matches the AGENTS.md
 "workflows are thin" pattern.
 
 Output JSON shape:

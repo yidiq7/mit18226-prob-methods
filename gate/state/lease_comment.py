@@ -41,20 +41,35 @@ class LeaseClaim:
 
     `action` is one of `ACTION_CLAIM` / `ACTION_HEARTBEAT` /
     `ACTION_RELEASE`; `parse_lease_comment` never returns any other value.
+
+    `session` identifies *which worker session under that login* wrote the
+    comment. One login can run several sessions at once, and without this
+    the arbiter reads a second session's claim as the holder re-claiming
+    its own lease and hands both of them the task. Empty when the writer
+    predates the field, which keeps a claim from an older client readable;
+    the arbiter falls back to login-only identity for those.
+
+    It carries no authority. `login` is taken from the API row that carried
+    the comment, never from the block, so a forged `session` only invents a
+    new identity under the forger's own login — which they could do by
+    claiming twice anyway.
     """
 
     login: str
     action: str
     protocol: int
+    session: str = ""
 
 
 def render_lease_comment(claim: LeaseClaim) -> str:
     """Render `claim` as a GitHub comment body: a fenced ```choir-lease block."""
+    session = f"session: {claim.session}\n" if claim.session else ""
     return (
         f"```{LEASE_BLOCK_TAG}\n"
         f"login: {claim.login}\n"
         f"action: {claim.action}\n"
         f"protocol: {claim.protocol}\n"
+        f"{session}"
         "```\n"
     )
 
@@ -71,6 +86,10 @@ def render_lease_comment(claim: LeaseClaim) -> str:
 # pre-existing and wider: narrowing this parser is free, narrowing intake's
 # is a schema change.
 _MAX_BLOCK_LINES = 32
+
+# A session id as `client.lease` mints it: lowercase hex, long enough that
+# two sessions never collide by accident, short enough to read in a thread.
+_SESSION_RE = re.compile(r"^[0-9a-f]{8,64}$")
 _KEY_RE = re.compile(r"^([a-z][a-z0-9_]*):[ \t]*(.*)$")
 
 # A GitHub login: alphanumeric with single interior hyphens, 1-39 chars.
@@ -147,7 +166,16 @@ def parse_lease_comment(body: str) -> LeaseClaim | None:
     if raw_protocol is None or not raw_protocol.isdigit():
         return None
 
-    return LeaseClaim(login=login, action=action, protocol=int(raw_protocol))
+    session = data.get("session") or ""
+    if session and not _SESSION_RE.match(session):
+        # Shape-checked like `login`, and for the same reason: every reader
+        # compares it. A value that is not session-shaped is dropped rather
+        # than failing the parse, so the claim still arbitrates on its login.
+        session = ""
+
+    return LeaseClaim(
+        login=login, action=action, protocol=int(raw_protocol), session=session
+    )
 
 
 def _extract_block(body: str) -> str | None:

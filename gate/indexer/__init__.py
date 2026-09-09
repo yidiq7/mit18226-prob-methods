@@ -3,7 +3,7 @@
 The indexer maintains a searchable map of declaration names across a
 Choir-managed project and surfaces potential duplicates on every PR.
 Per design note 04, the indexer is search-based, not LLM-per-PR —
-avoiding the RepoProver-shaped waste of agent invocations for routine
+avoiding the waste of agent invocations for routine
 maintenance work.
 
 v0 scope (this implementation):

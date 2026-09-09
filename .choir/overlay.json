@@ -26,7 +26,7 @@
     },
     ".github/workflows/verify-decide-instance.yml": {
       "class": "managed",
-      "sha256": "6acd8f30dd13da013ad2455085f67d8b80a7b94748c208d6dfa975d25a256f20"
+      "sha256": "396bc89a3b10d4637d6b2d288a3b7062458bfd6d6eb8c8b943500770672ccaf1"
     },
     ".github/workflows/verify-pr.yml": {
       "class": "seeded",
@@ -54,7 +54,7 @@
     },
     "pyproject.toml": {
       "class": "managed",
-      "sha256": "884a772f573c9b01671bfae58d6f1db8e88545658e284f3362fb496806bd4d63"
+      "sha256": "ac970eac9a1a450b0c41c0db376f5e1a41afe0bda936d4bf5286a206a7e02752"
     },
     "uv.lock": {
       "class": "managed",

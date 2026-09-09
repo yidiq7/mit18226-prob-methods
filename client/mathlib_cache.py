@@ -149,14 +149,14 @@ def prepare_workspace_deps(
     """Ensure `<workspace>/.lake/packages` is populated, sharing via the store.
 
     Idempotent and best-effort — never raises; on any failure it returns a
-    status and lets the normal backend `lake exe cache get` proceed. Returns:
+    status and lets the normal `lake exe cache get` proceed. Returns:
 
       ``"no-manifest"``      not a Lake/Mathlib project — nothing to do
       ``"present"``          packages already there (resume / re-run)
       ``"hit"``              COW-cloned from the shared store (near-zero disk)
       ``"fetched"``          miss: fetched, then saved to the store for reuse
       ``"fetched-nostore"``  miss: fetched, but couldn't save (no reflink)
-      ``"skipped"``          fetch unavailable/failed — backend will handle it
+      ``"skipped"``          fetch unavailable/failed — the build will handle it
 
     `cache_get(workspace) -> bool` runs the fetch (injected in tests).
     """

@@ -2,7 +2,7 @@
 
 The project's `lean-toolchain` file pins Lean itself (elan reads it
 automatically — no Choir code needed). The remaining pinning concern
-per CLAUDE.md's non-negotiable is the contributor's locally-installed
+per AGENTS.md's non-negotiable is the contributor's locally-installed
 tooling — primarily `lean4-skills`, which lives outside the project
 repo and can drift independently.
 

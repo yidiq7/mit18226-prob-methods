@@ -10,8 +10,6 @@ This is a Choir task. The YAML block below is the machine-readable
 contract; the prose after it is what the contributor's agent reads
 as `TASK.md`. Replace placeholders (OWNER/REPO, SHA, target_*, etc.)
 before submitting.
-
-See docs/design/02-task-record.md for the full schema.
 -->
 
 ---
