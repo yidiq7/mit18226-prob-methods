@@ -1,6 +1,7 @@
 import ProbMethods.Chapter10.Entropy
 import Mathlib.Combinatorics.SimpleGraph.DegreeSum
 import Mathlib.Algebra.Order.Chebyshev
+import Mathlib.Combinatorics.SimpleGraph.Acyclic
 
 /-!
 # §10.3 — Sidorenko's inequality for the three-edge path
@@ -764,6 +765,43 @@ theorem sidorenko_biclique (s t : ℕ) :
         rw [← pow_mul, ← pow_mul, mul_assoc, ← pow_add]
         congr 2
         ring
+
+/-! ### Theorem 10.3.5 in full: all trees
+
+The cases proved above — paths of three edges, stars, complete bipartite graphs — were each
+reachable because the homomorphism count factorises outright. A general tree needs the
+notes' actual argument: build the distribution by picking a root edge and then each further
+vertex as a uniform neighbour of its parent, and use the chain rule along the tree together
+with `PMC.wcondEntropy_pair_eq_of_condIndep`.
+
+The statement is committed here for a general graph `F`, through `PMC.homSet`, which is worth
+having anyway: it is the definition every later Sidorenko case is about. Written so that no
+exponent needs truncated subtraction — multiplying the notes' form through by `n` turns
+`hom · n^{e-1} ≥ (2m)^e` into `hom · nᵉ ≥ (2m)ᵉ · n`, which also reads correctly at `e = 0`. -/
+
+/-- The graph homomorphisms from `F` to `G`: vertex maps sending edges to edges. -/
+def homSet {W : Type*} [Fintype W] [DecidableEq W] (F : SimpleGraph W) [DecidableRel F.Adj]
+    (G : SimpleGraph V) [DecidableRel G.Adj] : Finset (W → V) :=
+  (univ : Finset (W → V)).filter fun φ => ∀ u v, F.Adj u v → G.Adj (φ u) (φ v)
+
+lemma mem_homSet {W : Type*} [Fintype W] [DecidableEq W] {F : SimpleGraph W}
+    [DecidableRel F.Adj] {G : SimpleGraph V} [DecidableRel G.Adj] {φ : W → V} :
+    φ ∈ homSet F G ↔ ∀ u v, F.Adj u v → G.Adj (φ u) (φ v) := by
+  rw [homSet, mem_filter]
+  exact ⟨fun h => h.2, fun h => ⟨mem_univ _, h⟩⟩
+
+/-- **Theorem 10.3.5 (Sidorenko's conjecture for trees).** For every tree `F` and every graph
+`G` on `n` vertices with `m` edges,
+
+    hom(F, G) · n^{e(F)} ≥ (2m)^{e(F)} · n,
+
+which is `t(F, G) ≥ t(K₂, G)^{e(F)}` once `v(F) = e(F) + 1` is used. -/
+theorem sidorenko_tree {W : Type*} [Fintype W] [DecidableEq W] (F : SimpleGraph W)
+    [DecidableRel F.Adj] [Fintype F.edgeSet] (hF : F.IsTree) :
+    ((∑ v, G.degree v : ℕ) : ℝ) ^ #F.edgeFinset * (Fintype.card V : ℝ)
+      ≤ #(homSet F G) * (Fintype.card V : ℝ) ^ #F.edgeFinset := by
+  sorry
+
 
 end Sidorenko
 

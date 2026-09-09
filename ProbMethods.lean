@@ -31,6 +31,7 @@ import ProbMethods.Chapter06.Derangement
 import ProbMethods.Chapter07.Correlation
 import ProbMethods.Chapter08.Janson
 import ProbMethods.Chapter09.HammingCube
+import ProbMethods.Chapter09.Hoeffding
 import ProbMethods.Chapter10.Entropy
 import ProbMethods.Chapter10.CondSupport
 import ProbMethods.Chapter10.OrderChain

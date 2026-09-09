@@ -3577,6 +3577,45 @@
    ],
    "proof_uses": [],
    "note": "THEOREM 9.4.6 (rapid expansion from epsilon to 1 - epsilon), CONDITIONAL ON HARPER: with epsilon = exp(-2t^2/n), which is the notes' t = sqrt(n log(1/epsilon)/2), a set of more than epsilon 2^n points expands in 2t steps to more than (1 - epsilon) 2^n. Harper enters as a hypothesis in exactly the form task #46 will prove, so this is sorry-free. ERRATUM-ADJACENT: the hypothesis here is STRICT where the notes write |A| >= epsilon 2^n, and the strictness is needed -- at |A| = epsilon 2^n exactly the counting step gives 2^n <= 2^n and no contradiction. The notes' proof quietly uses a strict Chernoff bound at that point."
+  },
+  "homSet": {
+   "kind": "definition",
+   "parent": "entropyGroup",
+   "file": "ProbMethods/Chapter10/Sidorenko.lean",
+   "decl": "PMC.homSet",
+   "doc": "entropy.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [],
+   "proof_uses": [],
+   "note": "The graph homomorphisms from F to G, the object Sidorenko's conjecture is about. Checked: a single edge into K3 has 6 homomorphisms, which is 2m."
+  },
+  "sidorenko_tree": {
+   "kind": "theorem",
+   "parent": "entropyGroup",
+   "file": "ProbMethods/Chapter10/Sidorenko.lean",
+   "decl": "PMC.sidorenko_tree",
+   "doc": "entropy.md",
+   "statement": "formalized",
+   "proof": "planned",
+   "uses": [
+    "homSet",
+    "cond_indep"
+   ],
+   "proof_uses": [],
+   "note": "THEOREM 10.3.5 (Sidorenko for all trees). STATEMENT COMMITTED, published as a task. The cases already proved -- three-edge path, stars, complete bipartite -- were reachable because the homomorphism count factorises outright; a general tree needs the notes' actual argument, a distribution built by picking a root edge and then each further vertex as a uniform neighbour of its parent, with the chain rule along the tree and wcondEntropy_pair_eq_of_condIndep. Stated so that no exponent needs truncated subtraction: multiplying the notes' form by n turns hom n^(e-1) >= (2m)^e into hom n^e >= (2m)^e n, which also reads correctly at e = 0. Checked consistent at e = 1 (a single edge into K3: 6*3 <= 6*3, equality)."
+  },
+  "hoeffding_lemma": {
+   "kind": "theorem",
+   "parent": "concentrationGroup",
+   "file": "ProbMethods/Chapter09/Hoeffding.lean",
+   "decl": "PMC.wmean_exp_le_of_mem_Icc",
+   "doc": "mathlib-survey.md",
+   "statement": "formalized",
+   "proof": "planned",
+   "uses": [],
+   "proof_uses": [],
+   "note": "HOEFFDING'S LEMMA in finite form, the analytic input of Section 9.1's bounded differences inequality. STATEMENT COMMITTED, published as a task. Mathlib has it for MEASURES (hasSubgaussianMGF_of_mem_Icc_of_integral_eq_zero) via tilted measures and the cumulant generating function; using that here would need a finite-weight-to-Measure bridge, so either route is acceptable. The constant matters: lambda^2 (b-a)^2 / 8 is what makes 9.1.1 come out with the notes' exp(-2 lambda^2 / sum c_i^2), and a cruder MGF bound would be a factor of four worse in the exponent and would NOT prove the theorem as stated. Section 9.1 is the one part of Chapter 9 that lives naturally in the finite framework: the martingale is the sequence of partial averages over the remaining coordinates."
   }
  }
 }
