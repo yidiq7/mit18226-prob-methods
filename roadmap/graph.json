@@ -4215,6 +4215,34 @@
    ],
    "proof_uses": [],
    "note": "THEOREM 8.1.8 (Janson inequality II), DONE: if mu <= Delta then P(X = 0) <= exp(-mu^2/(2 Delta)). Janson I is strong only when Delta = o(mu); this covers the other regime. The notes' SAMPLING proof: apply Janson I to a random subfamily keeping each index with probability q = mu/Delta, whose moments are q mu and q^2 Delta, and take a subfamily at least as good as the average (exists_le_wmean). mu <= Delta is exactly what makes q <= 1. Both ingredients were already in the library -- janson_prod_le's arbitrary subfamily and bweight's moments -- so what this needed was the pair-sum bookkeeping connecting them. Found by the coverage audit; sorry-free and independent of task #42."
+  },
+  "two_coloring_nonuniform": {
+   "kind": "theorem",
+   "parent": "localLemmaGroup",
+   "file": "ProbMethods/Chapter06/Coloring.lean",
+   "decl": "PMC.exists_two_coloring_of_local_lemma'",
+   "doc": "local-lemma.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "lll_symmetric"
+   ],
+   "proof_uses": [],
+   "note": "THEOREM 6.2.6 (finite case): a hypergraph whose edges all have size AT LEAST k, each meeting at most d others, is 2-colourable once e (d+1) 2^(1-k) <= 1. The generalisation of 6.2.1 from k-uniform to non-uniform cost nothing: the monochromatic probability of an edge of size m is 2^(1-m) <= 2^(1-k), and the symmetric local lemma only ever wanted an UPPER bound on the probabilities. Theorem 6.2.1 is now the uniform corollary. The notes also state 6.2.6 for infinite vertex sets, which needs their compactness Lemma 6.2.7 and is not claimed here."
+  },
+  "two_coloring_regular": {
+   "kind": "theorem",
+   "parent": "localLemmaGroup",
+   "file": "ProbMethods/Chapter06/Coloring.lean",
+   "decl": "PMC.exists_two_coloring_of_regular",
+   "doc": "local-lemma.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "two_coloring_nonuniform"
+   ],
+   "proof_uses": [],
+   "note": "COROLLARY 6.2.2: for k >= 9, every k-uniform k-regular hypergraph is 2-colourable. The degree count is the content -- an edge has k vertices, each in k edges, one of which is the edge itself, so it meets at most k(k-1) others (a biUnion bound over the edge's vertices). The numeric side condition 2e(k^2-k+1) <= 2^k is an induction from k = 9, where 2e*73 = 396.9 <= 512; the step needs only k^2 - 3k + 1 >= 0, true from k = 3, so 9 is forced by the BASE case rather than the induction."
   }
  }
 }

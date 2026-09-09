@@ -1,4 +1,5 @@
 import ProbMethods.Chapter06.LocalLemma
+import Mathlib.Analysis.Complex.ExponentialBounds
 
 /-!
 # §6.2 — Colouring hypergraphs by the local lemma
@@ -169,27 +170,33 @@ The three inputs are `PMC.lovasz_local_lemma_symmetric`, `PMC.card_monoEvent` fo
 probability `2 ^ (1-k)`, and `PMC.wprob_unifColoring_mul_of_determinedBy` for independence
 — the last via `PMC.determinedBy_monoEvent`, since edges sharing no vertex give events on
 disjoint blocks of coordinates. -/
-theorem exists_two_coloring_of_local_lemma (edge : ι → Finset V) {k d : ℕ}
-    (hk : 1 ≤ k) (hd : 0 < d) (hcard : ∀ i, #(edge i) = k)
+theorem exists_two_coloring_of_local_lemma' (edge : ι → Finset V) {k d : ℕ}
+    (hk : 1 ≤ k) (hd : 0 < d) (hcard : ∀ i, k ≤ #(edge i))
     (hdeg : ∀ i, #(sharesVertex edge i) ≤ d)
     (hep : Real.exp 1 * ((d : ℝ) + 1) * (2 / 2 ^ k) ≤ 1) :
     ∃ S : Finset V, ∀ i, ¬ edge i ⊆ S ∧ (edge i ∩ S).Nonempty := by
   classical
   by_cases hι : Nonempty ι
   · obtain ⟨i0⟩ := hι
-    have hkn : k ≤ Fintype.card V := by
-      rw [← hcard i0, ← card_univ]
-      exact card_le_card (subset_univ _)
-    -- each event has probability exactly `2 / 2 ^ k = 2 ^ (1-k)`
+    -- each event has probability `2 ^ (1 - #(edge i)) ≤ 2 ^ (1 - k)`
     have hprob : ∀ i, wprob (unifColoring V) (monoEvent edge i) ≤ 2 / 2 ^ k := by
       intro i
-      rw [wprob_unifColoring, card_monoEvent edge i hk (hcard i)]
-      refine le_of_eq ?_
-      push_cast
-      rw [div_eq_div_iff (by positivity) (by positivity)]
-      calc (2 : ℝ) * 2 ^ (Fintype.card V - k) * 2 ^ k
-          = 2 * (2 ^ (Fintype.card V - k) * 2 ^ k) := by ring
-        _ = 2 * 2 ^ Fintype.card V := by rw [← pow_add, Nat.sub_add_cancel hkn]
+      have hm : 1 ≤ #(edge i) := le_trans hk (hcard i)
+      have hmn : #(edge i) ≤ Fintype.card V := by
+        rw [← card_univ]
+        exact card_le_card (subset_univ _)
+      rw [wprob_unifColoring, card_monoEvent edge i hm rfl]
+      have hval : ((2 * 2 ^ (Fintype.card V - #(edge i)) : ℕ) : ℝ) / 2 ^ Fintype.card V
+          = 2 / 2 ^ #(edge i) := by
+        push_cast
+        rw [div_eq_div_iff (by positivity) (by positivity)]
+        calc (2 : ℝ) * 2 ^ (Fintype.card V - #(edge i)) * 2 ^ #(edge i)
+            = 2 * (2 ^ (Fintype.card V - #(edge i)) * 2 ^ #(edge i)) := by ring
+          _ = 2 * 2 ^ Fintype.card V := by
+              rw [← pow_add, Nat.sub_add_cancel hmn]
+      rw [hval]
+      refine div_le_div_of_nonneg_left (by norm_num) (by positivity) ?_
+      exact pow_le_pow_right₀ (by norm_num) (hcard i)
     -- edges sharing no vertex are independent
     have hindep : ∀ (i : ι) (T : Finset ι), Disjoint T (insert i (sharesVertex edge i)) →
         wprob (unifColoring V) (monoEvent edge i ∩ noneOf (monoEvent edge) T)
@@ -229,7 +236,104 @@ theorem exists_two_coloring_of_local_lemma (edge : ι → Finset V) {k d : ℕ}
     have hSi : S ∉ monoEvent edge i := mem_noneOf.mp hS i (mem_univ i)
     simp only [monoEvent, mem_filter, mem_univ, true_and, not_or] at hSi
     exact ⟨hSi.1, Finset.nonempty_iff_ne_empty.mpr hSi.2⟩
+
   · exact ⟨∅, fun i => absurd ⟨i⟩ hι⟩
+
+/-- **Theorem 6.2.1.** A `k`-uniform hypergraph in which every edge meets at most `d` others
+is 2-colourable once `e (d+1) 2^{1-k} ≤ 1` — equivalently, once every edge meets at most
+`e⁻¹ 2^{k-1} - 1` others, which is how the notes state it.
+
+The uniform case of `PMC.exists_two_coloring_of_local_lemma'`, which only needs the edges to
+have size *at least* `k`. -/
+theorem exists_two_coloring_of_local_lemma (edge : ι → Finset V) {k d : ℕ}
+    (hk : 1 ≤ k) (hd : 0 < d) (hcard : ∀ i, #(edge i) = k)
+    (hdeg : ∀ i, #(sharesVertex edge i) ≤ d)
+    (hep : Real.exp 1 * ((d : ℝ) + 1) * (2 / 2 ^ k) ≤ 1) :
+    ∃ S : Finset V, ∀ i, ¬ edge i ⊆ S ∧ (edge i ∩ S).Nonempty :=
+  exists_two_coloring_of_local_lemma' edge hk hd (fun i => le_of_eq (hcard i).symm) hdeg hep
+
+
+/-- The numeric side condition of Corollary 6.2.2: `2e(k² - k + 1) ≤ 2ᵏ` for `k ≥ 9`.
+
+Induction from `k = 9`, where `2e·73 ≈ 396.9 ≤ 512`. The step needs only
+`k² + k + 1 ≤ 2(k² - k + 1)`, i.e. `k² - 3k + 1 ≥ 0`, which holds from `k = 3` on — so `9` is
+forced by the base case, not by the induction. -/
+private lemma two_exp_mul_le_two_pow {m : ℕ} (hm : 9 ≤ m) :
+    2 * Real.exp 1 * ((m : ℝ) * ((m : ℝ) - 1) + 1) ≤ 2 ^ m := by
+  induction m, hm using Nat.le_induction with
+  | base =>
+      have he := Real.exp_one_lt_d9
+      norm_num
+      nlinarith [he]
+  | succ m hm ih =>
+      have hmR : (9 : ℝ) ≤ m := by exact_mod_cast hm
+      push_cast
+      have hstep : ((m : ℝ) + 1) * (((m : ℝ) + 1) - 1) + 1
+          ≤ 2 * ((m : ℝ) * ((m : ℝ) - 1) + 1) := by nlinarith
+      have hepos : (0 : ℝ) < 2 * Real.exp 1 := by positivity
+      calc 2 * Real.exp 1 * (((m : ℝ) + 1) * (((m : ℝ) + 1) - 1) + 1)
+          ≤ 2 * Real.exp 1 * (2 * ((m : ℝ) * ((m : ℝ) - 1) + 1)) :=
+            mul_le_mul_of_nonneg_left hstep (le_of_lt hepos)
+        _ = 2 * (2 * Real.exp 1 * ((m : ℝ) * ((m : ℝ) - 1) + 1)) := by ring
+        _ ≤ 2 * 2 ^ m := by
+            exact mul_le_mul_of_nonneg_left ih (by norm_num)
+        _ = 2 ^ (m + 1) := by
+            push_cast
+            ring
+
+/-- **Corollary 6.2.2.** For `k ≥ 9`, every `k`-uniform `k`-regular hypergraph is
+2-colourable. (`k`-regular: every vertex lies in exactly `k` edges.)
+
+The degree count is the content: an edge has `k` vertices, each lying in `k` edges, one of
+which is the edge itself, so it meets at most `k(k-1)` others. Then `e(k(k-1)+1)2^{1-k} ≤ 1`
+holds from `k = 9` on. -/
+theorem exists_two_coloring_of_regular (edge : ι → Finset V) {k : ℕ} (hk : 9 ≤ k)
+    (hcard : ∀ i, #(edge i) = k)
+    (hreg : ∀ v : V, #((univ : Finset ι).filter fun j => v ∈ edge j) = k) :
+    ∃ S : Finset V, ∀ i, ¬ edge i ⊆ S ∧ (edge i ∩ S).Nonempty := by
+  classical
+  -- each edge meets at most `k(k-1)` others
+  have hdeg : ∀ i, #(sharesVertex edge i) ≤ k * (k - 1) := by
+    intro i
+    have hsub : sharesVertex edge i
+        ⊆ (edge i).biUnion fun v => ((univ : Finset ι).filter fun j => v ∈ edge j).erase i := by
+      intro j hj
+      rw [mem_sharesVertex] at hj
+      obtain ⟨v, hv⟩ := hj.2
+      rw [mem_inter] at hv
+      refine Finset.mem_biUnion.mpr ⟨v, hv.1, ?_⟩
+      rw [Finset.mem_erase, mem_filter]
+      exact ⟨hj.1, mem_univ _, hv.2⟩
+    have hfib : ∀ v ∈ edge i,
+        #(((univ : Finset ι).filter fun j => v ∈ edge j).erase i) = k - 1 := by
+      intro v hv
+      have hmem : i ∈ (univ : Finset ι).filter fun j => v ∈ edge j :=
+        mem_filter.mpr ⟨mem_univ _, hv⟩
+      rw [Finset.card_erase_of_mem hmem, hreg v]
+    calc #(sharesVertex edge i)
+        ≤ ∑ v ∈ edge i, #(((univ : Finset ι).filter fun j => v ∈ edge j).erase i) :=
+          le_trans (Finset.card_le_card hsub) (Finset.card_biUnion_le)
+      _ = ∑ _v ∈ edge i, (k - 1) := Finset.sum_congr rfl hfib
+      _ = k * (k - 1) := by rw [Finset.sum_const, hcard i, smul_eq_mul]
+  -- the numeric condition
+  have hkR : (9 : ℝ) ≤ k := by exact_mod_cast hk
+  have hcast : ((k * (k - 1) : ℕ) : ℝ) = (k : ℝ) * ((k : ℝ) - 1) := by
+    have h1 : (1 : ℕ) ≤ k := by omega
+    push_cast [h1]
+    ring
+  have hep : Real.exp 1 * (((k * (k - 1) : ℕ) : ℝ) + 1) * (2 / 2 ^ k) ≤ 1 := by
+    rw [hcast]
+    have hnum := two_exp_mul_le_two_pow hk
+    rw [div_eq_mul_inv, ← mul_assoc, mul_comm (Real.exp 1 * ((k : ℝ) * ((k : ℝ) - 1) + 1)) 2,
+      ← mul_assoc]
+    rw [mul_inv_le_iff₀ (by positivity), one_mul]
+    calc 2 * Real.exp 1 * ((k : ℝ) * ((k : ℝ) - 1) + 1) ≤ 2 ^ k := hnum
+      _ = 2 ^ k := rfl
+  exact exists_two_coloring_of_local_lemma edge (by omega) (by
+    have : 0 < k * (k - 1) := by
+      refine Nat.mul_pos (by omega) (by omega)
+    exact this) hcard hdeg hep
+
 
 end Coloring
 

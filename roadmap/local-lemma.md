@@ -135,6 +135,21 @@ theorem is not true-by-empty-hypotheses. Worth doing for any statement whose hyp
 a numeric inequality — a mis-stated constant turns the whole result into a tautology, and
 nothing in the gate would catch it.
 
+### §6.2's other numbered results, from the coverage audit
+
+* `PMC.exists_two_coloring_of_local_lemma'` is **Theorem 6.2.6** in the finite case: edges of
+  size *at least* `k` rather than exactly `k`. The generalisation cost nothing — an edge of
+  size `m ≥ k` is monochromatic with probability `2^{1-m} ≤ 2^{1-k}`, and the symmetric local
+  lemma only ever wanted an upper bound. Theorem 6.2.1 is now the uniform corollary. The
+  notes also state 6.2.6 for *infinite* vertex sets, which needs their compactness Lemma
+  6.2.7; that is not claimed here.
+* `PMC.exists_two_coloring_of_regular` is **Corollary 6.2.2**: for `k ≥ 9`, every `k`-uniform
+  `k`-regular hypergraph is 2-colourable. The degree count is the content — an edge has `k`
+  vertices, each lying in `k` edges, one being the edge itself, so it meets at most `k(k-1)`
+  others. The side condition `2e(k²-k+1) ≤ 2ᵏ` is an induction from `k = 9`; the *step* needs
+  only `k² - 3k + 1 ≥ 0`, true from `k = 3`, so **`9` is forced by the base case**, not by the
+  induction.
+
 ### Product sample spaces are now available
 
 `ProbMethods/Product.lean`. §6.2 could use `PMC.DeterminedBy` because a 2-colouring *is* a
