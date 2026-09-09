@@ -2864,6 +2864,20 @@
    ],
    "proof_uses": [],
    "note": "Theorem 6.5.5 for arbitrary matchings, the general negative-dependency statement of the random injection model, and then Theorem 6.5.11 (Erdos-Spencer: every n x n array whose every entry appears at most n/(4e) times has a Latin transversal). The single-edge case is proved (perm_negative_correlation); the general case replaces the transposition by the permutation of perm_extend. Reading the notes' proof closely, the case analysis that makes it work is: for an edge (x,y) of a far-away matching, either y lies outside both column sets, and then the permutation fixes y so the edge was already in the original matching, or y is a column of T, and then the preimage lies in the original matching's columns, forcing x into its row set -- contradicting row-disjointness. The notes' displayed hypothesis mentions only disjointness from F_0, which is indeed all that is used."
+  },
+  "pair_prob": {
+   "kind": "theorem",
+   "parent": "localLemmaGroup",
+   "file": "ProbMethods/Permutation.lean",
+   "decl": "PMC.wprob_pairEvent",
+   "doc": "local-lemma.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "perm_swap_count"
+   ],
+   "proof_uses": [],
+   "note": "Theorem 6.5.11's probability input: P(sigma i1 = j1 and sigma i2 = j2) = 1/(n(n-1)) for distinct rows and distinct columns. One transposition still suffices -- with the first column held fixed, Equiv.swap moves the second anywhere else and fixes j1 precisely because both columns differ from it. The n-1 rather than n is the constraint sigma i2 != sigma i1: the second cell cannot reuse the first column, which is why the fibering runs over univ.erase j1. Checked on Fin 4: 2 of 24 permutations send 0 to 1 and 2 to 3, i.e. 1/12 = 1/(4*3)."
   }
  }
 }

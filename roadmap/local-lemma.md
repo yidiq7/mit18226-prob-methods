@@ -418,6 +418,15 @@ to be the identity off the union, but that is not exposed as a lemma. The clause
 decoration: 6.5.5 needs the column permutation carrying one matching to another to leave
 every other column alone, or it could create a forbidden pattern elsewhere.
 
+**Theorem 6.5.11's probability input is also proved**, `PMC.wprob_pairEvent`:
+`P(σ i₁ = j₁ ∧ σ i₂ = j₂) = 1/(n(n-1))`. One transposition again suffices — hold the first
+column fixed and `Equiv.swap` moves the second anywhere else, fixing `j₁` precisely because
+both columns differ from it. The `n-1` rather than `n` is the constraint `σ i₂ ≠ σ i₁`, which
+is why the fibering runs over `univ.erase j₁`.
+
+So of Theorem 6.5.11 (Erdős–Spencer) the probability side is done and the dependency side
+waits on 6.5.5, i.e. on task #44.
+
 What remains of §6.5 is Theorem 6.5.5 in **full generality** (arbitrary vertex-disjoint
 matchings in the random injection model) and the Latin-transversal application built on it.
 The single-edge case above is the same argument, so the generalization is a matter of

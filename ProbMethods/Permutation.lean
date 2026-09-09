@@ -74,18 +74,22 @@ theorem card_filter_apply_eq (i t t' : α) :
       rw [Equiv.Perm.mul_apply, hτ.2, Equiv.swap_apply_right]
     · rw [← mul_assoc, Equiv.swap_mul_self, one_mul]
 
+/-- The `|α|` events `σ i = t` partition the permutations into equal classes. -/
+theorem card_mul_card_filter_apply_eq (i t : α) :
+    Fintype.card α * #((univ : Finset (Equiv.Perm α)).filter fun σ => σ i = t)
+      = Fintype.card (Equiv.Perm α) := by
+  have hfib : #(univ : Finset (Equiv.Perm α))
+      = ∑ s : α, #((univ : Finset (Equiv.Perm α)).filter fun σ => σ i = s) :=
+    Finset.card_eq_sum_card_fiberwise (fun σ _ => mem_univ (σ i))
+  rw [card_univ] at hfib
+  rw [hfib, Finset.sum_congr rfl fun s _ => card_filter_apply_eq i s t,
+    Finset.sum_const, card_univ, smul_eq_mul]
+
 /-- A permutation sends `i` to a given point with probability `1 / |α|`. -/
 theorem wprob_unifPerm_apply_eq [Nonempty α] (i t : α) :
     wprob (unifPerm α) ((univ : Finset (Equiv.Perm α)).filter fun σ => σ i = t)
       = 1 / Fintype.card α := by
-  have hcard : Fintype.card α * #((univ : Finset (Equiv.Perm α)).filter fun σ => σ i = t)
-      = Fintype.card (Equiv.Perm α) := by
-    have hfib : #(univ : Finset (Equiv.Perm α))
-        = ∑ s : α, #((univ : Finset (Equiv.Perm α)).filter fun σ => σ i = s) :=
-      Finset.card_eq_sum_card_fiberwise (fun σ _ => mem_univ (σ i))
-    rw [card_univ] at hfib
-    rw [hfib, Finset.sum_congr rfl fun s _ => card_filter_apply_eq i s t,
-      Finset.sum_const, card_univ, smul_eq_mul]
+  have hcard := card_mul_card_filter_apply_eq i t
   have hPpos : (0 : ℝ) < Fintype.card (Equiv.Perm α) := by
     exact_mod_cast card_perm_pos (α := α)
   have h : (Fintype.card α : ℝ) * #((univ : Finset (Equiv.Perm α)).filter fun σ => σ i = t)
@@ -201,6 +205,108 @@ theorem exists_perm_extend (D : Finset α) (f : α → α) (hf : Set.InjOn f D) 
     ∃ σ : Equiv.Perm α, (∀ x ∈ D, σ x = f x) ∧
       ∀ y, y ∉ D ∪ D.image f → σ y = y := by
   sorry
+
+/-! ### Two cells at once
+
+Theorem 6.5.11's bad events pin down *two* cells of the array, so its probability input is
+`P(σ i₁ = j₁ ∧ σ i₂ = j₂) = 1/(n(n-1))`. One transposition still does the work: with the
+first column `j₁` held fixed, the second can be moved anywhere else by `Equiv.swap`, which
+fixes `j₁` precisely because both columns differ from it. -/
+
+/-- The event that the permutation sends `i₁` to `j₁` and `i₂` to `j₂`. -/
+abbrev pairEvent (i₁ j₁ i₂ j₂ : α) : Finset (Equiv.Perm α) :=
+  (univ : Finset (Equiv.Perm α)).filter fun σ => σ i₁ = j₁ ∧ σ i₂ = j₂
+
+/-- With the first column fixed, two-cell events all have the same size. -/
+theorem card_pairEvent_eq (i₁ j₁ i₂ : α) {j₂ j₂' : α} (h2 : j₂ ≠ j₁) (h2' : j₂' ≠ j₁) :
+    #(pairEvent i₁ j₁ i₂ j₂) = #(pairEvent i₁ j₁ i₂ j₂') := by
+  apply Finset.card_bij (fun σ _ => Equiv.swap j₂ j₂' * σ)
+  · intro σ hσ
+    rw [mem_filter] at hσ ⊢
+    refine ⟨mem_univ _, ?_, ?_⟩
+    · rw [Equiv.Perm.mul_apply, hσ.2.1, Equiv.swap_apply_of_ne_of_ne h2.symm h2'.symm]
+    · rw [Equiv.Perm.mul_apply, hσ.2.2, Equiv.swap_apply_left]
+  · intro σ _ ρ _ h
+    exact mul_left_cancel h
+  · intro ρ hρ
+    rw [mem_filter] at hρ
+    refine ⟨Equiv.swap j₂ j₂' * ρ, ?_, ?_⟩
+    · rw [mem_filter]
+      refine ⟨mem_univ _, ?_, ?_⟩
+      · rw [Equiv.Perm.mul_apply, hρ.2.1, Equiv.swap_apply_of_ne_of_ne h2.symm h2'.symm]
+      · rw [Equiv.Perm.mul_apply, hρ.2.2, Equiv.swap_apply_right]
+    · rw [← mul_assoc, Equiv.swap_mul_self, one_mul]
+
+/-- Fibering the permutations that send `i₁` to `j₁` over the image of `i₂`, which can be
+anything *other* than `j₁`. -/
+theorem card_pred_mul_card_pairEvent {i₁ i₂ : α} (hi : i₁ ≠ i₂) {j₁ j₂ : α} (hj : j₂ ≠ j₁) :
+    (Fintype.card α - 1) * #(pairEvent i₁ j₁ i₂ j₂)
+      = #((univ : Finset (Equiv.Perm α)).filter fun σ => σ i₁ = j₁) := by
+  classical
+  have hfib : #((univ : Finset (Equiv.Perm α)).filter fun σ => σ i₁ = j₁)
+      = ∑ b ∈ (univ : Finset α).erase j₁,
+          #(((univ : Finset (Equiv.Perm α)).filter fun σ => σ i₁ = j₁).filter
+            fun σ => σ i₂ = b) := by
+    refine Finset.card_eq_sum_card_fiberwise ?_
+    intro σ hσ
+    rw [mem_coe, mem_filter] at hσ
+    simp only [mem_coe, Finset.mem_erase]
+    refine ⟨?_, mem_univ _⟩
+    intro heq
+    exact hi (σ.injective (heq.trans hσ.2.symm).symm)
+  have hpiece : ∀ b ∈ (univ : Finset α).erase j₁,
+      #(((univ : Finset (Equiv.Perm α)).filter fun σ => σ i₁ = j₁).filter fun σ => σ i₂ = b)
+        = #(pairEvent i₁ j₁ i₂ j₂) := by
+    intro b hb
+    have hbj : b ≠ j₁ := (Finset.mem_erase.mp hb).1
+    have hfilter : (((univ : Finset (Equiv.Perm α)).filter fun σ => σ i₁ = j₁).filter
+        fun σ => σ i₂ = b) = pairEvent i₁ j₁ i₂ b := by
+      ext σ
+      simp only [mem_filter, mem_univ, true_and, and_assoc]
+    rw [hfilter, card_pairEvent_eq i₁ j₁ i₂ hbj hj]
+  rw [hfib, Finset.sum_congr rfl hpiece, Finset.sum_const, Finset.card_erase_of_mem (mem_univ _),
+    card_univ, smul_eq_mul]
+
+/-- **The two-cell probability.** For `i₁ ≠ i₂` and `j₂ ≠ j₁`,
+
+    P(σ i₁ = j₁ ∧ σ i₂ = j₂) = 1 / (n(n-1)),
+
+which is Theorem 6.5.11's `p`. The `n - 1` rather than `n` is the constraint
+`σ i₂ ≠ σ i₁`: the second cell cannot reuse the first column. -/
+theorem wprob_pairEvent {i₁ i₂ : α} (hi : i₁ ≠ i₂) {j₁ j₂ : α} (hj : j₂ ≠ j₁) :
+    wprob (unifPerm α) (pairEvent i₁ j₁ i₂ j₂)
+      = 1 / ((Fintype.card α : ℝ) * ((Fintype.card α : ℝ) - 1)) := by
+  have h1 : 1 < Fintype.card α := Fintype.one_lt_card_iff_nontrivial.mpr ⟨⟨i₁, i₂, hi⟩⟩
+  have hcount : Fintype.card α * ((Fintype.card α - 1) * #(pairEvent i₁ j₁ i₂ j₂))
+      = Fintype.card (Equiv.Perm α) := by
+    rw [card_pred_mul_card_pairEvent hi hj, card_mul_card_filter_apply_eq]
+  have hApos : (0 : ℝ) < Fintype.card α := by
+    have : 0 < Fintype.card α := by omega
+    exact_mod_cast this
+  have hA1 : (0 : ℝ) < (Fintype.card α : ℝ) - 1 := by
+    have : (1 : ℝ) < Fintype.card α := by exact_mod_cast h1
+    linarith
+  have hPpos : (0 : ℝ) < Fintype.card (Equiv.Perm α) := by
+    exact_mod_cast card_perm_pos (α := α)
+  have hcountR : (Fintype.card α : ℝ) * (((Fintype.card α : ℝ) - 1)
+      * #(pairEvent i₁ j₁ i₂ j₂)) = Fintype.card (Equiv.Perm α) := by
+    have hsub : ((Fintype.card α - 1 : ℕ) : ℝ) = (Fintype.card α : ℝ) - 1 := by
+      have : (1 : ℕ) ≤ Fintype.card α := by omega
+      push_cast [this]
+      ring
+    calc (Fintype.card α : ℝ) * (((Fintype.card α : ℝ) - 1) * #(pairEvent i₁ j₁ i₂ j₂))
+        = ((Fintype.card α * ((Fintype.card α - 1) * #(pairEvent i₁ j₁ i₂ j₂)) : ℕ) : ℝ) := by
+          push_cast [hsub]
+          ring
+      _ = Fintype.card (Equiv.Perm α) := by rw [hcount]
+  have hcne : (#(pairEvent i₁ j₁ i₂ j₂) : ℝ) ≠ 0 := by
+    intro h0
+    rw [h0, mul_zero, mul_zero] at hcountR
+    exact absurd hcountR.symm (ne_of_gt hPpos)
+  have hcpos : (0 : ℝ) < #(pairEvent i₁ j₁ i₂ j₂) :=
+    lt_of_le_of_ne (by positivity) (Ne.symm hcne)
+  rw [wprob_unifPerm, ← hcountR, div_eq_div_iff (by positivity) (by positivity)]
+  ring
 
 end Permutation
 
