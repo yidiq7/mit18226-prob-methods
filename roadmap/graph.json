@@ -4715,6 +4715,18 @@
     "poly_cube"
    ],
    "note": "THEOREM 2.5.2 with c_k = 2^{-k}, and S can be taken to be a UNION OF WHOLE PARTS. The notes form the expected imbalance as a polynomial in p_1..p_k and apply Lemma 2.5.3; but 2.5.3's proof only ever evaluates at corners, where p_i in {0,1} and the random set is deterministic. Applying the same kernel one level up, to the signed edge count D(V_S), gives sum_S (-1)^{#S^c} D(V_S) = sum over edges meeting every part of sgn(e) = n^k -- so the polynomial is never formed. The supporting count (an edge of size k meeting all k parts is a transversal, and there are n^k of them) is PMC.filter_image_fst_eq_univ."
+  },
+  "avoid_events": {
+   "kind": "lemma",
+   "parent": "localLemmaGroup",
+   "file": "ProbMethods/Chapter06/AvoidEvents.lean",
+   "decl": "PMC.exists_avoid_all_of_avoid_finite",
+   "doc": "local-lemma.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [],
+   "proof_uses": [],
+   "note": "LEMMA 6.2.7, the compactness argument in the variable model, in the generality the notes state it: variables with finitely many choices each, possibly infinitely many events, each depending on a finite set of variables; avoiding every finite subset of events implies avoiding all of them. Tychonoff on prod C i (discrete finite factors) plus the directed-intersection lemma. What makes each bad set CLOPEN is that bad j factors through the restriction to dep j, whose codomain is finite discrete -- which is exactly why Remark 6.2.8's warning bites without the variable model. PMC.exists_two_coloring_of_finite (the compactness step of 6.2.6) is the C i = Bool case and is re-derived from it as PMC.exists_two_coloring_of_avoid."
   }
  }
 }

@@ -31,6 +31,49 @@ written when the phase opens, so the plan never claims more precision than it ha
 | 10 | 10 Entropy | [entropy.md](entropy.md) | **§10.1, §10.2, §10.4 complete**; §10.4: Thms 10.4.1/10.4.3/10.4.5/10.4.9, Cors 10.4.6/10.4.7, Lemma 10.4.13, **Thm 10.4.12 (Kahn–Zhao)** and **Thm 10.4.14 (Galvin–Tetali)** — only 10.4.15 (a 2020 research result the notes state without proof) is left; §10.2: **Thm 10.2.1 (Brégman–Minc)**, Cor 10.2.2, **Lemma 10.2.7 + Thm 10.2.4's lower bound**; §10.3: Thms 10.3.3 (Blakey–Roy), 10.3.6 in full, 10.3.5 for stars (trees are task #48) |
 | 11 | 11 Containers | [containers.md](containers.md) | **lower bound of Thm 11.0.2 proved** (2^⌊n²/4⌋ triangle-free graphs, exact for every n); the upper bound and §11.1–§11.3 need the container theorem, and every other result there is asymptotic |
 
+## Coverage, measured strictly
+
+`scripts/label_audit.py` counts Zhao's numbered results (`roadmap/labels.txt`, 185 of them:
+every numbered Theorem, Lemma, Corollary and Proposition). A label counts as **proved** only
+when it is named inside a *declaration* docstring — `/-- … -/` immediately before a
+`theorem`/`lemma`/`def` — whose body has no `sorry`. A mention in a module docstring, a
+comment, or anywhere in this roadmap does not count.
+
+```
+labels: 185
+  proved (declaration docstring, no sorry): 100  (54%)
+  statement published, proof open (sorry):  5  T4.3.5 L5.1.6 T8.2.2 T9.4.3 T9.5.11
+  mentioned in Lean, not a declaration:     10  T1.2.2 T1.2.3 T1.2.9 L2.4.3 L4.2.4 T5.1.3 T6.2.10 T6.2.11 T10.3.7 T11.1.1
+  absent from Lean:                         70
+
+proved by chapter:
+  ch1: 9/16
+  ch2: 10/13
+  ch3: 1/5
+  ch4: 10/23
+  ch5: 7/10
+  ch6: 15/25
+  ch7: 4/6
+  ch8: 4/9
+  ch9: 14/43
+  ch10: 25/27
+  ch11: 1/8
+```
+
+**The strict definition is the point.** An earlier audit here grepped each label across the
+whole repository and reported **82%**; the strict figure was **54%**. The gap is almost
+entirely this roadmap's own *deferral* lists — §9.4's and §9.5's continuous-geometry entries,
+§4.3, §4.5, §11's research results — where a label appears precisely because it is **not**
+formalized. Two smaller effects run the other way: three of Chapter 1's labels (Sperner
+1.2.2, LYM 1.2.3, Erdős–Ko–Rado 1.2.9) are in Mathlib already, and a few results are proved
+under a different name with the label recorded only here.
+
+Earlier claims in this file of the form "Chapter *n* complete" were about the roadmap's own
+node list for that chapter, not about Zhao's labels; where the two were conflated in
+conversation, the label figure above is the one to trust. Grepping labels measures citations,
+not coverage.
+
+
 ## What remains, and what blocks it (2026-09-09)
 
 Of the book's numbered theorem-like results — **185**, not 186: "Theorem 3.4.10" in §4.5 is a

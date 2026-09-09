@@ -191,7 +191,15 @@ nothing in the gate would catch it.
   size `m ≥ k` is monochromatic with probability `2^{1-m} ≤ 2^{1-k}`, and the symmetric local
   lemma only ever wanted an upper bound. Theorem 6.2.1 is now the uniform corollary. The
   notes also state 6.2.6 for *infinite* vertex sets, which needs their compactness Lemma
-  6.2.7; that is not claimed here.
+  6.2.7. **That lemma is now proved in the generality the notes state it** —
+  `PMC.exists_avoid_all_of_avoid_finite` (`ProbMethods/Chapter06/AvoidEvents.lean`): variables
+  with finitely many choices each, possibly infinitely many events, each depending on a finite
+  set of variables; avoiding every finite subset of events implies avoiding all of them.
+  Tychonoff on `∀ i, C i` with discrete finite factors, plus the directed-intersection lemma.
+  The step that needs the variable model is that each bad set is *clopen*, because `bad j`
+  factors through the restriction to the finite `dep j`; that is precisely what Remark 6.2.8
+  warns is missing in general. `PMC.exists_two_coloring_of_finite` is the `C i = Bool` case,
+  and `PMC.exists_two_coloring_of_avoid` re-derives it from the general lemma.
 * `PMC.exists_two_coloring_of_regular` is **Corollary 6.2.2**: for `k ≥ 9`, every `k`-uniform
   `k`-regular hypergraph is 2-colourable. The degree count is the content — an edge has `k`
   vertices, each lying in `k` edges, one being the edge itself, so it meets at most `k(k-1)`
