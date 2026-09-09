@@ -122,6 +122,35 @@ uniformly from `[n]`. The distribution *is* uniform, so counting applies, and Ma
 Mertens-type estimates on `∑ 1/p`, which is where the work is. Stateable in explicit form;
 not attempted yet.
 
+## §4.1's threshold, asymptotically — proved
+
+`ProbMethods/Chapter04/TriangleThreshold.lean`. Both halves of the triangle threshold, in the
+notes' own phrasing:
+
+* `PMC.tendsto_probTriangleFree_one` (Proposition 4.1.2): `np → 0` ⟹ `G(n,p)` is triangle-free
+  with probability `1 - o(1)`. First moment and Markov: `E[#triangles] = C(n,3)p³ ≤ (np)³/6`.
+* `PMC.tendsto_probHasTriangle_one` (Theorem 4.1.11): `np → ∞` ⟹ `G(n,p)` contains a triangle
+  with probability `1 - o(1)`. Second moment:
+  `P(triangle-free) ≤ 1/(C(n,3)p³) + 3n/(C(n,3)p) ≲ 1/(np)³ + 1/(n²p)`, and both terms vanish
+  once `np → ∞` — the second because `n²p = n·(np)`.
+
+**This did not require changing the convention on asymptotics.** The limit statements sit *on
+top of* explicit bounds (`PMC.probHasTriangle_le`, `PMC.probTriangleFree_mul_le`) rather than
+in place of them, and each limit is a few lines of `Filter` work once the bound is there. The
+sample space is `Finset (Sym2 (Fin n))` for each `n` and the asymptotics live in
+`Filter.Tendsto` over `n`; nothing about the finite framework had to move.
+
+**The sharper variance was the real work** (`PMC.wvar_card_triangles_le'`):
+
+    Var ≤ C(n,3)(p³ + 3n p⁵).
+
+The earlier `PMC.wvar_card_triangles_le` bounds every overlapping pair by `p³`, which gives
+`P(triangle-free) ≲ 1/(n²p³)` — and that does *not* vanish throughout `np → ∞`; at
+`p = n^{-9/10}` it diverges, so the cruder bound cannot prove Theorem 4.1.11 at all. Keeping
+the two overlap classes apart is what fixes it: `t' = t` contributes `p³` and there is one such
+term, while `#(t ∩ t') = 2` contributes `p⁵` and there are at most `3n` such `t'`. This is the
+"overlap analysis" the second-moment section previously flagged as remaining work.
+
 ## Random graph sections (§4.1–4.4)
 
 ### random_triangle (§4.1) — proved

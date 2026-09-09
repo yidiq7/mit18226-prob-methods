@@ -22,7 +22,7 @@ written when the phase opens, so the plan never claims more precision than it ha
 | 1 | 2 Linearity of Expectations (§2.3) | [linearity.md](linearity.md) | **complete** (3 of 3) |
 | 2 | 2 (rest) | [linearity.md](linearity.md) | `szele`, `sampling`, `sumfree`, `unbalancing` all proved; §2.6 deferred |
 | 3 | 3 Alterations | [alterations.md](alterations.md) | `dominating` proved; §3.3 upstream, §3.2 deferred, §3.4/§3.5 need design |
-| 4 | 4 Second Moment | [second-moment.md](second-moment.md) | **§4.1 complete**, §4.2, §4.4, **§4.6 (Erdős distinct sums, and Thm 4.6.6 Dubroff–Fox–Xu modulo Harper)** proved; **§4.7 upstream, bridge proved** (`exists_polynomial_approx`); §4.3 deferred |
+| 4 | 4 Second Moment | [second-moment.md](second-moment.md) | **§4.1 complete, including both halves of the threshold as limits (Prop 4.1.2, Thm 4.1.11)**, §4.2, §4.4, **§4.6 (Erdős distinct sums, and Thm 4.6.6 Dubroff–Fox–Xu modulo Harper)** proved; **§4.7 upstream, bridge proved** (`exists_polynomial_approx`); §4.3 deferred |
 | 5 | 5 Chernoff Bound | [chernoff.md](chernoff.md) | **Thm 5.0.1, Cor 5.0.3, Thm 5.0.7, §5.1 proved**; 5.0.5 needs measure theory; §5.2/§5.3 open |
 | 6 | 6 Lovász Local Lemma | [local-lemma.md](local-lemma.md) | **§6.1–§6.4 complete**: both LLL forms, hypergraph 2-colouring (**including Thm 6.2.4, the non-uniform criterion**), independent transversals, Thm 6.4.3; **§6.5 complete modulo task #44**: lopsided LLL, derangement bound, and **Thm 6.5.11 (Erdős–Spencer Latin transversals)** with 6.5.5's dependency input as an explicit hypothesis; §6.6 open |
 | 7 | 7 Correlation Inequalities | [correlation.md](correlation.md) | **complete in finite form**: §7.1 upstream, §7.2 proved |
@@ -36,7 +36,10 @@ written when the phase opens, so the plan never claims more precision than it ha
 Of the book's 186 numbered theorem-like results, what is *not* formalized falls into four
 kinds, and it is worth naming them because they call for different responses:
 
-1. **Asymptotic statements** — `o(1)`, `whp`, `Θ`, `∼`. Chapters 4 (§4.1–§4.5's limits), 8
+1. **Asymptotic statements** — `o(1)`, `whp`, `Θ`, `∼`. §4.1's threshold is now proved *as a
+   limit* (`PMC.tendsto_probHasTriangle_one`), which shows the finite framework reaches these
+   statements whenever the explicit bound behind them is sharp enough. The rest are Chapters 4
+   (§4.2–§4.5), 8
    (§8.1.6, §8.1.10, §8.2.5, §8.3), 9 (§9.3.3–§9.3.5), 11 (almost everything). The explicit
    finite content of these is generally proved; the limit statements need an asymptotics layer
    and are deferred by the convention below.
