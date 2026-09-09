@@ -84,6 +84,36 @@ true.
 Theorem 4.6.4 (Harper's vertex-isoperimetric inequality on the hypercube) is quoted, not
 proved, and belongs with Chapter 9's concentration material rather than here.
 
+## Theorem 4.6.6 (Dubroff–Fox–Xu) — proved, modulo Harper
+
+`ProbMethods/Chapter04/DubroffFoxXu.lean`. `PMC.choose_le_of_distinct_subset_sums`: if `k`
+integers bounded by `n` have distinct subset sums then `C(k, ⌊k/2⌋) ≤ n` — the best known
+leading constant for §4.6's problem, and a 2021 result.
+
+The reduction, which is the paper's content, is proved in full:
+
+* `PMC.card_lowHalf` — the subsets summing to *below* half the total are exactly half of the
+  `2^k` subsets. Distinctness is what rules out summing to exactly half (that subset would tie
+  with its complement), so complementation pairs every subset with exactly one of the two
+  sides.
+* `PMC.card_boundary_lowHalf_le` — the vertex boundary has at most `n` points. A boundary point
+  is an *insertion* `S ∪ {i}`, never an erasure, because erasing only lowers the sum and would
+  keep the point inside; so its sum lies strictly between `T/2` and `T/2 + n`, an interval
+  holding at most `n` integers, and distinctness makes the sum injective on the boundary.
+
+Harper's inequality is an **explicit hypothesis**, in the boundary form the proof needs: a set
+of size exactly `2^{k-1}` has at least `C(k, ⌊k/2⌋)` boundary points. It is not derived from the
+ball form (task #46) because for even `k` the extremal set is a ball *plus part of one level*,
+which the ball form does not reach.
+
+**A statement bug caught by a numeric check, worth recording.** The hypothesis was first
+written with `2^{k-1} ≤ #A` rather than `#A = 2^{k-1}`. That version is false — at `A = univ`
+the boundary is empty — so the theorem would have been vacuously true while looking right.
+Brute force over `k ≤ 4` found it, and also confirmed the equality version is true *and tight*:
+the minimum boundary of a half-cube-sized set is exactly `C(k, ⌊k/2⌋)` for `k = 1, 2, 3, 4`.
+The lesson: an assumed hypothesis needs its own sanity check, because a false one makes
+everything downstream provable.
+
 ## Hardy–Ramanujan (§4.5) — not yet stated
 
 The number of distinct prime divisors `ω(m)` concentrates around `log log n` for `m` drawn

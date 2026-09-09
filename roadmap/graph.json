@@ -4483,6 +4483,20 @@
    ],
    "proof_uses": [],
    "note": "THEOREM 6.5.11 (Erdos-Spencer 1991), the original application of the lopsided local lemma: an n x n array whose every entry appears at most m times with 4em <= n has a Latin transversal. The negative-dependence input (Theorem 6.5.5, waiting on task #44) is an EXPLICIT HYPOTHESIS in the shape lovasz_local_lemma_symmetric_lopsided consumes, so the theorem is sorry-free and independent of exists_perm_extend's sorry. Proved here: the degree count #N(p) <= 4n(m-1) by covering the neighbourhood with a biUnion over p's four lines, and the arithmetic e(4n(m-1)+2) <= n(n-1). Each unordered bad pair must be ONE index -- ordered pairs double the degree and the constant does not survive that. Spot-checked on the cyclic Latin square of order 3: 9 bad pairs, max degree 9, bound 24."
+  },
+  "dubroff_fox_xu": {
+   "kind": "theorem",
+   "parent": "secondMomentGroup",
+   "file": "ProbMethods/Chapter04/DubroffFoxXu.lean",
+   "decl": "PMC.choose_le_of_distinct_subset_sums",
+   "doc": "second-moment.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "distinct_sums"
+   ],
+   "proof_uses": [],
+   "note": "THEOREM 4.6.6 (Dubroff-Fox-Xu 2021): k integers bounded by n with distinct subset sums force C(k,floor(k/2)) <= n. The reduction is proved in full -- card_lowHalf (the below-half subsets are exactly half the cube, distinctness ruling out the tie with the complement) and card_boundary_lowHalf_le (a boundary point is an insertion, never an erasure, so its sum lies in an interval of n integers on which distinctness makes the sum injective). Harper is an explicit hypothesis in BOUNDARY form, which the ball form of task #46 does not reach for even k. STATEMENT BUG CAUGHT BY BRUTE FORCE: the hypothesis was first written with 2^(k-1) <= #A, which is false at A = univ and would have made the theorem vacuous; the equality form is true and tight for k <= 4."
   }
  }
 }
