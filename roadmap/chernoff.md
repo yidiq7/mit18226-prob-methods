@@ -47,14 +47,31 @@ sends `2 #T - #A` to its negation, and it is an involution on `A.powerset`, so
 `Finset.card_nbij'` gives the two tails exactly equal cardinality and one application of
 the one-sided bound finishes it. No second MGF computation.
 
-## Still to state
+## Theorem 5.0.5 — proved, upstream
 
-**Theorem 5.0.5 is deferred, and for a reason worth recording.** It quantifies over
-*arbitrary* independent variables taking values in `[-1, 1]`, so the sample space is a
-product of continua and is **not finite** — the counting framework does not reach it at all,
-unlike everything else in Chapters 1–5. Formalizing it means either `MeasureTheory` or
-restating it for finitely-supported variables. This is the first place where the finite
-approach genuinely runs out, as opposed to merely needing more work.
+**Theorem 5.0.5 — the deferral was wrong, and the correction is the lesson.** It was recorded
+here as unreachable: it quantifies over *arbitrary* independent variables in `[-1,1]`, so the
+sample space is a product of continua and the counting framework does not reach it — "the first
+place where the finite approach genuinely runs out".
+
+Half of that was right. The finite framework indeed does not reach it; **Mathlib does**, and
+`PMC.measure_sum_ge_sqrt_le_of_mem_Icc` (`Chapter05/ChernoffGeneral.lean`) is a forty-line
+derivation from two upstream lemmas:
+
+* `ProbabilityTheory.hasSubgaussianMGF_of_mem_Icc_of_integral_eq_zero` — mean zero in an
+  interval of length `2` is sub-Gaussian with parameter `1`;
+* `ProbabilityTheory.HasSubgaussianMGF.measure_sum_ge_le_of_iIndepFun` —
+  `P(∑ Xᵢ ≥ ε) ≤ exp(-ε²/(2∑cᵢ))`.
+
+At `cᵢ = 1` that is `exp(-ε²/(2n))`, and `ε = λ√n` gives the notes' `e^{-λ²/2}` with no slack.
+The theorem is stated over an arbitrary probability space, exactly as the notes state it — no
+finite weight, no `PMC.wmean`.
+
+**The lesson**, which cost this entry a wrong deferral: FKG (Chapter 7) and Weierstrass
+(Chapter 4) were recorded as upstream because a survey found them. This one was recorded as
+*blocked* on a structural argument about sample spaces that sounded convincing and was never
+checked against Mathlib. A structural reason to give up is exactly the kind that needs
+checking.
 
 ## Corollary 5.0.6 — proved
 

@@ -4594,6 +4594,18 @@
    ],
    "proof_uses": [],
    "note": "COROLLARY 5.0.6, both tails: P(X >= mu + t) <= exp(-2t^2/n) and the notes' P(X >= mu + lambda sqrt n) <= e^{-lambda^2/2}. Engine: Hoeffding's lemma at a SINGLE Bernoulli (bernoulli_mgf_le, from wmean_exp_le_of_mem_Icc on the two-point space), multiplied over coordinates against the exact MGF already proved for 5.0.7, then Markov at lambda = 4t/n. The lower tail is complementation, not a second argument: pweight (1-p) of the complement equals pweight p."
+  },
+  "chernoff_general": {
+   "kind": "theorem",
+   "parent": "chernoffGroup",
+   "file": "ProbMethods/Chapter05/ChernoffGeneral.lean",
+   "decl": "PMC.measure_sum_ge_sqrt_le_of_mem_Icc",
+   "doc": "chernoff.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [],
+   "proof_uses": [],
+   "note": "THEOREM 5.0.5, and a CORRECTED SCOPE DECISION. This was recorded as unreachable -- arbitrary independent variables in [-1,1], so the sample space is a product of continua and the counting framework does not reach it. True, but Mathlib does: forty lines from hasSubgaussianMGF_of_mem_Icc_of_integral_eq_zero (mean zero in an interval of length 2 is sub-Gaussian with parameter 1) and HasSubgaussianMGF.measure_sum_ge_le_of_iIndepFun, giving exp(-eps^2/(2n)) and hence the notes' e^{-lambda^2/2} at eps = lambda sqrt n. Stated over an arbitrary probability space, as the notes state it. The lesson: a STRUCTURAL reason to give up is exactly the kind that needs checking against Mathlib."
   }
  }
 }
