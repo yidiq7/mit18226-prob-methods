@@ -59,7 +59,13 @@ distribution, and `PMC.wentropy w X = ∑ b, negMulLog (P (X = b))` is its entro
 | **`PMC.loomis_whitney`** — Thm 10.4.3 | proved |
 | **`PMC.loomis_whitney_general`** — Cor 10.4.6 | proved |
 | **`PMC.card_orderedTriangles_sq_le`** — the triangle bound | proved |
-| Further applications (Bregman, Kahn) | open |
+| `PMC.shearer_subset` — Shearer for a sub-tuple | proved |
+| `PMC.wentropy_add_wmean_le_log_sum_exp` — Gibbs variational principle | proved |
+| `PMC.tupleEntropy_union_le` — block subadditivity | proved |
+| `PMC.wcondEntropy_masked_antitone` — `H(X_i\|X_T) ≤ H(X_i\|X_S)` | proved |
+| `PMC.condProd`, `PMC.sum_condProd` — conditionally independent copies | proved |
+| **`PMC.card_matchSet_le_prod`** — Brégman, Thm 10.2.1 | proved |
+| **`PMC.card_indepSets_pow_le`** — Kahn–Zhao, Thm 10.4.12 | proved |
 
 ## The one trap: `log 0 = 0`
 
@@ -674,7 +680,60 @@ independence only ever needs the relation, so there are no `symm` or `loopless` 
 Checked: equality at `K₂` (`9 = 3²`, the cover being two disjoint edges — not a 4-cycle) and
 strict at `K₃` (`16 ≤ 18`, the cover being a 6-cycle).
 
-**What remains of Theorem 10.4.12** is the bipartite case itself, which is the entropy half:
-Shearer over the neighbourhood cover, conditional independence of the far side, and the
-"`d` conditionally independent copies" construction — that last is the one piece of machinery
-this library still lacks.
+## §10.4 — Theorem 10.4.12, Kahn–Zhao
+
+`ProbMethods/Chapter10/KahnZhao.lean`. `PMC.card_indepSets_pow_le`: for every `n`-vertex
+`d`-regular graph,
+
+    i(G)^(2d) ≤ (2^(d+1) - 1)^n.
+
+The notes state it as `i(G) ≤ i(K_{d,d})^{n/(2d)}`; the fractional exponent is an artifact of
+taking logarithms, and cleared of it the theorem is a statement about natural numbers, which
+is how it is stated here. Nothing is lost — the two are equivalent by monotonicity of `log`,
+and the `ℕ` form is what a later application would want to chain with.
+
+**Bipartite case** (`PMC.card_indepR_pow_le_of_bipartite`), Kahn's entropy argument, with
+`X` the indicator tuple of a uniformly random independent set:
+
+* `d·H(X) = d·H(X_A) + d·H(X_B | X_A)` — chain rule, in the block form
+  `PMC.tupleEntropy_union_le`, which also gives `H(X_B|X_A) ≤ ∑_{b ∈ B} H(X_b|X_A)`.
+* `d·H(X_A) ≤ ∑_{b ∈ B} H(X_{N(b)})` — Shearer. The covering multiplicity *is* regularity:
+  a vertex `a ∈ A` lies in `N(b)` for exactly its `d` neighbours `b`. This needed a new form
+  of the lemma, `PMC.shearer_subset`, because the vertices of `B` lie in none of the `N(b)`
+  and so are covered zero times.
+* `H(X_b|X_A) ≤ H(X_b|X_{N(b)})` — `PMC.wcondEntropy_masked_antitone`.
+* one inequality per `b ∈ B`: `H(X_{N(b)}) + d·H(X_b|X_{N(b)}) ≤ log (2^{d+1} - 1)`.
+
+**The per-vertex step is where this proof departs from the notes.** The notes introduce `d`
+conditionally independent copies of `X_b` given `X_{N(b)}` and read the left side as
+`H(X_b^{(1)}, …, X_b^{(d)}, X_{N(b)})`, bounded by `log i(K_{d,d})` because that tuple *is*
+an independent set of `K_{d,d}`. The route taken here bounds the same quantity by an entropy
+maximisation:
+
+* `X_b` is determined unless `X_{N(b)}` is all-`false`, so `H(X_b|X_{N(b)}) ≤ P(0)·log 2`
+  (`PMC.wcondEntropy_indepInd_le`);
+* `H(X_{N(b)}) + d·log 2·P(0) ≤ log (2^d + (2^d - 1))` by the Gibbs variational principle
+  `PMC.wentropy_add_wmean_le_log_sum_exp`, at the energy giving the all-`false` mask weight
+  `2^d` and each of the other `2^d - 1` masks weight `1`.
+
+The maximum is `2^{d+1} - 1 = i(K_{d,d})`, as it has to be: the extremal distribution of a
+Gibbs bound is the Gibbs measure, which here is the uniform independent set of `K_{d,d}`. The
+constant arrives with a reason attached rather than by exhibiting the extremal graph.
+
+`PMC.condProd` (`Chapter10/CondCopies.lean`) builds the copies construction anyway — it is
+what the notes' own §10.3 proofs use, and it is the right object to have — but Kahn–Zhao does
+not need it.
+
+**General case**: the double cover is bipartite and `d`-regular
+(`PMC.card_nbrs_coverAdj`), Kahn's case applies to it, and the swapping trick transfers the
+bound back: `i(G)^{2d} = (i(G)²)^d ≤ i(G × K₂)^d ≤ (2^{d+1}-1)^n`.
+
+Checked by brute force over every regular graph on at most 6 vertices: no violations, and the
+equality cases are exactly the disjoint unions of `K_{d,d}` (`n=2,d=1`; `n=4,d=1`;
+`n=4,d=2` — that is `C₄ = K_{2,2}`, `i = 7`; `n=6,d=1`; `n=6,d=3` — `K_{3,3}`, `i = 15`),
+which is what the theorem predicts.
+
+**What remains in §10.4**: Theorem 10.4.14 (Galvin–Tetali, the same bound for homomorphism
+counts into an arbitrary target `H`) and Theorem 10.4.15 (Sah–Sawhney–Stoner–Zhao). The
+bipartite proof above is the right skeleton for 10.4.14; what changes is the per-vertex
+maximisation, which for a general target is no longer a two-point computation.

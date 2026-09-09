@@ -4368,6 +4368,76 @@
    ],
    "proof_uses": [],
    "note": "LEMMA 10.4.13 (the bipartite swapping trick), DONE and UNCONDITIONAL: i(G)^2 <= i(G x K_2). This is what reduces Kahn-Zhao (10.4.12) from all d-regular graphs to the bipartite ones, and unlike the rest of 10.4 it is not an entropy argument at all -- the notes give an explicit injection and this formalises it. The canonical choice of crossing set is made by PICKMIN, a function of the crossing FAMILY alone (least index under a fixed indexing of the subsets), which is precisely what injectivity needs. Checked: equality at K2 (9 = 3^2, the cover being two disjoint edges) and strict at K3 (16 <= 18, the cover being a 6-cycle)."
+  },
+  "shearer_subset": {
+   "kind": "theorem",
+   "parent": "entropyGroup",
+   "file": "ProbMethods/Chapter10/Shearer.lean",
+   "decl": "PMC.shearer_subset",
+   "doc": "entropy.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "shearer_of_submodular"
+   ],
+   "proof_uses": [],
+   "note": "Shearer's lemma for a SUB-tuple: k*H(X_S) <= sum_j H(X_{A_j}) when the A_j all lie in S and every coordinate OF S is covered k times. The coordinates outside S need no cover, which required weakening shearer_of_submodular's hypothesis to allow null coordinates (shearer_of_submodular_null). Kahn-Zhao needs exactly this: it covers one side A of the bipartition by the neighbourhoods N(b), and the vertices of B lie in none of them."
+  },
+  "gibbs_variational": {
+   "kind": "theorem",
+   "parent": "entropyGroup",
+   "file": "ProbMethods/Chapter10/CondSupport.lean",
+   "decl": "PMC.wentropy_add_wmean_le_log_sum_exp",
+   "doc": "entropy.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "gibbs"
+   ],
+   "proof_uses": [],
+   "note": "THE GIBBS VARIATIONAL PRINCIPLE: H(Z) + E[a(Z)] <= log sum_{t in T} exp (a t) for Z supported in T, with equality at the Gibbs measure. The a = 0 case is the existing 'entropy at most log support' bound. This is where Kahn-Zhao's constant 2^(d+1)-1 = i(K_{d,d}) comes from, with a reason attached rather than by exhibiting the extremal graph."
+  },
+  "cond_copies": {
+   "kind": "theorem",
+   "parent": "entropyGroup",
+   "file": "ProbMethods/Chapter10/CondCopies.lean",
+   "decl": "PMC.sum_condProd",
+   "doc": "entropy.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [],
+   "proof_uses": [],
+   "note": "d+1 CONDITIONALLY INDEPENDENT COPIES, the device the notes describe in words ('let X' be a conditionally independent copy of X given Y'). sum_condProd is the normalisation, condProd_marginal_zero says a coordinate carries the original law. Used by the notes' own 10.3 proofs; Kahn-Zhao as formalized here does NOT need it, since the Gibbs variational principle replaces the copies."
+  },
+  "kahn_zhao_bipartite": {
+   "kind": "theorem",
+   "parent": "entropyGroup",
+   "file": "ProbMethods/Chapter10/KahnZhao.lean",
+   "decl": "PMC.card_indepR_pow_le_of_bipartite",
+   "doc": "entropy.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "shearer_subset",
+    "gibbs_variational"
+   ],
+   "proof_uses": [],
+   "note": "KAHN's BIPARTITE CASE of Theorem 10.4.12: i(G)^d <= (2^(d+1)-1)^#B for a d-regular graph with bipartition V = A + B. Shearer on the A side (covering multiplicity = regularity), chain rule with block subadditivity on the B side, and one per-vertex maximisation for each b in B. The per-vertex step departs from the notes: instead of d conditionally independent copies it uses that X_b is determined unless X_{N(b)} is all-false, plus the Gibbs variational principle."
+  },
+  "kahn_zhao": {
+   "kind": "theorem",
+   "parent": "entropyGroup",
+   "file": "ProbMethods/Chapter10/KahnZhao.lean",
+   "decl": "PMC.card_indepSets_pow_le",
+   "doc": "entropy.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "kahn_zhao_bipartite",
+    "swapping_lemma"
+   ],
+   "proof_uses": [],
+   "note": "THEOREM 10.4.12 (Kahn, Zhao), DONE: i(G)^(2d) <= (2^(d+1)-1)^n for every n-vertex d-regular graph. Stated over the naturals -- the notes' i(G) <= i(K_{d,d})^{n/(2d)} with the root cleared, equivalent by monotonicity of log. Zhao's reduction: the double cover is bipartite and d-regular, Kahn's case applies to it, and the swapping trick transfers the bound back. Checked by brute force over every regular graph on at most 6 vertices: no violations, and the equality cases are exactly the disjoint unions of K_{d,d}."
   }
  }
 }
