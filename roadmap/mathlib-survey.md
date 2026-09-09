@@ -26,7 +26,22 @@ availability of the mathematics. Recorded as upstream in `graph.json`.
 
 ## Chapter 9 (Concentration of Measure) — substantially upstream
 
-* **§9.1 bounded differences / §9.2 martingale concentration.**
+* **§9.1 is now proved here in finite form.** `ProbMethods/Chapter09/BoundedDifferences.lean`:
+  `PMC.card_filter_ge_le` is Theorem 9.1.1,
+  `#{x : f x ≥ E f + t} ≤ |β|ᴺ exp(-2t²/∑cᵢ²)`, with Hoeffding's lemma (task #47) as an
+  explicit hypothesis, so it is `sorry`-free and axiom-clean.
+
+  **The martingale is concrete, and that is the point.** `PMC.avgLast` averages out the last
+  coordinate; the induction is on the number of coordinates, split by `Fin.snoc`. There is no
+  filtration, no conditional expectation operator and no `MeasureTheory` — which is why §9.1,
+  unlike the rest of Chapter 9, fits this project's finite convention. The two facts that make
+  the recursion work are `PMC.BddDiff.avgLast` (averaging preserves the constants) and
+  `PMC.exists_bounds_last` (the increment is centred with spread at most `c (last N)`).
+
+  `PMC.hoeffdingUnif_of_hoeffding` records the exact instantiation of task #47 that discharges
+  the hypothesis, so §9.1 closes automatically once that task lands.
+
+* **§9.2 martingale concentration** is upstream:
   `measure_sum_ge_le_of_HasCondSubgaussianMGF` in `SubGaussian.lean` is the
   **Azuma–Hoeffding inequality**. `Mathlib/Probability/Martingale/` supplies the martingale
   theory around it (`Basic`, `Convergence`, `OptionalStopping`, `OptionalSampling`,

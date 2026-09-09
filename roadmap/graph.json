@@ -3616,6 +3616,103 @@
    "uses": [],
    "proof_uses": [],
    "note": "HOEFFDING'S LEMMA in finite form, the analytic input of Section 9.1's bounded differences inequality. STATEMENT COMMITTED, published as a task. Mathlib has it for MEASURES (hasSubgaussianMGF_of_mem_Icc_of_integral_eq_zero) via tilted measures and the cumulant generating function; using that here would need a finite-weight-to-Measure bridge, so either route is acceptable. The constant matters: lambda^2 (b-a)^2 / 8 is what makes 9.1.1 come out with the notes' exp(-2 lambda^2 / sum c_i^2), and a cruder MGF bound would be a factor of four worse in the exponent and would NOT prove the theorem as stated. Section 9.1 is the one part of Chapter 9 that lives naturally in the finite framework: the martingale is the sequence of partial averages over the remaining coordinates."
+  },
+  "pAvg": {
+   "kind": "definition",
+   "parent": "concentrationGroup",
+   "file": "ProbMethods/Chapter09/BoundedDifferences.lean",
+   "decl": "PMC.pAvg",
+   "doc": "mathlib-survey.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [],
+   "proof_uses": [],
+   "note": "The average over the uniform product measure on Fin N -> beta, and PMC.avgLast the operation of averaging out the last coordinate -- the Doob martingale's step, made concrete."
+  },
+  "bddDiff": {
+   "kind": "definition",
+   "parent": "concentrationGroup",
+   "file": "ProbMethods/Chapter09/BoundedDifferences.lean",
+   "decl": "PMC.BddDiff",
+   "doc": "mathlib-survey.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [],
+   "proof_uses": [],
+   "note": "Bounded differences: changing coordinate i alone moves f by at most c i."
+  },
+  "bddDiff_avgLast": {
+   "kind": "theorem",
+   "parent": "concentrationGroup",
+   "file": "ProbMethods/Chapter09/BoundedDifferences.lean",
+   "decl": "PMC.BddDiff.avgLast",
+   "doc": "mathlib-survey.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "bddDiff",
+    "pAvg"
+   ],
+   "proof_uses": [],
+   "note": "Averaging out the last coordinate preserves bounded differences WITH THE SAME CONSTANTS, which is what lets the Doob induction recurse."
+  },
+  "bounds_last": {
+   "kind": "theorem",
+   "parent": "concentrationGroup",
+   "file": "ProbMethods/Chapter09/BoundedDifferences.lean",
+   "decl": "PMC.exists_bounds_last",
+   "doc": "mathlib-survey.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "bddDiff"
+   ],
+   "proof_uses": [],
+   "note": "The last-coordinate increment is centred and confined to an interval of length at most c (last N) -- exactly Hoeffding's hypotheses. The interval is exhibited by Finset.inf' and sup' over the coordinate, and the spread is bounded because the extremes differ in that coordinate only."
+  },
+  "mgf_bddDiff": {
+   "kind": "theorem",
+   "parent": "concentrationGroup",
+   "file": "ProbMethods/Chapter09/BoundedDifferences.lean",
+   "decl": "PMC.pAvg_exp_le",
+   "doc": "mathlib-survey.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "bddDiff_avgLast",
+    "bounds_last",
+    "hoeffding_lemma"
+   ],
+   "proof_uses": [],
+   "note": "The sub-Gaussian moment bound E[exp(lambda (f - E f))] <= exp(lambda^2 sum c_i^2 / 8), by induction on the number of coordinates: peel the last one with Fin.snoc, apply Hoeffding to its centred increment, recurse on avgLast f. Hoeffding's lemma enters as the HYPOTHESIS HoeffdingUnif, so this is sorry-free."
+  },
+  "mcdiarmid": {
+   "kind": "theorem",
+   "parent": "concentrationGroup",
+   "file": "ProbMethods/Chapter09/BoundedDifferences.lean",
+   "decl": "PMC.card_filter_ge_le",
+   "doc": "mathlib-survey.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "mgf_bddDiff"
+   ],
+   "proof_uses": [],
+   "note": "THEOREM 9.1.1 (the bounded differences inequality, McDiarmid): #{x : f x >= E f + t} <= |beta|^N exp(-2t^2 / sum c_i^2). Markov on the moment generating function at the optimal lambda = 4t / sum c_i^2. Hoeffding's lemma is a hypothesis (task #47), so the theorem is sorry-free and axiom-clean, and PMC.hoeffdingUnif_of_hoeffding records the exact instantiation that will discharge it. This is the one part of Chapter 9 that lives naturally in the finite framework: the martingale is the sequence of averages over the remaining coordinates, with no filtration, no conditional expectation operator and no MeasureTheory. Non-vacuity checked by discharging every hypothesis except Hoeffding on a one-coordinate Boolean example."
+  },
+  "hoeffding_bridge": {
+   "kind": "theorem",
+   "parent": "concentrationGroup",
+   "file": "ProbMethods/Chapter09/BoundedDifferences.lean",
+   "decl": "PMC.hoeffdingUnif_of_hoeffding",
+   "doc": "mathlib-survey.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "hoeffding_lemma"
+   ],
+   "proof_uses": [],
+   "note": "The bridge from task #47: Hoeffding's lemma for an arbitrary finite weight, instantiated at the uniform weight on one coordinate, is exactly HoeffdingUnif. Stated as an implication so it is itself sorry-free."
   }
  }
 }
