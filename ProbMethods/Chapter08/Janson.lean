@@ -446,6 +446,45 @@ theorem janson (p : α → ℝ) (hp0 : ∀ i, 0 ≤ p i) (hp1 : ∀ i, p i ≤ 1
 
 end UpperOrder
 
+/-! ## §8.2 — Lower tails
+
+Theorem 8.2.2 (Janson inequality III) bootstraps the upper bound of 8.1.1 into a lower-tail
+estimate: with `μ` the expected number of bad sets appearing and `Δ` the overlap sum,
+
+`P(X ≤ μ - t) ≤ exp (-t² / (2 (μ + Δ)))` for `0 ≤ t ≤ μ`.
+
+Naming `μ`, `Δ` and the count `X` keeps the statement readable; `PMC.janson` above could be
+restated in them too.
+-/
+
+section LowerTail
+
+variable {ι : Type*} [Fintype ι] [DecidableEq ι]
+
+/-- The number of bad sets that appear in `S`. -/
+def badCount (g : ι → Finset α) (S : Finset α) : ℕ :=
+  #((univ : Finset ι).filter fun i => g i ⊆ S)
+
+/-- `μ`: the expected number of bad sets that appear. -/
+noncomputable def jansonMu (p : α → ℝ) (g : ι → Finset α) : ℝ :=
+  ∑ i, wprob (pweight p) (badEvent g i)
+
+/-- `Δ`: the sum of `P(Aᵢ ∩ A_j)` over *ordered* pairs of distinct bad sets that overlap —
+Zhao's convention, so that 8.1.1's upper bound reads `exp (-μ + Δ/2)`. -/
+noncomputable def jansonDelta (p : α → ℝ) (g : ι → Finset α) : ℝ :=
+  ∑ i, ∑ j ∈ (univ : Finset ι).filter (fun j => j ≠ i ∧ (g i ∩ g j).Nonempty),
+    wprob (pweight p) (badEvent g i ∩ badEvent g j)
+
+/-- **Theorem 8.2.2 (Janson inequality III).** The lower tail. -/
+theorem janson_lower_tail (p : α → ℝ) (hp0 : ∀ i, 0 ≤ p i) (hp1 : ∀ i, p i ≤ 1)
+    (g : ι → Finset α) {t : ℝ} (ht0 : 0 ≤ t) (htmu : t ≤ jansonMu p g) :
+    ∑ S ∈ (univ : Finset (Finset α)).filter
+        (fun S => (badCount g S : ℝ) ≤ jansonMu p g - t), pweight p S
+      ≤ Real.exp (-t ^ 2 / (2 * (jansonMu p g + jansonDelta p g))) := by
+  sorry
+
+end LowerTail
+
 end Janson
 
 end PMC

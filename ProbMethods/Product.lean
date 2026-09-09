@@ -218,6 +218,90 @@ theorem wprob_unifProd_coord [Nonempty β] (i : ι) (a : β) :
     exact_mod_cast hmul.symm]
   rw [← div_div, div_self (ne_of_gt hne)]
 
+/-- **A predicate on one coordinate.** The single-value case
+`PMC.wprob_unifProd_coord` summed over the values the predicate allows. -/
+theorem wprob_unifProd_coord_pred [Nonempty β] (i : ι) (P : β → Prop) [DecidablePred P] :
+    wprob (unifProd ι β) ((univ : Finset (ι → β)).filter fun f => P (f i))
+      = #((univ : Finset β).filter P) / Fintype.card β := by
+  classical
+  have hβ : (0 : ℝ) < Fintype.card β := by
+    have := Fintype.card_pos (α := β)
+    exact_mod_cast this
+  have hprod : (0 : ℝ) < Fintype.card (ι → β) := by
+    have := Fintype.card_pos (α := ι → β)
+    exact_mod_cast this
+  -- count in `ℕ` first: the fibres over the allowed values
+  have hnat : #((univ : Finset (ι → β)).filter fun f => P (f i)) * Fintype.card β
+      = #((univ : Finset β).filter P) * Fintype.card (ι → β) := by
+    have hfib : #((univ : Finset (ι → β)).filter fun f => P (f i))
+        = ∑ a ∈ (univ : Finset β).filter P,
+            #((univ : Finset (ι → β)).filter fun f => f i = a) := by
+      have h0 := Finset.card_eq_sum_card_fiberwise
+        (s := (univ : Finset (ι → β)).filter fun f => P (f i))
+        (f := fun f => f i) (t := (univ : Finset β).filter P) (fun f hf => by
+          simp only [mem_coe, mem_filter, mem_univ, true_and] at hf ⊢
+          exact hf)
+      rw [h0]
+      refine Finset.sum_congr rfl fun a ha => ?_
+      rw [mem_filter] at ha
+      congr 1
+      ext f
+      simp only [mem_filter, mem_univ, true_and]
+      exact ⟨fun h => h.2, fun h => ⟨h ▸ ha.2, h⟩⟩
+    rw [hfib, Finset.sum_mul,
+      Finset.sum_congr rfl fun a _ => card_filter_coord_mul (ι := ι) i a,
+      Finset.sum_const, smul_eq_mul]
+  have hcast : (#((univ : Finset (ι → β)).filter fun f => P (f i)) : ℝ) * Fintype.card β
+      = #((univ : Finset β).filter P) * Fintype.card (ι → β) := by exact_mod_cast hnat
+  rw [wprob_unifProd, div_eq_div_iff (ne_of_gt hprod) (ne_of_gt hβ)]
+  exact hcast
+
+/-- **Independent coordinates multiply.** An event constraining each coordinate in `C`
+separately has probability the product of the per-coordinate probabilities.
+
+This is what an application with events on more than two coordinates needs — §6.4's bad
+event constrains a vertex's whole out-neighbourhood. -/
+theorem wprob_unifProd_forall [Nonempty β] (C : Finset ι) (P : ι → β → Prop)
+    [∀ i, DecidablePred (P i)] :
+    wprob (unifProd ι β) ((univ : Finset (ι → β)).filter fun f => ∀ i ∈ C, P i (f i))
+      = ∏ i ∈ C, (#((univ : Finset β).filter (P i)) : ℝ) / Fintype.card β := by
+  classical
+  induction C using Finset.induction_on with
+  | empty =>
+      rw [Finset.prod_empty]
+      have : ((univ : Finset (ι → β)).filter fun f => ∀ i ∈ (∅ : Finset ι), P i (f i))
+          = univ := by
+        ext f
+        simp
+      rw [this, wprob_univ, sum_unifProd]
+  | @insert i C hi ih =>
+      have hsplit : ((univ : Finset (ι → β)).filter fun f => ∀ j ∈ insert i C, P j (f j))
+          = ((univ : Finset (ι → β)).filter fun f => P i (f i))
+            ∩ ((univ : Finset (ι → β)).filter fun f => ∀ j ∈ C, P j (f j)) := by
+        ext f
+        simp only [mem_filter, mem_univ, true_and, mem_inter, Finset.forall_mem_insert]
+      have hdet1 : DeterminedOn ({i} : Finset ι)
+          ((univ : Finset (ι → β)).filter fun f => P i (f i)) := by
+        intro f g hfg
+        simp only [mem_filter, mem_univ, true_and]
+        rw [hfg i (by simp)]
+      have hdet2 : DeterminedOn ((univ : Finset ι) \ {i})
+          ((univ : Finset (ι → β)).filter fun f => ∀ j ∈ C, P j (f j)) := by
+        intro f g hfg
+        simp only [mem_filter, mem_univ, true_and]
+        have hEq : ∀ j ∈ C, f j = g j := fun j hj => hfg j (by
+          rw [mem_sdiff, Finset.mem_singleton]
+          exact ⟨mem_univ j, fun hji => hi (hji ▸ hj)⟩)
+        constructor
+        · intro h j hj
+          rw [← hEq j hj]
+          exact h j hj
+        · intro h j hj
+          rw [hEq j hj]
+          exact h j hj
+      rw [hsplit, wprob_unifProd_mul_of_determinedOn hdet1 hdet2,
+        wprob_unifProd_coord_pred, ih, Finset.prod_insert hi]
+
 end Product
 
 end PMC

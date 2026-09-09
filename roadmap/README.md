@@ -24,7 +24,7 @@ written when the phase opens, so the plan never claims more precision than it ha
 | 3 | 3 Alterations | [alterations.md](alterations.md) | `dominating` proved; §3.3 upstream, §3.2 deferred, §3.4/§3.5 need design |
 | 4 | 4 Second Moment | [second-moment.md](second-moment.md) | **§4.1 complete**, §4.2, §4.4, **§4.6 (Erdős distinct sums)** proved; §4.7 upstream; §4.3 deferred |
 | 5 | 5 Chernoff Bound | [chernoff.md](chernoff.md) | **Thm 5.0.1, Cor 5.0.3, Thm 5.0.7, §5.1 proved**; 5.0.5 needs measure theory; §5.2/§5.3 open |
-| 6 | 6 Lovász Local Lemma | [local-lemma.md](local-lemma.md) | **§6.1 + §6.2 complete**: both LLL forms and hypergraph 2-colouring; §6.3–§6.6 open |
+| 6 | 6 Lovász Local Lemma | [local-lemma.md](local-lemma.md) | **§6.1–§6.4 complete**: both LLL forms, hypergraph 2-colouring, independent transversals, Thm 6.4.3 (cycle of length divisible by k, first-pass constant); §6.5–§6.6 open |
 | 7 | 7 Correlation Inequalities | [correlation.md](correlation.md) | **complete in finite form**: §7.1 upstream, §7.2 proved |
 | 8 | 8 Janson Inequalities | [janson.md](janson.md) | **Thm 8.1.1 complete** (both bounds); §8.2 extended Janson, §8.3 applications open |
 | 9 | 9 Concentration of Measure | [mathlib-survey.md](mathlib-survey.md) | **§9.1–§9.2 upstream** (Azuma–Hoeffding); §9.5 Talagrand absent |
@@ -64,6 +64,31 @@ sorries (`exists_sumFree_subset`, `exists_signs_two_pow_mul_le`) were both close
 PRs. This is worth keeping true: `sorry-delta` is at policy `block`, so any regression is
 caught at the gate, but a `sorry` that never enters is cheaper than one that has to be
 chased out.
+
+### Opening the remaining work to contributors, 2026-09-08
+
+The library is at roughly 2280 build jobs with no custom axioms. Chapters 1 and 7 are
+complete, Chapter 2 but for the deferred §2.6, §6.1–§6.2, Theorem 8.1.1 in both directions,
+and §10.1 with §10.4 entire. But having read the source for essentially everything that
+remains, **each open item is a 300–500 line development**, and Chapter 11 additionally needs
+a restatement decision per theorem because every result there is asymptotic.
+
+That is not work one orchestrator should grind through serially — it is what the protocol's
+contributor sessions are for. So the remaining items are being published as `prove` tasks
+against committed statements, and the statements carry the expensive knowledge rather than
+leaving it to be rediscovered: which components are already proved, the intended proof shape,
+the errata in the source, and the Lean pitfalls already hit.
+
+First batch:
+
+| Issue | Target | Notes carried in the statement |
+|---|---|---|
+| #41 | `PMC.exists_independent_transversal` (Thm 6.3.1) | **since proved directly and closed** |
+| #42 | `PMC.janson_lower_tail` (Thm 8.2.2) | that it bootstraps 8.1.1, and that the work is transporting `pweight`/`badEvent` across `α ⊕ ι` |
+
+Both are `choir/difficulty:hard`. The joining prompt is generated with
+`uv run python -m orchestrator.joining_prompt yidiq7/mit18226-prob-methods`; never compose it
+by hand.
 
 ### Errata found by reading the source, 2026-09-08
 
@@ -351,3 +376,25 @@ with the second calling the first at strictly smaller sets. **The design decisio
 proof turned on: keep everything multiplicative.** The informal argument divides by
 `P(noneOf T)`, which is not known to be positive at that point — positivity is the
 conclusion. No division appears anywhere in the development.
+**2026-09-08 — Theorem 6.4.3 is proved, and the obstacle recorded for it was the wrong
+one.** This roadmap said the combinatorial half of §6.4 — extracting a directed cycle of
+length divisible by `k` — would be the bulk of the work, since Mathlib develops walks and
+cycles for `SimpleGraph` but not for digraphs. **No digraph machinery was needed.** Choosing
+one out-neighbour with the next label at every vertex makes the labelling a successor
+*function*, and a directed cycle is then a periodic orbit; `Function.minimalPeriod` supplies
+it, with distinctness from `Function.iterate_injOn_Iio_minimalPeriod`. The whole half is
+~40 lines.
+
+The lesson is about *what to survey for*. The earlier survey asked whether Mathlib has
+digraph cycles, found no, and recorded a blocker. The right question was whether the object
+the theorem needs is a cycle *in a digraph* or a cycle *of a function* — and the labelling
+hands over a function. **When a survey reports a gap, check that the gap is in the shape the
+proof actually needs**, not in the shape the notes' prose uses.
+
+Two smaller things worth keeping. The notes' hypothesis is *minimum* out-degree `δ`, and
+that cannot be reached by monotonicity from the exactly-`δ` case: the probability bound
+wants the out-degree large while the dependency-degree bound wants it small. It needs the
+edge-deletion reduction (`PMC.exists_cycle_length_dvd_of_le_outdegree`), a step the notes
+leave implicit. And the constant is `Δ + δΔ` where the notes have `δΔ`; that difference is
+the first-pass dependency digraph, and their final trick only shrinks the dependency
+neighbourhood, so it plugs into the same assembly.
