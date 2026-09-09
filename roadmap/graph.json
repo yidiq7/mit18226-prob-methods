@@ -3713,6 +3713,35 @@
    ],
    "proof_uses": [],
    "note": "The bridge from task #47: Hoeffding's lemma for an arbitrary finite weight, instantiated at the uniform weight on one coordinate, is exactly HoeffdingUnif. Stated as an implication so it is itself sorry-free."
+  },
+  "mcdiarmid_lower": {
+   "kind": "theorem",
+   "parent": "concentrationGroup",
+   "file": "ProbMethods/Chapter09/BoundedDifferences.lean",
+   "decl": "PMC.card_filter_le_le",
+   "doc": "mathlib-survey.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "mcdiarmid"
+   ],
+   "proof_uses": [],
+   "note": "The lower tail of the bounded differences inequality, by applying the upper tail to -f (BddDiff is symmetric under negation). The notes state both tails."
+  },
+  "mcdiarmid_one": {
+   "kind": "theorem",
+   "parent": "concentrationGroup",
+   "file": "ProbMethods/Chapter09/BoundedDifferences.lean",
+   "decl": "PMC.card_filter_ge_le_one",
+   "doc": "mathlib-survey.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "mcdiarmid",
+    "mcdiarmid_lower"
+   ],
+   "proof_uses": [],
+   "note": "THEOREM 9.1.1 exactly as the notes state it: all constants 1, both tails, bound exp(-2t^2/N). The general-constants form is Theorem 9.1.3, which is PMC.card_filter_ge_le -- the notes give 9.1.1 first and then remark that it holds with per-coordinate constants, so the general one was proved first here and 9.1.1 specialised from it."
   }
  }
 }

@@ -371,6 +371,54 @@ lemma hoeffdingUnif_of_hoeffding
     _ ≤ Real.exp (lam ^ 2 * (b - a) ^ 2 / 8) := hres
 
 
+lemma pAvg_neg {N : ℕ} (f : (Fin N → β) → ℝ) : pAvg (fun x => -f x) = -pAvg f := by
+  simp only [pAvg]
+  rw [Finset.sum_neg_distrib, neg_div]
+
+lemma BddDiff.neg {N : ℕ} {f : (Fin N → β) → ℝ} {c : Fin N → ℝ} (hf : BddDiff f c) :
+    BddDiff (fun x => -f x) c := by
+  intro i x y hxy
+  have := hf i x y hxy
+  rw [show -f x - -f y = -(f x - f y) from by ring, abs_neg]
+  exact this
+
+/-- **The lower tail**, by applying the upper tail to `-f`. The notes state both. -/
+theorem card_filter_le_le (hoeff : HoeffdingUnif β) {N : ℕ} (f : (Fin N → β) → ℝ)
+    (c : Fin N → ℝ) (hf : BddDiff f c) {t : ℝ} (ht : 0 < t) (hS : 0 < ∑ i, c i ^ 2) :
+    (#((univ : Finset (Fin N → β)).filter fun x => f x ≤ pAvg f - t) : ℝ)
+      ≤ (Fintype.card β : ℝ) ^ N * Real.exp (-(2 * t ^ 2) / ∑ i, c i ^ 2) := by
+  classical
+  have hmain := card_filter_ge_le hoeff (fun x => -f x) c hf.neg ht hS
+  rw [pAvg_neg] at hmain
+  have hfilter : ((univ : Finset (Fin N → β)).filter fun x => f x ≤ pAvg f - t)
+      = (univ : Finset (Fin N → β)).filter fun x => -pAvg f + t ≤ -f x := by
+    refine Finset.filter_congr fun x _ => ?_
+    constructor <;> intro h <;> linarith
+  rw [hfilter]
+  exact hmain
+
+/-- **Theorem 9.1.1**: the bounded differences inequality with all constants `1`, where the
+bound reads `exp(-2t²/N)`. Both tails. -/
+theorem card_filter_ge_le_one (hoeff : HoeffdingUnif β) {N : ℕ} (hN : 0 < N)
+    (f : (Fin N → β) → ℝ)
+    (hf : ∀ (i : Fin N) (x y : Fin N → β), (∀ j, j ≠ i → x j = y j) → |f x - f y| ≤ 1)
+    {t : ℝ} (ht : 0 < t) :
+    (#((univ : Finset (Fin N → β)).filter fun x => pAvg f + t ≤ f x) : ℝ)
+        ≤ (Fintype.card β : ℝ) ^ N * Real.exp (-(2 * t ^ 2) / N)
+      ∧ (#((univ : Finset (Fin N → β)).filter fun x => f x ≤ pAvg f - t) : ℝ)
+        ≤ (Fintype.card β : ℝ) ^ N * Real.exp (-(2 * t ^ 2) / N) := by
+  have hsum : ∑ _i : Fin N, (1 : ℝ) ^ 2 = N := by
+    rw [Finset.sum_const, card_univ, Fintype.card_fin, nsmul_eq_mul]
+    ring
+  have hS : 0 < ∑ _i : Fin N, (1 : ℝ) ^ 2 := by
+    rw [hsum]
+    exact_mod_cast hN
+  have hup := card_filter_ge_le hoeff f (fun _ => 1) hf ht hS
+  have hlo := card_filter_le_le hoeff f (fun _ => 1) hf ht hS
+  rw [hsum] at hup hlo
+  exact ⟨hup, hlo⟩
+
+
 end BoundedDifferences
 
 end PMC
