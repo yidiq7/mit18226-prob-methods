@@ -183,8 +183,17 @@ What remains for §6.3 is graph bookkeeping rather than probability:
   `A c = ∅` and `C c = ∅` for invalid indices. Empty events are never violated, have
   probability `0`, and are determined on `∅`, so they are disjoint from every block and cost
   nothing — this avoids carrying a subtype of valid indices.
-* Bound the dependency degree by `2kΔ - 1`. The `- 1` is the self-exclusion from the errata
-  above; without it the notes' displayed inequality is false at `Δ = 2`.
+* Bound the dependency degree by `2kΔ - 1`. The counting core is proved:
+  `PMC.card_adj_pairs_le` says the ordered adjacent pairs whose first vertex lies in `S`
+  number at most `#S · Δ`, and with `S = Vᵢ ∪ V_j` of size `2k` that is the notes' `2kΔ`.
+  It was checked **tight** on `K₄` (`2 · 3 = 6`), so the bound is not loose.
+
+  What is left is the *injection*: send a neighbouring index `(i',j',a',b')` to the ordered
+  pair `(w i' a', w j' b')` if `i' ∈ {i,j}`, and to `(w j' b', w i' a')` otherwise. It is
+  injective, and the reason is exactly the `i < j` convention — a collision would need
+  `c' = (i',j',a',b')` and `c'' = (j',i',b',a')` both in the index set, which `i < j` forbids.
+  The `- 1` is then the self-exclusion from the errata above; without it the notes' displayed
+  inequality is false at `Δ = 2`.
 
 ### §6.3 and §6.4, read off the notes
 

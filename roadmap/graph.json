@@ -2410,7 +2410,19 @@
         "trim_enumerate"
       ],
       "proof_uses": [],
-      "note": "Theorem 6.3.1: a graph of maximum degree Delta whose vertex set is partitioned into parts of size at least 2 e Delta has an independent transversal. Engine (exists_avoiding_of_lll) and bridge (exists_enumeration) are both in place. What remains is graph bookkeeping: index the bad events by pairs (i,j,a,b) with i < j and w i a adjacent to w j b -- indexing by ORDERED pairs would double the dependency degree to 4k*Delta and force |V_i| >= 4 e Delta, which is weaker than the theorem -- set A c and C c to empty for invalid indices so the index type can be the full product, and bound the dependency degree by 2k*Delta - 1. The -1 is the self-exclusion from the errata; without it the notes' displayed inequality is false at Delta = 2."
+      "note": "Theorem 6.3.1: a graph of maximum degree Delta whose vertex set is partitioned into parts of size at least 2 e Delta has an independent transversal. Engine (exists_avoiding_of_lll) and bridge (exists_enumeration) are both in place. What remains is graph bookkeeping: index the bad events by pairs (i,j,a,b) with i < j and w i a adjacent to w j b -- indexing by ORDERED pairs would double the dependency degree to 4k*Delta and force |V_i| >= 4 e Delta, which is weaker than the theorem -- set A c and C c to empty for invalid indices so the index type can be the full product, and bound the dependency degree by 2k*Delta - 1 using card_adj_pairs_le, which is now proved. The -1 is the self-exclusion from the errata; without it the notes' displayed inequality is false at Delta = 2."
+    },
+    "adj_pairs_count": {
+      "kind": "theorem",
+      "parent": "localLemmaGroup",
+      "file": "ProbMethods/Chapter06/ProductLLL.lean",
+      "decl": "PMC.card_adj_pairs_le",
+      "doc": "local-lemma.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "Section 6.3's counting core: the ordered adjacent pairs whose first vertex lies in S number at most #S * Delta. Fibre over the first coordinate; each fibre injects into that vertex's neighbourhood. With S = V_i union V_j of size 2k this is the 2k*Delta of the notes. Checked TIGHT on K4 (2*3 = 6) and at 4 on a 4-cycle."
     }
   }
 }

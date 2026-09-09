@@ -135,4 +135,46 @@ theorem exists_enumeration {r k : ℕ} (part : Fin r → Finset V)
 
 end Enumeration
 
+/-! ### §6.3's counting core
+
+The dependency degree in Theorem 6.3.1 is bounded by counting *ordered adjacent pairs whose
+first vertex lies in the two relevant parts*. That count is `#S · Δ` for a set `S` of
+vertices in a graph of maximum degree `Δ`, which is what `PMC.card_adj_pairs_le` gives.
+
+With `S = Vᵢ ∪ V_j` of size `2k`, this is the `2kΔ` of the notes.
+-/
+
+section AdjacentPairs
+
+variable {V : Type*} [Fintype V] [DecidableEq V]
+
+/-- **The ordered adjacent pairs starting in `S` number at most `#S · Δ`.**
+
+Fibre over the first coordinate; each fibre injects into that vertex's neighbourhood. -/
+theorem card_adj_pairs_le (G : SimpleGraph V) [DecidableRel G.Adj] {Δ : ℕ}
+    (hΔ : ∀ v, G.degree v ≤ Δ) (S : Finset V) :
+    #((univ : Finset (V × V)).filter fun q => q.1 ∈ S ∧ G.Adj q.1 q.2) ≤ #S * Δ := by
+  classical
+  rw [Finset.card_eq_sum_card_fiberwise
+    (f := fun q : V × V => q.1) (t := S) (fun q hq => (mem_filter.mp hq).2.1)]
+  calc ∑ x ∈ S, #(((univ : Finset (V × V)).filter
+        fun q => q.1 ∈ S ∧ G.Adj q.1 q.2).filter fun q => q.1 = x)
+      ≤ ∑ _x ∈ S, Δ := by
+        refine Finset.sum_le_sum fun x _ => ?_
+        have hfib : #(((univ : Finset (V × V)).filter
+            fun q => q.1 ∈ S ∧ G.Adj q.1 q.2).filter fun q => q.1 = x)
+            ≤ #(G.neighborFinset x) := by
+          refine Finset.card_le_card_of_injOn (fun q => q.2) ?_ ?_
+          · intro q hq
+            rw [mem_coe, mem_filter, mem_filter] at hq
+            simp only [mem_coe, SimpleGraph.mem_neighborFinset]
+            exact hq.2 ▸ hq.1.2.2
+          · intro q hq q' hq' h
+            rw [mem_coe, mem_filter] at hq hq'
+            exact Prod.ext (hq.2.trans hq'.2.symm) h
+        exact le_trans hfib (hΔ x)
+    _ = #S * Δ := by rw [Finset.sum_const, smul_eq_mul]
+
+end AdjacentPairs
+
 end PMC
