@@ -47,14 +47,54 @@ sends `2 #T - #A` to its negation, and it is an involution on `A.powerset`, so
 `Finset.card_nbij'` gives the two tails exactly equal cardinality and one application of
 the one-sided bound finishes it. No second MGF computation.
 
-## Still to state
+## Theorem 5.0.5 — proved, upstream
 
-**Theorem 5.0.5 is deferred, and for a reason worth recording.** It quantifies over
-*arbitrary* independent variables taking values in `[-1, 1]`, so the sample space is a
-product of continua and is **not finite** — the counting framework does not reach it at all,
-unlike everything else in Chapters 1–5. Formalizing it means either `MeasureTheory` or
-restating it for finitely-supported variables. This is the first place where the finite
-approach genuinely runs out, as opposed to merely needing more work.
+**Theorem 5.0.5 — the deferral was wrong, and the correction is the lesson.** It was recorded
+here as unreachable: it quantifies over *arbitrary* independent variables in `[-1,1]`, so the
+sample space is a product of continua and the counting framework does not reach it — "the first
+place where the finite approach genuinely runs out".
+
+Half of that was right. The finite framework indeed does not reach it; **Mathlib does**, and
+`PMC.measure_sum_ge_sqrt_le_of_mem_Icc` (`Chapter05/ChernoffGeneral.lean`) is a forty-line
+derivation from two upstream lemmas:
+
+* `ProbabilityTheory.hasSubgaussianMGF_of_mem_Icc_of_integral_eq_zero` — mean zero in an
+  interval of length `2` is sub-Gaussian with parameter `1`;
+* `ProbabilityTheory.HasSubgaussianMGF.measure_sum_ge_le_of_iIndepFun` —
+  `P(∑ Xᵢ ≥ ε) ≤ exp(-ε²/(2∑cᵢ))`.
+
+At `cᵢ = 1` that is `exp(-ε²/(2n))`, and `ε = λ√n` gives the notes' `e^{-λ²/2}` with no slack.
+The theorem is stated over an arbitrary probability space, exactly as the notes state it — no
+finite weight, no `PMC.wmean`.
+
+**The lesson**, which cost this entry a wrong deferral: FKG (Chapter 7) and Weierstrass
+(Chapter 4) were recorded as upstream because a survey found them. This one was recorded as
+*blocked* on a structural argument about sample spaces that sounded convincing and was never
+checked against Mathlib. A structural reason to give up is exactly the kind that needs
+checking.
+
+## Corollary 5.0.6 — proved
+
+`ProbMethods/Chapter05/HoeffdingBernoulli.lean`. For a sum of independent Bernoullis with mean
+`μ`, both tails:
+
+    P(X ≥ μ + t) ≤ exp(-2t²/n),   P(X ≤ μ - t) ≤ exp(-2t²/n),
+
+and the notes' form `P(X ≥ μ + λ√n) ≤ e^{-λ²/2}` as the instance `t = λ√n` (the sharp bound
+gives `e^{-2λ²}`).
+
+The engine is **Hoeffding's lemma at a single Bernoulli**, `PMC.bernoulli_mgf_le`:
+`p e^λ + (1-p) ≤ exp(λp + λ²/8)`, which is `PMC.wmean_exp_le_of_mem_Icc` — task #47, now proved
+through the measure bridge — on the two-point space. Multiplying over coordinates uses
+`PMC.sum_pweight_mul_exp`, the *exact* moment generating function already proved for Theorem
+5.0.7, so the argument is: exact MGF, coordinatewise Hoeffding, Markov, optimise `λ = 4t/n`.
+
+The lower tail is complementation rather than a second argument: `#S ≤ μ - t` says the
+complement sits `t` above *its* mean `n - μ`, and `PMC.pweight_compl` (`pweight (1-p) Sᶜ =
+pweight p S`) carries the weight across.
+
+This is the first result in Chapter 5 that needed the measure bridge, and it is worth noting
+what the bridge bought: 5.0.6 was previously listed as blocked on task #47.
 
 ## Theorem 5.0.7 (Bernoulli, differing probabilities) — proved
 
@@ -80,6 +120,49 @@ the degenerate `p ≡ 0` case where both sides are exactly `1` — a tight bound
 stronger check on the exponent than a slack one.
 
 **Theorem 5.0.5 remains deferred** for the reason above: it needs measure theory.
+
+## Nearly equiangular vectors (§5.2, Theorem 5.2.1) — proved
+
+`PMC.exists_nearly_equiangular`: for `a ∈ (0,1)` and `ε > 0` there is `c > 0` such that for
+all large `N`, `ℝ^N` holds at least `2^{cN}` unit vectors with all pairwise inner products in
+`[a - ε, a + ε]`.
+
+**The statement needed correcting.** The notes say "for every `n`", and that is false for
+small `n`: the only unit vectors in `ℝ¹` are `±1`, whose inner products are `±1`, so at
+`a = 1/2, ε = 1/100` every admissible family has a single element while `2^{c·1} > 1`. The
+conclusion holds for `N ≥ N₀(a, ε)`, which is what the proof gives and what the notes mean.
+
+Two design choices, both of which shrank the proof a lot:
+
+* **The bias goes into one coordinate.** The notes sample `v ∈ {-1,1}ⁿ` with `P(+1) = (1+√a)/2`
+  so that `E[vᵢ · vⱼ] = a`, and then the pairwise products `σᵢ(k)σⱼ(k)` are the independent
+  `±1` variables the Chernoff bound is applied to. Formalizing that needs the law of a *pair*
+  of rows, i.e. a marginal computation on the `m × n` grid of coins. Instead `PMC.eqVec`
+  puts the bias in a single constant coordinate, `v(x) = (√a, ±√((1-a)/n))`, leaving the
+  other `n` coordinates *unbiased*. Then
+
+      ⟨v(x), v(y)⟩ = a + (1 - a)(1 - 2#(x ∆ y)/n)
+
+  is an exact algebraic identity (`PMC.sum_eqVec_mul`), `‖v(x)‖ = 1` is `a + (1-a) = 1`
+  (`PMC.sum_eqVec_sq`), and the whole probabilistic content is the *balanced* two-sided
+  bound `PMC.card_filter_card_dev_le`. One coordinate of the `n+1` is the price.
+* **Caro–Wei replaces the union bound.** What remains is a large family of subsets with all
+  pairwise Hamming distances near `n/2` — an independent set in `PMC.farGraph`. The notes get
+  it from a union bound over the `m²` pairs of a random `m`-tuple; `PMC.exists_far_family`
+  instead observes that **every degree of that graph is bounded by the same tail count**,
+  because `y ↦ x ∆ y` injects the neighbours of `x` into the deviating subsets. Caro–Wei
+  (§2.3, `PMC.exists_isIndepSet_caro_wei`) then hands over an independent set of size
+  `2ⁿ/(D+1)`, and with `D ≤ 2 · 2ⁿ e^{-2δ²n}` that is `≥ e^{2δ²n}/3 ≥ e^{δ²n}`. No product
+  space, no marginal, and the input is a result of the book's own Chapter 2.
+
+`δ ≤ 1/2` is imposed (harmlessly — shrinking `δ` only strengthens the conclusion) so that
+`2δ² ≤ 1/2 ≤ log 2` and hence `2ⁿ e^{-2δ²n} ≥ 1`, which is what lets the `+1` in the
+denominator be absorbed. `Real.log_two_gt_d9` supplies the `log 2 ≥ 1/2`.
+
+Checked numerically before trusting it: the inner-product identity and the unit norms to
+machine precision on random pairs, and `D ≤ 2·2ⁿe^{-2t²/n}` together with
+`2ⁿ/(D+1) ≥ e^{δ²n}` at five `(n, δ)` settings with `D` computed exactly from binomial
+coefficients.
 
 ## Discrepancy (§5.1, Theorem 5.1.1) — proved
 

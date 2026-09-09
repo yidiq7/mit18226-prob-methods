@@ -18,7 +18,7 @@ operator, no `MeasureTheory` — the induction is on the number of coordinates, 
 `Fin.snoc` splitting the product.
 
 Hoeffding's lemma (task #47, `PMC.wmean_exp_le_of_mem_Icc`) enters as an explicit hypothesis
-`hoeff`, in exactly the shape needed: its instance at the uniform weight on one coordinate.
+`hoeffdingUnif_holds`, in exactly the shape needed: its instance at the uniform weight on one coordinate.
 So everything here is `sorry`-free, and the single missing input is visible in the statements.
 -/
 
@@ -167,12 +167,45 @@ def HoeffdingUnif (β : Type*) [Fintype β] [DecidableEq β] : Prop :=
   ∀ (Z : β → ℝ) (a b : ℝ), (∀ e, Z e ∈ Set.Icc a b) → (∑ e, Z e) = 0 → ∀ lam : ℝ,
     (∑ e, Real.exp (lam * Z e)) / Fintype.card β ≤ Real.exp (lam ^ 2 * (b - a) ^ 2 / 8)
 
+/-- Hoeffding's lemma for an arbitrary finite weight, at the uniform weight on one coordinate,
+is exactly `PMC.HoeffdingUnif`. -/
+lemma hoeffdingUnif_of_hoeffding
+    (h : ∀ (w : β → ℝ), (∀ e, 0 ≤ w e) → (∑ e, w e) = 1 → ∀ (Z : β → ℝ) (a b : ℝ),
+      (∀ e, Z e ∈ Set.Icc a b) → wmean w Z = 0 → ∀ lam : ℝ,
+      wmean w (fun e => Real.exp (lam * Z e)) ≤ Real.exp (lam ^ 2 * (b - a) ^ 2 / 8)) :
+    HoeffdingUnif β := by
+  intro Z a b hmem hzero lam
+  have hc : (0 : ℝ) < Fintype.card β := by
+    have := Fintype.card_pos (α := β); exact_mod_cast this
+  have hw : ∀ e : β, (0 : ℝ) ≤ 1 / Fintype.card β := fun _ => by positivity
+  have hsum : ∑ _e : β, (1 : ℝ) / Fintype.card β = 1 := by
+    rw [Finset.sum_const, card_univ, nsmul_eq_mul, mul_one_div, div_self (ne_of_gt hc)]
+  have hmean : wmean (fun _ : β => (1 : ℝ) / Fintype.card β) Z = 0 := by
+    rw [wmean, ← Finset.mul_sum, hzero, mul_zero]
+  have hres := h (fun _ : β => 1 / Fintype.card β) hw hsum Z a b hmem hmean lam
+  rw [wmean, ← Finset.mul_sum] at hres
+  calc (∑ e, Real.exp (lam * Z e)) / Fintype.card β
+      = 1 / (Fintype.card β : ℝ) * ∑ e, Real.exp (lam * Z e) := by ring
+    _ ≤ Real.exp (lam ^ 2 * (b - a) ^ 2 / 8) := hres
+
+
+/-- **`PMC.HoeffdingUnif` holds.** `PMC.wmean_exp_le_of_mem_Icc` — Hoeffding's lemma in the
+finite framework, itself the measure bridge applied to Mathlib's sub-Gaussian machinery —
+specialises to the uniform weight on one coordinate.
+
+This is why nothing below carries a Hoeffding hypothesis: §9.1's and §9.3's theorems are
+unconditional, as the notes state them. -/
+theorem hoeffdingUnif_holds : HoeffdingUnif β :=
+  hoeffdingUnif_of_hoeffding fun w hw hsum Z a b hmem hmean lam =>
+    wmean_exp_le_of_mem_Icc hw hsum Z hmem hmean lam
+
+
 /-- **The sub-Gaussian moment bound for a function with bounded differences.**
 
 `E[exp (λ (f - E f))] ≤ exp (λ² ∑ cᵢ² / 8)`, by induction on the number of coordinates: peel
 the last one, apply Hoeffding's lemma to its centred increment, and recurse on the average
 `PMC.avgLast f`, which has the same bounded-difference constants. -/
-theorem pAvg_exp_le (hoeff : HoeffdingUnif β) {N : ℕ} (f : (Fin N → β) → ℝ) (c : Fin N → ℝ)
+theorem pAvg_exp_le {N : ℕ} (f : (Fin N → β) → ℝ) (c : Fin N → ℝ)
     (hf : BddDiff f c) (lam : ℝ) :
     pAvg (fun x => Real.exp (lam * (f x - pAvg f)))
       ≤ Real.exp (lam ^ 2 * (∑ i, c i ^ 2) / 8) := by
@@ -208,7 +241,7 @@ theorem pAvg_exp_le (hoeff : HoeffdingUnif β) {N : ℕ} (f : (Fin N → β) →
           rw [Finset.sum_sub_distrib, Finset.sum_const, card_univ, nsmul_eq_mul]
           field_simp
           ring
-        have hH := hoeff (fun e => f (Fin.snoc y e) - g y) a₀ b₀ hmem hzero lam
+        have hH := hoeffdingUnif_holds (fun e => f (Fin.snoc y e) - g y) a₀ b₀ hmem hzero lam
         -- split the exponent at `g y`
         have hsplit : ∀ a : β, Real.exp (lam * (f (Fin.snoc y a) - pAvg f))
             = Real.exp (lam * (f (Fin.snoc y a) - g y)) * Real.exp (lam * (g y - pAvg f)) := by
@@ -286,8 +319,14 @@ product exceeds the mean by `t`:
 Dividing by `|β|ᴺ` gives the notes' `P(f ≥ E f + t) ≤ exp(-2t²/∑cᵢ²)`.
 
 Markov applied to the moment generating function of `PMC.pAvg_exp_le`, at the optimal
-`λ = 4t/∑cᵢ²`. Hoeffding's lemma (task #47) enters through `hoeff`. -/
-theorem card_filter_ge_le (hoeff : HoeffdingUnif β) {N : ℕ} (f : (Fin N → β) → ℝ)
+`λ = 4t/∑cᵢ²`. Hoeffding's lemma enters through `PMC.hoeffdingUnif_holds`, so the statement
+is unconditional.
+
+This is also **Theorem 9.2.9** — Azuma for Doob martingales — and with the sharper constant
+that statement carries: the exponent is `-2t²/∑cᵢ²`, four times better than
+`PMC.wprob_martingale_ge_le`'s `-t²/(2∑cᵢ²)`, because the `cᵢ` here bound the *conditional
+range* of the increment rather than the increment itself. -/
+theorem card_filter_ge_le {N : ℕ} (f : (Fin N → β) → ℝ)
     (c : Fin N → ℝ) (hf : BddDiff f c) {t : ℝ} (ht : 0 < t) (hS : 0 < ∑ i, c i ^ 2) :
     (#((univ : Finset (Fin N → β)).filter fun x => pAvg f + t ≤ f x) : ℝ)
       ≤ (Fintype.card β : ℝ) ^ N * Real.exp (-(2 * t ^ 2) / ∑ i, c i ^ 2) := by
@@ -322,7 +361,7 @@ theorem card_filter_ge_le (hoeff : HoeffdingUnif β) {N : ℕ} (f : (Fin N → �
         = (∑ x : Fin N → β, Real.exp (lam * (f x - pAvg f)))
           / (Fintype.card β : ℝ) ^ N from rfl]
     field_simp
-  have hmgf := pAvg_exp_le hoeff f c hf lam
+  have hmgf := pAvg_exp_le f c hf lam
   -- combine, then read off the optimal exponent
   have hchain : (#((univ : Finset (Fin N → β)).filter fun x => pAvg f + t ≤ f x) : ℝ)
       * Real.exp (lam * t)
@@ -347,30 +386,6 @@ theorem card_filter_ge_le (hoeff : HoeffdingUnif β) {N : ℕ} (f : (Fin N → �
         rw [mul_div_assoc, hexp]
 
 
-/-- **The bridge from task #47.** Hoeffding's lemma for an arbitrary finite weight, at the
-uniform weight on one coordinate, is exactly `PMC.HoeffdingUnif`. Stated as an implication so
-that it is `sorry`-free: when `PMC.wmean_exp_le_of_mem_Icc` is proved, this discharges the
-`hoeff` hypothesis of everything above. -/
-lemma hoeffdingUnif_of_hoeffding
-    (h : ∀ (w : β → ℝ), (∀ e, 0 ≤ w e) → (∑ e, w e) = 1 → ∀ (Z : β → ℝ) (a b : ℝ),
-      (∀ e, Z e ∈ Set.Icc a b) → wmean w Z = 0 → ∀ lam : ℝ,
-      wmean w (fun e => Real.exp (lam * Z e)) ≤ Real.exp (lam ^ 2 * (b - a) ^ 2 / 8)) :
-    HoeffdingUnif β := by
-  intro Z a b hmem hzero lam
-  have hc : (0 : ℝ) < Fintype.card β := by
-    have := Fintype.card_pos (α := β); exact_mod_cast this
-  have hw : ∀ e : β, (0 : ℝ) ≤ 1 / Fintype.card β := fun _ => by positivity
-  have hsum : ∑ _e : β, (1 : ℝ) / Fintype.card β = 1 := by
-    rw [Finset.sum_const, card_univ, nsmul_eq_mul, mul_one_div, div_self (ne_of_gt hc)]
-  have hmean : wmean (fun _ : β => (1 : ℝ) / Fintype.card β) Z = 0 := by
-    rw [wmean, ← Finset.mul_sum, hzero, mul_zero]
-  have hres := h (fun _ : β => 1 / Fintype.card β) hw hsum Z a b hmem hmean lam
-  rw [wmean, ← Finset.mul_sum] at hres
-  calc (∑ e, Real.exp (lam * Z e)) / Fintype.card β
-      = 1 / (Fintype.card β : ℝ) * ∑ e, Real.exp (lam * Z e) := by ring
-    _ ≤ Real.exp (lam ^ 2 * (b - a) ^ 2 / 8) := hres
-
-
 lemma pAvg_neg {N : ℕ} (f : (Fin N → β) → ℝ) : pAvg (fun x => -f x) = -pAvg f := by
   simp only [pAvg]
   rw [Finset.sum_neg_distrib, neg_div]
@@ -383,12 +398,12 @@ lemma BddDiff.neg {N : ℕ} {f : (Fin N → β) → ℝ} {c : Fin N → ℝ} (hf
   exact this
 
 /-- **The lower tail**, by applying the upper tail to `-f`. The notes state both. -/
-theorem card_filter_le_le (hoeff : HoeffdingUnif β) {N : ℕ} (f : (Fin N → β) → ℝ)
+theorem card_filter_le_le {N : ℕ} (f : (Fin N → β) → ℝ)
     (c : Fin N → ℝ) (hf : BddDiff f c) {t : ℝ} (ht : 0 < t) (hS : 0 < ∑ i, c i ^ 2) :
     (#((univ : Finset (Fin N → β)).filter fun x => f x ≤ pAvg f - t) : ℝ)
       ≤ (Fintype.card β : ℝ) ^ N * Real.exp (-(2 * t ^ 2) / ∑ i, c i ^ 2) := by
   classical
-  have hmain := card_filter_ge_le hoeff (fun x => -f x) c hf.neg ht hS
+  have hmain := card_filter_ge_le (fun x => -f x) c hf.neg ht hS
   rw [pAvg_neg] at hmain
   have hfilter : ((univ : Finset (Fin N → β)).filter fun x => f x ≤ pAvg f - t)
       = (univ : Finset (Fin N → β)).filter fun x => -pAvg f + t ≤ -f x := by
@@ -399,7 +414,7 @@ theorem card_filter_le_le (hoeff : HoeffdingUnif β) {N : ℕ} (f : (Fin N → �
 
 /-- **Theorem 9.1.1**: the bounded differences inequality with all constants `1`, where the
 bound reads `exp(-2t²/N)`. Both tails. -/
-theorem card_filter_ge_le_one (hoeff : HoeffdingUnif β) {N : ℕ} (hN : 0 < N)
+theorem card_filter_ge_le_one {N : ℕ} (hN : 0 < N)
     (f : (Fin N → β) → ℝ)
     (hf : ∀ (i : Fin N) (x y : Fin N → β), (∀ j, j ≠ i → x j = y j) → |f x - f y| ≤ 1)
     {t : ℝ} (ht : 0 < t) :
@@ -413,8 +428,8 @@ theorem card_filter_ge_le_one (hoeff : HoeffdingUnif β) {N : ℕ} (hN : 0 < N)
   have hS : 0 < ∑ _i : Fin N, (1 : ℝ) ^ 2 := by
     rw [hsum]
     exact_mod_cast hN
-  have hup := card_filter_ge_le hoeff f (fun _ => 1) hf ht hS
-  have hlo := card_filter_le_le hoeff f (fun _ => 1) hf ht hS
+  have hup := card_filter_ge_le f (fun _ => 1) hf ht hS
+  have hlo := card_filter_le_le f (fun _ => 1) hf ht hS
   rw [hsum] at hup hlo
   exact ⟨hup, hlo⟩
 
@@ -524,14 +539,14 @@ theorem pAvg_missing {n : ℕ} (hn : 0 < n) :
 
 /-- **Example 9.1.2 (coupon collector).** The number of missed coupon types is concentrated:
 at most a `2 exp(-2t²/n)` fraction of the `nⁿ` draws miss it from its mean by `t` or more. -/
-theorem card_filter_missing_le {n : ℕ} (hoeff : HoeffdingUnif (Fin n)) (hn : 0 < n)
+theorem card_filter_missing_le {n : ℕ} (hn : 0 < n)
     {t : ℝ} (ht : 0 < t) :
     (#((univ : Finset (Fin n → Fin n)).filter fun s =>
         t ≤ |missing s - n * (1 - 1 / (n : ℝ)) ^ n|) : ℝ)
       ≤ 2 * ((n : ℝ) ^ n * Real.exp (-(2 * t ^ 2) / n)) := by
   classical
   haveI : NeZero n := ⟨by omega⟩
-  obtain ⟨hup, hlo⟩ := card_filter_ge_le_one hoeff hn (missing (n := n)) bddDiff_missing ht
+  obtain ⟨hup, hlo⟩ := card_filter_ge_le_one hn (missing (n := n)) bddDiff_missing ht
   rw [pAvg_missing hn] at hup hlo
   have hsub : ((univ : Finset (Fin n → Fin n)).filter fun s =>
         t ≤ |missing s - n * (1 - 1 / (n : ℝ)) ^ n|)

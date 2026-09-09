@@ -134,6 +134,31 @@ over distinct edges, so two indices carrying the same edge set are counted twice
 the hypothesis stronger than the notes' and the theorem no weaker, and it keeps the indexed
 convention the rest of the file uses.
 
+### §6.2 — the compactness step (Theorem 6.2.6) — proved
+
+`ProbMethods/Chapter06/Compactness.lean`. `PMC.exists_two_coloring_of_finite`: for a family of
+**finite** edges on an **arbitrary** vertex set, if every finite set of vertices carries a
+colouring good on the edges inside it, then some colouring is good on every edge. Both `V` and
+the index type are arbitrary — no cardinality hypothesis anywhere, which is the point.
+
+`V → Bool` is compact (Tychonoff), the good sets are closed — "edge `i` is bichromatic" is the
+*finite* union over pairs `u, v ∈ edge i` of `{c | c u ≠ c v}`, each a preimage of a set in a
+discrete space under a continuous evaluation — the family is directed downwards, and each member
+is nonempty by hypothesis. Every edge lies inside some finite `X`, namely its own vertex set, so
+a member of the intersection is a global colouring.
+
+**This was recorded as blocked on "compactness over infinite ground sets", which Mathlib turns
+out to supply directly**: `IsCompact.nonempty_iInter_of_directed_nonempty_isCompact_isClosed`
+and the `Pi` compact-space instance. That is now the *third* deferral in this project that
+Mathlib had already answered (FKG, Theorem 5.0.5, this) — the pattern is that structural
+reasons to give up are the ones worth checking.
+
+What remains of Theorem 6.2.6 as literally stated is transport of the finite half into the
+compactness step, which is bookkeeping and is published as a task: restricting to `↥X` and
+`{i // edge i ⊆ X}` (finite, because at most `d+1` indices carry any one edge and there are at
+most `2^{#X}` edges inside `X`), carrying edges across with `Finset.subtype`, and turning the
+returned `Finset V` into a colouring. The file's docstring records the route step by step.
+
 ### §6.2 — done
 
 `PMC.exists_two_coloring_of_local_lemma`: a `k`-uniform hypergraph in which every edge
@@ -166,7 +191,15 @@ nothing in the gate would catch it.
   size `m ≥ k` is monochromatic with probability `2^{1-m} ≤ 2^{1-k}`, and the symmetric local
   lemma only ever wanted an upper bound. Theorem 6.2.1 is now the uniform corollary. The
   notes also state 6.2.6 for *infinite* vertex sets, which needs their compactness Lemma
-  6.2.7; that is not claimed here.
+  6.2.7. **That lemma is now proved in the generality the notes state it** —
+  `PMC.exists_avoid_all_of_avoid_finite` (`ProbMethods/Chapter06/AvoidEvents.lean`): variables
+  with finitely many choices each, possibly infinitely many events, each depending on a finite
+  set of variables; avoiding every finite subset of events implies avoiding all of them.
+  Tychonoff on `∀ i, C i` with discrete finite factors, plus the directed-intersection lemma.
+  The step that needs the variable model is that each bad set is *clopen*, because `bad j`
+  factors through the restriction to the finite `dep j`; that is precisely what Remark 6.2.8
+  warns is missing in general. `PMC.exists_two_coloring_of_finite` is the `C i = Bool` case,
+  and `PMC.exists_two_coloring_of_avoid` re-derives it from the general lemma.
 * `PMC.exists_two_coloring_of_regular` is **Corollary 6.2.2**: for `k ≥ 9`, every `k`-uniform
   `k`-regular hypergraph is 2-colourable. The degree count is the content — an edge has `k`
   vertices, each lying in `k` edges, one being the edge itself, so it meets at most `k(k-1)`

@@ -105,6 +105,33 @@ probability `2^(1-k)`, so the expected number of monochromatic edges is
 
 Theorem 1.3.3 (`m(k) = O(k² 2^k)`) is asymptotic and is not a node in this phase.
 
+### ramsey_lll — Theorem 1.1.9 (Spencer 1977)
+
+`PMC.not_ramseyProp_of_lll` (`ProbMethods/Chapter01/RamseyLLL.lean`): if
+`e (C(k,2)·C(n,k-2) + 1) 2^{1-C(k,2)} ≤ 1` then `R(k,k) > n`. This is Theorem 1.1.8, the local
+lemma in the random variable model (`PMC.exists_avoiding_of_lll`), applied to the uniform
+random 2-colouring of `E(Kₙ)` with one bad event per `k`-subset.
+
+Three points worth recording:
+
+* **the coordinate type is every subset of `[n]`, not every edge.** A colouring is
+  `f : Finset (Fin n) → Bool` and only the 2-element subsets are read. The extra coordinates
+  are independent and no event depends on them, so they cost nothing — and `S.powersetCard 2`
+  is then literally "the edges inside `S`", with `Finset.card_powersetCard` handing over
+  `C(#S, 2)`. Same trick as tossing a coin for each loop in §4's `Sym2` model.
+* **the dependency count needs no canonical choice.** The notes bound the number of `S'` with
+  `#(S ∩ S') ≥ 2` by `C(k,2)·C(n,k-2)` — two shared vertices inside `S`, then `k-2` vertices
+  anywhere. Formally `S' ↦ (T, S' \ T)` is injective for *any* 2-subset `T ⊆ S ∩ S'`, since
+  `T ⊆ S'` makes `S'` recoverable as `T ∪ (S' \ T)`. So `T` can be picked by `choose` with no
+  ordering of `Fin n` and no minimality.
+* **`n < k` is separated off**, because the local lemma wants `0 < d` and
+  `d = C(k,2)·C(n,k-2)` vanishes when `n < k-2`; there `Kₙ` has no `k`-clique at all.
+
+Checked numerically before committing: the bound overtakes the union-bound Theorem 1.1.2
+(`2 C(n,k) < 2^{C(k,2)}`) at `k = 11`, and the ratio of admissible `n` climbs to `1.42` by
+`k = 25` — the `√2` that is Spencer's factor-2 improvement of the constant in
+`R(k,k) > (1+o(1)) (√2/e) k 2^{k/2}`.
+
 ## List chromatic number of `K_{n,n}` (§1.4)
 
 `PMC.CompleteBipartiteChoosable n k` says `K_{n,n}` — vertex set `Fin n ⊕ Fin n`, adjacent

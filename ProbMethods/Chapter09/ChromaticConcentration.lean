@@ -172,8 +172,9 @@ and no knowledge of the mean is needed. Theorem 9.1.3 applied to the vertex-expo
 encoding, with the coordinate-`0` constant equal to `0` — which is exactly why the notes'
 window is `√(n-1)` and not `√n`.
 
-Hoeffding's lemma (task #47) enters through `hoeff`, so this is `sorry`-free. -/
-theorem card_filter_chromF_le [NeZero n] (hoeff : HoeffdingUnif (Fin n → Bool)) (hn : 2 ≤ n)
+Hoeffding's lemma enters through `PMC.hoeffdingUnif_holds`, so the statement is
+unconditional — as the notes state it. -/
+theorem card_filter_chromF_le [NeZero n] (hn : 2 ≤ n)
     {lam : ℝ} (hlam : 0 < lam) :
     (#((univ : Finset (Fin n → (Fin n → Bool))).filter fun x =>
         lam * Real.sqrt ((n : ℝ) - 1) ≤ |chromF x - pAvg (chromF (n := n))|) : ℝ)
@@ -187,9 +188,9 @@ theorem card_filter_chromF_le [NeZero n] (hoeff : HoeffdingUnif (Fin n → Bool)
   have hS : (0 : ℝ) < ∑ i : Fin n, (if i = (0 : Fin n) then (0 : ℝ) else 1) ^ 2 := by
     rw [sum_sq_chrom_const n]
     exact hn1
-  have hup := card_filter_ge_le hoeff (chromF (n := n))
+  have hup := card_filter_ge_le (chromF (n := n))
     (fun i => if i = (0 : Fin n) then 0 else 1) bddDiff_chromF ht hS
-  have hlo := card_filter_le_le hoeff (chromF (n := n))
+  have hlo := card_filter_le_le (chromF (n := n))
     (fun i => if i = (0 : Fin n) then 0 else 1) bddDiff_chromF ht hS
   rw [sum_sq_chrom_const n] at hup hlo
   -- the exponent collapses

@@ -122,7 +122,7 @@ but an `ε` fraction within `2t` of `A`.
 Compare `PMC.card_cubeNbhd_two_mul_ge_of_harper`, the same statement in the subset encoding,
 which follows the notes' first proof and therefore needs Harper's inequality as a
 hypothesis. **This version needs no such hypothesis** — only Hoeffding's lemma, via §9.1. -/
-theorem card_fNbhd_ge (hoeff : HoeffdingUnif Bool) (hn : 0 < n) {t : ℕ} (ht : 0 < t)
+theorem card_fNbhd_ge (hn : 0 < n) {t : ℕ} (ht : 0 < t)
     (A : Finset (Fin n → Bool))
     (hA : (2 : ℝ) ^ n * Real.exp (-(2 * (t : ℝ) ^ 2) / n) < #A) :
     (2 : ℝ) ^ n * (1 - Real.exp (-(2 * (t : ℝ) ^ 2) / n)) ≤ #(fNbhd (2 * t) A) := by
@@ -150,8 +150,8 @@ theorem card_fNbhd_ge (hoeff : HoeffdingUnif Bool) (hn : 0 < n) {t : ℕ} (ht : 
     rw [Finset.sum_const, card_univ, Fintype.card_fin, nsmul_eq_mul]
     ring
   -- both tails, at `t`
-  have hup := card_filter_ge_le hoeff f (fun _ => 1) hbd htR hS
-  have hlo := card_filter_le_le hoeff f (fun _ => 1) hbd htR hS
+  have hup := card_filter_ge_le f (fun _ => 1) hbd htR hS
+  have hlo := card_filter_le_le f (fun _ => 1) hbd htR hS
   rw [hSval, hcard2] at hup hlo
   rw [← hεdef] at hup hlo
   -- the mean is small: `f` vanishes on `A`, which is too big for the lower tail

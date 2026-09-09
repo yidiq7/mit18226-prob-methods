@@ -825,10 +825,17 @@
   },
   "azuma": {
    "kind": "theorem",
-   "parent": "concentration",
-   "decl": "ProbabilityTheory.measure_sum_ge_le_of_HasCondSubgaussianMGF",
-   "upstream": true,
-   "note": "Azuma-Hoeffding, in Mathlib SubGaussian.lean. Covers 9.1-9.2 in MeasureTheory form."
+   "parent": "concentrationGroup",
+   "file": "ProbMethods/Chapter09/Azuma.lean",
+   "decl": "PMC.wprob_martingale_ge_le",
+   "doc": "mathlib-survey.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "hoeffding_lemma"
+   ],
+   "proof_uses": [],
+   "note": "THEOREMS 9.2.7 and 9.2.8 (Azuma), proved in the finite framework. Mathlib's Azuma takes conditional sub-Gaussianity as a hypothesis and the step the notes need -- bounded increments implies conditionally sub-Gaussian -- is NOT upstream, so 'section 9.2 is upstream' was too quick. The design decision that made this short: CONDITIONING BY REWEIGHTING. fibreWeight renormalises the weight on a fibre and zeroes it elsewhere, so it is again a weight on the same Omega and Hoeffding's lemma applies fibrewise with no subtypes and no change of sample space; the induction is then wmean_exp_step applied n times. Theorem 9.2.9 (the Doob case) is section 9.1's card_filter_ge_le, with the sharper constant -2t^2/sum c_i^2 because there the c_i bound the conditional range rather than the increment."
   },
   "concentration": {
    "kind": "group",
@@ -4553,6 +4560,189 @@
    "uses": [],
    "proof_uses": [],
    "note": "PROPOSITION 2.4.2: a tetrahedron-free 3-graph on n >= 4 vertices has 4#H <= 3C(n,3). The same double count as 2.4.4 with four vertices instead of five, where the base case IS the hypothesis. The pair 2.4.2/2.4.4 shows what sampling one more vertex buys (3/4 -> 7/10) and costs (a base case, which is also where the notes' n >= 4 slips to n >= 5)."
+  },
+  "median_talagrand": {
+   "kind": "theorem",
+   "parent": "concentrationGroup",
+   "file": "ProbMethods/Chapter09/Median.lean",
+   "decl": "PMC.card_filter_le_median_le",
+   "doc": "mathlib-survey.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "talagrand_certifiable"
+   ],
+   "proof_uses": [],
+   "note": "COROLLARY 9.5.22 plus the median it needs. exists_isMedian builds a median for any real-valued function on a nonempty finite type by counting, not compactness: take the least attained value with half the points below it, and minimality forces half at or above. Then Talagrand's product bound at r = M gives P(f <= M - t) <= 2 exp(-t^2/(4s)), since a median makes the second factor at least 1/2. Kept in a separate file because Talagrand.lean holds task #49's target and is left byte-for-byte as published."
+  },
+  "measure_bridge": {
+   "kind": "theorem",
+   "parent": "weightedGroup",
+   "file": "ProbMethods/MeasureBridge.lean",
+   "decl": "PMC.wmean_eq_integral",
+   "doc": "chernoff.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [],
+   "proof_uses": [],
+   "note": "THE MEASURE BRIDGE: a finite weight packaged as a PMF, with wmean identified with the Bochner integral against its measure. Costs two instances (the discrete sigma-algebra on a finite type and its MeasurableSingletonClass) and nothing else. With it Mathlib's probability library applies to this development: it closed task #47 (Hoeffding's lemma) from hasSubgaussianMGF_of_mem_Icc_of_integral_eq_zero, which in turn made 9.1.1, 9.1.3, 9.1.2, 9.3.1 and 9.4.6 unconditional and unblocked Corollary 5.0.6. Azuma-Hoeffding and the martingale library are now reachable the same way."
+  },
+  "hoeffding_bernoulli": {
+   "kind": "theorem",
+   "parent": "chernoffGroup",
+   "file": "ProbMethods/Chapter05/HoeffdingBernoulli.lean",
+   "decl": "PMC.sum_pweight_ge_sqrt_le",
+   "doc": "chernoff.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "hoeffding_lemma",
+    "chernoff_bernoulli"
+   ],
+   "proof_uses": [],
+   "note": "COROLLARY 5.0.6, both tails: P(X >= mu + t) <= exp(-2t^2/n) and the notes' P(X >= mu + lambda sqrt n) <= e^{-lambda^2/2}. Engine: Hoeffding's lemma at a SINGLE Bernoulli (bernoulli_mgf_le, from wmean_exp_le_of_mem_Icc on the two-point space), multiplied over coordinates against the exact MGF already proved for 5.0.7, then Markov at lambda = 4t/n. The lower tail is complementation, not a second argument: pweight (1-p) of the complement equals pweight p."
+  },
+  "chernoff_general": {
+   "kind": "theorem",
+   "parent": "chernoffGroup",
+   "file": "ProbMethods/Chapter05/ChernoffGeneral.lean",
+   "decl": "PMC.measure_sum_ge_sqrt_le_of_mem_Icc",
+   "doc": "chernoff.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [],
+   "proof_uses": [],
+   "note": "THEOREM 5.0.5, and a CORRECTED SCOPE DECISION. This was recorded as unreachable -- arbitrary independent variables in [-1,1], so the sample space is a product of continua and the counting framework does not reach it. True, but Mathlib does: forty lines from hasSubgaussianMGF_of_mem_Icc_of_integral_eq_zero (mean zero in an interval of length 2 is sub-Gaussian with parameter 1) and HasSubgaussianMGF.measure_sum_ge_le_of_iIndepFun, giving exp(-eps^2/(2n)) and hence the notes' e^{-lambda^2/2} at eps = lambda sqrt n. Stated over an arbitrary probability space, as the notes state it. The lesson: a STRUCTURAL reason to give up is exactly the kind that needs checking against Mathlib."
+  },
+  "compactness_coloring": {
+   "kind": "theorem",
+   "parent": "localLemmaGroup",
+   "file": "ProbMethods/Chapter06/Compactness.lean",
+   "decl": "PMC.exists_two_coloring_of_finite",
+   "doc": "local-lemma.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [],
+   "proof_uses": [],
+   "note": "THE COMPACTNESS STEP of Theorem 6.2.6, in the generality of the notes' remark: finite edges on an ARBITRARY vertex set, colourings of every finite piece assembled into a global one. V -> Bool is compact (Tychonoff), the good sets are closed (bichromaticity of an edge is a FINITE union of preimages of sets in a discrete space), the family is directed downwards, and every edge lies inside its own vertex set. Another deferral -- 'compactness over infinite ground sets' -- that Mathlib supplied directly, via IsCompact.nonempty_iInter_of_directed_nonempty_isCompact_isClosed. What remains of 6.2.6 is transporting the finite local lemma into it: restrict to the finite vertex set and to the finitely many indices inside it, which the degree bound makes finite."
+  },
+  "concentration_equivalence": {
+   "kind": "theorem",
+   "parent": "concentrationGroup",
+   "file": "ProbMethods/Chapter09/Equivalence.lean",
+   "decl": "PMC.expansion_of_concentration",
+   "doc": "mathlib-survey.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [],
+   "proof_uses": [],
+   "note": "THEOREM 9.4.8, both directions: expansion (P(A) >= 1/2 implies P(A_t) >= 1-eps) is equivalent to concentration of 1-Lipschitz functions (P(f <= m) >= 1/2 implies P(f > m+t) <= eps). The two canonical objects do it: the sublevel set {f <= m}, whose t-neighbourhood lies in {f <= m+t}, and x |-> dist(x,A), 1-Lipschitz by the triangle inequality at the nearest point. Only symmetry and the triangle inequality are used -- no separation axiom -- so it applies to hamDist on the cube. This is what licenses 9.4's moving between isoperimetry and concentration, and why Harper and bounded differences are two readings of one phenomenon."
+  },
+  "equiangular_tail": {
+   "kind": "lemma",
+   "parent": "chernoffGroup",
+   "file": "ProbMethods/Chapter05/Equiangular.lean",
+   "decl": "PMC.card_filter_card_dev_le",
+   "doc": "chernoff.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "chernoff_bernoulli"
+   ],
+   "proof_uses": [
+    "hoeffding_bernoulli"
+   ],
+   "note": "Two-sided balanced Chernoff as a COUNT: at most 2 * 2^n e^{-2t^2/n} of the 2^n subsets of an n-set have size deviating from n/2 by more than t. pweight at the constant 1/2 is the uniform weight (1/2)^n (PMC.pweight_half), which turns the two weighted tails sum_pweight_ge_le / sum_pweight_le_le into a cardinality bound."
+  },
+  "equiangular_family": {
+   "kind": "theorem",
+   "parent": "chernoffGroup",
+   "file": "ProbMethods/Chapter05/Equiangular.lean",
+   "decl": "PMC.exists_far_family_exp",
+   "doc": "chernoff.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "equiangular_tail",
+    "caro_wei"
+   ],
+   "proof_uses": [
+    "equiangular_tail",
+    "caro_wei"
+   ],
+   "note": "At least e^{delta^2 n} subsets of [n] with all pairwise Hamming distances within delta*n of n/2. The notes get the pairwise condition by a union bound over an m-tuple of random subsets, which needs the m-fold product space and a marginal computation for a single pair. Instead: PMC.farGraph, whose degrees are each bounded by the SAME tail count because y |-> x sd y is injective, fed to CARO-WEI (section 2.3) -- the book's own Chapter 2 result supplies the independent set of size 2^n/(D+1). No product space."
+  },
+  "equiangular": {
+   "kind": "theorem",
+   "parent": "chernoffGroup",
+   "file": "ProbMethods/Chapter05/Equiangular.lean",
+   "decl": "PMC.exists_nearly_equiangular",
+   "doc": "chernoff.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "equiangular_family"
+   ],
+   "proof_uses": [
+    "equiangular_family"
+   ],
+   "note": "THEOREM 5.2.1, and a STATEMENT CORRECTION. 'For every n' is false at small n: the only unit vectors in R^1 are +-1, with inner products +-1, so at a=1/2, eps=1/100 every admissible family has one element while 2^{c*1} > 1; the theorem holds for all N >= N_0(a,eps). The construction is the notes' biased +-1 vectors with the bias moved into ONE CONSTANT COORDINATE (PMC.eqVec = (sqrt a, +- sqrt((1-a)/n))), which leaves the other n coordinates unbiased -- so the probabilistic content is the balanced Chernoff bound and the +-eps window is pure algebra: <v(x),v(y)> = a + (1-a)(1 - 2|x sd y|/n)."
+  },
+  "poly_cube": {
+   "kind": "lemma",
+   "parent": "linearityGroup",
+   "file": "ProbMethods/Chapter02/PolyCube.lean",
+   "decl": "PMC.exists_abs_eval_ge",
+   "doc": "linearity.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [],
+   "proof_uses": [],
+   "note": "LEMMA 2.5.3, and an OVERTURNED DEFERRAL. Recorded as out of scope because the notes prove it by compactness (M(g) = max |g| on the cube is continuous and positive on a compact family, hence has a positive minimum) with no value for c_k. The constant is 2^{-k}: the finite difference sum_{S subset [k]} (-1)^{k-#S} g(chi_S) IS the coefficient of p_1...p_k, because the kernel sum_{S superset T} (-1)^{k-#S} vanishes unless T = [k], and a degree <= k monomial in k variables with full support is p_1...p_k. 2^k numbers summing to 1 cannot all be below 2^{-k}. The notes' coefficient bound |a_i| <= 1 is not needed."
+  },
+  "unbalanced_hypergraph": {
+   "kind": "theorem",
+   "parent": "linearityGroup",
+   "file": "ProbMethods/Chapter02/PolyCube.lean",
+   "decl": "PMC.exists_unbalanced_partSet",
+   "doc": "linearity.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "poly_cube"
+   ],
+   "proof_uses": [
+    "poly_cube"
+   ],
+   "note": "THEOREM 2.5.2 with c_k = 2^{-k}, and S can be taken to be a UNION OF WHOLE PARTS. The notes form the expected imbalance as a polynomial in p_1..p_k and apply Lemma 2.5.3; but 2.5.3's proof only ever evaluates at corners, where p_i in {0,1} and the random set is deterministic. Applying the same kernel one level up, to the signed edge count D(V_S), gives sum_S (-1)^{#S^c} D(V_S) = sum over edges meeting every part of sgn(e) = n^k -- so the polynomial is never formed. The supporting count (an edge of size k meeting all k parts is a transversal, and there are n^k of them) is PMC.filter_image_fst_eq_univ."
+  },
+  "avoid_events": {
+   "kind": "lemma",
+   "parent": "localLemmaGroup",
+   "file": "ProbMethods/Chapter06/AvoidEvents.lean",
+   "decl": "PMC.exists_avoid_all_of_avoid_finite",
+   "doc": "local-lemma.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [],
+   "proof_uses": [],
+   "note": "LEMMA 6.2.7, the compactness argument in the variable model, in the generality the notes state it: variables with finitely many choices each, possibly infinitely many events, each depending on a finite set of variables; avoiding every finite subset of events implies avoiding all of them. Tychonoff on prod C i (discrete finite factors) plus the directed-intersection lemma. What makes each bad set CLOPEN is that bad j factors through the restriction to dep j, whose codomain is finite discrete -- which is exactly why Remark 6.2.8's warning bites without the variable model. PMC.exists_two_coloring_of_finite (the compactness step of 6.2.6) is the C i = Bool case and is re-derived from it as PMC.exists_two_coloring_of_avoid."
+  },
+  "ramsey_lll": {
+   "kind": "theorem",
+   "parent": "introGroup",
+   "file": "ProbMethods/Chapter01/RamseyLLL.lean",
+   "decl": "PMC.not_ramseyProp_of_lll",
+   "doc": "introduction.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "lll_product"
+   ],
+   "proof_uses": [
+    "lll_product"
+   ],
+   "note": "THEOREM 1.1.9 (Spencer 1977): if e(C(k,2)C(n,k-2)+1)2^{1-C(k,2)} <= 1 then R(k,k) > n. Theorem 1.1.8 (exists_avoiding_of_lll) on the uniform random 2-colouring, one bad event per k-subset. Coordinates are ALL subsets of Fin n, not just the 2-element ones -- the extra coordinates are independent and no event depends on them, and S.powersetCard 2 then gives the edges inside S with card_powersetCard supplying C(k,2) for free. The dependency count needs NO canonical choice of the two shared vertices: S' |-> (T, S' minus T) is injective for ANY 2-subset T of S cap S', because T subset S' makes S' recoverable. n < k is separated off since d = C(k,2)C(n,k-2) can vanish there. Checked numerically: the bound overtakes the union-bound Theorem 1.1.2 at k = 11 and the ratio of admissible n tends to sqrt 2, which is Spencer's factor-2 improvement in the constant."
   }
  }
 }
