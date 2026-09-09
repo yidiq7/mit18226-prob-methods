@@ -859,7 +859,7 @@
         "tuple_submodular"
       ],
       "proof_uses": [],
-      "note": "Shearer's lemma. Proved by splitting at the right place: the entropy side supplies three properties of S -> H(X_S), and everything after that is a statement about set functions. Checked against the classic instance: the three 2-element subsets of a 3-tuple cover each coordinate twice, giving 2 H(X) <= H(X_12) + H(X_02) + H(X_01)."
+      "note": "Theorem 10.4.5 (Shearer's lemma). Proved by splitting at the right place: the entropy side supplies three properties of S -> H(X_S), and everything after that is a statement about set functions. Checked against the classic instance: the three 2-element subsets of a 3-tuple cover each coordinate twice, giving 2 H(X) <= H(X_12) + H(X_02) + H(X_01)."
     },
     "lll": {
       "kind": "theorem",
@@ -1552,7 +1552,7 @@
         "projSetDef"
       ],
       "proof_uses": [],
-      "note": "Shearer as a counting statement: if every coordinate is covered k times, #A^k <= product of trace sizes. The conversion is entropy_uniform_injective on the whole tuple (H = log #A exactly) and entropy_le_log_image on each mask."
+      "note": "Corollary 10.4.7: if every coordinate is covered k times, #A^k <= product of trace sizes. The conversion is entropy_uniform_injective on the whole tuple (H = log #A exactly) and entropy_le_log_image on each mask."
     },
     "loomis_whitney": {
       "kind": "theorem",
@@ -1566,7 +1566,7 @@
         "shearer_counting"
       ],
       "proof_uses": [],
-      "note": "The Loomis-Whitney inequality: #A^2 <= product of the three axis-plane shadow sizes for A in three coordinates. The three 2-element subsets of Fin 3 cover each coordinate exactly twice. Checked tight, not merely true: the full 2x2x2 cube has 8 points and three 4-point shadows, 8^2 = 64 = 4*4*4."
+      "note": "Theorem 10.4.3: #A^2 <= product of the three axis-plane shadow sizes for A in three coordinates. The notes' Corollary 10.4.4 (volumes of bodies) follows there by approximating with cubes; the n-coordinate Corollary 10.4.6 is card_pow_le_prod_card_projSet at k = n-1. Checked tight, not merely true: the full 2x2x2 cube has 8 points and three 4-point shadows, 8^2 = 64 = 4*4*4."
     },
     "bweight_pweight_bridge_done": {
       "kind": "theorem",
@@ -1892,7 +1892,7 @@
         "orderedTrianglesDef"
       ],
       "proof_uses": [],
-      "note": "The triangle-counting bound t^2 <= (2m)^3 for t the number of ORDERED triangles, so #triangles <= (2m)^(3/2)/6. The SAME Shearer instance as Loomis-Whitney (Fin 3, k = 2) plus one observation: the trace of the ordered triangles on any two coordinates consists of ordered edges, of which there are exactly 2m. Asymptotically tight on K_n, where the ratio tends to 1."
+      "note": "The triangle-counting bound t^2 <= (2m)^3 for t the number of ORDERED triangles. NOT a numbered result in the notes -- 10.4's own triangle content is Theorem 10.4.9 about triangle-INTERSECTING families, which is different and still open. Included because it shows card_pow_le_prod_card_projSet is usable off the shelf: same Shearer instance as 10.4.3, plus the observation that a two-coordinate trace consists of ordered edges."
     },
     "spliceOnDef": {
       "kind": "definition",
@@ -1953,6 +1953,63 @@
       "uses": [],
       "proof_uses": [],
       "note": "The same in probability form, ready for the local lemma's hindep hypothesis."
+    },
+    "shearer_triple": {
+      "kind": "theorem",
+      "parent": "entropyGroup",
+      "file": "ProbMethods/Chapter10/Entropy.lean",
+      "decl": "PMC.wentropy_shearer_triple",
+      "doc": "entropy.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [
+        "entropy_submodular",
+        "entropy_subadditive"
+      ],
+      "proof_uses": [],
+      "note": "Theorem 10.4.1, the special case of Shearer: 2H(X,Y,Z) <= H(X,Y)+H(X,Z)+H(Y,Z). Two lines from submodularity plus subadditivity against the pair (Y,Z), which cancels H(X). NOT an instance of PMC.shearer -- that requires all coordinates to share a type, whereas here X, Y, Z may have three different ones."
+    },
+    "bregman": {
+      "kind": "theorem",
+      "parent": "entropyGroup",
+      "file": null,
+      "decl": null,
+      "doc": "entropy.md",
+      "statement": "planned",
+      "proof": "planned",
+      "uses": [
+        "shearer"
+      ],
+      "proof_uses": [],
+      "note": "Section 10.2 (Permanent, perfect matchings, Steiner triple systems). Not started."
+    },
+    "sidorenko": {
+      "kind": "theorem",
+      "parent": "entropyGroup",
+      "file": null,
+      "decl": null,
+      "doc": "entropy.md",
+      "statement": "planned",
+      "proof": "planned",
+      "uses": [
+        "shearer"
+      ],
+      "proof_uses": [],
+      "note": "Section 10.3 (Sidorenko's inequality). Not started."
+    },
+    "triangle_intersecting": {
+      "kind": "theorem",
+      "parent": "entropyGroup",
+      "file": null,
+      "decl": null,
+      "doc": "entropy.md",
+      "statement": "planned",
+      "proof": "planned",
+      "uses": [
+        "shearer"
+      ],
+      "proof_uses": [],
+      "note": "Theorem 10.4.9 (Chung, Graham, Frankl, Shearer 1986): every triangle-intersecting family of graphs on n labelled vertices has size < 2^(C(n,2)-2). This is 10.4's actual triangle theorem. Not started."
     }
   }
 }

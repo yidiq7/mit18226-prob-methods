@@ -1,7 +1,7 @@
 import ProbMethods.Chapter10.Shearer
 
 /-!
-# §10.3 — Counting by entropy: the Loomis–Whitney inequality
+# §10.4 — Counting by entropy: Theorem 10.4.3 and Loomis–Whitney
 
 Zhao, *Probabilistic Methods in Combinatorics*, Chapter 10.
 
@@ -13,10 +13,11 @@ on the set being counted. The two halves of the conversion are
 * `PMC.wentropy_le_log_card_image` — a masked tuple takes at most `#(trace of A on S)`
   values, so its entropy is at most the log of that.
 
-Feeding both into `PMC.shearer` gives `PMC.card_pow_le_prod_card_projSet`: if every
-coordinate is covered `k` times by the family, then `#A ^ k ≤ ∏ #(trace on A j)`. Loomis–
-Whitney is the case of the three 2-element subsets of a 3-coordinate tuple, giving
-`#A ^ 2 ≤ #A_yz · #A_xz · #A_xy`.
+Feeding both into `PMC.shearer` gives `PMC.card_pow_le_prod_card_projSet`, which is
+Corollary 10.4.7: if every coordinate is covered `k` times by the family, then
+`#A ^ k ≤ ∏ #(trace on A j)`. `PMC.loomis_whitney` is Theorem 10.4.3, the three 2-element
+subsets of a 3-coordinate tuple giving `#A ^ 2 ≤ #A_yz · #A_xz · #A_xy`; the general
+`n`-coordinate form (Corollary 10.4.6) is the same theorem at `k = n - 1`.
 -/
 
 open Finset
@@ -39,7 +40,7 @@ lemma mem_projSet {S : Finset ι} {A : Finset (ι → β)} {u : ι → Option β
 lemma projSet_nonempty {A : Finset (ι → β)} (hA : A.Nonempty) (S : Finset ι) :
     (projSet S A).Nonempty := hA.image _
 
-/-- **Shearer's lemma as a counting statement.**
+/-- **Shearer's lemma as a counting statement** (Zhao, Corollary 10.4.7).
 
 If every coordinate lies in at least `k` of the sets `S j`, `j ∈ F`, then
 `#A ^ k ≤ ∏_{j ∈ F} #(trace of A on S j)`. -/
@@ -104,7 +105,9 @@ theorem card_pow_le_prod_card_projSet (A : Finset (ι → β)) (hA : A.Nonempty)
         Real.exp_le_exp.mpr (by rw [hlogpow, hlogprod]; exact hstep)
     _ = ∏ j ∈ F, (#(projSet (S j) A) : ℝ) := Real.exp_log hprodpos
 
-/-- **The Loomis–Whitney inequality** (Zhao, Chapter 10).
+/-- **Zhao, Theorem 10.4.3** — the three-dimensional projection bound, from which
+Corollary 10.4.4 (the continuous Loomis–Whitney statement about volumes) is obtained in the
+notes by approximating a body with cubes.
 
 A finite set of points in three coordinates is bounded by the product of the sizes of its
 three axis-plane shadows: `#A ^ 2 ≤ #A_{yz} · #A_{xz} · #A_{xy}`.

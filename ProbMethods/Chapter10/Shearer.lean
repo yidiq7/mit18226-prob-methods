@@ -1,12 +1,12 @@
 import ProbMethods.Chapter10.Entropy
 
 /-!
-# §10.2 — Shearer's lemma
+# §10.4 — Shearer's lemma (Theorem 10.4.5)
 
 Zhao, *Probabilistic Methods in Combinatorics*, Chapter 10.
 
-Shearer's lemma says that if every coordinate is covered at least `k` times by a family of
-index sets, then `k · H(X) ≤ ∑ H(X_S)` over the family.
+Theorem 10.4.5 (Chung, Graham, Frankl and Shearer 1986): if every coordinate is covered at
+least `k` times by a family of index sets, then `k · H(X) ≤ ∑_j H(X_{A_j})`.
 
 The proof here is split in two. `ProbMethods/Chapter10/Entropy.lean` established that
 `S ↦ H(X_S)` is normalised at `∅`, monotone, and submodular in diminishing-returns form.
@@ -126,7 +126,7 @@ theorem shearer_of_submodular (hempty : f ∅ = 0)
 
 end Submodular
 
-/-- **Shearer's lemma** (Zhao, Chapter 10).
+/-- **Shearer's lemma** (Zhao, Theorem 10.4.5).
 
 If every coordinate of the tuple `X` lies in at least `k` of the index sets `A j`, `j ∈ F`,
 then `k · H(X) ≤ ∑_{j ∈ F} H(X_{A j})`.

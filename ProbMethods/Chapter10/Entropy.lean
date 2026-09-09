@@ -662,6 +662,24 @@ theorem wentropy_submodular {w : Ω → ℝ} (hw : ∀ ω, 0 ≤ w ω) (hsum : �
   rw [hXY, hXZ, hX, hjoint] at hgibbs
   linarith
 
+/-- **Shearer's lemma, the special case** (Zhao, Theorem 10.4.1):
+
+`2 H(X,Y,Z) ≤ H(X,Y) + H(X,Z) + H(Y,Z)`.
+
+The notes derive it from the chain rule and conditioning-dropping. Here it is two lines:
+submodularity gives `H(X,Y,Z) + H(X) ≤ H(X,Y) + H(X,Z)`, subadditivity applied to `X`
+against the pair `(Y,Z)` gives `H(X,Y,Z) ≤ H(X) + H(Y,Z)`, and adding the two cancels
+`H(X)`. Note this is *not* an instance of `PMC.shearer` — that one needs all coordinates to
+share a type, whereas here `X`, `Y` and `Z` may have three different ones. -/
+theorem wentropy_shearer_triple {w : Ω → ℝ} (hw : ∀ ω, 0 ≤ w ω) (hsum : ∑ ω, w ω = 1)
+    (X : Ω → β) (Y : Ω → γ) (Z : Ω → δ) :
+    2 * wentropy w (fun ω => (X ω, Y ω, Z ω))
+      ≤ wentropy w (fun ω => (X ω, Y ω)) + wentropy w (fun ω => (X ω, Z ω))
+        + wentropy w (fun ω => (Y ω, Z ω)) := by
+  have hsub := wentropy_submodular hw hsum X Y Z
+  have hadd := wentropy_pair_le hw hsum X (fun ω => (Y ω, Z ω))
+  linarith
+
 /-- **Conditioning on more reduces entropy**: `H(Y | X, Z) ≤ H(Y | X)`.
 
 Submodularity, re-read through the chain rule. This is the step Shearer's induction takes

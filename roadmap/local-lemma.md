@@ -157,7 +157,46 @@ vertex from each part means the parts have different sizes, so the natural weigh
 product of `1/|Vᵢ|` rather than the uniform counting measure. `PMC.pweightOn` is the model
 to copy.
 
-The remaining sections (§6.3 independent transversals, §6.4 directed cycles, §6.5 lopsided
-local lemma, §6.6 algorithmic local lemma) each need their own setup; §6.5 in particular
+### §6.3 and §6.4, read off the notes
+
+**Theorem 6.3.1.** `G = (V,E)` has maximum degree `Δ`, and `V = V₁ ∪ ⋯ ∪ V_r` is a partition
+with `|Vᵢ| ≥ 2eΔ` for every `i`. Then `G` has an independent set containing one vertex from
+each `Vᵢ`.
+
+The notes' proof is the one to follow, and its shape suits the library well:
+
+1. **Trim.** May assume `|Vᵢ| = k := ⌈2eΔ⌉`, else drop vertices. In Lean this is
+   `Finset.exists_subset_card_eq`, and an independent transversal of the trimmed parts is
+   one of the originals — so the reduction is genuinely cheap, not a hand-wave.
+2. Pick `vᵢ ∈ Vᵢ` uniformly and independently. With all parts of size exactly `k`, the
+   sample space is a **uniform product** `Fin r → Fin k` once each part is enumerated —
+   exactly what `ProbMethods/Product.lean` now covers, so no weighted product layer is
+   needed after all.
+3. Bad events indexed by **edges**, not by pairs of parts: `A_e` = both endpoints of `e` are
+   picked, `P(A_e) = 1/k²`, and `A_e ∼ A_f` when some `Vᵢ` meets both. The notes explicitly
+   contrast this with the pair-indexed "Attempt 1", whose dependency degree is too large.
+
+**Errata (Theorem 6.3.1's arithmetic).** The notes write the local-lemma condition as
+`e (1/k²)(2kΔ + 1) ≤ 1`. That is **false** for `k = ⌈2eΔ⌉` at small `Δ`: at `Δ = 2`,
+`k = 11` and `e · 45 / 121 ≈ 1.011 > 1`. The fix is the self-exclusion the symmetric local
+lemma allows: an edge `e` incident to `Vᵢ ∪ V_j` is one of the at most `2kΔ` edges meeting
+that set, and the dependency neighbourhood excludes `e` itself, so `d ≤ 2kΔ - 1` and
+`e p (d + 1) ≤ e (1/k²)(2kΔ) = 2eΔ/k ≤ 1` exactly when `k ≥ 2eΔ`. The theorem is correct;
+the displayed inequality is off by that one edge. **Formalize with `d + 1 ≤ 2kΔ`.**
+
+**Theorem 6.4.3 (Alon–Linial 1989).** Every directed graph with minimum out-degree `δ` and
+maximum in-degree `Δ` contains a cycle of length divisible by `k`, as long as
+`k ≤ δ / (1 + log(1 + δΔ))`. Theorem 6.4.1 and Corollary 6.4.2 are the `d`-regular
+specialisations.
+
+The probabilistic half is a good fit — label vertices with `ZMod k` uniformly, `A_v` is "no
+out-neighbour of `v` is labelled `x_v + 1`", `P(A_v) = (1 - 1/k)^δ`, and the sample space is
+the uniform product `V → ZMod k`. **The obstacle is the combinatorial half**: extracting a
+directed cycle of length divisible by `k` from the colour-incrementing walk needs digraph
+walk/cycle machinery that Mathlib develops for `SimpleGraph` but not for digraphs. Expect
+that, not the local lemma, to be the bulk of the work.
+
+The remaining sections (§6.5 lopsided local lemma, §6.6 algorithmic local lemma) each need
+their own setup; §6.5 in particular
 needs a different independence hypothesis (lopsidependency) and so a variant statement, not
 just an application.

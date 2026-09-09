@@ -2,11 +2,15 @@ import ProbMethods.Chapter10.LoomisWhitney
 import Mathlib.Combinatorics.SimpleGraph.DegreeSum
 
 /-!
-# §10.3 — Counting triangles by entropy
+# Counting triangles by entropy — a Shearer application
 
-Zhao, *Probabilistic Methods in Combinatorics*, Chapter 10.
+Zhao, *Probabilistic Methods in Combinatorics*, Chapter 10 (§10.4 supplies the tool).
 
-The second listed application of Shearer's lemma. A graph with `m` edges has few triangles:
+**This particular bound is not a numbered result in the notes.** §10.4's own triangle
+content is Theorem 10.4.9, about triangle-*intersecting* families, which is a different
+statement and still open here. What follows is the standard Shearer application, included
+because it demonstrates that `PMC.card_pow_le_prod_card_projSet` is usable off the shelf:
+a graph with `m` edges has few triangles:
 writing `t` for the number of *ordered* triangles (so `t = 6 ·` the number of triangles),
 
 `t ^ 2 ≤ (2 m) ^ 3`.

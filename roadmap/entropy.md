@@ -2,6 +2,22 @@
 
 Zhao, *Probabilistic Methods in Combinatorics*, Chapter 10.
 
+**Section numbering, read off the notes' own table of contents** (an earlier version of this
+file had it wrong, which is worth flagging because the mistake was silent):
+
+| § | Title | Status |
+|---|---|---|
+| 10.1 | Basic properties | proved |
+| 10.2 | Permanent, perfect matchings, Steiner triple systems | not started |
+| 10.3 | Sidorenko's inequality | not started |
+| 10.4 | Shearer's lemma | Thm 10.4.1, 10.4.3, 10.4.5, Cor 10.4.7 proved; Thm 10.4.9 open |
+
+The named results now in the library: **Theorem 10.4.1** (`PMC.wentropy_shearer_triple`),
+**Theorem 10.4.3** (`PMC.loomis_whitney`), **Theorem 10.4.5** (`PMC.shearer`),
+**Corollary 10.4.7** (`PMC.card_pow_le_prod_card_projSet`), and Corollary 10.4.6 as the same
+counting theorem at `k = n - 1`. `PMC.card_orderedTriangles_sq_le` is *not* a numbered
+result — §10.4's own triangle theorem is 10.4.9 about triangle-*intersecting* families.
+
 ## What Mathlib has, and what it doesn't
 
 Mathlib has the *analytic* groundwork and nothing above it:
@@ -171,7 +187,13 @@ asymptotically tight on `K_n`, where the two sides' ratio tends to `1`.
 
 ## Next
 
-Remaining Chapter 10 applications are the Bregman/Kahn-type results (permanents, counting
-independent sets in bipartite graphs). Both should go through
-`PMC.shearer_of_submodular` directly rather than the counting corollary, since the set
-function they need is not `S ↦ H(X_S)` for a masked tuple.
+Three things, in the notes' own order:
+
+* **§10.2** — permanents, perfect matchings, Steiner triple systems (the Bregman-type
+  results). These should go through `PMC.shearer_of_submodular` directly rather than the
+  counting corollary, since the set function they need is not `S ↦ H(X_S)` for a masked
+  tuple.
+* **§10.3** — Sidorenko's inequality.
+* **Theorem 10.4.9** — every triangle-intersecting family of graphs on `n` labelled vertices
+  has size `< 2^(C(n,2) - 2)`. This is the one remaining result in the section the library
+  already has the tools for, so it is the cheapest of the three.
