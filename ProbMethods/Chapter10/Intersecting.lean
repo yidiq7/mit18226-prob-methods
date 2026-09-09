@@ -124,7 +124,7 @@ subset of `X` is a Boolean tuple, and a mask supported on `S` records exactly th
 
 section SetFamily
 
-variable {X : Type*} [Fintype X] [LinearOrder X]
+variable {X : Type*} [Fintype X] [DecidableEq X]
 
 /-- Indicator encoding of a subset as a Boolean tuple. -/
 def indic (G : Finset X) : X → Bool := fun x => decide (x ∈ G)

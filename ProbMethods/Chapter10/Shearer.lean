@@ -97,7 +97,7 @@ of the sets `A j` for `j ∈ F`, then `k · f univ ≤ ∑_{j ∈ F} f (A j)`.
 
 `F` is indexed rather than being a family of sets directly, so repeated sets are allowed —
 which is the generality Shearer's applications use. -/
-theorem shearer_of_submodular (hempty : f ∅ = 0)
+private theorem shearer_of_submodular_aux (hempty : f ∅ = 0)
     (hmono : ∀ {S T : Finset ι}, S ⊆ T → f S ≤ f T)
     (hsub : ∀ {T T' : Finset ι}, T ⊆ T' → ∀ i,
       f (insert i T') - f T' ≤ f (insert i T) - f T)
@@ -126,6 +126,39 @@ theorem shearer_of_submodular (hempty : f ∅ = 0)
 
 end Submodular
 
+section SubmodularNoOrder
+
+variable {ι : Type*} [Fintype ι] [inst : DecidableEq ι] (f : Finset ι → ℝ)
+
+/-- **Shearer's lemma for submodular set functions**, with no order hypothesis.
+
+The chain decomposition needs a linear order to peel the largest element, but the
+*statement* does not mention one, so it is an artifact of the proof and has no business in
+the interface. It is also actively harmful: an application whose index type is a subtype of
+`Sym2` or of `Finset` — which is what the edge set of `Kₙ` looks like — has no natural
+linear order to supply.
+
+Any `Fintype` with decidable equality carries one (transport it from `Fin (card ι)`), and
+the conclusion is a `Prop`, so `Trunc.induction_on` provides it. The one subtlety is that a
+transported `LinearOrder` brings *its own* `DecidableEq`, a different term from the ambient
+one, and then every `Finset.filter` and `insert` in the statement stops matching. `subst`ing
+the instance binder against `Subsingleton.elim` makes the whole goal instance-uniform in one
+step; converting the hypotheses individually does not work. -/
+theorem shearer_of_submodular (hempty : f ∅ = 0)
+    (hmono : ∀ {S T : Finset ι}, S ⊆ T → f S ≤ f T)
+    (hsub : ∀ {T T' : Finset ι}, T ⊆ T' → ∀ i,
+      f (insert i T') - f T' ≤ f (insert i T) - f T)
+    {κ : Type*} [DecidableEq κ] (F : Finset κ) (A : κ → Finset ι) (k : ℕ)
+    (hcov : ∀ i : ι, k ≤ #(F.filter fun j => i ∈ A j)) :
+    (k : ℝ) * f univ ≤ ∑ j ∈ F, f (A j) := by
+  refine Trunc.induction_on (Fintype.truncEquivFin ι) fun e => ?_
+  let lo : LinearOrder ι := LinearOrder.lift' e e.injective
+  have hDE : inst = @LinearOrder.toDecidableEq ι lo := Subsingleton.elim _ _
+  subst hDE
+  exact shearer_of_submodular_aux f hempty hmono hsub F A k hcov
+
+end SubmodularNoOrder
+
 /-- **Shearer's lemma** (Zhao, Theorem 10.4.5).
 
 If every coordinate of the tuple `X` lies in at least `k` of the index sets `A j`, `j ∈ F`,
@@ -134,7 +167,7 @@ then `k · H(X) ≤ ∑_{j ∈ F} H(X_{A j})`.
 This is `PMC.shearer_of_submodular` instantiated at `S ↦ H(X_S)`, whose three hypotheses
 are `PMC.tupleEntropy_empty`, `PMC.tupleEntropy_mono` and `PMC.tupleEntropy_submodular`. -/
 theorem shearer {Ω : Type*} [Fintype Ω] [DecidableEq Ω] {β : Type*} [Fintype β]
-    [DecidableEq β] {ι : Type*} [Fintype ι] [LinearOrder ι] {w : Ω → ℝ}
+    [DecidableEq β] {ι : Type*} [Fintype ι] [DecidableEq ι] {w : Ω → ℝ}
     (hw : ∀ ω, 0 ≤ w ω) (hsum : ∑ ω, w ω = 1) (X : ι → Ω → β)
     {κ : Type*} [DecidableEq κ] (F : Finset κ) (A : κ → Finset ι) (k : ℕ)
     (hcov : ∀ i : ι, k ≤ #(F.filter fun j => i ∈ A j)) :

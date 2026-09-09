@@ -26,7 +26,7 @@ namespace PMC
 
 section Counting
 
-variable {ι : Type*} [Fintype ι] [LinearOrder ι] {β : Type*} [Fintype β] [DecidableEq β]
+variable {ι : Type*} [Fintype ι] [DecidableEq ι] {β : Type*} [Fintype β] [DecidableEq β]
 
 /-- The **trace** of `A` on the coordinates in `S`: the distinct patterns the members of
 `A` show on `S`. Recorded as masked tuples so that all traces live in one type. -/

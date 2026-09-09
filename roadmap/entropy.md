@@ -221,6 +221,70 @@ Three things, in the notes' own order:
   (which reduces to `(a-b)² ≤ a+b`); and the exponent arithmetic. No probability, no
   analysis, no asymptotics.
 
+### The `LinearOrder` hypothesis is gone
+
+`PMC.shearer_of_submodular` and the whole chain below it — `PMC.shearer`,
+`PMC.card_pow_le_prod_card_projSet`, `PMC.card_pow_le_prod_card_image_inter`,
+`PMC.card_pow_le_prod_of_traces_intersecting`, `PMC.card_projSet_pair_le` — no longer
+require `[LinearOrder ι]`. The order is used only by `PMC.sum_chain_eq`'s peeling and never
+appears in a conclusion, so it had no business in the interface; it was also *actively*
+blocking Theorem 10.4.9, whose edge type is a subtype of `Sym2` and has no natural order.
+
+**The fix, and the two things that do not work.** Any `Fintype` with decidable equality
+carries a linear order (transport from `Fin (card ι)`), and the goal is a `Prop`, so
+`Trunc.induction_on` supplies one. The subtlety is that a transported `LinearOrder` brings
+its own `LinearOrder.toDecidableEq`, a *different term* from the ambient `DecidableEq ι`, so
+every `Finset.filter` and `insert` in the statement stops matching — and the two goals
+**print identically**, which makes this confusing to diagnose.
+
+* Overriding the field by structure update, `{ LinearOrder.lift' e e.injective with
+  toDecidableEq := … }`, does not typecheck: `LinearOrder` extends several classes.
+* Converting each hypothesis with `convert … using n` leaves unsolved goals.
+* **What works:** name the instance binder (`[inst : DecidableEq ι]`) and `subst` it against
+  `Subsingleton.elim` — `have hDE : inst = @LinearOrder.toDecidableEq ι lo := Subsingleton.elim _ _;
+  subst hDE`. That rewrites the goal *and* every hypothesis in one step, because the instance
+  is a genuine local. `DecidableEq` is a subsingleton pointwise, so the elim is free.
+
+Verified by applying the container bound to `{e : Sym2 (Fin n) // ¬ e.IsDiag}`, whose
+cardinality is `C(n,2)` via Mathlib's `Sym2.card_subtype_not_diag`. That is exactly the
+setting Theorem 10.4.9 needs, so its remaining work really is only arithmetic now.
+
+## Next
+
+Three things, in the notes' own order:
+
+* **§10.2** — permanents, perfect matchings, Steiner triple systems (the Bregman-type
+  results). These should go through `PMC.shearer_of_submodular` directly rather than the
+  counting corollary, since the set function they need is not `S ↦ H(X_S)` for a masked
+  tuple.
+* **§10.3** — Sidorenko's inequality.
+* **Theorem 10.4.9** — every triangle-intersecting family of graphs on `n` labelled vertices
+  has size `< 2^(C(n,2) - 2)`. The cheapest of the three, and its two non-entropy ingredients
+  are now proved in `ProbMethods/Chapter10/Intersecting.lean`
+  (`PMC.two_mul_card_traceOn_le`, `PMC.exists_pair_same_side`), with Corollary 10.4.7 already
+  available as `PMC.card_pow_le_prod_card_projSet`.
+
+  **One simplification over the notes is worth taking.** The notes obtain the covering
+  multiplicity `k` "by symmetry and averaging", which in Lean would mean a transitive action
+  of `Sₙ` on edges. It is unnecessary: the number of `S` with `|S| = ⌊n/2⌋` that put a given
+  edge `{u,v}` inside a part is
+  `C(n-2, ⌊n/2⌋-2) + C(n-2, ⌊n/2⌋)` — both endpoints in `S`, or both outside — which
+  visibly does not depend on which edge it is. A **direct count, no symmetry argument.**
+
+  **All the non-arithmetic content is now proved.**
+  `PMC.card_pow_le_prod_of_traces_intersecting` combines Corollary 10.4.7 with the
+  intersecting bound into `#F ^ k ≤ ∏_j 2^(#A_j) / 2`, and Corollary 10.4.7 itself is now
+  available in the notes' own set-family form (`PMC.card_pow_le_prod_card_image_inter`),
+  bridged from the tuple form by the indicator encoding. Both were checked **tight** on the
+  star family, which is a stronger check than non-vacuity: an off-by-one in the halving would
+  not achieve equality.
+
+  What remains is finite counting on the edge set: model graphs as subsets of `K_n`'s edges
+  and get `#E = C(n,2)`; compute `#(A_S) = C(a,2) + C(b,2)`; the direct covering count
+  above; the double-count identity `k · C(n,2) = r · C(n,⌊n/2⌋)`; the bound `r ≤ C(n,2)/2`
+  (which reduces to `(a-b)² ≤ a+b`); and the exponent arithmetic. No probability, no
+  analysis, no asymptotics.
+
 ### The one real obstacle, and it is not mathematical
 
 **`PMC.shearer_of_submodular` and everything downstream carry `[LinearOrder ι]`, and the

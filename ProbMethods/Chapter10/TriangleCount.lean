@@ -66,7 +66,7 @@ theorem card_orderedEdges (G : SimpleGraph V) [DecidableRel G.Adj] :
 
 Stated for arbitrary indices `a b` and an arbitrary target `E`, so the triangle application
 supplies only the fact that a triangle's `a`-th and `b`-th vertices are adjacent. -/
-theorem card_projSet_pair_le {ι : Type*} [Fintype ι] [LinearOrder ι] [Nonempty V]
+theorem card_projSet_pair_le {ι : Type*} [Fintype ι] [DecidableEq ι] [Nonempty V]
     (a b : ι) (A : Finset (ι → V)) (E : Finset (V × V))
     (hE : ∀ x ∈ A, (x a, x b) ∈ E) :
     #(projSet {a, b} A) ≤ #E := by

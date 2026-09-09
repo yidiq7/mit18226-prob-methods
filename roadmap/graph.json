@@ -2009,7 +2009,7 @@
         "shearer"
       ],
       "proof_uses": [],
-      "note": "Theorem 10.4.9: every triangle-intersecting family of graphs on n labelled vertices has size < 2^(C(n,2)-2). ALL non-arithmetic content is now proved: card_pow_le_prod_of_traces_intersecting combines Corollary 10.4.7 (in set-family form) with the intersecting bound, giving #F^k <= product over j of 2^#(A j)/2. What remains is purely finite counting on the edge set: (i) model graphs as subsets of K_n's edges and get #E = C(n,2); (ii) A_S = edges inside S or inside the complement, with #(A_S) = C(a,2)+C(b,2) for a = |S|, b = n-|S|; (iii) the covering multiplicity, which is a DIRECT count C(n-2,floor(n/2)-2)+C(n-2,floor(n/2)) and needs no symmetry argument, unlike the notes' 'by symmetry and averaging'; (iv) the double-count identity k*C(n,2) = r*C(n,floor(n/2)); (v) r <= C(n,2)/2, which reduces to (a-b)^2 <= a+b; (vi) the exponent arithmetic. The pigeonhole input (every triangle has an edge in A_S) is exists_pair_same_side."
+      "note": "Theorem 10.4.9: every triangle-intersecting family of graphs on n labelled vertices has size < 2^(C(n,2)-2). ALL non-arithmetic content is now proved: card_pow_le_prod_of_traces_intersecting combines Corollary 10.4.7 (in set-family form) with the intersecting bound, giving #F^k <= product over j of 2^#(A j)/2. What remains is purely finite counting on the edge set: (i) the edge type is {e : Sym2 (Fin n) // not e.IsDiag}, whose card is C(n,2) by Mathlib's Sym2.card_subtype_not_diag, and it now works with the container bound since the LinearOrder hypothesis is gone; (ii) A_S = edges inside S or inside the complement, with #(A_S) = C(a,2)+C(b,2) for a = |S|, b = n-|S|; (iii) the covering multiplicity, which is a DIRECT count C(n-2,floor(n/2)-2)+C(n-2,floor(n/2)) and needs no symmetry argument, unlike the notes' 'by symmetry and averaging'; (iv) the double-count identity k*C(n,2) = r*C(n,floor(n/2)); (v) r <= C(n,2)/2, which reduces to (a-b)^2 <= a+b; (vi) the exponent arithmetic. The pigeonhole input (every triangle has an edge in A_S) is exists_pair_same_side."
     },
     "traceOnDef": {
       "kind": "definition",
@@ -2113,13 +2113,13 @@
       "file": "ProbMethods/Chapter10/Shearer.lean",
       "decl": "PMC.shearer_of_submodular",
       "doc": "entropy.md",
-      "statement": "planned",
-      "proof": "planned",
+      "statement": "formalized",
+      "proof": "formalized",
       "uses": [
         "shearer_submodular"
       ],
       "proof_uses": [],
-      "note": "Restate shearer_of_submodular (and the chain below it) WITHOUT [LinearOrder iota]. The order is needed only by sum_chain_eq's peeling; no conclusion mentions it, so it is an artifact in the interface -- and it blocks Theorem 10.4.9, whose edge type is a subtype of Sym2 or of Finset and has no natural order. ATTEMPTED and it does not work naively: deriving the order inside the proof via Fintype.truncEquivFin plus LinearOrder.lift' brings a DIFFERENT LinearOrder.toDecidableEq than the ambient DecidableEq, so every Finset.filter and insert in the statement stops matching, with two goals that print identically; structure-update to override toDecidableEq does not typecheck since LinearOrder extends several classes. Fix: bridge with Subsingleton.elim on DecidableEq (it is a subsingleton pointwise plus funext), using Finset.filter_congr_decidable for the filters and congr for the inserts."
+      "note": "DONE. shearer_of_submodular and the whole chain below it (shearer, card_pow_le_prod_card_projSet, card_pow_le_prod_card_image_inter, card_pow_le_prod_of_traces_intersecting, card_projSet_pair_le) no longer require [LinearOrder iota]. The order is needed only by sum_chain_eq's peeling and never appears in a conclusion. The fix that works: Trunc.induction_on over Fintype.truncEquivFin to get an order, then SUBST the named instance binder against Subsingleton.elim -- 'have hDE : inst = LinearOrder.toDecidableEq; subst hDE' -- which makes the whole goal instance-uniform in one step. Converting the hypotheses individually with convert does NOT work. Verified by applying the container bound to {e : Sym2 (Fin n) // not e.IsDiag}, which has no linear order and is the edge type Theorem 10.4.9 needs."
     }
   }
 }
