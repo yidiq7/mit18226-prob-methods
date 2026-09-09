@@ -2400,17 +2400,17 @@
     "independent_transversal": {
       "kind": "theorem",
       "parent": "localLemmaGroup",
-      "file": null,
-      "decl": null,
+      "file": "ProbMethods/Chapter06/Transversal.lean",
+      "decl": "PMC.exists_independent_transversal",
       "doc": "local-lemma.md",
-      "statement": "planned",
+      "statement": "formalized",
       "proof": "planned",
       "uses": [
         "product_lll",
         "trim_enumerate"
       ],
       "proof_uses": [],
-      "note": "Theorem 6.3.1: a graph of maximum degree Delta whose vertex set is partitioned into parts of size at least 2 e Delta has an independent transversal. FOUR pieces are now in place: the engine (exists_avoiding_of_lll), the bridge (exists_enumeration), the degree count (card_adj_pairs_le) and the probability (wprob_unifProd_coord, multiplied by block independence to give 1/k^2). What remains: index the bad events by (i,j,a,b) with i < j and w i a adjacent to w j b, setting A c = C c = empty for invalid indices; the injection from neighbouring indices to ordered adjacent pairs, whose injectivity is exactly where i < j earns its keep; and the arithmetic e*(1/k^2)*(2k*Delta) = 2 e Delta / k <= 1 from k >= 2 e Delta. ASSEMBLY ATTEMPTED AND ABANDONED once: written as one ~250-line theorem and patched by string surgery, which tangled. Build it block by block, compiling after each. Two pitfalls, both cascading: (1) set f := fun c => ... makes rw [hfdef] useless because f c becomes an un-beta-reduced application, so the following if_pos never matches -- instead use rw [show f c = ... from if_pos hc], which typechecks by defeq; (2) rcases (h : c' = c) with rfl may eliminate c rather than c', breaking later references with 'unknown identifier c' far from the cause -- use rcases with heq and rw [heq]. Also the order contradiction c1.1 < c1.2.1 = c2.1 < c2.2.1 = c1.1 must be a calc chain ending in lt_irrefl; the triangle-substitution version does not elaborate and Fin rules out omega."
+      "note": "Theorem 6.3.1. STATEMENT COMMITTED, published as task #41. All four probabilistic components are proved (exists_avoiding_of_lll, exists_enumeration, card_adj_pairs_le, wprob_unifProd_coord); the task is the graph bookkeeping. The file's module docstring carries the intended event indexing, why c.1 < c.2.1 is load-bearing twice, the errata (use d = 2k*Delta - 1), and the two Lean pitfalls that made my own attempt fail."
     },
     "adj_pairs_count": {
       "kind": "theorem",
@@ -2459,6 +2459,56 @@
       "uses": [],
       "proof_uses": [],
       "note": "Fixing one coordinate of a uniform product has probability 1/#beta. Every application of exists_avoiding_of_lll needs this: block independence then multiplies it across the coordinates an event pins down. Checked on (Fin 3 -> Fin 4): 16 of 64 for one coordinate, 4 of 64 for two, i.e. 1/4 and (1/4)^2."
+    },
+    "janson_lower_tail": {
+      "kind": "theorem",
+      "parent": "jansonGroup",
+      "file": "ProbMethods/Chapter08/Janson.lean",
+      "decl": "PMC.janson_lower_tail",
+      "doc": "janson.md",
+      "statement": "formalized",
+      "proof": "planned",
+      "uses": [
+        "janson_upper"
+      ],
+      "proof_uses": [],
+      "note": "Theorem 8.2.2 (Janson inequality III), the lower tail. STATEMENT COMMITTED, published as task #42. Bootstraps 8.1.1's upper bound rather than reproving it. The substantial piece is the enlargement: transport pweight and badEvent across a sum type alpha + iota, where the new coordinates create no new overlaps and the parameters come out mu_Y = q mu, Delta_Y = q^2 Delta."
+    },
+    "badCountDef": {
+      "kind": "definition",
+      "parent": "jansonGroup",
+      "file": "ProbMethods/Chapter08/Janson.lean",
+      "decl": "PMC.badCount",
+      "doc": "janson.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "Statement-layer definition for 8.2. jansonDelta uses Zhao's ORDERED-pair convention, so 8.1.1 reads exp(-mu + Delta/2)."
+    },
+    "jansonMuDef": {
+      "kind": "definition",
+      "parent": "jansonGroup",
+      "file": "ProbMethods/Chapter08/Janson.lean",
+      "decl": "PMC.jansonMu",
+      "doc": "janson.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "Statement-layer definition for 8.2. jansonDelta uses Zhao's ORDERED-pair convention, so 8.1.1 reads exp(-mu + Delta/2)."
+    },
+    "jansonDeltaDef": {
+      "kind": "definition",
+      "parent": "jansonGroup",
+      "file": "ProbMethods/Chapter08/Janson.lean",
+      "decl": "PMC.jansonDelta",
+      "doc": "janson.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "Statement-layer definition for 8.2. jansonDelta uses Zhao's ORDERED-pair convention, so 8.1.1 reads exp(-mu + Delta/2)."
     }
   }
 }

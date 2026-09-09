@@ -65,6 +65,31 @@ PRs. This is worth keeping true: `sorry-delta` is at policy `block`, so any regr
 caught at the gate, but a `sorry` that never enters is cheaper than one that has to be
 chased out.
 
+### Opening the remaining work to contributors, 2026-09-08
+
+The library is at roughly 2280 build jobs with no custom axioms. Chapters 1 and 7 are
+complete, Chapter 2 but for the deferred §2.6, §6.1–§6.2, Theorem 8.1.1 in both directions,
+and §10.1 with §10.4 entire. But having read the source for essentially everything that
+remains, **each open item is a 300–500 line development**, and Chapter 11 additionally needs
+a restatement decision per theorem because every result there is asymptotic.
+
+That is not work one orchestrator should grind through serially — it is what the protocol's
+contributor sessions are for. So the remaining items are being published as `prove` tasks
+against committed statements, and the statements carry the expensive knowledge rather than
+leaving it to be rediscovered: which components are already proved, the intended proof shape,
+the errata in the source, and the Lean pitfalls already hit.
+
+First batch:
+
+| Issue | Target | Notes carried in the statement |
+|---|---|---|
+| #41 | `PMC.exists_independent_transversal` (Thm 6.3.1) | four proved components, the `i < j` convention, the `2kΔ - 1` errata, two Lean pitfalls |
+| #42 | `PMC.janson_lower_tail` (Thm 8.2.2) | that it bootstraps 8.1.1, and that the work is transporting `pweight`/`badEvent` across `α ⊕ ι` |
+
+Both are `choir/difficulty:hard`. The joining prompt is generated with
+`uv run python -m orchestrator.joining_prompt yidiq7/mit18226-prob-methods`; never compose it
+by hand.
+
 ### Errata found by reading the source, 2026-09-08
 
 Two corrections that came from reading the notes' own table of contents and §6.3 rather
