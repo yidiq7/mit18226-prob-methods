@@ -2009,7 +2009,7 @@
         "shearer"
       ],
       "proof_uses": [],
-      "note": "Theorem 10.4.9 (Chung, Graham, Frankl, Shearer 1986): every triangle-intersecting family of graphs on n labelled vertices has size < 2^(C(n,2)-2). The two non-entropy ingredients are now proved (two_mul_card_traceOn_le, exists_pair_same_side) and Corollary 10.4.7 is card_pow_le_prod_card_projSet. SIMPLIFICATION over the notes, worth using: the notes get the covering multiplicity k 'by symmetry and averaging', which would need a transitive group action in Lean. It is instead a DIRECT count -- the number of S with |S| = floor(n/2) putting a given edge {u,v} inside a part is C(n-2, floor(n/2)-2) + C(n-2, floor(n/2)), which visibly does not depend on the edge. What is still needed: modelling graphs as subsets of the edge set, the double-count identity k*C(n,2) = r*C(n,floor(n/2)) where r = C(floor(n/2),2)+C(ceil(n/2),2), the bound r <= C(n,2)/2 which reduces to (a-b)^2 <= a+b for a = floor(n/2), b = ceil(n/2), and the final exponent arithmetic."
+      "note": "Theorem 10.4.9: every triangle-intersecting family of graphs on n labelled vertices has size < 2^(C(n,2)-2). ALL non-arithmetic content is now proved: card_pow_le_prod_of_traces_intersecting combines Corollary 10.4.7 (in set-family form) with the intersecting bound, giving #F^k <= product over j of 2^#(A j)/2. What remains is purely finite counting on the edge set: (i) model graphs as subsets of K_n's edges and get #E = C(n,2); (ii) A_S = edges inside S or inside the complement, with #(A_S) = C(a,2)+C(b,2) for a = |S|, b = n-|S|; (iii) the covering multiplicity, which is a DIRECT count C(n-2,floor(n/2)-2)+C(n-2,floor(n/2)) and needs no symmetry argument, unlike the notes' 'by symmetry and averaging'; (iv) the double-count identity k*C(n,2) = r*C(n,floor(n/2)); (v) r <= C(n,2)/2, which reduces to (a-b)^2 <= a+b; (vi) the exponent arithmetic. The pigeonhole input (every triangle has an edge in A_S) is exists_pair_same_side."
     },
     "traceOnDef": {
       "kind": "definition",
@@ -2046,6 +2046,66 @@
       "uses": [],
       "proof_uses": [],
       "note": "Any set with more than two elements has two distinct members on the same side of a two-part split -- the notes' observation that every triangle has an edge in A_S."
+    },
+    "indicDef": {
+      "kind": "definition",
+      "parent": "entropyGroup",
+      "file": "ProbMethods/Chapter10/Intersecting.lean",
+      "decl": "PMC.indic",
+      "doc": "entropy.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "Indicator encoding of a subset as a Boolean tuple -- the bridge from the tuple form of Shearer's counting corollary to the set-family form the applications use."
+    },
+    "cor_10_4_7_sets": {
+      "kind": "theorem",
+      "parent": "entropyGroup",
+      "file": "ProbMethods/Chapter10/Intersecting.lean",
+      "decl": "PMC.card_pow_le_prod_card_image_inter",
+      "doc": "entropy.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "Corollary 10.4.7 in the notes' own form, for a family of SUBSETS rather than of functions: #F^k <= product of trace sizes. The bridge is that a mask supported on S records exactly the trace on S. Checked tight on the star family: #F = 4 on Fin 3 with traces 2 and 2 on {0,1} and {0,2}, k = 1, so 4 <= 4."
+    },
+    "container_style_bound": {
+      "kind": "theorem",
+      "parent": "entropyGroup",
+      "file": "ProbMethods/Chapter10/Intersecting.lean",
+      "decl": "PMC.card_pow_le_prod_of_traces_intersecting",
+      "doc": "entropy.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "If every trace is intersecting, each factor of Corollary 10.4.7 is at most half of that block's powerset. This is the WHOLE non-arithmetic content of Theorem 10.4.9. Checked tight on the star family: 4 <= 2^3/2 = 4."
+    },
+    "trace_card_bridge": {
+      "kind": "lemma",
+      "parent": "entropyGroup",
+      "file": "ProbMethods/Chapter10/Intersecting.lean",
+      "decl": "PMC.card_image_inter_eq_card_traceOn",
+      "doc": "entropy.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "The two ways of writing a trace -- inside A, or intersected with A -- have equal cardinality."
+    },
+    "trace_intersecting_inter": {
+      "kind": "theorem",
+      "parent": "entropyGroup",
+      "file": "ProbMethods/Chapter10/Intersecting.lean",
+      "decl": "PMC.two_mul_card_image_inter_le",
+      "doc": "entropy.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "The intersecting bound with the trace written as G inter A, which is the form the counting corollary produces."
     }
   }
 }

@@ -207,7 +207,17 @@ Three things, in the notes' own order:
   `C(n-2, ⌊n/2⌋-2) + C(n-2, ⌊n/2⌋)` — both endpoints in `S`, or both outside — which
   visibly does not depend on which edge it is. A **direct count, no symmetry argument.**
 
-  What remains: modelling graphs as subsets of the edge set, the double-count identity
-  `k · C(n,2) = r · C(n,⌊n/2⌋)` with `r = C(⌊n/2⌋,2) + C(⌈n/2⌉,2)`, the bound
-  `r ≤ C(n,2)/2` (which reduces to `(a-b)² ≤ a+b` for `a = ⌊n/2⌋`, `b = ⌈n/2⌉`), and the
-  final exponent arithmetic.
+  **All the non-arithmetic content is now proved.**
+  `PMC.card_pow_le_prod_of_traces_intersecting` combines Corollary 10.4.7 with the
+  intersecting bound into `#F ^ k ≤ ∏_j 2^(#A_j) / 2`, and Corollary 10.4.7 itself is now
+  available in the notes' own set-family form (`PMC.card_pow_le_prod_card_image_inter`),
+  bridged from the tuple form by the indicator encoding. Both were checked **tight** on the
+  star family, which is a stronger check than non-vacuity: an off-by-one in the halving would
+  not achieve equality.
+
+  What remains is purely finite counting on the edge set: model graphs as subsets of `K_n`'s
+  edges and get `#E = C(n,2)`; compute `#(A_S) = C(a,2) + C(b,2)`; the direct covering count
+  above; the double-count identity `k · C(n,2) = r · C(n,⌊n/2⌋)`; the bound `r ≤ C(n,2)/2`
+  (which reduces to `(a-b)² ≤ a+b`); and the exponent arithmetic. No probability, no
+  analysis, no asymptotics — which is why this is the cheapest of Chapter 10's three
+  remaining items.
