@@ -1,5 +1,6 @@
 import ProbMethods.Basic
 import ProbMethods.Weighted
+import ProbMethods.MeasureBridge
 import ProbMethods.Product
 import ProbMethods.Permutation
 import ProbMethods.RandomOrder
