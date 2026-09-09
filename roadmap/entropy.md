@@ -642,3 +642,39 @@ Two routes that should work, in order of preference:
 
 Route 1 is worth doing regardless of 10.4.9: it removes a hypothesis no application should
 have to satisfy.
+
+## §10.4 — Lemma 10.4.13, the bipartite swapping trick
+
+`ProbMethods/Chapter10/Swapping.lean`. `PMC.card_indepSets_sq_le_card_indepCover`:
+`i(G)² ≤ i(G × K₂)`, unconditionally.
+
+This is what reduces Kahn–Zhao (Theorem 10.4.12) from all `d`-regular graphs to the bipartite
+ones, and **unlike the rest of §10.4 it is not an entropy argument** — the notes give an
+explicit injection, and this formalises it:
+
+* `i(2G) = i(G)²`, so it suffices to inject `I(2G) → I(G × K₂)`.
+* `PMC.crossing_slice` — the bad edges are *bipartite*, witnessed by the copy-`0` slice, so a
+  crossing set exists at all.
+* `PMC.swapSet_mem_indepCover` — swapping along a crossing set repairs every bad edge. Four
+  cases: two put two vertices of `S` in the *same* copy, contradicting independence in `2G`;
+  the other two give a bad edge with both endpoints on one side of `A`, contradicting
+  crossing.
+* `PMC.sameEdge_swapSet` and `PMC.crossing_iff_crossingT` — **the image remembers the bad
+  edges**, hence the whole crossing family, hence the canonical choice made from it.
+
+The design point worth recording: the canonical crossing set is `PMC.pickMin`, **a function of
+the crossing family alone** (least index under a fixed indexing of the subsets of `V`). The
+notes say "fix an arbitrary order on all subsets"; what the injectivity argument actually
+needs is that the choice depend on nothing but the family, since that family is what the image
+reveals.
+
+Both products are given as *relations* on `V × Bool` rather than `SimpleGraph` structures:
+independence only ever needs the relation, so there are no `symm` or `loopless` obligations.
+
+Checked: equality at `K₂` (`9 = 3²`, the cover being two disjoint edges — not a 4-cycle) and
+strict at `K₃` (`16 ≤ 18`, the cover being a 6-cycle).
+
+**What remains of Theorem 10.4.12** is the bipartite case itself, which is the entropy half:
+Shearer over the neighbourhood cover, conditional independence of the far side, and the
+"`d` conditionally independent copies" construction — that last is the one piece of machinery
+this library still lacks.

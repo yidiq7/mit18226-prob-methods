@@ -4269,6 +4269,105 @@
    ],
    "proof_uses": [],
    "note": "THEOREM 4.3.5 (monotonicity of the satisfying probability). STATEMENT COMMITTED, published as a task. Section 4.3's threshold results are asymptotic and stay deferred, but 4.3.5 is NOT -- it is a finite statement about a polynomial in p, and it is the fact every later threshold argument silently uses. The route: with independent coordinate probabilities the weight of F is LINEAR in each p_j, and upward-closure gives P(F | j in S) >= P(F | j not in S) by the injection S -> S union {j}, so P is nondecreasing in every coordinate; strictness needs one pivotal coordinate, which non-triviality supplies from a minimal member of F."
+  },
+  "indepSets": {
+   "kind": "definition",
+   "parent": "entropyGroup",
+   "file": "ProbMethods/Chapter10/Swapping.lean",
+   "decl": "PMC.indepSets",
+   "doc": "entropy.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [],
+   "proof_uses": [],
+   "note": "The independent sets of a graph, and the two products: twoAdj (two disjoint copies) and coverAdj (the bipartite double cover G x K_2). Both are given as RELATIONS on V x Bool rather than SimpleGraph structures -- independence only needs the relation, so there are no symm or loopless obligations. Checked: i(K2) = 3 with cover count 9, i(K3) = 4 with cover count 18."
+  },
+  "card_indepTwo": {
+   "kind": "theorem",
+   "parent": "entropyGroup",
+   "file": "ProbMethods/Chapter10/Swapping.lean",
+   "decl": "PMC.card_indepTwo",
+   "doc": "entropy.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "indepSets"
+   ],
+   "proof_uses": [],
+   "note": "i(2G) = i(G)^2: an independent set of two disjoint copies is exactly a pair of independent sets, one per copy."
+  },
+  "swapSet": {
+   "kind": "definition",
+   "parent": "entropyGroup",
+   "file": "ProbMethods/Chapter10/Swapping.lean",
+   "decl": "PMC.swapSet",
+   "doc": "entropy.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "indepSets"
+   ],
+   "proof_uses": [],
+   "note": "Swapping the two copies of every vertex of A. An INVOLUTION (swapSet_swapSet), which is what makes the injection recoverable."
+  },
+  "crossing_slice": {
+   "kind": "theorem",
+   "parent": "entropyGroup",
+   "file": "ProbMethods/Chapter10/Swapping.lean",
+   "decl": "PMC.crossing_slice",
+   "doc": "entropy.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "swapSet"
+   ],
+   "proof_uses": [],
+   "note": "THE BAD EDGES ARE BIPARTITE, witnessed by the copy-0 slice: a bad edge has its first endpoint there and, since S is independent in 2G, its second endpoint not. This is what guarantees a crossing set exists at all."
+  },
+  "swap_repairs": {
+   "kind": "theorem",
+   "parent": "entropyGroup",
+   "file": "ProbMethods/Chapter10/Swapping.lean",
+   "decl": "PMC.swapSet_mem_indepCover",
+   "doc": "entropy.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "swapSet",
+    "crossing_slice"
+   ],
+   "proof_uses": [],
+   "note": "SWAPPING REPAIRS EVERY BAD EDGE: the swapped set is independent in the cover. Four cases on which endpoints lie in A -- two give two vertices of S in the SAME copy, contradicting independence in 2G, and the other two give a bad edge with both endpoints on the same side of A, contradicting the crossing property."
+  },
+  "swap_recovery": {
+   "kind": "theorem",
+   "parent": "entropyGroup",
+   "file": "ProbMethods/Chapter10/Swapping.lean",
+   "decl": "PMC.sameEdge_swapSet",
+   "doc": "entropy.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "swap_repairs"
+   ],
+   "proof_uses": [],
+   "note": "THE IMAGE REMEMBERS THE BAD EDGES: after swapping along a crossing set, the same-copy adjacent pairs of the image are exactly the bad edges of the original, in either orientation. With crossing_iff_crossingT this makes the whole crossing FAMILY -- and hence the canonical choice made from it -- recoverable from the image, which is the crux of injectivity."
+  },
+  "swapping_lemma": {
+   "kind": "theorem",
+   "parent": "entropyGroup",
+   "file": "ProbMethods/Chapter10/Swapping.lean",
+   "decl": "PMC.card_indepSets_sq_le_card_indepCover",
+   "doc": "entropy.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "card_indepTwo",
+    "swap_repairs",
+    "swap_recovery"
+   ],
+   "proof_uses": [],
+   "note": "LEMMA 10.4.13 (the bipartite swapping trick), DONE and UNCONDITIONAL: i(G)^2 <= i(G x K_2). This is what reduces Kahn-Zhao (10.4.12) from all d-regular graphs to the bipartite ones, and unlike the rest of 10.4 it is not an entropy argument at all -- the notes give an explicit injection and this formalises it. The canonical choice of crossing set is made by PICKMIN, a function of the crossing FAMILY alone (least index under a fixed indexing of the subsets), which is precisely what injectivity needs. Checked: equality at K2 (9 = 3^2, the cover being two disjoint edges) and strict at K3 (16 <= 18, the cover being a 6-cycle)."
   }
  }
 }
