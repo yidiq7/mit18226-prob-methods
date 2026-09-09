@@ -298,10 +298,52 @@ independent of every `A_w` with `N⁺(v)` disjoint from `N⁺(w) ∪ {w}`, a str
 dependency digraph. The first-pass version is what is proved above; the trick can be
 layered on top of it without touching the assembly, since it only shrinks `N`.
 
-**The remaining obstacle is the combinatorial half**: extracting a directed cycle of length
-divisible by `k` from the colour-incrementing walk needs digraph walk/cycle machinery that
-Mathlib develops for `SimpleGraph` but not for digraphs. Expect that, not the local lemma,
-to be the bulk of the work.
+### §6.4 — Theorem 6.4.3 is done
+
+`ProbMethods/Chapter06/DivisibleCycle.lean`. The combinatorial half was expected to be the
+bulk of the work, because Mathlib develops walks and cycles for `SimpleGraph` but not for
+digraphs. **It is not, and no digraph machinery was built.**
+
+The observation that avoids it: choosing at each vertex *one* out-neighbour carrying the
+next label packages the labelling as a successor **function** `f : V → V`, and a directed
+cycle is then exactly a *periodic orbit* of `f`. So
+
+* `PMC.exists_cycle_of_successor` — iterating `f` from any vertex must repeat in a finite
+  type (`Finite.exists_ne_map_eq_of_infinite`), which produces a periodic point; the cycle
+  is its orbit. Its vertices are distinct by
+  `Function.iterate_injOn_Iio_minimalPeriod`, and since the label rises by `1` per step,
+  returning to the start after `p` steps gives `x u = x u + p`, i.e. `(p : ZMod k) = 0`, so
+  `k ∣ p`. **Taking the *minimal* period is what makes the vertices distinct** — the period
+  the pigeonhole hands over is a closed walk, not a cycle.
+
+  A cycle of length `p` is recorded as a `c : ℕ → V` with `r (c n) (c (n+1))` for all `n`,
+  `c (n + p) = c n`, and `c` injective on `Set.Iio p`: `p` distinct vertices in directed
+  cyclic order, with no `Walk` analogue needed.
+
+* `PMC.exists_cycle_length_dvd` — Theorem 6.4.3 for out-degree exactly `δ`, the two halves
+  joined. The `choose` step is where "every vertex has *an* out-neighbour with the next
+  label" becomes "*the* chosen out-neighbour", which is what makes the orbit argument
+  available at all.
+
+* `PMC.exists_cycle_length_dvd_of_le_outdegree` — Theorem 6.4.3 with the notes' hypothesis,
+  **minimum** out-degree `δ`, by deleting out-edges: choose `δ` out-neighbours at each
+  vertex and run the argument on the sub-digraph, whose out-degree is exactly `δ` and whose
+  in-degree only dropped. **This reduction is necessary, not cosmetic**: the probability
+  bound wants the out-degree *large* and the dependency-degree bound wants it *small*, so no
+  single inequality on `δ` serves both. The notes leave the step implicit.
+
+* `PMC.exists_cycle_length_dvd_of_log_bound` — the notes' shape,
+  `k ≤ δ / (1 + log(1 + Δ + δΔ))`. The analytic step is `(k-1)/k = 1 - 1/k ≤ exp(-1/k)`,
+  so the left side of the local lemma's condition is at most `exp(1 - δ/k) M`, which is
+  `≤ 1` exactly when `1 + log M ≤ δ/k`.
+
+Non-vacuity checked at both ends: the complete digraph on 9 vertices at `k = 2` for the
+direct numeric form, and on 25 vertices at `k = 2` for the log form
+(`2(1 + log 601) = 14.8 ≤ 24`).
+
+**What is left in §6.4** is only the constant: `Δ + δΔ` where the notes have `δΔ`. That gap
+is the first-pass dependency digraph, and their final trick only *shrinks* `N`, so it plugs
+into the same assembly without touching anything above.
 
 The remaining sections (§6.5 lopsided local lemma, §6.6 algorithmic local lemma) each need
 their own setup; §6.5 in particular

@@ -2685,6 +2685,61 @@
    ],
    "proof_uses": [],
    "note": "Section 6.4's PROBABILISTIC half, complete as a named result: if every vertex of a loopless digraph has out-degree exactly delta and in-degree at most D, and e ((k-1)/k)^delta (D + delta*D + 1) <= 1, then the vertices can be labelled by ZMod k so that EVERY vertex has an out-neighbour carrying the next label. Assembled from exists_avoiding_of_lll with the block dblk r v; the local lemma's hfar is discharged from the definition of the dependency neighbourhood, so the whole degree count enters through card_digraph_dependency_le. This is what 6.4.3's cycle argument consumes; the remaining half of 6.4 is combinatorial, not probabilistic -- extracting a cycle whose length is divisible by k from such a labelling needs digraph walk machinery Mathlib lacks. Non-vacuity checked on the complete digraph on 9 vertices at k = 2: out-degree and in-degree 8, e (1/2)^8 (8 + 64 + 1) = 0.775 <= 1, all six hypotheses discharged."
+  },
+  "cycle_extraction": {
+   "kind": "theorem",
+   "parent": "localLemmaGroup",
+   "file": "ProbMethods/Chapter06/DivisibleCycle.lean",
+   "decl": "PMC.exists_cycle_of_successor",
+   "doc": "local-lemma.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [],
+   "proof_uses": [],
+   "note": "Section 6.4's COMBINATORIAL half, and the reason it needs no digraph machinery. Mathlib has walks for SimpleGraph but not for digraphs; instead, choosing at each vertex one out-neighbour carrying the next label packages the labelling as a successor FUNCTION f : V -> V, and a directed cycle is then exactly a periodic orbit of f. Iterating from any vertex repeats in a finite type (Finite.exists_ne_map_eq_of_infinite), which gives a periodic point; the cycle is its orbit, whose vertices are distinct by Function.iterate_injOn_Iio_minimalPeriod, and since the label increases by 1 per step, returning after p steps forces x u = x u + p, i.e. (p : ZMod k) = 0. A cycle is recorded as c : Nat -> V with r (c n) (c (n+1)), c (n+p) = c n, and injective on Set.Iio p -- no Walk analogue needed. Using the MINIMAL period is what makes the vertices distinct: the raw pigeonhole period need not be a cycle."
+  },
+  "cycle_6_4_3_exact": {
+   "kind": "theorem",
+   "parent": "localLemmaGroup",
+   "file": "ProbMethods/Chapter06/DivisibleCycle.lean",
+   "decl": "PMC.exists_cycle_length_dvd",
+   "doc": "local-lemma.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "digraph_labelling",
+    "cycle_extraction"
+   ],
+   "proof_uses": [],
+   "note": "Theorem 6.4.3 for out-degree exactly delta: the two halves joined. The choose step is where 'every vertex has AN out-neighbour with the next label' becomes 'THE chosen out-neighbour', which is what makes the orbit argument available. Non-vacuity checked on the complete digraph on 9 vertices at k = 2 (both degrees 8, e (1/2)^8 (8+64+1) = 0.775 <= 1)."
+  },
+  "cycle_6_4_3": {
+   "kind": "theorem",
+   "parent": "localLemmaGroup",
+   "file": "ProbMethods/Chapter06/DivisibleCycle.lean",
+   "decl": "PMC.exists_cycle_length_dvd_of_le_outdegree",
+   "doc": "local-lemma.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "cycle_6_4_3_exact"
+   ],
+   "proof_uses": [],
+   "note": "Theorem 6.4.3 with the notes' hypothesis, MINIMUM out-degree delta. Obtained from the exact case by DELETING out-edges: choose delta out-neighbours at each vertex (Finset.exists_subset_card_eq) and run the argument on the sub-digraph, whose out-degree is exactly delta and whose in-degree only dropped; a cycle of the sub-digraph is a cycle of the original. The reduction is necessary rather than cosmetic -- the probability bound wants out-degree LARGE while the dependency-degree bound wants it SMALL, so no single inequality on delta serves both, and this is the step the notes leave implicit."
+  },
+  "cycle_6_4_3_log": {
+   "kind": "theorem",
+   "parent": "localLemmaGroup",
+   "file": "ProbMethods/Chapter06/DivisibleCycle.lean",
+   "decl": "PMC.exists_cycle_length_dvd_of_log_bound",
+   "doc": "local-lemma.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "cycle_6_4_3"
+   ],
+   "proof_uses": [],
+   "note": "Theorem 6.4.3 in the notes' shape: k (1 + log (1 + D + delta*D)) <= delta, i.e. k <= delta / (1 + log (1 + D + delta*D)). The analytic step is (k-1)/k = 1 - 1/k <= exp(-1/k), hence ((k-1)/k)^delta <= exp(-delta/k), so the left side is at most exp(1 - delta/k) M, which is <= 1 exactly when 1 + log M <= delta/k. The notes' constant has delta*D where this has D + delta*D; the gap is the first-pass dependency digraph, and closing it needs their final trick, which only shrinks N and so plugs into the same assembly. Non-vacuity checked on the complete digraph on 25 vertices at k = 2, where 2 (1 + log 601) = 14.8 <= 24."
   }
  }
 }

@@ -24,7 +24,7 @@ written when the phase opens, so the plan never claims more precision than it ha
 | 3 | 3 Alterations | [alterations.md](alterations.md) | `dominating` proved; §3.3 upstream, §3.2 deferred, §3.4/§3.5 need design |
 | 4 | 4 Second Moment | [second-moment.md](second-moment.md) | **§4.1 complete**, §4.2, §4.4, **§4.6 (Erdős distinct sums)** proved; §4.7 upstream; §4.3 deferred |
 | 5 | 5 Chernoff Bound | [chernoff.md](chernoff.md) | **Thm 5.0.1, Cor 5.0.3, Thm 5.0.7, §5.1 proved**; 5.0.5 needs measure theory; §5.2/§5.3 open |
-| 6 | 6 Lovász Local Lemma | [local-lemma.md](local-lemma.md) | **§6.1–§6.3 complete**: both LLL forms, hypergraph 2-colouring, independent transversals; §6.4's probabilistic half done (successor labelling), its cycle extraction and §6.5–§6.6 open |
+| 6 | 6 Lovász Local Lemma | [local-lemma.md](local-lemma.md) | **§6.1–§6.4 complete**: both LLL forms, hypergraph 2-colouring, independent transversals, Thm 6.4.3 (cycle of length divisible by k, first-pass constant); §6.5–§6.6 open |
 | 7 | 7 Correlation Inequalities | [correlation.md](correlation.md) | **complete in finite form**: §7.1 upstream, §7.2 proved |
 | 8 | 8 Janson Inequalities | [janson.md](janson.md) | **Thm 8.1.1 complete** (both bounds); §8.2 extended Janson, §8.3 applications open |
 | 9 | 9 Concentration of Measure | [mathlib-survey.md](mathlib-survey.md) | **§9.1–§9.2 upstream** (Azuma–Hoeffding); §9.5 Talagrand absent |
@@ -376,3 +376,25 @@ with the second calling the first at strictly smaller sets. **The design decisio
 proof turned on: keep everything multiplicative.** The informal argument divides by
 `P(noneOf T)`, which is not known to be positive at that point — positivity is the
 conclusion. No division appears anywhere in the development.
+**2026-09-08 — Theorem 6.4.3 is proved, and the obstacle recorded for it was the wrong
+one.** This roadmap said the combinatorial half of §6.4 — extracting a directed cycle of
+length divisible by `k` — would be the bulk of the work, since Mathlib develops walks and
+cycles for `SimpleGraph` but not for digraphs. **No digraph machinery was needed.** Choosing
+one out-neighbour with the next label at every vertex makes the labelling a successor
+*function*, and a directed cycle is then a periodic orbit; `Function.minimalPeriod` supplies
+it, with distinctness from `Function.iterate_injOn_Iio_minimalPeriod`. The whole half is
+~40 lines.
+
+The lesson is about *what to survey for*. The earlier survey asked whether Mathlib has
+digraph cycles, found no, and recorded a blocker. The right question was whether the object
+the theorem needs is a cycle *in a digraph* or a cycle *of a function* — and the labelling
+hands over a function. **When a survey reports a gap, check that the gap is in the shape the
+proof actually needs**, not in the shape the notes' prose uses.
+
+Two smaller things worth keeping. The notes' hypothesis is *minimum* out-degree `δ`, and
+that cannot be reached by monotonicity from the exactly-`δ` case: the probability bound
+wants the out-degree large while the dependency-degree bound wants it small. It needs the
+edge-deletion reduction (`PMC.exists_cycle_length_dvd_of_le_outdegree`), a step the notes
+leave implicit. And the constant is `Δ + δΔ` where the notes have `δΔ`; that difference is
+the first-pass dependency digraph, and their final trick only shrinks the dependency
+neighbourhood, so it plugs into the same assembly.
