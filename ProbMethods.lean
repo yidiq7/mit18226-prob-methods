@@ -33,6 +33,7 @@ import ProbMethods.Chapter08.Janson
 import ProbMethods.Chapter10.Entropy
 import ProbMethods.Chapter10.CondSupport
 import ProbMethods.Chapter10.OrderChain
+import ProbMethods.Chapter10.Bregman
 import ProbMethods.Chapter10.Shearer
 import ProbMethods.Chapter10.Intersecting
 import ProbMethods.Chapter10.EdgeCount

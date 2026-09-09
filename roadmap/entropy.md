@@ -242,7 +242,41 @@ proper subset `{0,2}`, two ranks with three orders each.
 That identity holding for *every* order is the structural half of Radhakrishnan's proof; the
 probabilistic half is averaging over a random one.
 
-**What remains for Theorem 10.2.1** is the assembly: take `σ` uniform on the permutations
+### Theorem 10.2.1 (Brégman–Minc) — proved
+
+`PMC.card_matchSet_le_prod` (`Chapter10/Bregman.lean`): a `0-1` matrix whose `i`-th row has
+`dᵢ` ones has permanent at most `∏ᵢ (dᵢ!)^{1/dᵢ}`.
+
+The assembly, in the order it was built:
+
+1. `PMC.card_avail_eq_tauRank` — **the combinatorial identity the notes leave implicit.** The
+   columns of row `i` not yet taken correspond, via `σ⁻¹`, to the members of `PMC.hitSet` that
+   `τ` reveals at or after `i`: each one of row `i` sits in the column `σ j` for exactly one
+   row `j`, and it is still available precisely when that `j` has not been revealed. This is
+   what makes the abstract rank lemma applicable to a matrix.
+2. `PMC.tupleEntropy_matchCoord_univ` — `H(σ) = log (per A)`, since a uniform matching is
+   determined by its coordinates. The no-matchings case is separate; there both sides are `0`.
+3. `PMC.log_card_matchSet_le` — the bound for one *fixed* order: chain rule along `τ`, then
+   each conditional entropy bounded by the log of the free columns.
+4. `PMC.log_card_matchSet_le_sum_log_factorial` — average over `τ`, exchanging the two
+   expectations with `Finset.sum_comm`.
+
+**The point of the whole proof, in one line**: bounding each conditional entropy by `log dᵢ`
+— the naive worst case, which the notes flag as "too lossy" — would give
+`per A ≤ ∏ dᵢ`; revealing in a random order replaces `log dᵢ` by the *average* of
+`log 1, …, log dᵢ`, which is `log(dᵢ!)/dᵢ`.
+
+**Checked against the equality cases**, which is the strongest evidence available that the
+constant is right, since a mis-stated exponent would break them: the all-ones `3×3` matrix has
+`per = 6 = ∏ (3!)^{1/3}`, a permutation matrix has `per = 1 = ∏ (1!)^{1}`, and the `2+1`
+block-diagonal matrix has `per = 2 = (2!)^{1/2}(2!)^{1/2}·1`. A strict case was checked too
+(rows `{0,1}, {0}` on `Fin 2`: `per = 1 < √2`).
+
+Next in §10.2: Corollary 10.2.2 (Kahn–Lovász), `pm(G) ≤ ∏_v (d_v!)^{1/(2d_v)}`, which
+Alon–Friedland derive from Brégman by passing to the bipartite double cover.
+
+<!-- superseded plan -->
+**The former plan for Theorem 10.2.1** was: take `σ` uniform on the permutations
 compatible with the matrix, so `PMC.wentropy_uniform_of_injective` gives
 `H(σ) = log (per A)`; apply the order chain rule for each fixed `τ`; bound each conditional
 term by `PMC.wcondEntropy_le_sum_log_card` with `T` the free columns; then average over `τ`

@@ -99,6 +99,18 @@ theorem wcondEntropy_le_sum_log_card {w : Ω → ℝ} (hw : ∀ ω, 0 ≤ w ω)
       exact hc this
     rw [wcondDist, hzero, zero_div]
 
+/-- The mean of a function of `Y` read off `Y`'s distribution. The bridge between the
+`PMC.wmean` the applications average over and the `PMC.wdist` the entropy bounds produce. -/
+lemma wmean_comp_eq_sum_wdist (w : Ω → ℝ) (Y : Ω → γ) (f : γ → ℝ) :
+    wmean w (fun ω => f (Y ω)) = ∑ c, wdist w Y c * f c := by
+  classical
+  rw [wmean, ← Finset.sum_fiberwise_of_maps_to (fun ω (_ : ω ∈ (univ : Finset Ω)) =>
+    mem_univ (Y ω)) (fun ω => w ω * f (Y ω))]
+  refine Finset.sum_congr rfl fun c _ => ?_
+  rw [wdist, wprob, Finset.sum_mul]
+  refine Finset.sum_congr rfl fun ω hω => ?_
+  rw [(mem_filter.mp hω).2]
+
 end CondSupport
 
 end PMC
