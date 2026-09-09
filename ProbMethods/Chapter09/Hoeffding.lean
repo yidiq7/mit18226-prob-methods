@@ -34,7 +34,7 @@ section Hoeffding
 
 variable {Ω : Type*} [Fintype Ω] [DecidableEq Ω]
 
-/-- **Hoeffding's lemma.** If `Z` is confined to `[a, b]` and has mean zero under the weight
+/-- **Hoeffding's lemma** (Zhao, Lemma 9.2.12). If `Z` is confined to `[a, b]` and has mean zero under the weight
 `w`, then its moment generating function satisfies
 
     E[exp (λ Z)] ≤ exp (λ² (b-a)² / 8).

@@ -106,6 +106,22 @@ availability of the mathematics. Recorded as upstream in `graph.json`.
   every `r`"; keeping `s` explicit avoids rounding a real median to a certificate size, and the
   notes' form is the instance `s = ⌈M⌉`.
 
+* **Theorem 9.4.8 — proved** (`Chapter09/Equivalence.lean`). The equivalence of the two faces of
+  concentration, for a finite weighted space with any pseudometric: expansion
+  (`P(A) ≥ 1/2 ⟹ P(Aₜ) ≥ 1-ε`) and concentration of Lipschitz functions
+  (`P(f ≤ m) ≥ 1/2 ⟹ P(f > m+t) ≤ ε`). `PMC.concentration_of_expansion` and
+  `PMC.expansion_of_concentration`.
+
+  Both directions are short once the right object is named, and they are the canonical two:
+  the sublevel set `{f ≤ m}`, whose `t`-neighbourhood lies inside `{f ≤ m+t}` by
+  Lipschitzness, and the function `x ↦ dist(x, A)`, which is `1`-Lipschitz by the triangle
+  inequality at the nearest point. Only symmetry and the triangle inequality are used — no
+  `d x y = 0 → x = y` — so it applies verbatim to `PMC.hamDist` on the cube.
+
+  This is the theorem that licenses §9.4's habit of moving between isoperimetry and
+  concentration, and it explains why Harper's inequality and the bounded-differences
+  inequality are two readings of one phenomenon.
+
 * **§9.5 Talagrand's inequality** — absent from Mathlib; the **convex distance is now set up
   here** (`Chapter09/Talagrand.lean`) and the inequality itself is published as a task.
 

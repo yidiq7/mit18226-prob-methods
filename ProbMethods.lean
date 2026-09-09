@@ -50,6 +50,7 @@ import ProbMethods.Chapter09.Azuma
 import ProbMethods.Chapter09.BoundedDifferences
 import ProbMethods.Chapter09.ChromaticConcentration
 import ProbMethods.Chapter09.CubeExpansion
+import ProbMethods.Chapter09.Equivalence
 import ProbMethods.Chapter09.Talagrand
 import ProbMethods.Chapter09.Median
 import ProbMethods.Chapter09.LIS

@@ -4625,6 +4625,18 @@
    "uses": [],
    "proof_uses": [],
    "note": "THE COMPACTNESS STEP of Theorem 6.2.6, in the generality of the notes' remark: finite edges on an ARBITRARY vertex set, colourings of every finite piece assembled into a global one. V -> Bool is compact (Tychonoff), the good sets are closed (bichromaticity of an edge is a FINITE union of preimages of sets in a discrete space), the family is directed downwards, and every edge lies inside its own vertex set. Another deferral -- 'compactness over infinite ground sets' -- that Mathlib supplied directly, via IsCompact.nonempty_iInter_of_directed_nonempty_isCompact_isClosed. What remains of 6.2.6 is transporting the finite local lemma into it: restrict to the finite vertex set and to the finitely many indices inside it, which the degree bound makes finite."
+  },
+  "concentration_equivalence": {
+   "kind": "theorem",
+   "parent": "concentrationGroup",
+   "file": "ProbMethods/Chapter09/Equivalence.lean",
+   "decl": "PMC.expansion_of_concentration",
+   "doc": "mathlib-survey.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [],
+   "proof_uses": [],
+   "note": "THEOREM 9.4.8, both directions: expansion (P(A) >= 1/2 implies P(A_t) >= 1-eps) is equivalent to concentration of 1-Lipschitz functions (P(f <= m) >= 1/2 implies P(f > m+t) <= eps). The two canonical objects do it: the sublevel set {f <= m}, whose t-neighbourhood lies in {f <= m+t}, and x |-> dist(x,A), 1-Lipschitz by the triangle inequality at the nearest point. Only symmetry and the triangle inequality are used -- no separation axiom -- so it applies to hamDist on the cube. This is what licenses 9.4's moving between isoperimetry and concentration, and why Harper and bounded differences are two readings of one phenomenon."
   }
  }
 }
