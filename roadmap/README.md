@@ -31,39 +31,54 @@ written when the phase opens, so the plan never claims more precision than it ha
 | 10 | 10 Entropy | [entropy.md](entropy.md) | **§10.1, §10.2, §10.4 complete**; §10.4: Thms 10.4.1/10.4.3/10.4.5/10.4.9, Cors 10.4.6/10.4.7, Lemma 10.4.13, **Thm 10.4.12 (Kahn–Zhao)** and **Thm 10.4.14 (Galvin–Tetali)** — only 10.4.15 (a 2020 research result the notes state without proof) is left; §10.2: **Thm 10.2.1 (Brégman–Minc)**, Cor 10.2.2, **Lemma 10.2.7 + Thm 10.2.4's lower bound**; §10.3: Thms 10.3.3 (Blakey–Roy), 10.3.6 in full, 10.3.5 for stars (trees are task #48) |
 | 11 | 11 Containers | [containers.md](containers.md) | **lower bound of Thm 11.0.2 proved** (2^⌊n²/4⌋ triangle-free graphs, exact for every n); the upper bound and §11.1–§11.3 need the container theorem, and every other result there is asymptotic |
 
-## What remains, chapter by chapter (2026-09-09)
+## What remains, and what blocks it (2026-09-09)
 
 Of the book's numbered theorem-like results — **185**, not 186: "Theorem 3.4.10" in §4.5 is a
 citation to *Durrett*, not a result of this book, so a label audit that counts it will chase a
-result that does not exist — what is *not* formalized falls into four kinds, and it is worth
-naming them because they call for different responses:
+result that does not exist — everything is formalized except the items below. Each is listed
+with the *specific* thing that blocks it, because that is the part worth knowing.
 
-1. **Asymptotic statements** — `o(1)`, `whp`, `Θ`, `∼`. §4.1's threshold is now proved *as a
-   limit* (`PMC.tendsto_probHasTriangle_one`), which shows the finite framework reaches these
-   statements whenever the explicit bound behind them is sharp enough. The rest are Chapters 4
-   (§4.2–§4.5), 8
-   (§8.1.10, §8.2.5, §8.3 — §8.1.6 and Cor 8.1.7 are now proved as limits), 9 (§9.3.3–§9.3.5),
-   11 (almost everything). The explicit
-   finite content of these is generally proved; the limit statements need an asymptotics layer
-   and are deferred by the convention below.
-2. **Continuous measure** — §9.4's Euclidean and spherical isoperimetry (9.4.1, 9.4.10),
-   §9.4.8's equivalence of concentration notions, §9.6 (Euclidean TSP), §5.0.5, §5.2, §10.2.10
-   (Linial–Luria, whose proof randomises over `[0,1]^{C(n,2)}`). Out of reach of the counting
-   framework by design, not by accident.
-3. **Open published tasks** — #42 (Janson III, *claimed*), #44 (`exists_perm_extend`), #45
-   (log-concavity of `(x!)^{1/x}`), #46 (Harper), #47 (Hoeffding's lemma, finite form), #48
-   (Sidorenko for trees), #49 (Talagrand), #50 (Thm 4.3.5).
-4. **Deliberate scope decisions**, each recorded with a reason: §6.6 (Moser–Tardos needs
-   algorithm semantics), §2.6 (crossing number needs planarity, which Mathlib lacks), §11's
-   container theorem (the notes defer its key counting step to Morris's lecture notes, which
-   are not available here — the constants are not guessed), Theorem 10.4.15 and Theorem 5.1.3
-   (research results the notes state without proof).
+**1. Open published tasks** (the frontier; #42 is claimed, the rest available):
+#42 Janson III, #44 extending a partial injection, #45 log-concavity of `(x!)^{1/x}`,
+#46 Harper, #47 Hoeffding's lemma, #48 Sidorenko for trees, #49 Talagrand,
+#50 threshold monotonicity, #51 balancing vectors, #52 the `Δ*` variance bound,
+#53 the exact partner count.
 
-Everything else in the book is formalized. Two results are proved *modulo a named
-hypothesis* rather than a `sorry`, so the missing input is visible in the statement:
-Theorem 9.1.1/9.1.3 and Theorem 9.3.1 (on task #47's Hoeffding's lemma), Theorem 6.5.11 (on
-Theorem 6.5.5's negative dependence, i.e. task #44), Theorem 9.4.5 and Theorem 4.6.6 (on
-Harper's inequality, task #46 — the latter in a boundary form the ball form does not reach).
+Downstream of these, and deliberately not attempted here: §4.2/§4.4's second-moment halves and
+Theorem 4.4.3 (need #52), Theorem 8.1.10's `p ≳ n^{-1/2}` regime (needs #53), Theorem 4.6.6 and
+Theorem 9.4.5's unconditional forms (need #46), §9.1/§9.3's unconditional forms (need #47),
+§9.5's median corollaries beyond 9.5.22 (need #49).
+
+**2. Mathlib lacks the theory.**
+* §4.5 (Hardy–Ramanujan, Erdős–Kac) needs **Mertens' theorem** — `∑_{p≤n} 1/p = log log n +
+  O(1)`. Not in Mathlib (checked); formalizing it is its own project.
+* §2.6 (crossing number) needs **planarity** and Euler's formula. Not in Mathlib.
+* §4.5.2/§4.5.4 (CLT, method of moments) are analysis, not combinatorics.
+
+**3. Continuous measure, by design.** §9.4's Euclidean and spherical isoperimetry (9.4.1,
+9.4.10), Johnson–Lindenstrauss (9.4.22) and spherical codes (9.4.25); §9.5's convex-body forms
+(9.5.3, 9.5.6, 9.5.8, 9.5.13, 9.5.14, 9.5.17) — the sample space is finite but the *convex
+body* and Euclidean distance are not; §9.6 (Euclidean TSP); §5.0.5; §5.2; §10.2.10
+(Linial–Luria, which randomises over `[0,1]^{C(n,2)}`).
+
+**4. Infinite ground sets.** §6.2.6, §6.2.10, §6.2.11 apply the local lemma to `ℤ` or `ℝ^d`
+through a **compactness argument**, which needs the infinite-to-finite transfer this
+development does not have.
+
+**5. Algorithm semantics.** §6.6 (Moser–Tardos) is about a *procedure* and its expected
+running time.
+
+**6. Research results the notes state without proof.** Theorem 10.4.15
+(Sah–Sawhney–Stoner–Zhao), Theorem 5.1.3 (Spencer), Theorem 8.2.5 (Harel–Mousset–Samotij),
+Theorem 7.2.5 (Riordan–Selby), Theorem 8.3.2 (Bollobás), Theorem 9.3.4 (Shamir–Spencer's
+four-value concentration), and §11's container theorem — whose key counting step the notes
+defer to Morris's lecture notes, which are not available here, so its constants are not
+guessed.
+
+Two theorems are proved *modulo a named hypothesis* rather than a `sorry`, so the missing input
+is visible in the statement: Theorem 6.5.11 (on Theorem 6.5.5's negative dependence) and
+Theorem 4.6.6 (on Harper in a boundary form the ball form does not reach), alongside §9.1's and
+§9.3's dependence on Hoeffding's lemma and §9.5's on Talagrand's.
 
 ## Conventions that shape the route
 
