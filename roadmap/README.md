@@ -40,7 +40,8 @@ kinds, and it is worth naming them because they call for different responses:
    limit* (`PMC.tendsto_probHasTriangle_one`), which shows the finite framework reaches these
    statements whenever the explicit bound behind them is sharp enough. The rest are Chapters 4
    (§4.2–§4.5), 8
-   (§8.1.6, §8.1.10, §8.2.5, §8.3), 9 (§9.3.3–§9.3.5), 11 (almost everything). The explicit
+   (§8.1.10, §8.2.5, §8.3 — §8.1.6 and Cor 8.1.7 are now proved as limits), 9 (§9.3.3–§9.3.5),
+   11 (almost everything). The explicit
    finite content of these is generally proved; the limit statements need an asymptotics layer
    and are deferred by the convention below.
 2. **Continuous measure** — §9.4's Euclidean and spherical isoperimetry (9.4.1, 9.4.10),
