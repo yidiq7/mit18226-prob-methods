@@ -193,4 +193,55 @@ theorem card_pow_le_prod_of_traces_intersecting (F : Finset (Finset X)) (hF : F.
 
 end SetFamily
 
+/-! ### Arithmetic for Theorem 10.4.9
+
+The exponent in Theorem 10.4.9 comes out as `C(n,2) - 2` because the block `A_S`, for `S`
+of size `⌊n/2⌋`, is at most *half* of all edges. That is the second lemma below; the first
+is the identity it rests on, stated without division so that `Nat` subtraction stays
+harmless.
+-/
+
+/-- `2 · C(m,2) = m (m-1)`, division-free. -/
+lemma two_mul_choose_two (m : ℕ) : 2 * m.choose 2 = m * (m - 1) := by
+  induction m with
+  | zero => simp
+  | succ k ih =>
+    rw [Nat.choose_succ_succ, Nat.choose_one_right, Nat.mul_add, ih]
+    cases k with
+    | zero => simp
+    | succ j =>
+      simp only [Nat.succ_sub_one]
+      ring
+
+/-- **A balanced two-part split takes at most half the pairs.**
+
+`2 (C(a,2) + C(b,2)) ≤ C(a+b,2)` whenever `a` and `b` differ by at most one. Unwound, this
+is `(a-b)² ≤ a+b`, which is why the split has to be balanced: it fails badly otherwise —
+`a = n, b = 0` gives `2 C(n,2) > C(n,2)`. This is the step that turns Theorem 10.4.9's
+`C(n,2) - C(n,2)/r` into `C(n,2) - 2`. -/
+lemma two_mul_choose_two_add_le {a b : ℕ} (hab : b ≤ a + 1) (hba : a ≤ b + 1) :
+    2 * (a.choose 2 + b.choose 2) ≤ (a + b).choose 2 := by
+  have hsq : ∀ m : ℕ, m ≤ m * m := by
+    intro m
+    cases m with
+    | zero => simp
+    | succ k => nlinarith
+  -- the subtraction-free form of `(a-b)² ≤ a+b`
+  -- note the explicit bracketing: `omega` treats products as atoms, and `2 * a * a` is a
+  -- different atom from `a * a`
+  have keyfree :
+      2 * (a * a) + 2 * (b * b) + (a + b) ≤ (a + b) * (a + b) + 2 * a + 2 * b := by
+    have h : b = a ∨ b = a + 1 ∨ a = b + 1 := by omega
+    rcases h with rfl | rfl | rfl <;> nlinarith
+  have key : 2 * (a * (a - 1)) + 2 * (b * (b - 1)) ≤ (a + b) * (a + b - 1) := by
+    rw [Nat.mul_sub_one, Nat.mul_sub_one, Nat.mul_sub_one]
+    have h1 := hsq a
+    have h2 := hsq b
+    have h3 := hsq (a + b)
+    omega
+  have ha := two_mul_choose_two a
+  have hb := two_mul_choose_two b
+  have hs := two_mul_choose_two (a + b)
+  omega
+
 end PMC

@@ -56,7 +56,8 @@ distribution, and `PMC.wentropy w X = ∑ b, negMulLog (P (X = b))` is its entro
 | `PMC.wentropy_le_log_card_image` — `H(Z) ≤ log #(attained values)` | proved |
 | `PMC.wentropy_uniform_of_injective` — `H = log \|Ω\|` | proved |
 | `PMC.card_pow_le_prod_card_projSet` — Shearer as a count | proved |
-| **`PMC.loomis_whitney`** | proved |
+| **`PMC.loomis_whitney`** — Thm 10.4.3 | proved |
+| **`PMC.loomis_whitney_general`** — Cor 10.4.6 | proved |
 | **`PMC.card_orderedTriangles_sq_le`** — the triangle bound | proved |
 | Further applications (Bregman, Kahn) | open |
 
@@ -215,11 +216,21 @@ Three things, in the notes' own order:
   star family, which is a stronger check than non-vacuity: an off-by-one in the halving would
   not achieve equality.
 
-  What remains is finite counting on the edge set: model graphs as subsets of `K_n`'s edges
-  and get `#E = C(n,2)`; compute `#(A_S) = C(a,2) + C(b,2)`; the direct covering count
-  above; the double-count identity `k · C(n,2) = r · C(n,⌊n/2⌋)`; the bound `r ≤ C(n,2)/2`
-  (which reduces to `(a-b)² ≤ a+b`); and the exponent arithmetic. No probability, no
-  analysis, no asymptotics.
+  What remains is finite counting on the edge set. Of the six steps, two are now done:
+
+  1. the edge type is `{e : Sym2 (Fin n) // ¬ e.IsDiag}`, whose cardinality is `C(n,2)` from
+     Mathlib's `Sym2.card_subtype_not_diag` — **and it now works with the container bound**,
+     since the `LinearOrder` hypothesis is gone;
+  2. `#(A_S) = C(a,2) + C(b,2)` for `a = |S|`, `b = n - |S|` — still to do;
+  3. the covering multiplicity, a direct binomial count (above) — still to do;
+  4. the double-count identity `k · C(n,2) = r · C(n,⌊n/2⌋)` — still to do;
+  5. **done**: `r ≤ C(n,2)/2` is `PMC.two_mul_choose_two_add_le`, resting on
+     `PMC.two_mul_choose_two`;
+  6. the exponent arithmetic — still to do.
+
+  On (5), the balance hypothesis is load-bearing rather than decorative: `a = 7, b = 0`
+  gives `2 · 21 = 42 > 21`, so an unbalanced split breaks the bound outright. That is checked
+  numerically alongside the two balanced cases.
 
 ### The `LinearOrder` hypothesis is gone
 
@@ -279,11 +290,21 @@ Three things, in the notes' own order:
   star family, which is a stronger check than non-vacuity: an off-by-one in the halving would
   not achieve equality.
 
-  What remains is finite counting on the edge set: model graphs as subsets of `K_n`'s edges
-  and get `#E = C(n,2)`; compute `#(A_S) = C(a,2) + C(b,2)`; the direct covering count
-  above; the double-count identity `k · C(n,2) = r · C(n,⌊n/2⌋)`; the bound `r ≤ C(n,2)/2`
-  (which reduces to `(a-b)² ≤ a+b`); and the exponent arithmetic. No probability, no
-  analysis, no asymptotics.
+  What remains is finite counting on the edge set. Of the six steps, two are now done:
+
+  1. the edge type is `{e : Sym2 (Fin n) // ¬ e.IsDiag}`, whose cardinality is `C(n,2)` from
+     Mathlib's `Sym2.card_subtype_not_diag` — **and it now works with the container bound**,
+     since the `LinearOrder` hypothesis is gone;
+  2. `#(A_S) = C(a,2) + C(b,2)` for `a = |S|`, `b = n - |S|` — still to do;
+  3. the covering multiplicity, a direct binomial count (above) — still to do;
+  4. the double-count identity `k · C(n,2) = r · C(n,⌊n/2⌋)` — still to do;
+  5. **done**: `r ≤ C(n,2)/2` is `PMC.two_mul_choose_two_add_le`, resting on
+     `PMC.two_mul_choose_two`;
+  6. the exponent arithmetic — still to do.
+
+  On (5), the balance hypothesis is load-bearing rather than decorative: `a = 7, b = 0`
+  gives `2 · 21 = 42 > 21`, so an unbalanced split breaks the bound outright. That is checked
+  numerically alongside the two balanced cases.
 
 ### The one real obstacle, and it is not mathematical
 

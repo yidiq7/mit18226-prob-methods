@@ -105,6 +105,27 @@ theorem card_pow_le_prod_card_projSet (A : Finset (ι → β)) (hA : A.Nonempty)
         Real.exp_le_exp.mpr (by rw [hlogpow, hlogprod]; exact hstep)
     _ = ∏ j ∈ F, (#(projSet (S j) A) : ℝ) := Real.exp_log hprodpos
 
+/-- **Corollary 10.4.6 (Loomis–Whitney).**
+
+In `n` coordinates, `#A ^ (n-1) ≤ ∏ i, #(trace of A on the complement of coordinate i)`.
+
+The `n` complements-of-a-singleton cover each coordinate exactly `n - 1` times, so this is
+`PMC.card_pow_le_prod_card_projSet` at `k = n - 1`. Stating it in general needed the
+`LinearOrder` hypothesis to come off the chain first — an arbitrary index type has no order
+to supply. -/
+theorem loomis_whitney_general (A : Finset (ι → β)) (hA : A.Nonempty) :
+    (#A : ℝ) ^ (Fintype.card ι - 1)
+      ≤ ∏ j : ι, (#(projSet ((univ : Finset ι) \ {j}) A) : ℝ) := by
+  refine card_pow_le_prod_card_projSet A hA univ (fun j => (univ : Finset ι) \ {j})
+    (Fintype.card ι - 1) ?_
+  intro i
+  have hf : (univ : Finset ι).filter (fun j => i ∈ (univ : Finset ι) \ {j})
+      = univ.erase i := by
+    ext j
+    simp only [mem_filter, mem_univ, true_and, mem_sdiff, mem_singleton, mem_erase, and_true]
+    exact ne_comm
+  rw [hf, Finset.card_erase_of_mem (mem_univ i), card_univ]
+
 /-- **Zhao, Theorem 10.4.3** — the three-dimensional projection bound, from which
 Corollary 10.4.4 (the continuous Loomis–Whitney statement about volumes) is obtained in the
 notes by approximating a body with cubes.
