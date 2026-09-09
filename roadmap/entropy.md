@@ -653,6 +653,39 @@ Two routes that should work, in order of preference:
 Route 1 is worth doing regardless of 10.4.9: it removes a hypothesis no application should
 have to satisfy.
 
+## §10.2 — Lemma 10.2.7, Hamilton paths into Hamilton cycles
+
+`ProbMethods/Chapter10/HamCycles.lean`. `PMC.exists_orientation_hamiltonPaths_le_hamCycles`:
+an `(m+1)`-vertex tournament with `P` Hamilton paths extends by one vertex to a tournament
+with at least `P/4` Hamilton cycles, stated as `P ≤ 4 · #cycles`. With Szele's theorem this
+gives Theorem 10.2.4's lower bound, `PMC.exists_tournament_factorial_le_hamCycles`:
+
+    (m+1)! ≤ 4 · #cycles · 2^m   for some (m+2)-vertex tournament.
+
+**`2 ≤ n` is necessary, not cosmetic.** The notes' proof closes each Hamilton path up through
+the new vertex, which happens with probability `1/4` because the path's two ends are
+*distinct*. For a one-vertex path the two constraints are on the same edge and the
+probability is `0` — and indeed a `2`-vertex tournament has a Hamilton path and no Hamilton
+cycle, so the lemma as stated fails at `n = 1`.
+
+**Counting cycles without dividing by `n`.** A cycle recorded as a cyclic ordering is counted
+`n` times, once per starting point, and correcting for that would put a division in the
+statement. Instead `PMC.hamCycles` counts the orderings that start at a *fixed* vertex — the
+newly added one — which is an honest count of the directed Hamilton cycles because each
+passes through that vertex exactly once. The construction `PMC.cycleOf` then closes a path up
+by placing the new vertex first, and injectivity is immediate: the ordering is the cycle read
+from the new vertex.
+
+The averaging is a double count of orientation/path pairs rather than an expectation:
+`PMC.card_closingOrients_mul` says exactly `2^{n-2}` of the `2^n` orientations close a given
+path (two edges constrained in opposite directions, via the public
+`PMC.card_filter_agree_mul` from §2.1), so `4 ∑_o #{paths o closes} = P·2^n`, and the largest
+term is at least the mean.
+
+Checked by evaluation: the `3`-cycle has `3` Hamilton paths and `1` Hamilton cycle, the
+transitive `3`-vertex tournament has `1` and `0`, and the double count is *exact* in both
+cases — `∑_o #cycles(extend t o)` is `6 = 3·2³/4` and `2 = 1·2³/4`.
+
 ## §10.4 — Lemma 10.4.13, the bipartite swapping trick
 
 `ProbMethods/Chapter10/Swapping.lean`. `PMC.card_indepSets_sq_le_card_indepCover`:

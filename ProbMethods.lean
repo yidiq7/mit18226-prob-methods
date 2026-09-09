@@ -49,6 +49,7 @@ import ProbMethods.Chapter10.Sidorenko
 import ProbMethods.Chapter10.Swapping
 import ProbMethods.Chapter10.KahnZhao
 import ProbMethods.Chapter10.GalvinTetali
+import ProbMethods.Chapter10.HamCycles
 import ProbMethods.Chapter10.Shearer
 import ProbMethods.Chapter10.Intersecting
 import ProbMethods.Chapter10.EdgeCount

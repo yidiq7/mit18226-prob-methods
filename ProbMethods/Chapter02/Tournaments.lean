@@ -20,7 +20,7 @@ section Szele
 variable {n : ℕ}
 
 /-- Functions agreeing with a prescribed `g` on `D` are the functions on `D`'s complement. -/
-private def agreeEquiv {α : Type*} [DecidableEq α] (D : Finset α) (g : α → Bool) :
+def agreeEquiv {α : Type*} [DecidableEq α] (D : Finset α) (g : α → Bool) :
     {f : α → Bool // ∀ x ∈ D, f x = g x} ≃ ({x : α // x ∉ D} → Bool) where
   toFun f x := f.1 x.1
   invFun v := ⟨fun x => if h : x ∈ D then g x else v ⟨x, h⟩, fun x hx => by simp [hx]⟩
@@ -35,8 +35,12 @@ private def agreeEquiv {α : Type*} [DecidableEq α] (D : Finset α) (g : α →
     simp [x.2]
 
 /-- One function in `2 ^ #D` agrees with `g` on `D`. Stated multiplicatively to keep the
-exponent free of truncated subtraction. -/
-private lemma card_filter_agree_mul {α : Type*} [Fintype α] [DecidableEq α]
+exponent free of truncated subtraction.
+
+Public because §10.2's Lemma 10.2.7 needs it too: there `D` is the pair consisting of a
+Hamilton path's two ends, and the count is the `2 ^ (n-2)` orientations of the new vertex's
+edges that close the path up. -/
+lemma card_filter_agree_mul {α : Type*} [Fintype α] [DecidableEq α]
     (D : Finset α) (g : α → Bool) :
     #(univ.filter fun f : α → Bool => ∀ x ∈ D, f x = g x) * 2 ^ #D
       = 2 ^ Fintype.card α := by
