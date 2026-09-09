@@ -169,10 +169,22 @@ different sizes. That is avoided: after the trimming step all parts have size ex
 which is uniform. The trimming is `Finset.exists_subset_card_eq` and an independent
 transversal of the trimmed parts is one of the originals.
 
-What remains for §6.3 is graph bookkeeping rather than probability: index the bad events by
-edges *between different parts*, show each is determined on the two-element block `{i, j}` of
-part indices, and bound the dependency degree by `2kΔ - 1` (see the errata above — that
-self-exclusion is what makes the arithmetic work).
+`PMC.exists_enumeration` performs the trimming and the enumeration in one step, and was
+checked on parts of *different* sizes (4 and 2, enumerated at 2) — the case trimming exists
+for.
+
+What remains for §6.3 is graph bookkeeping rather than probability:
+
+* **Index the bad events by pairs `(i, j, a, b)` with `i < j` and `w i a` adjacent to
+  `w j b`.** The ordering matters: indexing by *ordered* pairs doubles the dependency degree
+  to `4kΔ`, which forces `|Vᵢ| ≥ 4eΔ` and is strictly weaker than Theorem 6.3.1. With
+  `i < j` each cross-part edge is counted once and the degree is `2kΔ`, matching the notes.
+* Take the index type to be the *full* product `Fin r × Fin r × Fin k × Fin k`, setting
+  `A c = ∅` and `C c = ∅` for invalid indices. Empty events are never violated, have
+  probability `0`, and are determined on `∅`, so they are disjoint from every block and cost
+  nothing — this avoids carrying a subtype of valid indices.
+* Bound the dependency degree by `2kΔ - 1`. The `- 1` is the self-exclusion from the errata
+  above; without it the notes' displayed inequality is false at `Δ = 2`.
 
 ### §6.3 and §6.4, read off the notes
 

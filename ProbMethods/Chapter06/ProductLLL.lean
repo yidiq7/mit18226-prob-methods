@@ -84,4 +84,55 @@ theorem exists_avoiding_of_lll (A : κ → Finset (ι → β)) (C : κ → Finse
 
 end ProductLLL
 
+/-! ### §6.3's bridge: trimming and enumerating the parts
+
+Theorem 6.3.1 partitions the vertices into parts of size *at least* `2eΔ`. The notes' first
+move is "we may assume `|Vᵢ| = k := ⌈2eΔ⌉`, or else remove some vertices", and that
+reduction is what makes the sample space a **uniform** product: with all parts the same
+size, enumerating each by `Fin k` turns a choice of one vertex per part into a point of
+`Fin r → Fin k`, which is what `PMC.exists_avoiding_of_lll` runs on. Without the trimming
+the parts have different sizes and the weight would be a product of `1/|Vᵢ|`.
+
+`PMC.exists_enumeration` performs both steps at once.
+-/
+
+section Enumeration
+
+variable {V : Type*} [DecidableEq V]
+
+/-- **Trim and enumerate.** Pairwise disjoint parts, each of size at least `k`, admit an
+array `w` listing `k` distinct vertices from each part, with vertices of different parts
+distinct.
+
+A transversal built from `w` is automatically a transversal of the original parts, since
+`w i a ∈ part i`; this is why trimming loses nothing. -/
+theorem exists_enumeration {r k : ℕ} (part : Fin r → Finset V)
+    (hdisj : ∀ i j, i ≠ j → Disjoint (part i) (part j))
+    (hcard : ∀ i, k ≤ #(part i)) :
+    ∃ w : Fin r → Fin k → V,
+      (∀ i a, w i a ∈ part i) ∧ (∀ i, Function.Injective (w i)) ∧
+      (∀ i j a b, i ≠ j → w i a ≠ w j b) := by
+  classical
+  -- trim each part to exactly `k` vertices
+  choose q hqsub hqcard using fun i => Finset.exists_subset_card_eq (hcard i)
+  -- enumerate the trimmed part by `Fin k`
+  set w : Fin r → Fin k → V :=
+    fun i a => ((q i).equivFin.symm (finCongr (hqcard i).symm a) : V) with hwdef
+  have hmem : ∀ i a, w i a ∈ q i := by
+    intro i a
+    rw [hwdef]
+    exact Finset.coe_mem _
+  refine ⟨w, fun i a => hqsub i (hmem i a), ?_, ?_⟩
+  · intro i a a' h
+    rw [hwdef] at h
+    have h' := Subtype.val_injective h
+    exact (finCongr (hqcard i).symm).injective ((q i).equivFin.symm.injective h')
+  · intro i j a b hij hval
+    have hi : w i a ∈ part i := hqsub i (hmem i a)
+    have hj : w j b ∈ part j := hqsub j (hmem j b)
+    rw [hval] at hi
+    exact Finset.disjoint_left.mp (hdisj i j hij) hi hj
+
+end Enumeration
+
 end PMC

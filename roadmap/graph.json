@@ -2384,6 +2384,33 @@
       ],
       "proof_uses": [],
       "note": "The local lemma packaged for a PRODUCT sample space -- the twin of 6.2's exists_two_coloring_of_local_lemma, and the engine all of 6.3, 6.4 and 6.5 need. Supply the events, the coordinate block each depends on, a bound p on their probabilities and a bound d on how many other blocks each meets; independence is discharged internally from wprob_unifProd_mul_of_determinedOn, so an application never mentions wprob. Usability verified end to end by instantiating it: one event on a 2-coordinate product over 6 values, all seven hypotheses discharged."
+    },
+    "trim_enumerate": {
+      "kind": "theorem",
+      "parent": "localLemmaGroup",
+      "file": "ProbMethods/Chapter06/ProductLLL.lean",
+      "decl": "PMC.exists_enumeration",
+      "doc": "local-lemma.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "Section 6.3's bridge from 'graph with parts' to a UNIFORM product space: pairwise disjoint parts of size at least k admit an array w : Fin r -> Fin k -> V listing k distinct vertices from each part, with vertices of different parts distinct. This is the notes' 'we may assume |V_i| = k, or else remove some vertices' step, and it is what makes the sample space uniform -- without it the parts have different sizes and the weight would be a product of 1/|V_i|. A transversal built from w is automatically one of the original parts, so trimming loses nothing. Verified on parts of DIFFERENT sizes (4 and 2, enumerated at 2), which is the case trimming exists for."
+    },
+    "independent_transversal": {
+      "kind": "theorem",
+      "parent": "localLemmaGroup",
+      "file": null,
+      "decl": null,
+      "doc": "local-lemma.md",
+      "statement": "planned",
+      "proof": "planned",
+      "uses": [
+        "product_lll",
+        "trim_enumerate"
+      ],
+      "proof_uses": [],
+      "note": "Theorem 6.3.1: a graph of maximum degree Delta whose vertex set is partitioned into parts of size at least 2 e Delta has an independent transversal. Engine (exists_avoiding_of_lll) and bridge (exists_enumeration) are both in place. What remains is graph bookkeeping: index the bad events by pairs (i,j,a,b) with i < j and w i a adjacent to w j b -- indexing by ORDERED pairs would double the dependency degree to 4k*Delta and force |V_i| >= 4 e Delta, which is weaker than the theorem -- set A c and C c to empty for invalid indices so the index type can be the full product, and bound the dependency degree by 2k*Delta - 1. The -1 is the self-exclusion from the errata; without it the notes' displayed inequality is false at Delta = 2."
     }
   }
 }
