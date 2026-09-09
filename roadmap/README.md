@@ -68,7 +68,9 @@ development does not have.
 **5. Algorithm semantics.** §6.6 (Moser–Tardos) is about a *procedure* and its expected
 running time.
 
-**6. Research results the notes state without proof.** Theorem 10.4.15
+**6. Research results the notes state without proof.** §4.3's sharp-threshold results —
+Theorem 4.3.6/Lemma 4.3.7 (Bollobás–Thomason, which also wants #50), Friedgut's theorem and
+its Corollary 4.3.15, Theorem 4.3.17 (Achlioptas–Friedgut) — and Theorem 10.4.15
 (Sah–Sawhney–Stoner–Zhao), Theorem 5.1.3 (Spencer), Theorem 8.2.5 (Harel–Mousset–Samotij),
 Theorem 7.2.5 (Riordan–Selby), Theorem 8.3.2 (Bollobás), Theorem 9.3.4 (Shamir–Spencer's
 four-value concentration), and §11's container theorem — whose key counting step the notes
