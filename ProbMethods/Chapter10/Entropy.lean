@@ -362,6 +362,32 @@ theorem wcondEntropy_le {w : Ω → ℝ} (hw : ∀ ω, 0 ≤ w ω) (hsum : ∑ �
   have h2 := wentropy_pair_le hw hsum X Y
   linarith
 
+
+/-- **Lemma 10.1.5 (independence).** For independent `X` and `Y`,
+`H(X, Y) = H(X) + H(Y)`.
+
+By the chain rule it is enough that conditioning on `X` does nothing: independence makes the
+conditional distribution of `Y` equal to its marginal on every fibre of positive weight, and
+the fibres of weight zero contribute nothing to either side. -/
+theorem wentropy_pair_of_indep {w : Ω → ℝ} (hw : ∀ ω, 0 ≤ w ω) (hsum : ∑ ω, w ω = 1)
+    (X : Ω → β) (Y : Ω → γ)
+    (hindep : ∀ b c, wdist w (fun ω => (X ω, Y ω)) (b, c) = wdist w X b * wdist w Y c) :
+    wentropy w (fun ω => (X ω, Y ω)) = wentropy w X + wentropy w Y := by
+  classical
+  rw [wentropy_chain hw X Y]
+  congr 1
+  rw [wcondEntropy]
+  have hterm : ∀ b : β, wdist w X b * ∑ c, Real.negMulLog (wcondDist w X Y b c)
+      = wdist w X b * wentropy w Y := by
+    intro b
+    rcases eq_or_lt_of_le (wdist_nonneg hw X b) with h | h
+    · rw [← h, zero_mul, zero_mul]
+    · refine congrArg (fun t => wdist w X b * t) ?_
+      refine Finset.sum_congr rfl fun c _ => ?_
+      refine congrArg Real.negMulLog ?_
+      rw [wcondDist, hindep b c, mul_comm, mul_div_assoc, div_self (ne_of_gt h), mul_one]
+  rw [Finset.sum_congr rfl fun b _ => hterm b, ← Finset.sum_mul, sum_wdist, hsum, one_mul]
+
 /-! ### Basic monotonicity, and entropy as a function of the fibres -/
 
 lemma wcondDist_nonneg {w : Ω → ℝ} (hw : ∀ ω, 0 ≤ w ω) (X : Ω → β) (Y : Ω → γ) (b : β)

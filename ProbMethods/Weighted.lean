@@ -1147,4 +1147,42 @@ theorem card_inter_mul_of_determinedBy {C : Finset α} {A A' : Finset (Finset α
 
 end Bernoulli
 
+
+/-! ### Some point is at most the average
+
+The probabilistic method's core move, in weighted form. -/
+
+/-- **Some point is at most the average.** If the weights are nonnegative and total `1`, some
+point has value at most the weighted mean — the averaging step every application of the
+probabilistic method makes. -/
+theorem exists_le_wmean {Ω : Type*} [Fintype Ω] {w : Ω → ℝ} (hw : ∀ ω, 0 ≤ w ω)
+    (hsum : ∑ ω, w ω = 1) (f : Ω → ℝ) : ∃ ω, f ω ≤ wmean w f := by
+  by_contra hcon
+  push_neg at hcon
+  -- some weight is positive, since they total `1`
+  obtain ⟨ω₀, -, hω₀⟩ : ∃ ω ∈ (univ : Finset Ω), 0 < w ω := by
+    by_contra hall
+    push_neg at hall
+    have : ∑ ω, w ω = 0 :=
+      Finset.sum_eq_zero fun ω hω => le_antisymm (hall ω hω) (hw ω)
+    rw [this] at hsum
+    exact zero_ne_one hsum
+  have hlt : ∑ ω, w ω * wmean w f < ∑ ω, w ω * f ω := by
+    refine Finset.sum_lt_sum (fun ω _ => ?_) ⟨ω₀, mem_univ _, ?_⟩
+    · exact mul_le_mul_of_nonneg_left (le_of_lt (hcon ω)) (hw ω)
+    · exact mul_lt_mul_of_pos_left (hcon ω₀) hω₀
+  rw [← Finset.sum_mul, hsum, one_mul] at hlt
+  exact absurd hlt (lt_irrefl (wmean w f))
+
+/-- **Some point is at least the average**, the other half of the same move. -/
+theorem exists_wmean_le {Ω : Type*} [Fintype Ω] {w : Ω → ℝ} (hw : ∀ ω, 0 ≤ w ω)
+    (hsum : ∑ ω, w ω = 1) (f : Ω → ℝ) : ∃ ω, wmean w f ≤ f ω := by
+  obtain ⟨ω, hω⟩ := exists_le_wmean hw hsum (fun ω => -f ω)
+  refine ⟨ω, ?_⟩
+  have hneg : wmean w (fun ω => -f ω) = -wmean w f := by
+    rw [wmean, wmean, ← Finset.sum_neg_distrib]
+    exact Finset.sum_congr rfl fun ω _ => by ring
+  rw [hneg] at hω
+  linarith
+
 end PMC

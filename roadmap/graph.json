@@ -4107,6 +4107,44 @@
    ],
    "proof_uses": [],
    "note": "COROLLARY 9.5.23's CONTENT, given Talagrand: #{x : lis x <= k - t} * #{x : lis x >= k} <= |beta|^(2n) exp(-t^2/(4k)). The notes wrap this in an asymptotic statement about the median (P(|X - MX| <= C n^(1/4)) >= 1 - eps); the inequality itself is finite and is what 9.5.21 delivers directly, so it is what gets stated here."
+  },
+  "exists_le_wmean": {
+   "kind": "theorem",
+   "parent": "weightedGroup",
+   "file": "ProbMethods/Weighted.lean",
+   "decl": "PMC.exists_le_wmean",
+   "doc": "README.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [],
+   "proof_uses": [],
+   "note": "SOME POINT IS AT MOST THE AVERAGE, in weighted form -- the probabilistic method's core move, now centralised rather than re-derived per application (Chapters 1, 2 and 3 each did it by hand with Finset.exists_le_of_sum_le). PMC.exists_wmean_le is the other half."
+  },
+  "lll_quarter": {
+   "kind": "theorem",
+   "parent": "localLemmaGroup",
+   "file": "ProbMethods/Chapter06/LocalLemma.lean",
+   "decl": "PMC.lovasz_local_lemma_quarter",
+   "doc": "README.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "lll"
+   ],
+   "proof_uses": [],
+   "note": "COROLLARY 6.1.10: if every bad event has probability below 1/2 and the probabilities in each neighbourhood sum to at most 1/4, then with positive probability none occurs. The asymmetric local lemma at x_i = 2 P(A_i), where the required bound becomes 1/2 <= prod (1 - 2 P(A_j)) and the WEIERSTRASS PRODUCT INEQUALITY 1 - sum y <= prod (1 - y) supplies it. That inequality is not in Mathlib and is proved here as a two-line induction."
+  },
+  "entropy_indep": {
+   "kind": "theorem",
+   "parent": "entropyGroup",
+   "file": "ProbMethods/Chapter10/Entropy.lean",
+   "decl": "PMC.wentropy_pair_of_indep",
+   "doc": "README.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [],
+   "proof_uses": [],
+   "note": "LEMMA 10.1.5 (independence): H(X,Y) = H(X) + H(Y) for independent X and Y. By the chain rule it suffices that conditioning on X does nothing, which independence gives on every fibre of positive weight; the zero-weight fibres contribute nothing to either side."
   }
  }
 }

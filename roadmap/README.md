@@ -398,3 +398,31 @@ edge-deletion reduction (`PMC.exists_cycle_length_dvd_of_le_outdegree`), a step 
 leave implicit. And the constant is `Δ + δΔ` where the notes have `δΔ`; that difference is
 the first-pass dependency digraph, and their final trick only shrinks the dependency
 neighbourhood, so it plugs into the same assembly.
+
+**2026-09-09 — A coverage audit against the source, and what it turned up.** Extracting every
+numbered result from the PDF (185 of them) and grepping the roadmap for each label showed 108
+never mentioned. Most are results already proved but recorded by *name* rather than number, or
+remarks and asymptotic statements that were deliberately deferred — but the audit surfaced
+four real items, three of which were then cheap:
+
+* **Corollary 6.1.10** — the `P(Aᵢ) < 1/2`, `∑_{N(i)} P(Aⱼ) ≤ 1/4` form of the local lemma. A
+  short derivation from the asymmetric form at `xᵢ = 2P(Aᵢ)`, needing the Weierstrass product
+  inequality, which is not in Mathlib and is a two-line induction.
+* **Lemma 10.1.5** — `H(X,Y) = H(X) + H(Y)` for independent variables. The §10.1 layer had
+  the chain rule, subadditivity and conditioning bounds but not this.
+* **`PMC.exists_le_wmean`** — "some point is at most the average", which Chapters 1, 2 and 3
+  had each been doing by hand with `Finset.exists_le_of_sum_le`. Now centralised in
+  `Weighted.lean`, where it belonged from the start.
+* **Theorem 8.1.8 (Janson inequality II)** — a genuine gap, and the one that is not cheap: it
+  needs Janson I on a random *subfamily*, which the sampling device in `Weighted.lean` can
+  express but which takes real work to assemble.
+
+**A labelling erratum of my own**, also from the audit: `Janson.lean` cited "Theorem 8.1.1"
+for both bounds. `8.1.1` is the *Setup*; the upper bound is **Theorem 8.1.2** ("Janson
+inequality I") and the lower bound is **Remark 8.1.3**, which the notes get from Harris'
+inequality and which is proved directly here. Fixed.
+
+**The lesson is about how to find gaps.** Chapter-level status lines ("§10.1 complete") hide
+individual missing results, because they are written from what was *done* rather than checked
+against what *exists*. Auditing label by label against the source is the only way to know,
+and it is cheap enough to be worth repeating whenever a chapter is declared finished.

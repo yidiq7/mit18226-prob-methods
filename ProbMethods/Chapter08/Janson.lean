@@ -4,7 +4,8 @@ import ProbMethods.Chapter06.Coloring
 /-!
 # §8.1 — Janson's inequality: the lower bound
 
-Zhao, *Probabilistic Methods in Combinatorics*, Theorem 8.1.1.
+Zhao, *Probabilistic Methods in Combinatorics*, §8.1 — Setup 8.1.1, Theorem 8.1.2
+(Janson inequality I) and Remark 8.1.3.
 
 The setting is a random subset `S` of a finite ground set `α`, each element `x` included
 independently with probability `p x` — that is, the weight `PMC.pweight p`. Given a family
@@ -47,7 +48,8 @@ theorem sum_pweight_not_superset (p : α → ℝ) (B : Finset α) :
   rw [htot, hsup] at hsplit
   linarith
 
-/-- **Janson's inequality, lower bound** (Zhao, Theorem 8.1.1).
+/-- **Janson's inequality, lower bound** (Zhao, Remark 8.1.3 — the notes get it from
+Harris' inequality; here it is proved directly).
 
 If each `x : α` is kept independently with probability `p x`, then the probability that
 none of the sets `g i` survives in full is at least `∏ i, (1 - ∏ x ∈ g i, p x)` — the value
@@ -309,7 +311,9 @@ theorem janson_prod_le (p : α → ℝ) (hp0 : ∀ i, 0 ≤ p i) (hp1 : ∀ i, p
             congr 1
             exact Finset.prod_congr rfl fun i hi => by rw [hterms i hi]
 
-/-- **Janson's inequality — the upper bound** (Zhao, Theorem 8.1.1).
+/-- **Janson's inequality — the upper bound** (Zhao, Theorem 8.1.2, "Janson inequality I").
+
+`8.1.1` is the *setup*, not a theorem; this is the first numbered inequality of the chapter.
 
 With `μ = ∑ P(Aᵢ)` the expected number of bad sets appearing, and the double sum below the
 *lower-triangular* half of Zhao's `Δ` (so it equals `Δ / 2`),
@@ -419,7 +423,8 @@ theorem janson_lower' (p : α → ℝ) (hp0 : ∀ i, 0 ≤ p i) (hp1 : ∀ i, p 
   rw [noneOf_badEvent_eq, wprob, Finset.prod_congr rfl fun i _ => by rw [wprob_badEvent]]
   exact janson_lower p hp0 hp1 g
 
-/-- **Janson's inequality** (Zhao, Theorem 8.1.1), both bounds, in the notes' form.
+/-- **Janson's inequality** (Zhao, Theorem 8.1.2 and Remark 8.1.3), both bounds, in the
+notes' form.
 
 With `μ = ∑ P(Aᵢ)` and `Δ = ∑_{i ∼ j} P(Aᵢ ∩ A_j)` over *ordered* pairs of distinct indices
 whose bad sets share an element,
