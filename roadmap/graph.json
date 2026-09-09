@@ -2410,7 +2410,7 @@
         "trim_enumerate"
       ],
       "proof_uses": [],
-      "note": "Theorem 6.3.1: a graph of maximum degree Delta whose vertex set is partitioned into parts of size at least 2 e Delta has an independent transversal. Engine (exists_avoiding_of_lll) and bridge (exists_enumeration) are both in place. What remains is graph bookkeeping: index the bad events by pairs (i,j,a,b) with i < j and w i a adjacent to w j b -- indexing by ORDERED pairs would double the dependency degree to 4k*Delta and force |V_i| >= 4 e Delta, which is weaker than the theorem -- set A c and C c to empty for invalid indices so the index type can be the full product, and bound the dependency degree by 2k*Delta - 1 using card_adj_pairs_le, which is now proved. The -1 is the self-exclusion from the errata; without it the notes' displayed inequality is false at Delta = 2."
+      "note": "Theorem 6.3.1: a graph of maximum degree Delta whose vertex set is partitioned into parts of size at least 2 e Delta has an independent transversal. FOUR pieces are now in place: the engine (exists_avoiding_of_lll), the bridge (exists_enumeration), the degree count (card_adj_pairs_le) and the probability (wprob_unifProd_coord, multiplied by block independence to give 1/k^2). What remains: index the bad events by (i,j,a,b) with i < j and w i a adjacent to w j b, setting A c = C c = empty for invalid indices; the injection from neighbouring indices to ordered adjacent pairs, whose injectivity is exactly where i < j earns its keep; and the arithmetic e*(1/k^2)*(2k*Delta) = 2 e Delta / k <= 1 from k >= 2 e Delta."
     },
     "adj_pairs_count": {
       "kind": "theorem",
@@ -2423,6 +2423,42 @@
       "uses": [],
       "proof_uses": [],
       "note": "Section 6.3's counting core: the ordered adjacent pairs whose first vertex lies in S number at most #S * Delta. Fibre over the first coordinate; each fibre injects into that vertex's neighbourhood. With S = V_i union V_j of size 2k this is the 2k*Delta of the notes. Checked TIGHT on K4 (2*3 = 6) and at 4 on a 4-cycle."
+    },
+    "coord_fibres_equal": {
+      "kind": "theorem",
+      "parent": "localLemmaGroup",
+      "file": "ProbMethods/Product.lean",
+      "decl": "PMC.card_filter_coord",
+      "doc": "local-lemma.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "All fibres of a coordinate have the same size; the bijection between two of them is Function.update, replacing the i-th coordinate."
+    },
+    "coord_fibre_mul": {
+      "kind": "theorem",
+      "parent": "localLemmaGroup",
+      "file": "ProbMethods/Product.lean",
+      "decl": "PMC.card_filter_coord_mul",
+      "doc": "local-lemma.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "The #beta fibres partition the product, so each has size card(iota -> beta) / #beta."
+    },
+    "coord_prob": {
+      "kind": "theorem",
+      "parent": "localLemmaGroup",
+      "file": "ProbMethods/Product.lean",
+      "decl": "PMC.wprob_unifProd_coord",
+      "doc": "local-lemma.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "Fixing one coordinate of a uniform product has probability 1/#beta. Every application of exists_avoiding_of_lll needs this: block independence then multiplies it across the coordinates an event pins down. Checked on (Fin 3 -> Fin 4): 16 of 64 for one coordinate, 4 of 64 for two, i.e. 1/4 and (1/4)^2."
     }
   }
 }

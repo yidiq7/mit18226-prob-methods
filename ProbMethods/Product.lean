@@ -148,6 +148,76 @@ theorem wprob_unifProd_mul_of_determinedOn [Nonempty β] {C : Finset ι}
       = (#(A ∩ B) * Fintype.card (ι → β)) * Fintype.card (ι → β) := by ring
     _ = #A * #B * Fintype.card (ι → β) := by rw [h]
 
+/-! ### Coordinates are uniform
+
+Every application of `PMC.exists_avoiding_of_lll` has to compute the probability of an event
+that pins down a few coordinates. `PMC.wprob_unifProd_coord` does one coordinate; block
+independence (`PMC.wprob_unifProd_mul_of_determinedOn`) then multiplies them.
+
+The fibres of `f ↦ f i` all have the same size, and the bijection between two of them is
+`Function.update` — replacing the `i`-th coordinate, which is an involution up to swapping
+the two values.
+-/
+
+/-- All fibres of a coordinate have the same size. -/
+theorem card_filter_coord (i : ι) (a a' : β) :
+    #((univ : Finset (ι → β)).filter fun f => f i = a)
+      = #((univ : Finset (ι → β)).filter fun f => f i = a') := by
+  classical
+  refine Finset.card_nbij' (fun f => Function.update f i a')
+    (fun f => Function.update f i a) ?_ ?_ ?_ ?_
+  · intro f _
+    rw [mem_coe, mem_filter]
+    exact ⟨mem_univ _, Function.update_self i a' f⟩
+  · intro f _
+    rw [mem_coe, mem_filter]
+    exact ⟨mem_univ _, Function.update_self i a f⟩
+  · intro f hf
+    rw [mem_coe, mem_filter] at hf
+    funext x
+    rcases eq_or_ne x i with rfl | hx
+    · simp [Function.update_apply, hf.2]
+    · simp [Function.update_apply, hx]
+  · intro f hf
+    rw [mem_coe, mem_filter] at hf
+    funext x
+    rcases eq_or_ne x i with rfl | hx
+    · simp [Function.update_apply, hf.2]
+    · simp [Function.update_apply, hx]
+
+/-- The `#β` fibres partition the product, so each has size `card (ι → β) / #β`. -/
+theorem card_filter_coord_mul (i : ι) (a : β) :
+    #((univ : Finset (ι → β)).filter fun f => f i = a) * Fintype.card β
+      = Fintype.card (ι → β) := by
+  classical
+  have hfib : ∑ b : β, #((univ : Finset (ι → β)).filter fun f => f i = b)
+      = Fintype.card (ι → β) := by
+    rw [← card_univ]
+    exact (Finset.card_eq_sum_card_fiberwise (fun f _ => mem_univ (f i))).symm
+  rw [← hfib, Finset.sum_congr rfl fun b _ => (card_filter_coord i a b).symm,
+    Finset.sum_const, card_univ, smul_eq_mul, mul_comm]
+
+/-- **Fixing one coordinate has probability `1 / #β`.** -/
+theorem wprob_unifProd_coord [Nonempty β] (i : ι) (a : β) :
+    wprob (unifProd ι β) ((univ : Finset (ι → β)).filter fun f => f i = a)
+      = 1 / Fintype.card β := by
+  classical
+  have hβ : (0 : ℝ) < Fintype.card β := by
+    have := Fintype.card_pos (α := β)
+    exact_mod_cast this
+  have hmul := card_filter_coord_mul (ι := ι) i a
+  have hne : (0 : ℝ) < #((univ : Finset (ι → β)).filter fun f => f i = a) := by
+    have : (fun _ => a) ∈ (univ : Finset (ι → β)).filter fun f => f i = a := by
+      rw [mem_filter]
+      exact ⟨mem_univ _, rfl⟩
+    have hpos := Finset.card_pos.mpr ⟨_, this⟩
+    exact_mod_cast hpos
+  rw [wprob_unifProd]
+  rw [show (Fintype.card (ι → β) : ℝ)
+      = #((univ : Finset (ι → β)).filter fun f => f i = a) * Fintype.card β from by
+    exact_mod_cast hmul.symm]
+  rw [← div_div, div_self (ne_of_gt hne)]
+
 end Product
 
 end PMC

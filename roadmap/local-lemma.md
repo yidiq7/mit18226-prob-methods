@@ -173,6 +173,11 @@ transversal of the trimmed parts is one of the originals.
 checked on parts of *different* sizes (4 and 2, enumerated at 2) — the case trimming exists
 for.
 
+The probability side is also done: `PMC.wprob_unifProd_coord` gives `1/k` for one
+coordinate, and block independence multiplies it to `1/k²` for the two coordinates a bad
+event pins down. Checked on `(Fin 3 → Fin 4)`: `16` of `64` for one coordinate and `4` of
+`64` for two.
+
 What remains for §6.3 is graph bookkeeping rather than probability:
 
 * **Index the bad events by pairs `(i, j, a, b)` with `i < j` and `w i a` adjacent to
