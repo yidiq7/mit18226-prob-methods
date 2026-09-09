@@ -252,6 +252,23 @@ that set, and the dependency neighbourhood excludes `e` itself, so `d ≤ 2kΔ -
 `e p (d + 1) ≤ e (1/k²)(2kΔ) = 2eΔ/k ≤ 1` exactly when `k ≥ 2eΔ`. The theorem is correct;
 the displayed inequality is off by that one edge. **Formalize with `d + 1 ≤ 2kΔ`.**
 
+### §6.3 — proved by a contributor, and the orchestrator raced the claim
+
+Task #41 published the statement with a `sorry`. A contributor claimed it 36 seconds later
+and delivered a verified, self-contained proof (PR #43). **The orchestrator proved it
+concurrently and closed the issue four minutes before that PR arrived — a process error.**
+A published task belongs to whoever claims it; proving a claimed task discards a
+contributor's compute and, worse, the reason to contribute at all.
+
+The resolution keeps both: `Transversal.lean` is restored to the exact published base so the
+contributor's patch applies to it byte-for-byte, and the orchestrator's modular pieces —
+`PMC.tEvent`, `PMC.determinedOn_tEvent`, `PMC.wprob_tEvent_le`, `PMC.card_tNbr_le` — move to
+`TransversalBlocks.lean`, where they remain verified and available for §6.5 without
+competing for the theorem's name.
+
+**Check the lease before proving anything yourself.** `choir orch tasks` shows claims; the
+race was avoidable by reading it.
+
 **Theorem 6.4.3 (Alon–Linial 1989).** Every directed graph with minimum out-degree `δ` and
 maximum in-degree `Δ` contains a cycle of length divisible by `k`, as long as
 `k ≤ δ / (1 + log(1 + δΔ))`. Theorem 6.4.1 and Corollary 6.4.2 are the `d`-regular

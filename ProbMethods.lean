@@ -22,6 +22,7 @@ import ProbMethods.Chapter05.ChernoffBernoulli
 import ProbMethods.Chapter06.LocalLemma
 import ProbMethods.Chapter06.Coloring
 import ProbMethods.Chapter06.ProductLLL
+import ProbMethods.Chapter06.TransversalBlocks
 import ProbMethods.Chapter06.Transversal
 import ProbMethods.Chapter06.DivisibleCycle
 import ProbMethods.Chapter07.Correlation

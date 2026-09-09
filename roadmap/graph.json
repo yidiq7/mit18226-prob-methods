@@ -2404,13 +2404,13 @@
    "decl": "PMC.exists_independent_transversal",
    "doc": "local-lemma.md",
    "statement": "formalized",
-   "proof": "formalized",
+   "proof": "in-review",
    "uses": [
     "product_lll",
     "trim_enumerate"
    ],
    "proof_uses": [],
-   "note": "Theorem 6.3.1, DONE. A graph of maximum degree Delta whose vertex set is partitioned into parts of size at least 2 e Delta has an independent transversal. Built in three separately-compiled blocks after a one-shot attempt failed: (A) tValid/tEvent/tBlock as ABBREVS plus determinedOn_tEvent and wprob_tEvent_le, (B) card_tNbr_le, (C) the assembly. The abbrev choice matters -- plain rw [if_pos hc] still fails because rw matches syntactically and will not see through reducibility, so the working idiom is rw [show tEvent G w c = ... from if_pos hc], which typechecks by defeq. Non-vacuity checked: two parts of size 6 in Fin 12 with maximum degree 1, since 2e = 5.436 <= 6."
+   "note": "Theorem 6.3.1. STATEMENT COMMITTED and published as task #41; a contributor's self-contained proof is PR #43, awaiting the gate. The orchestrator also proved it concurrently (commit 01dd647) -- a process error, since the task was already claimed -- and that proof's modular pieces now live in TransversalBlocks.lean, where they stay available for 6.5 without competing with the contributor's proof of the theorem itself."
   },
   "adj_pairs_count": {
    "kind": "theorem",
@@ -2513,7 +2513,7 @@
   "tEventDefs": {
    "kind": "theorem",
    "parent": "localLemmaGroup",
-   "file": "ProbMethods/Chapter06/Transversal.lean",
+   "file": "ProbMethods/Chapter06/TransversalBlocks.lean",
    "decl": "PMC.tEvent",
    "doc": "local-lemma.md",
    "statement": "formalized",
@@ -2525,7 +2525,7 @@
   "tEvent_determined": {
    "kind": "theorem",
    "parent": "localLemmaGroup",
-   "file": "ProbMethods/Chapter06/Transversal.lean",
+   "file": "ProbMethods/Chapter06/TransversalBlocks.lean",
    "decl": "PMC.determinedOn_tEvent",
    "doc": "local-lemma.md",
    "statement": "formalized",
@@ -2537,7 +2537,7 @@
   "tEvent_prob": {
    "kind": "theorem",
    "parent": "localLemmaGroup",
-   "file": "ProbMethods/Chapter06/Transversal.lean",
+   "file": "ProbMethods/Chapter06/TransversalBlocks.lean",
    "decl": "PMC.wprob_tEvent_le",
    "doc": "local-lemma.md",
    "statement": "formalized",
@@ -2549,7 +2549,7 @@
   "tNbr_degree": {
    "kind": "theorem",
    "parent": "localLemmaGroup",
-   "file": "ProbMethods/Chapter06/Transversal.lean",
+   "file": "ProbMethods/Chapter06/TransversalBlocks.lean",
    "decl": "PMC.card_tNbr_le",
    "doc": "local-lemma.md",
    "statement": "formalized",
