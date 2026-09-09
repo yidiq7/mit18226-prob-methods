@@ -5282,7 +5282,7 @@
    "doc": "introduction.md",
    "statement": "formalized",
    "proof": "planned",
-   "origin": "orchestrator",
+   "origin": "task:62",
    "uses": [
     "list_chromatic_upper",
     "list_chromatic_lower",
@@ -5299,7 +5299,7 @@
    "doc": "alterations.md",
    "statement": "formalized",
    "proof": "planned",
-   "origin": "orchestrator",
+   "origin": "task:63",
    "uses": [],
    "proof_uses": [],
    "note": "THEOREM 3.2.3 (Heilbronn): for some absolute c > 0 and every n there are n points in the unit square no three of which span a triangle of area below c/n^2. The STATEMENT is elementary -- the area is the usual determinant, PMC.twiceArea -- which is why it is publishable while the rest of section 3.2 is not. Statement published; proof open. The notes' route is an alteration on ([0,1]^2)^{2n}: a random triple has area below eps with probability O(eps), so the expected number of bad triples among 2n points is O(eps n^3), below n at eps = c/n^2, and deleting a point per bad triple leaves n points. A GRID makes that finite: sample from (1/N)[N]^2 with N about n^3, so the strip estimate becomes a lattice-point count and bweight-style product weights apply; the discretisation costs a constant factor in c, which the existential absorbs. The grid route is the one to try first since it stays inside this development's machinery."
