@@ -178,6 +178,26 @@ coordinate, and block independence multiplies it to `1/k²` for the two coordina
 event pins down. Checked on `(Fin 3 → Fin 4)`: `16` of `64` for one coordinate and `4` of
 `64` for two.
 
+### The §6.3 assembly was attempted and abandoned once; read this first
+
+All four components are proved and committed. The assembly — one theorem, about 250 lines —
+was written in one go, and that was the mistake. **Build it block by block, compiling after
+each**, because two Lean pitfalls hit repeatedly and both produce cascading errors that are
+hard to attribute once the file is large:
+
+* **`set f := fun c => …` makes `rw [hfdef]` useless.** Rewriting turns `f c` into an
+  un-beta-reduced `(fun c => …) c`, so the following `if_pos` never matches. The fix is not to
+  rewrite at all: `f c` is *definitionally* the body, so `if_pos hc : f c = …` typechecks
+  directly and can be used with `rw [show f c = … from if_pos hc]`. (`simp only [hfdef]` also
+  works, since `simp` beta-reduces, but the `show` form is clearer about intent.)
+* **`rcases (h : c' = c) with rfl` can eliminate the wrong variable.** Both sides are locals,
+  and Lean may substitute away `c` — which is still needed for the rest of the proof, giving
+  "unknown identifier `c`" many lines later. Use `rcases … with heq | _` and `rw [heq]`.
+
+Also: an order contradiction of the shape `c₁.1 < c₁.2.1 = c₂.1 < c₂.2.1 = c₁.1` should be a
+`calc` chain ending in `lt_irrefl`, not a `▸` chain — the `▸` version does not elaborate,
+and `Fin` means `omega` is unavailable.
+
 What remains for §6.3 is graph bookkeeping rather than probability:
 
 * **Index the bad events by pairs `(i, j, a, b)` with `i < j` and `w i a` adjacent to
