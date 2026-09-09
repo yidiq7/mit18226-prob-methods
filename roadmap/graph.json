@@ -5273,6 +5273,36 @@
    ],
    "proof_uses": [],
    "note": "THEOREM 4.3.6 (Bollobas-Thomason 1987) with Definition 4.3.1 (PMC.IsThreshold): every sequence of non-trivial monotone properties has a threshold. The notes single this out as the reason Lemma 4.3.7 is worth having, so it is the asymptotic half of that pair. Statement published; proof open. Route: take q n where the probability is exactly 1/2, which exists because p |-> sum over F of bweight p is a polynomial hence continuous, is 0 at p=0 and 1 at p=1 -- those two endpoint facts are PMC.notMem_empty_of_monotone and PMC.mem_univ_of_monotone, which is what non-triviality is for -- so the IVT applies. Below the threshold, p n <= q n / m gives P(not in F) >= P(Omega_{q/m} not in F) >= P(Omega_q not in F)^{1/m} = (1/2)^{1/m} by antitonicity plus Lemma 4.3.7, so P(in F) <= 1 - 2^{-1/m}; above, p n >= m q n gives P(not in F) <= (1/2)^m the same way. Needs only task #57 and the non-strict form of task #50."
+  },
+  "list_chromatic_asymptotic": {
+   "kind": "theorem",
+   "parent": "introGroup",
+   "file": "ProbMethods/Chapter01/ListChromaticAsymptotic.lean",
+   "decl": "PMC.tendsto_listChromaticBipartite_div_logb",
+   "doc": "introduction.md",
+   "statement": "formalized",
+   "proof": "planned",
+   "origin": "orchestrator",
+   "uses": [
+    "list_chromatic_upper",
+    "list_chromatic_lower",
+    "property_b_upper"
+   ],
+   "proof_uses": [],
+   "note": "COROLLARY 1.4.4: ch(K_{n,n})/log_2 n -> 1. Statement published; proof open. PMC.listChromaticBipartite is the least k for which K_{n,n} is k-choosable, defined as an sInf so it is total -- the set is nonempty by Theorem 1.4.2. Upper bound: 1.4.2 gives k-choosable once n < 2^{k-1}, so ch <= ceil(log_2 n) + 1. Lower bound: 1.4.3 turns a non-2-colourable k-uniform hypergraph with n edges into a failure of k-choosability, and Theorem 1.3.3 (task #56) supplies one with at most 2k^2 2^k edges, paddable up to exactly n edges since adding edges preserves non-2-colourability and C(k^2,k) is far larger. So ch >= k+1 whenever 2k^2 2^k <= n, i.e. (1-o(1)) log_2 n. Neither input is asymptotic; all the o(1) is in the final squeeze, which is why this is one bounded task on top of #56."
+  },
+  "heilbronn_config": {
+   "kind": "theorem",
+   "parent": "alterationsGroup",
+   "file": "ProbMethods/Chapter03/Heilbronn.lean",
+   "decl": "PMC.exists_heilbronn_config",
+   "doc": "alterations.md",
+   "statement": "formalized",
+   "proof": "planned",
+   "origin": "orchestrator",
+   "uses": [],
+   "proof_uses": [],
+   "note": "THEOREM 3.2.3 (Heilbronn): for some absolute c > 0 and every n there are n points in the unit square no three of which span a triangle of area below c/n^2. The STATEMENT is elementary -- the area is the usual determinant, PMC.twiceArea -- which is why it is publishable while the rest of section 3.2 is not. Statement published; proof open. The notes' route is an alteration on ([0,1]^2)^{2n}: a random triple has area below eps with probability O(eps), so the expected number of bad triples among 2n points is O(eps n^3), below n at eps = c/n^2, and deleting a point per bad triple leaves n points. A GRID makes that finite: sample from (1/N)[N]^2 with N about n^3, so the strip estimate becomes a lattice-point count and bweight-style product weights apply; the discretisation costs a constant factor in c, which the existential absorbs. The grid route is the one to try first since it stays inside this development's machinery."
   }
  }
 }
