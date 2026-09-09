@@ -22,7 +22,8 @@ section Monotone
 
 variable {α : Type*} [Fintype α] [DecidableEq α]
 
-/-- **Monotone events are positively correlated** under a product measure (Zhao, §7.2).
+/-- **Monotone events are positively correlated** under a product measure (Zhao, Theorem
+7.1.1 — Harris 1960 — with §7.2's applications in view).
 
 For upward-closed `A` and `B`, the weight of `A ∧ B` is at least the product of the
 weights. Immediate from `PMC.pweight_fkg` applied to the indicator functions, which are
@@ -128,8 +129,8 @@ theorem pweight_correlate_anti (p : α → ℝ) (hp0 : ∀ i, 0 ≤ p i) (hp1 : 
   rw [hmA, hmB, hmAB] at h
   exact h
 
-/-- **Oppositely-monotone events are negatively correlated** — Harris' inequality in its
-mixed form.
+/-- **Oppositely-monotone events are negatively correlated** (Zhao, Corollary 7.1.6(b)) —
+Harris' inequality in its mixed form.
 
 An upward-closed `A` and a downward-closed `B` satisfy `P(A ∧ B) ≤ P(A) P(B)`. Obtained from
 the increasing case applied to `A` and the complement of `B`, which is upward-closed:
@@ -176,7 +177,8 @@ theorem pweight_anticorrelate (p : α → ℝ) (hp0 : ∀ i, 0 ≤ p i) (hp1 : �
   rw [hexp] at hinc
   linarith [hinc, hsplitA]
 
-/-- **Harris for a whole family**: finitely many downward-closed events are positively
+/-- **Harris for a whole family** (Zhao, Corollary 7.1.6, last part): finitely many
+downward-closed events are positively
 correlated, so the probability that all of them hold is at least the product of their
 probabilities. Induction on the index set through `PMC.pweight_correlate_anti`. -/
 theorem pweight_correlate_anti_family (p : α → ℝ) (hp0 : ∀ i, 0 ≤ p i) (hp1 : ∀ i, p i ≤ 1)

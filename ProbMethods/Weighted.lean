@@ -244,7 +244,7 @@ theorem wmarkov (w : Ω → ℝ) (X : Ω → ℝ) (hw : ∀ ω, 0 ≤ w ω) (hX 
         exact mul_nonneg (hw ω) (hX ω)
     _ = wmean w X := rfl
 
-/-- **The second moment method.**
+/-- **The second moment method** (Zhao, Corollary 4.1.7, in the form applications use).
 
 If a count `N` has positive weighted mean, then any set of points where `N` vanishes has
 total weight at most `wvar w N / (wmean w N) ^ 2`. Stated multiplicatively, so there is no
@@ -790,7 +790,7 @@ lemma pweight_mul_pweight (p : α → ℝ) (T U : Finset α) :
   by_cases hT : i ∈ T <;> by_cases hU : i ∈ U <;>
     simp [hT, hU, mem_inter, mem_union] <;> ring
 
-/-- **The Harris–FKG inequality** for independent coordinates (Zhao, §7.1).
+/-- **The Harris–FKG inequality** for independent coordinates (Zhao, Theorem 7.1.5).
 
 Two monotone increasing nonnegative functions are positively correlated under a product
 measure: `E[f] * E[g] ≤ E[f * g]`.
@@ -815,7 +815,8 @@ theorem pweight_fkg (p : α → ℝ) (hp0 : ∀ i, 0 ≤ p i) (hp1 : ∀ i, p i 
   rw [hwsum, one_mul] at h
   simpa only [wmean] using h
 
-/-- **Harris' inequality, decreasing form.** The same statement for *antitone* `f` and `g`.
+/-- **Harris' inequality, decreasing form** (Zhao, Corollary 7.1.6(a)). The same statement
+for *antitone* `f` and `g`.
 
 `Finset α` and its order dual are both distributive lattices, and the log-supermodularity
 `pweight p T * pweight p U = pweight p (T ∩ U) * pweight p (T ∪ U)` is symmetric in `⊓`

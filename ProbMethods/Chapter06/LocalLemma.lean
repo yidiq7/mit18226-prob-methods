@@ -237,7 +237,7 @@ private lemma inv_exp_le_pow {d : ℕ} (hd : 0 < d) :
     _ ≤ ((d : ℝ) / (d + 1)) ^ d * Real.exp 1 :=
         mul_le_mul_of_nonneg_left hle (by positivity)
 
-/-- **The Lovász Local Lemma**, asymmetric form (Zhao, Theorem 6.1.x), where the dependency
+/-- **The Lovász Local Lemma**, asymmetric form (Zhao, Theorem 6.1.9), where the dependency
 hypothesis is genuine mutual independence: `A i` is independent of every family of
 complements drawn from outside `insert i (N i)`.
 
@@ -255,7 +255,7 @@ theorem lovasz_local_lemma (w : Ω → ℝ) (hw : ∀ ω, 0 ≤ w ω) (hsum : �
   lovasz_local_lemma_lopsided w hw hsum A N x hx0 hx1 hself
     (fun i T hT => (hindep i T hT).le) hbound
 
-/-- **The lopsided Lovász Local Lemma**, symmetric form (Zhao, §6.5).
+/-- **The lopsided Lovász Local Lemma**, symmetric form (Zhao, Corollary 6.5.2).
 
 If every event has probability at most `p`, is negatively correlated with the complements of
 any subfamily outside its own neighbourhood, that neighbourhood has at most `d` members, and
@@ -324,7 +324,8 @@ theorem lovasz_local_lemma_symmetric_lopsided (w : Ω → ℝ) (hw : ∀ ω, 0 �
     Finset.prod_pos fun i _ => by linarith [hx1 i]
   linarith
 
-/-- **The Lovász Local Lemma**, symmetric form (Zhao, §6.1), under genuine independence.
+/-- **The Lovász Local Lemma**, symmetric form (Zhao, Theorem 6.1.7), under genuine
+independence.
 
 If every event has probability at most `p`, every event is independent of any subfamily
 outside `insert i (N i)`, each `N i` has at most `d` members, and `e * p * (d + 1) ≤ 1`, then
