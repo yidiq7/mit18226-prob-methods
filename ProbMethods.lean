@@ -24,6 +24,7 @@ import ProbMethods.Chapter04.FirstMoment
 import ProbMethods.Chapter04.SecondMoment
 import ProbMethods.Chapter04.Threshold
 import ProbMethods.Chapter04.BollobasThomason
+import ProbMethods.Chapter04.ThresholdExists
 import ProbMethods.Chapter04.Weierstrass
 import ProbMethods.Chapter04.HardyRamanujan
 import ProbMethods.Chapter04.DubroffFoxXu

@@ -5257,6 +5257,22 @@
    ],
    "proof_uses": [],
    "note": "LEMMA 9.5.12: dist(x, conv A) <= d_T(x, A). This is the step that turns Theorem 9.5.11 (task #49) into the geometric statements of section 9.5 -- Corollary 9.5.13 for convex sets, 9.5.6 and 9.5.8 for convex Lipschitz functions -- so without it 9.5.11 has no consumers. Statement published; proof open. It is LP duality and both halves are in Mathlib: conv A is compact for finite A (Set.Finite.isCompact_convexHull), so exists_norm_eq_iInf_of_complete_convex gives a nearest point z and norm_eq_iInf_iff_real_inner_le_zero characterises it by <x-z, y-z> <= 0, whence (x-y).(x-z) >= ||x-z||^2; at alpha = |x-z|/||x-z|| (componentwise absolute value: same norm, and nonnegative as unitWeights needs) the pointwise bound |(x-y).alpha| <= sum over i with x_i =/= y_i of |alpha_i| = wHamDist alpha x y finishes it. Stated in the existential form (a nearest point, Euclidean distance written as sqrt of a sum) to avoid PiLp transport in the statement; equivalent for finite A, and it is the form 9.5.13 consumes."
+  },
+  "threshold_exists": {
+   "kind": "theorem",
+   "parent": "secondMomentGroup",
+   "file": "ProbMethods/Chapter04/ThresholdExists.lean",
+   "decl": "PMC.exists_isThreshold",
+   "doc": "second-moment.md",
+   "statement": "formalized",
+   "proof": "planned",
+   "origin": "orchestrator",
+   "uses": [
+    "bollobas_thomason",
+    "threshold_strictmono"
+   ],
+   "proof_uses": [],
+   "note": "THEOREM 4.3.6 (Bollobas-Thomason 1987) with Definition 4.3.1 (PMC.IsThreshold): every sequence of non-trivial monotone properties has a threshold. The notes single this out as the reason Lemma 4.3.7 is worth having, so it is the asymptotic half of that pair. Statement published; proof open. Route: take q n where the probability is exactly 1/2, which exists because p |-> sum over F of bweight p is a polynomial hence continuous, is 0 at p=0 and 1 at p=1 -- those two endpoint facts are PMC.notMem_empty_of_monotone and PMC.mem_univ_of_monotone, which is what non-triviality is for -- so the IVT applies. Below the threshold, p n <= q n / m gives P(not in F) >= P(Omega_{q/m} not in F) >= P(Omega_q not in F)^{1/m} = (1/2)^{1/m} by antitonicity plus Lemma 4.3.7, so P(in F) <= 1 - 2^{-1/m}; above, p n >= m q n gives P(not in F) <= (1/2)^m the same way. Needs only task #57 and the non-strict form of task #50."
   }
  }
 }

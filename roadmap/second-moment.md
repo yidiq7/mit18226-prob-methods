@@ -320,3 +320,20 @@ a coupling:
 
 Stated without the notes' non-triviality hypothesis on `F`, which the inequality does not need:
 at `F = ∅` both sides are `1`, and at `F = univ` the left side is `0`.
+
+### threshold_exists — Theorem 4.3.6
+
+`PMC.exists_isThreshold`, with `PMC.IsThreshold` as Definition 4.3.1: every sequence of
+non-trivial monotone properties has a threshold. Statement published as a task; proof open.
+
+The notes single 4.3.6 out as the reason Lemma 4.3.7 is worth having, so the two are published
+as a pair — 4.3.7 (task #57) is the non-asymptotic content, and this is the asymptotic
+wrapper. Take `q n` to be the `p` at which the probability is exactly `1/2`; it exists because
+`p ↦ ∑_{X ∈ F n} bweight p X` is a polynomial, hence continuous, and is `0` at `p = 0` and `1`
+at `p = 1` — those two endpoint facts are `PMC.notMem_empty_of_monotone` and
+`PMC.mem_univ_of_monotone`, which is exactly what non-triviality buys. Then 4.3.7 gives
+`P(Ω_p ∈ F) ≤ 1 - 2^{-1/m}` below the threshold and `≥ 1 - 2^{-m}` above it, and `m → ∞`
+finishes both directions.
+
+Remark 4.3.3 (two thresholds differ by a bounded factor, so one may say *the* threshold) is not
+part of the statement.
