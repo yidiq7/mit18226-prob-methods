@@ -322,6 +322,39 @@ expectations with `Finset.sum_comm`.
   conditional entropy over a random permutation of the rows — a second layer of randomness
   on top of the permutation being counted — and the statement carries real exponents
   `1/dᵢ`.
+## §10.3 — Theorem 10.3.3 (Blakey–Roy) is proved
+
+`ProbMethods/Chapter10/Sidorenko.lean`. `PMC.sidorenko_path3`: for every graph `G` on `n`
+vertices with `m` edges, `hom(P₄, G) · n² ≥ (2m)³`, i.e. `t(P₄, G) ≥ t(K₂, G)³`
+(`PMC.sidorenko_path3_density`) — Sidorenko's conjecture for the three-edge path.
+
+**The notes' entropy proof is carried out with no conditional-entropy machinery at all.**
+Writing the walk distribution's entropy out explicitly, the argument reduces to exactly two
+applications of **Gibbs' inequality** (`PMC.sum_mul_log_div_le`, already in §10.1):
+
+* `PMC.sum_log_div_card_le_log_sum_div_card` — Jensen for `log`, i.e. AM–GM, from Gibbs
+  against the uniform distribution on the directed edges. This converts
+  `hom(P₄, G) = ∑_{(y,z)} d(y)d(z)` (`PMC.card_walk3`, fibred over the middle edge) into
+  `∑_v d(v) log d(v)`.
+* `PMC.sum_degree_mul_log_degree_ge` — `∑_v d(v) log d(v) ≥ 2m log(2m/n)`, from Gibbs against
+  the uniform distribution on vertices with `P(v) = d(v)/2m`. This is the notes'
+  `H(X) ≤ log n` step in counting form.
+
+That both steps are the *same lemma* is the thing worth recording. Gibbs' inequality **is**
+the entropy inequality, so a proof that uses only Gibbs is the entropy proof — just written
+out, without needing conditional independence, `H(Z|X,Y) = H(Z|Y)`, or a four-variable chain
+rule. Had the argument gone through conditional entropies it would have needed a
+conditional-independence lemma the library does not have.
+
+**Checked on `K₃`, where the bound is attained**: `6` directed edges, `24` walks, and
+`6³ = 216 = 24 · 3²`. Equality for regular graphs is the right behaviour — the conjecture says
+the random graph is the minimiser.
+
+What remains in §10.3: Theorem 10.3.5 (all trees — the same argument, but the entropy
+bookkeeping is over a tree rather than a path, so it does need the conditional-independence
+step), Theorem 10.3.6 (complete bipartite), and Theorem 10.3.7. Remark 10.3.8's Möbius graph
+is an open case of the conjecture and is not a node.
+
 * **§10.3** — Sidorenko's inequality, about homomorphism densities. Note Remark 10.3.8: the
   Möbius graph `K₅,₅ ∖ C₁₀` is the smallest open case, so part of the section is an open
   problem rather than something to formalize.
