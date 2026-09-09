@@ -163,9 +163,17 @@ as the expected number `C(n,k)p^{C(k,2)}` does (`PMC.probHasClique_le` is Markov
 * `PMC.tendsto_probHasClique_half_zero` — Theorem 4.4.2(a): `f(n,k) = C(n,k)2^{-C(k,2)} → 0`
   gives `ω(G(n,1/2)) < k` whp.
 
-The second-moment halves are *not* proved: 4.2.5's other direction and 4.4.2(b) need `Δ*` for
-`k`-cliques, whose overlap analysis is the `k`-vertex analogue of `PMC.wvar_card_triangles_le'`
-— and as §4.1 showed, a crude version of that bound does not reach the threshold.
+`PMC.tendsto_probHasCopy_zero` is the same first moment for an **arbitrary** `H` — Theorem
+4.2.10's first half for `H` itself: `n^{v(H)}p^{e(H)} → 0` gives no copy of `H` whp, via
+`PMC.sum_bweight_mul_card_copies` and `Fintype.card_embedding_eq`. The notes' sharper form runs
+the argument on the *densest subgraph* `H'` of `H` (since `X_{H'} = 0` already forces
+`X_H = 0`), which needs the maximum edge–vertex ratio `m(H)` as a separate construction; that
+is not built here and is the honest gap between this and 4.2.10 as stated.
+
+The second-moment halves are *not* proved: 4.2.5's other direction, 4.2.10's other direction
+and 4.4.2(b) all need `Δ*` for the relevant family, whose overlap analysis is the general
+analogue of `PMC.wvar_card_triangles_le'` — and as §4.1 showed, a crude version of that bound
+does not reach the threshold at all.
 
 ## Random graph sections (§4.1–4.4)
 

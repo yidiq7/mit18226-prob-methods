@@ -33,8 +33,10 @@ written when the phase opens, so the plan never claims more precision than it ha
 
 ## What remains, chapter by chapter (2026-09-09)
 
-Of the book's 186 numbered theorem-like results, what is *not* formalized falls into four
-kinds, and it is worth naming them because they call for different responses:
+Of the book's numbered theorem-like results — **185**, not 186: "Theorem 3.4.10" in §4.5 is a
+citation to *Durrett*, not a result of this book, so a label audit that counts it will chase a
+result that does not exist — what is *not* formalized falls into four kinds, and it is worth
+naming them because they call for different responses:
 
 1. **Asymptotic statements** — `o(1)`, `whp`, `Θ`, `∼`. §4.1's threshold is now proved *as a
    limit* (`PMC.tendsto_probHasTriangle_one`), which shows the finite framework reaches these

@@ -1,5 +1,6 @@
 import ProbMethods.Chapter04.FirstMoment
 import ProbMethods.Chapter04.TriangleThreshold
+import Mathlib.Data.Fintype.CardEmbedding
 
 /-!
 # §4.2, §4.4 — the first-moment half of the clique thresholds
@@ -110,6 +111,72 @@ theorem tendsto_probHasClique_half_zero {k : ℕ → ℕ}
       (nhds 0)) :
     Tendsto (fun n : ℕ => probHasClique n (k n) (1 / 2 : ℝ)) atTop (nhds 0) :=
   tendsto_probHasClique_zero (fun _ => by norm_num) (fun _ => by norm_num) h
+
+
+/-! ### A general fixed subgraph (Theorem 4.2.10, first half)
+
+The same first moment for an arbitrary `H` rather than a clique. This is the first half of
+Bollobás' threshold theorem *for `H` itself*; the notes' sharper statement runs the argument on
+the densest subgraph `H'` of `H`, since `X_{H'} = 0` already forces `X_H = 0`. Choosing that
+subgraph needs the maximum edge–vertex ratio `m(H)`, which is a separate piece of machinery and
+is not built here. -/
+
+/-- The `G(n,p)` probability of containing a copy of `H`. -/
+noncomputable def probHasCopy (n : ℕ) {W : Type*} [Fintype W] [DecidableEq W]
+    (H : Finset (Sym2 W)) (p : ℝ) : ℝ :=
+  ∑ E ∈ (univ : Finset (Finset (Sym2 (Fin n)))).filter
+    (fun E => ∃ f : W ↪ Fin n, H.image (Sym2.map ⇑f) ⊆ E), bweight p E
+
+lemma probHasCopy_nonneg (n : ℕ) {W : Type*} [Fintype W] [DecidableEq W]
+    (H : Finset (Sym2 W)) {p : ℝ} (hp0 : 0 ≤ p) (hp1 : p ≤ 1) : 0 ≤ probHasCopy n H p :=
+  Finset.sum_nonneg fun E _ => bweight_nonneg hp0 hp1 E
+
+/-- **Markov for copies of `H`**: the chance of containing one is at most the expected number
+of labelled copies, `(n)_{v(H)} p^{e(H)} ≤ n^{v(H)} p^{e(H)}`. -/
+theorem probHasCopy_le (n : ℕ) {W : Type*} [Fintype W] [DecidableEq W]
+    (H : Finset (Sym2 W)) {p : ℝ} (hp0 : 0 ≤ p) (hp1 : p ≤ 1) :
+    probHasCopy n H p ≤ (n : ℝ) ^ Fintype.card W * p ^ #H := by
+  classical
+  have hmean : wmean (bweight p) (fun E : Finset (Sym2 (Fin n)) =>
+      (#((univ : Finset (W ↪ Fin n)).filter fun f : W ↪ Fin n => H.image (Sym2.map ⇑f) ⊆ E) : ℝ))
+      = Fintype.card (W ↪ Fin n) * p ^ #H := by
+    rw [wmean_eq_sum_powerset]
+    exact sum_bweight_mul_card_copies (V := Fin n) p H
+  have hmark := wmarkov (bweight p) (fun E : Finset (Sym2 (Fin n)) =>
+      (#((univ : Finset (W ↪ Fin n)).filter fun f : W ↪ Fin n => H.image (Sym2.map ⇑f) ⊆ E) : ℝ))
+    (fun E => bweight_nonneg hp0 hp1 E) (fun E => by positivity) (a := 1) one_pos
+  rw [mul_one, hmean] at hmark
+  have hstep : probHasCopy n H p ≤ Fintype.card (W ↪ Fin n) * p ^ #H := by
+    refine le_trans (le_of_eq ?_) hmark
+    rw [probHasCopy]
+    refine Finset.sum_congr ?_ fun _ _ => rfl
+    ext E
+    simp only [mem_filter, mem_univ, true_and]
+    rw [show ((1 : ℝ) ≤ (#((univ : Finset (W ↪ Fin n)).filter
+        fun f : W ↪ Fin n => H.image (Sym2.map ⇑f) ⊆ E) : ℕ) : Prop)
+      ↔ ((univ : Finset (W ↪ Fin n)).filter
+        fun f : W ↪ Fin n => H.image (Sym2.map ⇑f) ⊆ E).Nonempty from by
+      rw [Nat.one_le_cast]
+      exact Finset.card_pos]
+    constructor
+    · intro ⟨f, hf⟩
+      exact ⟨f, mem_filter.mpr ⟨mem_univ _, hf⟩⟩
+    · intro ⟨f, hf⟩
+      exact ⟨f, (mem_filter.mp hf).2⟩
+  refine le_trans hstep (mul_le_mul_of_nonneg_right ?_ (pow_nonneg hp0 _))
+  have hcard : Fintype.card (W ↪ Fin n) ≤ n ^ Fintype.card W := by
+    rw [Fintype.card_embedding_eq, Fintype.card_fin]
+    exact Nat.descFactorial_le_pow n _
+  exact_mod_cast hcard
+
+/-- **Theorem 4.2.10, first half** (for `H` itself). If `n^{v(H)} p^{e(H)} → 0` then `G(n,p)`
+contains no copy of `H` with probability `1 - o(1)`. -/
+theorem tendsto_probHasCopy_zero {W : Type*} [Fintype W] [DecidableEq W] (H : Finset (Sym2 W))
+    {p : ℕ → ℝ} (hp0 : ∀ n, 0 ≤ p n) (hp1 : ∀ n, p n ≤ 1)
+    (h : Tendsto (fun n : ℕ => (n : ℝ) ^ Fintype.card W * p n ^ #H) atTop (nhds 0)) :
+    Tendsto (fun n : ℕ => probHasCopy n H (p n)) atTop (nhds 0) :=
+  squeeze_zero (fun n => probHasCopy_nonneg n H (hp0 n) (hp1 n))
+    (fun n => probHasCopy_le n H (hp0 n) (hp1 n)) h
 
 end CliqueThreshold
 
