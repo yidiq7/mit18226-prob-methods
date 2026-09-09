@@ -4743,6 +4743,35 @@
     "lll_product"
    ],
    "note": "THEOREM 1.1.9 (Spencer 1977): if e(C(k,2)C(n,k-2)+1)2^{1-C(k,2)} <= 1 then R(k,k) > n. Theorem 1.1.8 (exists_avoiding_of_lll) on the uniform random 2-colouring, one bad event per k-subset. Coordinates are ALL subsets of Fin n, not just the 2-element ones -- the extra coordinates are independent and no event depends on them, and S.powersetCard 2 then gives the edges inside S with card_powersetCard supplying C(k,2) for free. The dependency count needs NO canonical choice of the two shared vertices: S' |-> (T, S' minus T) is injective for ANY 2-subset T of S cap S', because T subset S' makes S' recoverable. n < k is separated off since d = C(k,2)C(n,k-2) can vanish there. Checked numerically: the bound overtakes the union-bound Theorem 1.1.2 at k = 11 and the ratio of admissible n tends to sqrt 2, which is Spencer's factor-2 improvement in the constant."
+  },
+  "chromatic_vs_indep": {
+   "kind": "lemma",
+   "parent": "alterationsGroup",
+   "file": "ProbMethods/Chapter03/GirthChromatic.lean",
+   "decl": "PMC.lt_chromaticNumber_of_mul_indepNum_lt",
+   "doc": "alterations.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [],
+   "proof_uses": [],
+   "note": "chi(G) > #V / alpha(G): the colour classes of a proper colouring are independent sets and partition V, so #V <= m * indepNum for every m-colouring. Mathlib has indepNum and chromaticNumber but not this inequality."
+  },
+  "girth_chromatic": {
+   "kind": "theorem",
+   "parent": "alterationsGroup",
+   "file": "ProbMethods/Chapter03/GirthChromatic.lean",
+   "decl": "PMC.exists_girth_chromatic",
+   "doc": "alterations.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "chromatic_vs_indep",
+    "caro_wei"
+   ],
+   "proof_uses": [
+    "chromatic_vs_indep"
+   ],
+   "note": "THEOREM 3.4.1 (Erdos 1959): for all k, l a finite graph with girth > l and chromatic number > k. Two design choices carried it. (1) The deterministic heart is support_mem_badSets: a cycle of length <= l has a vertex set t with 3 <= #t <= l spanning at least #t edges. Replacing 'carries a short cycle' by that plain EDGE COUNT is what lets the first moment method reach it -- no cyclic orderings, no Fin-modular index arithmetic, and the probabilistic side never mentions walks. (2) The parameters are explicit: with L = l+1, M = 4L-2 and r > max(6k, 4L 2^{L^2}), take n = r^{M+2}, p = r^{-M}, x = 3 r^{M+1}. Then n^j p^j = r^{2j} <= r^{2L} for every j <= L, and p C(x,2) >= p x^2/4 = (9/4) n, so the independent-set bound 2^n e^{-(9/4)n} < 1/2 holds for EVERY r since 9/4 > log 2. The notes take p = (log n)^2/n and argue asymptotically; powers of r turn every estimate into an exponent comparison, with no o(1) and no logarithm beyond log 2 < 0.694. Stated with egirth (the ENat girth), since girth = 0 for an acyclic graph would additionally demand the graph HAVE a cycle."
   }
  }
 }

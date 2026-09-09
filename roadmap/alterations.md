@@ -53,18 +53,58 @@ Theorem 3.3.1 is in Mathlib as `MeasureTheory.mul_meas_ge_le_lintegral` and
 `MeasureTheory.meas_ge_le_lintegral_div` (`Mathlib/MeasureTheory/Integral/Lebesgue/Markov.lean`).
 Recorded as `upstream`; never published as a task.
 
-## High girth and high chromatic number (§3.4) — not yet stated
+## High girth and high chromatic number (§3.4) — proved
 
-Theorem 3.4.1 (Erdős 1959): for all `k, ℓ` there is a graph with girth `> ℓ` and chromatic
-number `> k`.
+`PMC.exists_girth_chromatic`: for all `k, ℓ` there is a finite graph with girth `> ℓ` and
+chromatic number `> k` (Erdős 1959).
 
-The statement is clean and finite, and it is a genuinely appealing target. The proof is not:
-it takes `G(n, p)` with `p = (log n)² / n`, bounds the expected number of short cycles,
-applies Markov to delete them, and bounds the independence number — every step asymptotic
-in `n`, with "for `n` sufficiently large" throughout. That needs a working theory of the
-Erdős–Rényi random graph, which this project does not have and Mathlib does not supply.
-Opening it means building that first, and it should be its own phase rather than a task
-appended here.
+**This entry previously said the proof "needs a working theory of the Erdős–Rényi random graph,
+which this project does not have and Mathlib does not supply", and that it should be its own
+phase.** That was wrong twice over. What the proof needs from `G(n,p)` is two first moments,
+both of which `ProbMethods/Weighted.lean` already computes for `bweight` on `Finset (Sym2 V)`;
+and the asymptotics are avoidable entirely.
+
+Four pieces:
+
+* **`PMC.lt_chromaticNumber_of_mul_indepNum_lt`** — `k · α(G) < #V → χ(G) > k`. The colour
+  classes of a proper colouring are independent sets and partition `V`. Mathlib has `indepNum`
+  and `chromaticNumber` but not this inequality.
+* **`PMC.support_mem_badSets`** — the deterministic heart, and the choice that shrank the whole
+  development. A cycle of length `≤ ℓ` has a vertex set `t` with `3 ≤ #t ≤ ℓ` spanning **at
+  least `#t` edges**; replacing "carries a short cycle" by that plain edge count is what lets
+  the first moment method reach it. No cyclic orderings, no modular `Fin` arithmetic, and the
+  probabilistic side never mentions walks. (`#t = L` exactly, because for a closed walk the
+  start reappears in the tail — `Walk.support_tail_of_not_nil` plus `Walk.end_mem_support` —
+  whose vertices are distinct for a cycle.)
+* **the two moments** — `PMC.sum_bweight_card_badSets_le` bounds the expected number of bad
+  sets by `∑_{j=3}^{ℓ} C(n,j) C(C(j,2),j) p^j`, via witnesses (`PMC.badPairs`: a `j`-set of
+  vertices together with `j` present pairs inside it) so that
+  `PMC.sum_bweight_mul_card_filter` applies unchanged. `PMC.sum_bweight_indep_le` is the union
+  bound over candidate independent sets, each needing its `C(x,2)` pairs absent
+  (`PMC.sum_bweight_disjoint`).
+* **`PMC.exists_girth_chromatic_of_good`** — the alteration: delete the least vertex of every
+  bad set. No short cycle survives, more than `n/2` vertices remain, and the independence
+  number only drops.
+
+**The asymptotics go away when `n` is a power.** With `L = ℓ+1`, `M = 4L-2` and any integer
+`r > max(6k, 4L·2^{L²})`, take
+
+    n = r^{M+2},   p = r^{-M},   x = 3 r^{M+1}.
+
+Then `nʲpʲ = r^{2j} ≤ r^{2L}` for every cycle length `j ≤ L`, so the bad-set moment is at most
+`L·2^{L²}·r^{2L} < n/4` — an exponent comparison. And `p·C(x,2) ≥ p x²/4 = (9/4) n`, so the
+independence bound `2ⁿ e^{-(9/4)n} < 1/2` holds for **every** `r`, since `9/4 > log 2`. The
+notes' `p = (log n)²/n` forces "for `n` sufficiently large" at three separate points; powers of
+`r` replace all of it with `omega` on exponents, and the only transcendental fact used is
+`log 2 < 0.694`.
+
+Stated with `SimpleGraph.egirth`, the `ℕ∞`-valued girth: `girth` is `0` for an acyclic graph,
+so "girth `> ℓ`" in that form would additionally demand that the graph *have* a cycle, which
+is not what the notes ask. `ℓ < egirth` says exactly "no cycle of length `≤ ℓ`".
+
+Checked numerically before committing: at `(k,ℓ) = (1,1), (2,2), (3,3)` all three numeric
+hypotheses hold with large slack (`n ≈ 10^17, 10^46, 10^97`). The parameters are astronomical,
+as they are in the notes' proof — the theorem is an existence statement.
 
 ## Random greedy colouring (§3.5) — not yet stated
 

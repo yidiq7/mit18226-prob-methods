@@ -21,7 +21,7 @@ written when the phase opens, so the plan never claims more precision than it ha
 | 1 | 1 Introduction | [introduction.md](introduction.md) | **complete** (8 of 8) |
 | 1 | 2 Linearity of Expectations (§2.3) | [linearity.md](linearity.md) | **complete** (3 of 3) |
 | 2 | 2 (rest) | [linearity.md](linearity.md) | `szele`, `sampling`, `sumfree`, `unbalancing` all proved; **§2.5 complete: Thm 2.5.2 and Lemma 2.5.3 with the explicit constant `2^{-k}`**; §2.6 deferred |
-| 3 | 3 Alterations | [alterations.md](alterations.md) | `dominating` proved; §3.3 upstream, §3.2 deferred, §3.4/§3.5 need design |
+| 3 | 3 Alterations | [alterations.md](alterations.md) | `dominating` and **§3.4 (Erdős' high girth, high chromatic number)** proved; §3.3 upstream (Markov, also `PMC.wmarkov`); §3.2 deferred; §3.5 needs design |
 | 4 | 4 Second Moment | [second-moment.md](second-moment.md) | **§4.1 complete, including both halves of the threshold as limits (Prop 4.1.2, Thm 4.1.11)**, §4.2, §4.4, **§4.6 (Erdős distinct sums, and Thm 4.6.6 Dubroff–Fox–Xu modulo Harper)** proved; **§4.7 upstream, bridge proved** (`exists_polynomial_approx`); §4.3 deferred |
 | 5 | 5 Chernoff Bound | [chernoff.md](chernoff.md) | **§5.0 complete**: Thms 5.0.1, 5.0.5 (via Mathlib's sub-Gaussian machinery), 5.0.7, Cors 5.0.3, 5.0.6; **§5.1 proved** (5.1.6 is task #51); **§5.2 proved** (Thm 5.2.1); §5.3 open |
 | 6 | 6 Lovász Local Lemma | [local-lemma.md](local-lemma.md) | **§6.1–§6.4 complete**: both LLL forms, hypergraph 2-colouring (**including Thm 6.2.4, the non-uniform criterion**), independent transversals, Thm 6.4.3; **§6.5 complete modulo task #44**: lopsided LLL, derangement bound, and **Thm 6.5.11 (Erdős–Spencer Latin transversals)** with 6.5.5's dependency input as an explicit hypothesis; §6.6 open |
@@ -41,15 +41,15 @@ comment, or anywhere in this roadmap does not count.
 
 ```
 labels: 185
-  proved (declaration docstring, no sorry): 100  (54%)
+  proved (declaration docstring, no sorry): 104  (56%)
   statement published, proof open (sorry):  5  T4.3.5 L5.1.6 T8.2.2 T9.4.3 T9.5.11
-  mentioned in Lean, not a declaration:     10  T1.2.2 T1.2.3 T1.2.9 L2.4.3 L4.2.4 T5.1.3 T6.2.10 T6.2.11 T10.3.7 T11.1.1
-  absent from Lean:                         70
+  mentioned in Lean, not a declaration:     9  T1.2.2 T1.2.3 T1.2.9 L4.2.4 T5.1.3 T6.2.10 T6.2.11 T10.3.7 T11.1.1
+  absent from Lean:                         67
 
 proved by chapter:
-  ch1: 9/16
-  ch2: 10/13
-  ch3: 1/5
+  ch1: 10/16
+  ch2: 11/13
+  ch3: 3/5
   ch4: 10/23
   ch5: 7/10
   ch6: 15/25
