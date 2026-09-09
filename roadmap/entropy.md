@@ -192,6 +192,41 @@ Two things:
 
 
 
+## §10.2 — the random-order machinery is in place
+
+`ProbMethods/RandomOrder.lean`. Radhakrishnan's proof of Brégman–Minc reveals the rows in a
+uniformly random order, and its one distributional input is the step the notes leave as an
+exercise ("(Why?)"): for a fixed row, the number of *greedily available* choices is uniform
+on `{1, …, d}`.
+
+Stripped of the setting, that is a fact about a uniformly random permutation `τ` and a fixed
+`S`: the **rank** of `i ∈ S` — how many members of `S` are revealed at or after `i` — is
+uniform on `{1, …, #S}` (`PMC.wprob_tauRank_eq`). Two observations give it:
+
+* `PMC.card_filter_tauRank_eq_one` — for each `τ`, *exactly one* member of `S` has rank `k`;
+  the rank is a bijection from `S` onto `{1, …, #S}`, by strict monotonicity.
+* `PMC.card_filter_tauRank_congr` — the ranks are equidistributed across the members of `S`,
+  since right-multiplying `τ` by `Equiv.swap i i'` exchanges their roles and preserves `S`.
+
+Summing the first over `i ∈ S` and applying the second gives `#S` classes of equal size.
+
+**This needs no order machinery, and that was the design choice worth making.** The obvious
+route — pick out the `k`-th smallest element of `τ(S)` and swap it into place — needs
+`Finset.orderIsoOfFin` and sorted lists; double counting needs only a transposition. The
+`LinearOrder` is used only to *say* what "revealed after" means.
+
+`PMC.wmean_log_tauRank` then gives Brégman's per-row bound `E[log(rank)] = log(d!)/d`. It is
+stated through `PMC.wmean_comp_tauRank`, which takes an arbitrary `f`, because the
+distribution and not the function is the content.
+
+Checked numerically on `Fin 3`: uniform over the three ranks with two orders each, and on the
+proper subset `{0,2}`, two ranks with three orders each.
+
+**What remains for Theorem 10.2.1**: (a) conditional entropy bounded by the expected log of
+the conditional support, (b) the chain rule along an arbitrary order — as a telescoping sum of
+`PMC.tupleEntropy` increments, which avoids conditional entropy altogether — and (c) the
+assembly, where `PMC.wentropy_uniform_of_injective` turns `H(σ)` back into `log (per A)`.
+
 * **§10.2** — Theorem 10.2.1 (Brégman–Minc): `per A ≤ ∏ (dᵢ!)^{1/dᵢ}` for a 0–1 matrix with
   row sums `dᵢ`. **Harder than anything in §10.4**, and worth knowing why before starting:
   Radhakrishnan's proof reveals the chosen entries in a *uniform random order*, so it needs

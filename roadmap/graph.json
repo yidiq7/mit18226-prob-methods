@@ -2878,6 +2878,75 @@
    ],
    "proof_uses": [],
    "note": "Theorem 6.5.11's probability input: P(sigma i1 = j1 and sigma i2 = j2) = 1/(n(n-1)) for distinct rows and distinct columns. One transposition still suffices -- with the first column held fixed, Equiv.swap moves the second anywhere else and fixes j1 precisely because both columns differ from it. The n-1 rather than n is the constraint sigma i2 != sigma i1: the second cell cannot reuse the first column, which is why the fibering runs over univ.erase j1. Checked on Fin 4: 2 of 24 permutations send 0 to 1 and 2 to 3, i.e. 1/12 = 1/(4*3)."
+  },
+  "tauRank": {
+   "kind": "definition",
+   "parent": "entropyGroup",
+   "file": "ProbMethods/RandomOrder.lean",
+   "decl": "PMC.tauRank",
+   "doc": "entropy.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [],
+   "proof_uses": [],
+   "note": "The number of members of S that a random order tau reveals at or after i -- the count of choices still 'greedily available'. Section 10.2's proof of Bregman-Minc is organised around it."
+  },
+  "rank_bijection": {
+   "kind": "theorem",
+   "parent": "entropyGroup",
+   "file": "ProbMethods/RandomOrder.lean",
+   "decl": "PMC.card_filter_tauRank_eq_one",
+   "doc": "entropy.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "tauRank"
+   ],
+   "proof_uses": [],
+   "note": "For each order, EXACTLY ONE member of S has each rank in {1..#S}: the rank is a bijection from S onto that interval, by strict monotonicity (a later element has strictly fewer choices left). Half of the uniformity argument."
+  },
+  "rank_symmetry": {
+   "kind": "theorem",
+   "parent": "entropyGroup",
+   "file": "ProbMethods/RandomOrder.lean",
+   "decl": "PMC.card_filter_tauRank_congr",
+   "doc": "entropy.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "tauRank"
+   ],
+   "proof_uses": [],
+   "note": "The other half: the ranks are equidistributed across the members of S, because right-multiplying tau by Equiv.swap i i' exchanges the roles of i and i' and preserves S."
+  },
+  "rank_uniform": {
+   "kind": "theorem",
+   "parent": "entropyGroup",
+   "file": "ProbMethods/RandomOrder.lean",
+   "decl": "PMC.wprob_tauRank_eq",
+   "doc": "entropy.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "rank_bijection",
+    "rank_symmetry"
+   ],
+   "proof_uses": [],
+   "note": "THE NOTES' '(Why?)' STEP, proved: under a uniformly random order the rank of a member of S is uniform on {1..#S}. Summing 'exactly one element has rank k' over the members of S and using the swap symmetry gives #S classes of equal size, hence probability 1/#S each. Worth recording that this needs NO order machinery: the obvious route -- pick the k-th smallest element of tau(S) and swap it into place -- needs Finset.orderIsoOfFin and sorted lists, while double counting needs only a transposition. Checked on Fin 3 (uniform over 3 ranks, 2 orders each) and on the proper subset {0,2} (2 ranks, 3 orders each)."
+  },
+  "rank_expectation": {
+   "kind": "theorem",
+   "parent": "entropyGroup",
+   "file": "ProbMethods/RandomOrder.lean",
+   "decl": "PMC.wmean_log_tauRank",
+   "doc": "entropy.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "rank_uniform"
+   ],
+   "proof_uses": [],
+   "note": "Bregman-Minc's per-row bound: E[log(rank)] = log(d!)/d, by averaging log k over k = 1..d. The general form wmean_comp_tauRank takes an arbitrary f, since the distribution -- not the function -- is the content."
   }
  }
 }
