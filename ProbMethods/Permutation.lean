@@ -182,6 +182,26 @@ theorem wprob_fix_inter_derangeOn_le [Nonempty α] (i : α) {S : Finset α} (hi 
     _ ≤ (#(derangeOn S) : ℝ) * Fintype.card (Equiv.Perm α) := by
         exact mul_le_mul_of_nonneg_right hcount (le_of_lt hPpos)
 
+/-! ### Extending a partial injection to a permutation
+
+The general form of Theorem 6.5.5 needs the permutation that carries one matching to another
+while disturbing nothing else. That is this lemma, and it is the only missing ingredient. -/
+
+/-- **Extend a partial injection to a permutation.** If `f` is injective on `D`, there is a
+permutation of `α` agreeing with `f` on `D` and fixing every point outside `D ∪ f(D)`.
+
+This is what §6.5's negative-dependency argument needs: given two matchings with the same
+row set, the permutation of the columns carrying one to the other must not move any column
+outside those two matchings, or it could create a forbidden pattern elsewhere.
+
+Such a permutation exists because it is forced only on `D`, where it must biject `D` with
+`f(D)`; on the remainder `(D ∪ f(D)) \ D` it must biject with `(D ∪ f(D)) \ f(D)`, and those
+two sets have equal cardinality since `#D = #f(D)`. -/
+theorem exists_perm_extend (D : Finset α) (f : α → α) (hf : Set.InjOn f D) :
+    ∃ σ : Equiv.Perm α, (∀ x ∈ D, σ x = f x) ∧
+      ∀ y, y ∉ D ∪ D.image f → σ y = y := by
+  sorry
+
 end Permutation
 
 end PMC

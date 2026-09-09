@@ -411,6 +411,13 @@ The negative correlation was checked to be *strict* (`Fin 3` with `S = {1}`: `3 
 `x_i = 1 - 1/n`". Both numbers are the same slip: `P(A_i) = 1/n` and the choice is
 `x_i = 1/n`, which is what makes the displayed `(1 - 1/n)^n` come out.
 
+**The one missing ingredient is published as a task**: `PMC.exists_perm_extend`, that a
+partial injection extends to a permutation *fixing every point outside its domain and image*.
+Mathlib's `Equiv.extendSubtype` does "something arbitrary outside" — its construction happens
+to be the identity off the union, but that is not exposed as a lemma. The clause is not
+decoration: 6.5.5 needs the column permutation carrying one matching to another to leave
+every other column alone, or it could create a forbidden pattern elsewhere.
+
 What remains of §6.5 is Theorem 6.5.5 in **full generality** (arbitrary vertex-disjoint
 matchings in the random injection model) and the Latin-transversal application built on it.
 The single-edge case above is the same argument, so the generalization is a matter of

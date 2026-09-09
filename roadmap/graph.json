@@ -2837,6 +2837,33 @@
    ],
    "proof_uses": [],
    "note": "Corollary 6.5.6: a uniform random permutation of an n-element type has no fixed point with probability at least (1 - 1/n)^n. The lopsided local lemma with an EMPTY dependency neighbourhood, x_i = 1/n. ERRATUM: the notes write 'Since P(A_i) = 1 - 1/n, we can set x_i = 1 - 1/n'; both are the same slip, since P(A_i) = 1/n and the choice is x_i = 1/n, which is what makes the displayed product (1 - 1/n)^n come out. Checked on Fin 3: 2 of 6 permutations are derangements, so P = 1/3 >= 8/27. The n <= 1 cases are separate -- at n = 1 the bound is 0 and at n = 0 both sides are 1."
+  },
+  "perm_extend": {
+   "kind": "theorem",
+   "parent": "localLemmaGroup",
+   "file": "ProbMethods/Permutation.lean",
+   "decl": "PMC.exists_perm_extend",
+   "doc": "local-lemma.md",
+   "statement": "formalized",
+   "proof": "planned",
+   "uses": [],
+   "proof_uses": [],
+   "note": "The one missing ingredient for Theorem 6.5.5 in full generality: a partial injection extends to a permutation that FIXES EVERY POINT OUTSIDE its domain and image. Mathlib's Equiv.extendSubtype does 'something arbitrary outside', and although its construction happens to be the identity off the union, that is not exposed as a lemma -- so this needs either an unfolding of extendSubtype/toCompl through setDiffEquiv or a direct construction. The 'fixes outside' clause is not decoration: 6.5.5's argument needs the column permutation carrying one matching to another to leave every other column alone, or it could create a forbidden pattern elsewhere. STATEMENT COMMITTED, published as a task."
+  },
+  "perm_negative_dependence_general": {
+   "kind": "theorem",
+   "parent": "localLemmaGroup",
+   "file": "ProbMethods/Permutation.lean",
+   "decl": null,
+   "doc": "local-lemma.md",
+   "statement": "planned",
+   "proof": "planned",
+   "uses": [
+    "perm_extend",
+    "perm_negative_correlation"
+   ],
+   "proof_uses": [],
+   "note": "Theorem 6.5.5 for arbitrary matchings, the general negative-dependency statement of the random injection model, and then Theorem 6.5.11 (Erdos-Spencer: every n x n array whose every entry appears at most n/(4e) times has a Latin transversal). The single-edge case is proved (perm_negative_correlation); the general case replaces the transposition by the permutation of perm_extend. Reading the notes' proof closely, the case analysis that makes it work is: for an edge (x,y) of a far-away matching, either y lies outside both column sets, and then the permutation fixes y so the edge was already in the original matching, or y is a column of T, and then the preimage lies in the original matching's columns, forcing x into its row set -- contradicting row-disjointness. The notes' displayed hypothesis mentions only disjointness from F_0, which is indeed all that is used."
   }
  }
 }
