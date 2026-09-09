@@ -30,6 +30,7 @@ import ProbMethods.Chapter06.DivisibleCycle
 import ProbMethods.Chapter06.Derangement
 import ProbMethods.Chapter07.Correlation
 import ProbMethods.Chapter08.Janson
+import ProbMethods.Chapter08.JansonII
 import ProbMethods.Chapter09.HammingCube
 import ProbMethods.Chapter09.Hoeffding
 import ProbMethods.Chapter09.BoundedDifferences

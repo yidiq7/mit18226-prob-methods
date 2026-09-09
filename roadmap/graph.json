@@ -4145,6 +4145,76 @@
    "uses": [],
    "proof_uses": [],
    "note": "LEMMA 10.1.5 (independence): H(X,Y) = H(X) + H(Y) for independent X and Y. By the chain rule it suffices that conditioning on X does nothing, which independence gives on every fibre of positive weight; the zero-weight fibres contribute nothing to either side."
+  },
+  "jPairs": {
+   "kind": "definition",
+   "parent": "jansonGroup",
+   "file": "ProbMethods/Chapter08/JansonII.lean",
+   "decl": "PMC.jPairs",
+   "doc": "janson.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [],
+   "proof_uses": [],
+   "note": "The overlapping ordered pairs with the second index smaller -- the index set of Zhao's Delta/2, as a single Finset of pairs rather than a nested sum. Making it one sum is what lets the second-moment computation go through cleanly."
+  },
+  "jHalfDelta": {
+   "kind": "definition",
+   "parent": "jansonGroup",
+   "file": "ProbMethods/Chapter08/JansonII.lean",
+   "decl": "PMC.jHalfDelta",
+   "doc": "janson.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "jPairs"
+   ],
+   "proof_uses": [],
+   "note": "Delta/2 restricted to a subfamily, plus jMu for mu. jHalfDelta_eq identifies it with the nested double sum janson_upper uses."
+  },
+  "janson_sub": {
+   "kind": "theorem",
+   "parent": "jansonGroup",
+   "file": "ProbMethods/Chapter08/JansonII.lean",
+   "decl": "PMC.janson_upper_sub",
+   "doc": "janson.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "jHalfDelta"
+   ],
+   "proof_uses": [],
+   "note": "Janson I for a SUBFAMILY. Nothing new was needed: janson_prod_le was already stated for an arbitrary T, so the proof of janson_upper applies verbatim -- which is what made the sampling argument available."
+  },
+  "bweight_second_moment": {
+   "kind": "theorem",
+   "parent": "jansonGroup",
+   "file": "ProbMethods/Chapter08/JansonII.lean",
+   "decl": "PMC.wmean_bweight_jHalfDelta",
+   "doc": "janson.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "jHalfDelta"
+   ],
+   "proof_uses": [],
+   "note": "The second moment of the random subfamily: E[Delta_T] = q^2 Delta. Swap the sum over subfamilies with the sum over pairs, and sum_bweight_mem_pair gives q^(#{i,j}) = q^2 for each pair, distinct because the second index is strictly smaller."
+  },
+  "janson_II": {
+   "kind": "theorem",
+   "parent": "jansonGroup",
+   "file": "ProbMethods/Chapter08/JansonII.lean",
+   "decl": "PMC.janson_upper_II",
+   "doc": "janson.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "janson_sub",
+    "bweight_second_moment",
+    "exists_le_wmean"
+   ],
+   "proof_uses": [],
+   "note": "THEOREM 8.1.8 (Janson inequality II), DONE: if mu <= Delta then P(X = 0) <= exp(-mu^2/(2 Delta)). Janson I is strong only when Delta = o(mu); this covers the other regime. The notes' SAMPLING proof: apply Janson I to a random subfamily keeping each index with probability q = mu/Delta, whose moments are q mu and q^2 Delta, and take a subfamily at least as good as the average (exists_le_wmean). mu <= Delta is exactly what makes q <= 1. Both ingredients were already in the library -- janson_prod_le's arbitrary subfamily and bweight's moments -- so what this needed was the pair-sum bookkeeping connecting them. Found by the coverage audit; sorry-free and independent of task #42."
   }
  }
 }

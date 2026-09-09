@@ -85,3 +85,24 @@ which pins down both the exponent and the lower-triangular convention.
 §8.2 (the extended Janson inequality, for the regime `Δ ≥ μ`) and §8.3's applications
 (triangle-free `G(n,p)`, the chromatic number), which are asymptotic and need the project's
 explicit-constant treatment.
+
+## Theorem 8.1.8 (Janson inequality II) — proved
+
+`ProbMethods/Chapter08/JansonII.lean`. If `μ ≤ Δ` then `P(X = 0) ≤ exp(-μ²/(2Δ))`. Janson I is
+strong only when `Δ = o(μ)`; this covers the other regime.
+
+The notes' proof is a **sampling** argument, and both of its ingredients were already here:
+
+* `PMC.janson_prod_le` was stated for an arbitrary subfamily, so `PMC.janson_upper_sub` —
+  Janson I for a subfamily — needed no new work at all;
+* the random subfamily is `PMC.bweight` on `Finset ι`, whose first moment is
+  `PMC.wmean_bweight_linear` and whose second is `PMC.sum_bweight_mem_pair`.
+
+What had to be added was the bookkeeping between them: writing `Δ/2` as a **single sum over a
+`Finset` of pairs** (`PMC.jPairs`) rather than a nested double sum, after which the second
+moment is a sum swap and `q^{#{i,j}} = q²` for each pair — distinct because the second index
+is strictly smaller. `μ ≤ Δ` is exactly what makes the sampling probability `q = μ/Δ` at most
+one, and `PMC.exists_le_wmean` supplies the subfamily at least as good as the average.
+
+**This gap was found by auditing the source label by label**, not by reading the chapter
+status line, which said "both bounds" and meant Theorem 8.1.2 and Remark 8.1.3.
