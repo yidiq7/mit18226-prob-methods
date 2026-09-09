@@ -35,17 +35,28 @@ and `Finset.prod_add` gives `∑ X, p ^ #X * (1 - p) ^ (n - #X) = (p + (1 - p)) 
 Averaging against those weights is the entire probabilistic content, and it is elementary.
 Expect later chapters to reuse this device wherever the parameter is a real number.
 
-## Heilbronn triangle problem (§3.2) — DEFERRED
+## Heilbronn triangle problem (§3.2) — statement published
 
-Theorem 3.2.3: for every `n` there are `n` points in the unit square with every triple
-spanning a triangle of area at least `c n⁻²`.
+`PMC.exists_heilbronn_config`: for some absolute `c > 0` and every `n`, there are `n` points of
+`[0,1]²` no three of which span a triangle of area below `c/n²`. Statement published as a task;
+proof open.
 
-Deferred on machinery, not on statement: the statement is expressible (the constant is
-existential), but the proof integrates over an annulus to bound
-`P(area(p,q,r) ≤ ε)`, which is integral geometry over `ℝ²`. The algebraic alternative the
-notes give — points on the parabola `(x, x²)` over `𝔽ₚ`, with areas bounded below by Pick's
-theorem — replaces analysis with lattice geometry, but Pick's theorem is not in Mathlib
-either. Revisit if either becomes available.
+This entry said "deferred on machinery, not on statement", and the second half was right — the
+statement is elementary, the area being the determinant `PMC.twiceArea`. What was missing was a
+route that stays finite. Three are now recorded:
+
+* the notes' alteration over `([0,1]²)^{2n}` — a random triple has area below `ε` with
+  probability `O(ε)` (the base is `O(1)`, so the third point must land in a strip of width
+  `O(ε)`), so the expected number of bad triples among `2n` points is `O(ε n³)`, which is below
+  `n` at `ε = c/n²`, and deleting one point per bad triple leaves `n`. Needs `Measure.pi` and
+  the volume of a strip;
+* **a grid**: sample from `(1/N)·[N]²` with `N ≈ n³`. The strip estimate becomes a
+  lattice-point count, `PMC.bweight` product weights apply, and the alteration is unchanged.
+  The discretisation costs a constant factor in `c`, which the existential absorbs. This is the
+  route to try first — it needs nothing this development does not already have;
+* the algebraic construction the notes mention — points on the parabola `(x, x²)` over `𝔽ₚ`,
+  areas bounded below via Pick's theorem — which stays blocked, Pick's theorem not being in
+  Mathlib.
 
 ## Markov's inequality (§3.3) — UPSTREAM
 
