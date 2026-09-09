@@ -22,14 +22,41 @@ written when the phase opens, so the plan never claims more precision than it ha
 | 1 | 2 Linearity of Expectations (§2.3) | [linearity.md](linearity.md) | **complete** (3 of 3) |
 | 2 | 2 (rest) | [linearity.md](linearity.md) | `szele`, `sampling`, `sumfree`, `unbalancing` all proved; §2.6 deferred |
 | 3 | 3 Alterations | [alterations.md](alterations.md) | `dominating` proved; §3.3 upstream, §3.2 deferred, §3.4/§3.5 need design |
-| 4 | 4 Second Moment | [second-moment.md](second-moment.md) | **§4.1 complete**, §4.2, §4.4, **§4.6 (Erdős distinct sums)** proved; §4.7 upstream; §4.3 deferred |
+| 4 | 4 Second Moment | [second-moment.md](second-moment.md) | **§4.1 complete**, §4.2, §4.4, **§4.6 (Erdős distinct sums)** proved; **§4.7 upstream, bridge proved** (`exists_polynomial_approx`); §4.3 deferred |
 | 5 | 5 Chernoff Bound | [chernoff.md](chernoff.md) | **Thm 5.0.1, Cor 5.0.3, Thm 5.0.7, §5.1 proved**; 5.0.5 needs measure theory; §5.2/§5.3 open |
-| 6 | 6 Lovász Local Lemma | [local-lemma.md](local-lemma.md) | **§6.1–§6.4 complete**: both LLL forms, hypergraph 2-colouring, independent transversals, Thm 6.4.3 (cycle of length divisible by k, first-pass constant); §6.5 lopsided LLL + derangement bound proved (Thms 6.5.1/6.5.2, Cor 6.5.6); §6.5's Latin transversals and §6.6 open |
+| 6 | 6 Lovász Local Lemma | [local-lemma.md](local-lemma.md) | **§6.1–§6.4 complete**: both LLL forms, hypergraph 2-colouring (**including Thm 6.2.4, the non-uniform criterion**), independent transversals, Thm 6.4.3; **§6.5 complete modulo task #44**: lopsided LLL, derangement bound, and **Thm 6.5.11 (Erdős–Spencer Latin transversals)** with 6.5.5's dependency input as an explicit hypothesis; §6.6 open |
 | 7 | 7 Correlation Inequalities | [correlation.md](correlation.md) | **complete in finite form**: §7.1 upstream, §7.2 proved |
-| 8 | 8 Janson Inequalities | [janson.md](janson.md) | **§8.1 complete**: Thm 8.1.2 (Janson I), Remark 8.1.3, **Thm 8.1.8 (Janson II)**; §8.2 is task #42, §8.3 asymptotic |
+| 8 | 8 Janson Inequalities | [janson.md](janson.md) | **§8.1 complete**: Thm 8.1.2 (Janson I), Remark 8.1.3, **Thm 8.1.8 (Janson II)**, and **Thm 7.2.2** (`prob_not_hasTriangle_ge`, the triangle-free lower bound `(1-p³)^C(n,3)`); §8.2 is task #42, §8.3 asymptotic |
 | 9 | 9 Concentration of Measure | [mathlib-survey.md](mathlib-survey.md) | **§9.1 proved here** (Thm 9.1.1/9.1.3 + coupon collector) and **§9.3's Thm 9.3.1** (Shamir–Spencer), both modulo task #47; §9.2 upstream (Azuma–Hoeffding); **§9.4's cube isoperimetry started**: ball expansion and the Chernoff estimate proved, Thm 9.4.5 proved conditional on Harper (published as a task); §9.4's cube results proved (Thm 9.4.6 both routes, one Harper-free); §9.5's convex distance set up and Talagrand's inequality published as a task |
-| 10 | 10 Entropy | [entropy.md](entropy.md) | **§10.1, §10.2, §10.4**: Thms 10.4.1/10.4.3/10.4.5/**10.4.9**, Cors 10.4.6/10.4.7, and **Thm 10.2.1 (Brégman–Minc)**; **Thms 10.3.3 (Blakey–Roy), 10.3.6 in full (all K_{s,t}), 10.3.5 for stars**; §10.2's Cor 10.2.2 general case, §10.3's remaining cases open |
+| 10 | 10 Entropy | [entropy.md](entropy.md) | **§10.1, §10.2, §10.4 complete**; §10.4: Thms 10.4.1/10.4.3/10.4.5/10.4.9, Cors 10.4.6/10.4.7, Lemma 10.4.13, **Thm 10.4.12 (Kahn–Zhao)** and **Thm 10.4.14 (Galvin–Tetali)** — only 10.4.15 (a 2020 research result the notes state without proof) is left; §10.2: **Thm 10.2.1 (Brégman–Minc)**, Cor 10.2.2, **Lemma 10.2.7 + Thm 10.2.4's lower bound**; §10.3: Thms 10.3.3 (Blakey–Roy), 10.3.6 in full, 10.3.5 for stars (trees are task #48) |
 | 11 | 11 Containers | [containers.md](containers.md) | **lower bound of Thm 11.0.2 proved** (2^⌊n²/4⌋ triangle-free graphs, exact for every n); the upper bound and §11.1–§11.3 need the container theorem, and every other result there is asymptotic |
+
+## What remains, chapter by chapter (2026-09-09)
+
+Of the book's 186 numbered theorem-like results, what is *not* formalized falls into four
+kinds, and it is worth naming them because they call for different responses:
+
+1. **Asymptotic statements** — `o(1)`, `whp`, `Θ`, `∼`. Chapters 4 (§4.1–§4.5's limits), 8
+   (§8.1.6, §8.1.10, §8.2.5, §8.3), 9 (§9.3.3–§9.3.5), 11 (almost everything). The explicit
+   finite content of these is generally proved; the limit statements need an asymptotics layer
+   and are deferred by the convention below.
+2. **Continuous measure** — §9.4's Euclidean and spherical isoperimetry (9.4.1, 9.4.10),
+   §9.4.8's equivalence of concentration notions, §9.6 (Euclidean TSP), §5.0.5, §5.2, §10.2.10
+   (Linial–Luria, whose proof randomises over `[0,1]^{C(n,2)}`). Out of reach of the counting
+   framework by design, not by accident.
+3. **Open published tasks** — #42 (Janson III, *claimed*), #44 (`exists_perm_extend`), #45
+   (log-concavity of `(x!)^{1/x}`), #46 (Harper), #47 (Hoeffding's lemma, finite form), #48
+   (Sidorenko for trees), #49 (Talagrand), #50 (Thm 4.3.5).
+4. **Deliberate scope decisions**, each recorded with a reason: §6.6 (Moser–Tardos needs
+   algorithm semantics), §2.6 (crossing number needs planarity, which Mathlib lacks), §11's
+   container theorem (the notes defer its key counting step to Morris's lecture notes, which
+   are not available here — the constants are not guessed), Theorem 10.4.15 and Theorem 5.1.3
+   (research results the notes state without proof).
+
+Everything else in the book is formalized. Two results are proved *modulo a named
+hypothesis* rather than a `sorry`, so the missing input is visible in the statement:
+Theorem 9.1.1/9.1.3 and Theorem 9.3.1 (on task #47's Hoeffding's lemma) and Theorem 6.5.11
+(on Theorem 6.5.5's negative dependence, i.e. task #44).
 
 ## Conventions that shape the route
 
