@@ -47,7 +47,9 @@ theorem determinedOn_noneOf {A : κ → Finset (ι → β)} {C : κ → Finset �
 
 variable [Nonempty β]
 
-/-- **The Lovász local lemma on a product sample space.**
+/-- **The Lovász local lemma on a product sample space** (Zhao, Theorem 1.1.8 — the
+"random variable model"; the notes state it with `P(Eᵢ) ≤ 1/((d+1)e)`, which is the `hep`
+hypothesis here).
 
 Each event `A c` depends only on the coordinates in `C c`; events whose blocks are disjoint
 are genuinely independent, which is what `hfar` records. Given `e p (d+1) ≤ 1`, some point of

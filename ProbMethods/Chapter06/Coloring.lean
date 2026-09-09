@@ -239,6 +239,95 @@ theorem exists_two_coloring_of_local_lemma' (edge : ι → Finset V) {k d : ℕ}
 
   · exact ⟨∅, fun i => absurd ⟨i⟩ hι⟩
 
+/-- The exact probability that `edge i` is monochromatic under a uniform random colouring:
+`2 ^ (1 - #(edge i))`. The `≤` form inside `PMC.exists_two_coloring_of_local_lemma'` is this
+followed by monotonicity; the non-uniform criterion below needs the equality, since it sums
+these probabilities over a neighbourhood of edges of *different* sizes. -/
+theorem wprob_monoEvent (edge : ι → Finset V) (i : ι) (hm : 1 ≤ #(edge i)) :
+    wprob (unifColoring V) (monoEvent edge i) = 2 / 2 ^ #(edge i) := by
+  classical
+  have hmn : #(edge i) ≤ Fintype.card V := by
+    rw [← card_univ]
+    exact card_le_card (subset_univ _)
+  rw [wprob_unifColoring, card_monoEvent edge i hm rfl]
+  push_cast
+  rw [div_eq_div_iff (by positivity) (by positivity)]
+  calc (2 : ℝ) * 2 ^ (Fintype.card V - #(edge i)) * 2 ^ #(edge i)
+      = 2 * (2 ^ (Fintype.card V - #(edge i)) * 2 ^ #(edge i)) := by ring
+    _ = 2 * 2 ^ Fintype.card V := by rw [← pow_add, Nat.sub_add_cancel hmn]
+
+/-- **Theorem 6.2.4** — the *non-uniform* 2-colouring criterion. A hypergraph whose edges all
+have at least three vertices is 2-colourable as soon as, for every edge `e`,
+
+    ∑_{f ≠ e, f ∩ e ≠ ∅} 2^(-#f) ≤ 1/8.
+
+Unlike Theorem 6.2.1 this counts the neighbours *weighted by their sizes*, so one edge may
+meet very many small edges' worth of large ones. As the notes put it (Remark 6.2.5), the sign
+to look past the symmetric local lemma is bad events of very different probabilities.
+
+`PMC.lovasz_local_lemma_quarter` at the monochromatic events: `#e ≥ 3` gives
+`P(A_e) = 2^{1-#e} ≤ 1/4 < 1/2`, and the hypothesis gives
+`∑_{f ∈ N(e)} P(A_f) = 2 ∑ 2^{-#f} ≤ 1/4`. -/
+theorem exists_two_coloring_of_weight_sum (edge : ι → Finset V)
+    (hcard : ∀ i, 3 ≤ #(edge i))
+    (hweight : ∀ i, ∑ j ∈ sharesVertex edge i, (1 : ℝ) / 2 ^ #(edge j) ≤ 1 / 8) :
+    ∃ S : Finset V, ∀ i, ¬ edge i ⊆ S ∧ (edge i ∩ S).Nonempty := by
+  classical
+  have hprob : ∀ i, wprob (unifColoring V) (monoEvent edge i) = 2 / 2 ^ #(edge i) :=
+    fun i => wprob_monoEvent edge i (le_trans (by norm_num) (hcard i))
+  have height : ∀ i, (8 : ℝ) ≤ 2 ^ #(edge i) := by
+    intro i
+    calc (8 : ℝ) = 2 ^ 3 := by norm_num
+      _ ≤ 2 ^ #(edge i) := pow_le_pow_right₀ (by norm_num) (hcard i)
+  -- edges sharing no vertex are independent
+  have hindep : ∀ (i : ι) (T : Finset ι), Disjoint T (insert i (sharesVertex edge i)) →
+      wprob (unifColoring V) (monoEvent edge i ∩ noneOf (monoEvent edge) T)
+        = wprob (unifColoring V) (monoEvent edge i)
+          * wprob (unifColoring V) (noneOf (monoEvent edge) T) := by
+    intro i T hT
+    refine wprob_unifColoring_mul_of_determinedBy (determinedBy_monoEvent edge i) ?_
+    refine determinedBy_noneOf (fun j => determinedBy_monoEvent edge j) ?_
+    intro j hj x hx
+    have hjnot : j ∉ insert i (sharesVertex edge i) := Finset.disjoint_left.mp hT hj
+    have hji : j ≠ i := by
+      intro h
+      exact hjnot (by rw [h]; exact mem_insert_self i _)
+    have hempty : edge i ∩ edge j = ∅ := by
+      by_contra h
+      exact hjnot (mem_insert_of_mem
+        (mem_sharesVertex.mpr ⟨hji, Finset.nonempty_iff_ne_empty.mpr h⟩))
+    rw [mem_sdiff]
+    refine ⟨mem_univ x, fun hxi => ?_⟩
+    have hmem : x ∈ edge i ∩ edge j := mem_inter.mpr ⟨hxi, hx⟩
+    rw [hempty] at hmem
+    exact notMem_empty x hmem
+  have hhalf : ∀ i, wprob (unifColoring V) (monoEvent edge i) < 1 / 2 := by
+    intro i
+    rw [hprob i, div_lt_div_iff₀ (by positivity) (by norm_num : (0:ℝ) < 2)]
+    linarith [height i]
+  have hquarter : ∀ i, ∑ j ∈ sharesVertex edge i,
+      wprob (unifColoring V) (monoEvent edge j) ≤ 1 / 4 := by
+    intro i
+    rw [Finset.sum_congr rfl fun j _ => hprob j,
+      show ∑ j ∈ sharesVertex edge i, (2 : ℝ) / 2 ^ #(edge j)
+        = 2 * ∑ j ∈ sharesVertex edge i, (1 : ℝ) / 2 ^ #(edge j) from by
+        rw [Finset.mul_sum]
+        exact Finset.sum_congr rfl fun j _ => by ring]
+    linarith [hweight i]
+  have hpos := lovasz_local_lemma_quarter (unifColoring V) unifColoring_nonneg
+    sum_unifColoring (monoEvent edge) (sharesVertex edge) (fun i => by simp) hindep hhalf
+    hquarter
+  have hne : (noneOf (monoEvent edge) (univ : Finset ι)).Nonempty := by
+    rcases Finset.eq_empty_or_nonempty (noneOf (monoEvent edge) (univ : Finset ι)) with h | h
+    · rw [h, wprob_empty] at hpos
+      linarith
+    · exact h
+  obtain ⟨S, hS⟩ := hne
+  refine ⟨S, fun i => ?_⟩
+  have hSi : S ∉ monoEvent edge i := mem_noneOf.mp hS i (mem_univ i)
+  simp only [monoEvent, mem_filter, mem_univ, true_and, not_or] at hSi
+  exact ⟨hSi.1, Finset.nonempty_iff_ne_empty.mpr hSi.2⟩
+
 /-- **Theorem 6.2.1.** A `k`-uniform hypergraph in which every edge meets at most `d` others
 is 2-colourable once `e (d+1) 2^{1-k} ≤ 1` — equivalently, once every edge meets at most
 `e⁻¹ 2^{k-1} - 1` others, which is how the notes state it.

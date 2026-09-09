@@ -110,6 +110,30 @@ is `Finset V` under the uniform weight, and `PMC.monoEvent edge i` is the event 
   `2` times the free coordinates. Checked numerically at `(n,k) = (4,2)` and `(5,3)`, both
   giving `8`.
 
+### §6.2 — the non-uniform criterion (Theorem 6.2.4) — done
+
+`PMC.exists_two_coloring_of_weight_sum`: a hypergraph all of whose edges have at least
+three vertices is 2-colourable as soon as
+
+    ∑_{f ≠ e, f ∩ e ≠ ∅} 2^(-#f) ≤ 1/8   for every edge e.
+
+`PMC.lovasz_local_lemma_quarter` (Corollary 6.1.10) at the monochromatic events: `#e ≥ 3`
+gives `P(A_e) = 2^{1-#e} ≤ 1/4 < 1/2`, and the hypothesis gives
+`∑_{f ∈ N(e)} P(A_f) = 2 ∑ 2^{-#f} ≤ 1/4`.
+
+This needed `PMC.wprob_monoEvent`, the *exact* probability `2^{1-#e}` rather than the `≤`
+bound the symmetric application uses — the point of the criterion is that it sums
+probabilities over neighbours of **different sizes**, which is the notes' Remark 6.2.5: the
+sign to look past the symmetric local lemma is bad events of very different probabilities.
+
+Sanity check on how much it buys: for a 3-uniform hypergraph the hypothesis reads
+`#N(e) ≤ 1`, where the symmetric form (Theorem 6.2.1) needs `e(d+1)/4 ≤ 1`, i.e. `d = 0`.
+
+One deliberate difference from the notes: the sum here is over *indices* `j ≠ i` rather than
+over distinct edges, so two indices carrying the same edge set are counted twice. That makes
+the hypothesis stronger than the notes' and the theorem no weaker, and it keeps the indexed
+convention the rest of the file uses.
+
 ### §6.2 — done
 
 `PMC.exists_two_coloring_of_local_lemma`: a `k`-uniform hypergraph in which every edge
