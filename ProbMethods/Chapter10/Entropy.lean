@@ -468,6 +468,48 @@ theorem wentropy_congr (w : Ω → ℝ) (X : Ω → β) (Y : Ω → γ) (g : β 
     · intro hx; rw [hg ω, hx]
     · intro hy; rw [hh ω, hy, hb']
 
+/-! ### The binomial tail bound (§10.1)
+
+The notes bound the lower tail of a binomial coefficient sum two ways: by the moment
+generating function, giving
+
+`∑_{0 ≤ i ≤ k} C(n,i) ≤ (1+x)ⁿ / xᵏ` for every `x ∈ [0,1]`,
+
+and then, taking the infimum over `x`, by `2^(H(k/n) n)`. The explicit-`x` form is the one
+this project wants — it is finite, sharp, and carries no `o(1)` — so it is what is proved
+here; the entropy form follows from it by substituting the minimising `x`, which is a
+real-analysis optimisation rather than a combinatorial step.
+
+Stated multiplicatively (`… * xᵏ ≤ (1+x)ⁿ`) so that `x = 0` needs no special case.
+-/
+
+/-- **The binomial tail bound**, in explicit form: for every `x ∈ [0,1]`,
+`(∑_{i ≤ k} C(n,i)) · xᵏ ≤ (1+x)ⁿ`.
+
+The whole content is that `xᵏ ≤ xⁱ` for `i ≤ k` when `x ≤ 1`, so the truncated sum, each of
+whose terms is weighted by the *smallest* power, is dominated by the full binomial
+expansion. -/
+theorem sum_choose_mul_pow_le {n k : ℕ} (hk : k ≤ n) {x : ℝ} (hx0 : 0 ≤ x) (hx1 : x ≤ 1) :
+    (∑ i ∈ Finset.range (k + 1), (n.choose i : ℝ)) * x ^ k ≤ (1 + x) ^ n := by
+  have hbin : (1 + x) ^ n = ∑ i ∈ Finset.range (n + 1), (n.choose i : ℝ) * x ^ i := by
+    rw [show (1 : ℝ) + x = x + 1 from add_comm 1 x, add_pow]
+    refine Finset.sum_congr rfl fun i _ => ?_
+    rw [one_pow, mul_one]
+    ring
+  rw [hbin, Finset.sum_mul]
+  calc ∑ i ∈ Finset.range (k + 1), (n.choose i : ℝ) * x ^ k
+      ≤ ∑ i ∈ Finset.range (k + 1), (n.choose i : ℝ) * x ^ i := by
+        refine Finset.sum_le_sum fun i hi => ?_
+        rw [Finset.mem_range] at hi
+        exact mul_le_mul_of_nonneg_left
+          (pow_le_pow_of_le_one hx0 hx1 (by omega)) (by positivity)
+    _ ≤ ∑ i ∈ Finset.range (n + 1), (n.choose i : ℝ) * x ^ i := by
+        have hsub : Finset.range (k + 1) ⊆ Finset.range (n + 1) := by
+          intro i hi
+          rw [Finset.mem_range] at hi ⊢
+          omega
+        exact Finset.sum_le_sum_of_subset_of_nonneg hsub fun i _ _ => by positivity
+
 /-! ### Relabelling, and submodularity
 
 Submodularity, `H(X,Y,Z) + H(X) ≤ H(X,Y) + H(X,Z)`, is the last of the structural entropy

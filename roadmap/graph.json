@@ -1978,24 +1978,10 @@
       "statement": "planned",
       "proof": "planned",
       "uses": [
-        "shearer"
+        "entropy_chain_rule"
       ],
       "proof_uses": [],
-      "note": "Section 10.2 (Permanent, perfect matchings, Steiner triple systems). Not started."
-    },
-    "sidorenko": {
-      "kind": "theorem",
-      "parent": "entropyGroup",
-      "file": null,
-      "decl": null,
-      "doc": "entropy.md",
-      "statement": "planned",
-      "proof": "planned",
-      "uses": [
-        "shearer"
-      ],
-      "proof_uses": [],
-      "note": "Section 10.3 (Sidorenko's inequality). Not started."
+      "note": "Theorem 10.2.1 (Bregman-Minc): per A <= product of (d_i!)^(1/d_i) for a 0-1 matrix with row sums d_i. Radhakrishnan's proof reveals the chosen entries in a UNIFORM RANDOM ORDER, so it needs conditional entropy over a random permutation of the rows -- a second layer of randomness on top of the permutation being counted. Real exponents 1/d_i as well. Substantially harder than anything in 10.4."
     },
     "triangle_intersecting": {
       "kind": "theorem",
@@ -2327,6 +2313,46 @@
       ],
       "proof_uses": [],
       "note": "Every block meets every triangle: two of the triangle's three vertices lie on the same side of S, and the edge between them is in the block."
+    },
+    "binomial_tail": {
+      "kind": "theorem",
+      "parent": "entropyGroup",
+      "file": "ProbMethods/Chapter10/Entropy.lean",
+      "decl": "PMC.sum_choose_mul_pow_le",
+      "doc": "entropy.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "Section 10.1's binomial tail bound in EXPLICIT form: (sum over i <= k of C(n,i)) * x^k <= (1+x)^n for every x in [0,1]. The notes give this and then take the infimum over x to get 2^(H(k/n)n); the explicit-x form is the one this project wants -- finite, sharp, no o(1) -- and the entropy form follows from it by substituting the minimising x, which is a real-analysis optimisation rather than a combinatorial step. Stated multiplicatively so x = 0 needs no special case. The whole content is that x^k <= x^i for i <= k when x <= 1."
+    },
+    "binomial_tail_entropy": {
+      "kind": "theorem",
+      "parent": "entropyGroup",
+      "file": null,
+      "decl": null,
+      "doc": "entropy.md",
+      "statement": "planned",
+      "proof": "planned",
+      "uses": [
+        "binomial_tail"
+      ],
+      "proof_uses": [],
+      "note": "The entropy form of the binomial tail bound: log2 of the truncated sum <= H(k/n)*n. Follows from sum_choose_mul_pow_le by substituting the minimising x = (k/n)/(1 - k/n); Mathlib's Real.binEntropy is the right target. Pure real analysis from here."
+    },
+    "sidorenko": {
+      "kind": "theorem",
+      "parent": "entropyGroup",
+      "file": null,
+      "decl": null,
+      "doc": "entropy.md",
+      "statement": "planned",
+      "proof": "planned",
+      "uses": [
+        "shearer"
+      ],
+      "proof_uses": [],
+      "note": "Section 10.3, Sidorenko's inequality. Homomorphism densities; Remark 10.3.8 notes the Mobius graph K_{5,5} minus C_10 is the smallest open case, so the section is partly about an open problem."
     }
   }
 }

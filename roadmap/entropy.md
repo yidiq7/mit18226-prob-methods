@@ -7,7 +7,7 @@ file had it wrong, which is worth flagging because the mistake was silent):
 
 | § | Title | Status |
 |---|---|---|
-| 10.1 | Basic properties | proved |
+| 10.1 | Basic properties | proved, incl. the explicit binomial tail bound |
 | 10.2 | Permanent, perfect matchings, Steiner triple systems | not started |
 | 10.3 | Sidorenko's inequality | not started |
 | 10.4 | Shearer's lemma | **complete** — Thms 10.4.1, 10.4.3, 10.4.5, 10.4.9; Cors 10.4.6, 10.4.7 |
@@ -188,13 +188,23 @@ asymptotically tight on `K_n`, where the two sides' ratio tends to `1`.
 
 ## Next
 
-Two things, in the notes' own order:
+Three things:
 
-* **§10.2** — permanents, perfect matchings, Steiner triple systems (the Bregman-type
-  results). These should go through `PMC.shearer_of_submodular` directly rather than the
-  counting corollary, since the set function they need is not `S ↦ H(X_S)` for a masked
-  tuple.
-* **§10.3** — Sidorenko's inequality.
+* **The entropy form of §10.1's binomial tail bound** —
+  `log₂ ∑_{i ≤ k} C(n,i) ≤ H(k/n) n`. `PMC.sum_choose_mul_pow_le` is the explicit-`x` form;
+  the entropy form follows by substituting the minimising `x = (k/n)/(1 - k/n)`, with
+  Mathlib's `Real.binEntropy` as the target. Pure real analysis from here, no combinatorics.
+
+
+* **§10.2** — Theorem 10.2.1 (Brégman–Minc): `per A ≤ ∏ (dᵢ!)^{1/dᵢ}` for a 0–1 matrix with
+  row sums `dᵢ`. **Harder than anything in §10.4**, and worth knowing why before starting:
+  Radhakrishnan's proof reveals the chosen entries in a *uniform random order*, so it needs
+  conditional entropy over a random permutation of the rows — a second layer of randomness
+  on top of the permutation being counted — and the statement carries real exponents
+  `1/dᵢ`.
+* **§10.3** — Sidorenko's inequality, about homomorphism densities. Note Remark 10.3.8: the
+  Möbius graph `K₅,₅ ∖ C₁₀` is the smallest open case, so part of the section is an open
+  problem rather than something to formalize.
 * **Theorem 10.4.9 — proved** (`PMC.card_lt_of_triangle_intersecting`). Every
   triangle-intersecting family of graphs on `n` labelled vertices has size
   `< 2 ^ (C(n,2) - 2)`, so §10.4 is complete.
@@ -213,13 +223,23 @@ Two things, in the notes' own order:
 
 ## Next
 
-Two things, in the notes' own order:
+Three things:
 
-* **§10.2** — permanents, perfect matchings, Steiner triple systems (the Bregman-type
-  results). These should go through `PMC.shearer_of_submodular` directly rather than the
-  counting corollary, since the set function they need is not `S ↦ H(X_S)` for a masked
-  tuple.
-* **§10.3** — Sidorenko's inequality.
+* **The entropy form of §10.1's binomial tail bound** —
+  `log₂ ∑_{i ≤ k} C(n,i) ≤ H(k/n) n`. `PMC.sum_choose_mul_pow_le` is the explicit-`x` form;
+  the entropy form follows by substituting the minimising `x = (k/n)/(1 - k/n)`, with
+  Mathlib's `Real.binEntropy` as the target. Pure real analysis from here, no combinatorics.
+
+
+* **§10.2** — Theorem 10.2.1 (Brégman–Minc): `per A ≤ ∏ (dᵢ!)^{1/dᵢ}` for a 0–1 matrix with
+  row sums `dᵢ`. **Harder than anything in §10.4**, and worth knowing why before starting:
+  Radhakrishnan's proof reveals the chosen entries in a *uniform random order*, so it needs
+  conditional entropy over a random permutation of the rows — a second layer of randomness
+  on top of the permutation being counted — and the statement carries real exponents
+  `1/dᵢ`.
+* **§10.3** — Sidorenko's inequality, about homomorphism densities. Note Remark 10.3.8: the
+  Möbius graph `K₅,₅ ∖ C₁₀` is the smallest open case, so part of the section is an open
+  problem rather than something to formalize.
 * (done — see above) in `ProbMethods/Chapter10/Intersecting.lean`
   (`PMC.two_mul_card_traceOn_le`, `PMC.exists_pair_same_side`), with Corollary 10.4.7 already
   available as `PMC.card_pow_le_prod_card_projSet`.
@@ -311,13 +331,23 @@ setting Theorem 10.4.9 needs, so its remaining work really is only arithmetic no
 
 ## Next
 
-Two things, in the notes' own order:
+Three things:
 
-* **§10.2** — permanents, perfect matchings, Steiner triple systems (the Bregman-type
-  results). These should go through `PMC.shearer_of_submodular` directly rather than the
-  counting corollary, since the set function they need is not `S ↦ H(X_S)` for a masked
-  tuple.
-* **§10.3** — Sidorenko's inequality.
+* **The entropy form of §10.1's binomial tail bound** —
+  `log₂ ∑_{i ≤ k} C(n,i) ≤ H(k/n) n`. `PMC.sum_choose_mul_pow_le` is the explicit-`x` form;
+  the entropy form follows by substituting the minimising `x = (k/n)/(1 - k/n)`, with
+  Mathlib's `Real.binEntropy` as the target. Pure real analysis from here, no combinatorics.
+
+
+* **§10.2** — Theorem 10.2.1 (Brégman–Minc): `per A ≤ ∏ (dᵢ!)^{1/dᵢ}` for a 0–1 matrix with
+  row sums `dᵢ`. **Harder than anything in §10.4**, and worth knowing why before starting:
+  Radhakrishnan's proof reveals the chosen entries in a *uniform random order*, so it needs
+  conditional entropy over a random permutation of the rows — a second layer of randomness
+  on top of the permutation being counted — and the statement carries real exponents
+  `1/dᵢ`.
+* **§10.3** — Sidorenko's inequality, about homomorphism densities. Note Remark 10.3.8: the
+  Möbius graph `K₅,₅ ∖ C₁₀` is the smallest open case, so part of the section is an open
+  problem rather than something to formalize.
 * (done — see above) in `ProbMethods/Chapter10/Intersecting.lean`
   (`PMC.two_mul_card_traceOn_le`, `PMC.exists_pair_same_side`), with Corollary 10.4.7 already
   available as `PMC.card_pow_le_prod_card_projSet`.
