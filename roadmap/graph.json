@@ -4243,6 +4243,32 @@
    ],
    "proof_uses": [],
    "note": "COROLLARY 6.2.2: for k >= 9, every k-uniform k-regular hypergraph is 2-colourable. The degree count is the content -- an edge has k vertices, each in k edges, one of which is the edge itself, so it meets at most k(k-1) others (a biUnion bound over the edge's vertices). The numeric side condition 2e(k^2-k+1) <= 2^k is an induction from k = 9, where 2e*73 = 396.9 <= 512; the step needs only k^2 - 3k + 1 >= 0, true from k = 3, so 9 is forced by the BASE case rather than the induction."
+  },
+  "monotone_family": {
+   "kind": "definition",
+   "parent": "linearity",
+   "file": "ProbMethods/Chapter04/Threshold.lean",
+   "decl": "PMC.IsMonotoneFamily",
+   "doc": "second-moment.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [],
+   "proof_uses": [],
+   "note": "A monotone (upward-closed) family of subsets, with the two endpoint lemmas: upward-closure makes 'non-trivial' equivalent to the empty set not being a member and the whole set being one."
+  },
+  "threshold_strictmono": {
+   "kind": "theorem",
+   "parent": "linearity",
+   "file": "ProbMethods/Chapter04/Threshold.lean",
+   "decl": "PMC.strictMonoOn_sum_bweight",
+   "doc": "second-moment.md",
+   "statement": "formalized",
+   "proof": "planned",
+   "uses": [
+    "monotone_family"
+   ],
+   "proof_uses": [],
+   "note": "THEOREM 4.3.5 (monotonicity of the satisfying probability). STATEMENT COMMITTED, published as a task. Section 4.3's threshold results are asymptotic and stay deferred, but 4.3.5 is NOT -- it is a finite statement about a polynomial in p, and it is the fact every later threshold argument silently uses. The route: with independent coordinate probabilities the weight of F is LINEAR in each p_j, and upward-closure gives P(F | j in S) >= P(F | j not in S) by the injection S -> S union {j}, so P is nondecreasing in every coordinate; strictness needs one pivotal coordinate, which non-triviality supplies from a minimal member of F."
   }
  }
 }
