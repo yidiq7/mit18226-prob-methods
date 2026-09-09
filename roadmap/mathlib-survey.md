@@ -82,6 +82,15 @@ availability of the mathematics. Recorded as upstream in `graph.json`.
   `PMC.wDistToSet_le_sqrt` bounds the set by `√n` via Cauchy–Schwarz. It vanishes on `A` and
   is nonnegative.
 
+  **Theorem 9.5.21 (certifiable functions) is proved**, given the inequality as a hypothesis
+  (`PMC.card_mul_card_certifiable_le`): `P(f ≤ r-t) P(f ≥ r) ≤ e^{-t²/(4s)}`. That is the
+  *combinatorial* half of the section, and it turned out to need **no convex geometry at
+  all** — the normalised indicator of a certificate is already a unit weight vector
+  witnessing `d_T(y,A) ≥ t/√s` (`PMC.unitWeights_indicator`), and the rest is counting, with
+  `PMC.card_disagree_ge` supplying the key step by *splicing* the certificate's coordinates
+  in. It is also the form the section's applications use (longest increasing subsequence,
+  Euclidean TSP), so those become reachable once task #49 lands.
+
   **Why it is worth the trouble**: the bounded differences bound degrades as `exp(-t²/n)`,
   while Talagrand's has no `n` in the exponent at all. The proof is an induction on
   coordinates with Hölder, plus the delicate elementary fact

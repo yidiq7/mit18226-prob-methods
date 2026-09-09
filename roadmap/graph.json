@@ -3980,6 +3980,75 @@
    ],
    "proof_uses": [],
    "note": "TALAGRAND'S CONVEX DISTANCE: the supremum of the weighted distance over the unit sphere of nonnegative weights, as an sSup. Nonempty and bounded above, so well defined. Vanishes on A (convexDist_eq_zero_of_mem) and is nonnegative."
+  },
+  "hammingLipschitz": {
+   "kind": "definition",
+   "parent": "concentrationGroup",
+   "file": "ProbMethods/Chapter09/Talagrand.lean",
+   "decl": "PMC.HammingLipschitz",
+   "doc": "mathlib-survey.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [],
+   "proof_uses": [],
+   "note": "1-Lipschitz for the Hamming distance, the hypothesis Theorem 9.5.21 puts on f."
+  },
+  "certifiable": {
+   "kind": "definition",
+   "parent": "concentrationGroup",
+   "file": "ProbMethods/Chapter09/Talagrand.lean",
+   "decl": "PMC.Certifiable",
+   "doc": "mathlib-survey.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [],
+   "proof_uses": [],
+   "note": "s-certifiability: membership in a set is always witnessed by at most s coordinates, so any point agreeing there also belongs. This is the combinatorial hypothesis that makes Talagrand's inequality applicable without any geometry."
+  },
+  "card_disagree": {
+   "kind": "theorem",
+   "parent": "concentrationGroup",
+   "file": "ProbMethods/Chapter09/Talagrand.lean",
+   "decl": "PMC.card_disagree_ge",
+   "doc": "mathlib-survey.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "certifiable",
+    "hammingLipschitz"
+   ],
+   "proof_uses": [],
+   "note": "A point far below r must disagree with a certificate on at least t coordinates: otherwise SPLICING the certificate's coordinates in moves f by less than t and lands above r. The splice is the same device Product.lean uses for block independence."
+  },
+  "unit_indicator": {
+   "kind": "theorem",
+   "parent": "concentrationGroup",
+   "file": "ProbMethods/Chapter09/Talagrand.lean",
+   "decl": "PMC.unitWeights_indicator",
+   "doc": "mathlib-survey.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "convexDist"
+   ],
+   "proof_uses": [],
+   "note": "The normalised indicator of a nonempty coordinate set is a nonnegative unit weight vector -- the witness Theorem 9.5.21 feeds to the convex distance."
+  },
+  "talagrand_certifiable": {
+   "kind": "theorem",
+   "parent": "concentrationGroup",
+   "file": "ProbMethods/Chapter09/Talagrand.lean",
+   "decl": "PMC.card_mul_card_certifiable_le",
+   "doc": "mathlib-survey.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "talagrand",
+    "card_disagree",
+    "unit_indicator"
+   ],
+   "proof_uses": [],
+   "note": "THEOREM 9.5.21 (Talagrand's inequality for certifiable functions), proved GIVEN Talagrand's inequality as a hypothesis: P(f <= r - t) P(f >= r) <= exp(-t^2/(4s)) for f 1-Lipschitz in Hamming distance with {f >= r} s-certifiable. This is the COMBINATORIAL half of 9.5 and needed no convex geometry -- the normalised indicator of a certificate is already a unit weight vector witnessing d_T(y,A) >= t/sqrt(s), and the rest is counting. It is also the form the section's applications use (longest increasing subsequence, Euclidean TSP). Sorry-free: Talagrand enters as the hypothesis in exactly the form task #49 proves."
   }
  }
 }
