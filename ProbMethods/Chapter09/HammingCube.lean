@@ -240,6 +240,144 @@ theorem card_cubeNbhd_ge_of_harper (hn : 0 < n) {t : ℕ} (ht : 0 < t)
     _ ≤ #(cubeNbhd t A) := by exact_mod_cast harper
 
 
+/-! ### The cube metric, and expansion from `ε` to `1 - ε` -/
+
+/-- The Hamming distance satisfies the triangle inequality. -/
+theorem hamDist_triangle (S T U : Finset (Fin n)) :
+    hamDist S U ≤ hamDist S T + hamDist T U := by
+  classical
+  have h1 : S \ U ⊆ (S \ T) ∪ (T \ U) := by
+    intro x hx
+    rw [Finset.mem_sdiff] at hx
+    rw [mem_union, Finset.mem_sdiff, Finset.mem_sdiff]
+    by_cases hT : x ∈ T
+    · exact Or.inr ⟨hT, hx.2⟩
+    · exact Or.inl ⟨hx.1, hT⟩
+  have h2 : U \ S ⊆ (U \ T) ∪ (T \ S) := by
+    intro x hx
+    rw [Finset.mem_sdiff] at hx
+    rw [mem_union, Finset.mem_sdiff, Finset.mem_sdiff]
+    by_cases hT : x ∈ T
+    · exact Or.inr ⟨hT, hx.2⟩
+    · exact Or.inl ⟨hx.1, hT⟩
+  have hc1 : #(S \ U) ≤ #(S \ T) + #(T \ U) :=
+    le_trans (Finset.card_le_card h1) (Finset.card_union_le _ _)
+  have hc2 : #(U \ S) ≤ #(U \ T) + #(T \ S) :=
+    le_trans (Finset.card_le_card h2) (Finset.card_union_le _ _)
+  rw [hamDist, hamDist, hamDist]
+  omega
+
+/-- Expanding twice expands by the sum of the radii. -/
+theorem cubeNbhd_cubeNbhd_subset (s t : ℕ) (A : Finset (Finset (Fin n))) :
+    cubeNbhd s (cubeNbhd t A) ⊆ cubeNbhd (t + s) A := by
+  intro T hT
+  rw [mem_cubeNbhd] at hT
+  obtain ⟨S, hS, hdS⟩ := hT
+  rw [mem_cubeNbhd] at hS
+  obtain ⟨R, hR, hdR⟩ := hS
+  rw [mem_cubeNbhd]
+  refine ⟨R, hR, ?_⟩
+  exact le_trans (hamDist_triangle R S T) (by omega)
+
+/-- **Theorem 9.4.6 (rapid expansion from `ε` to `1 - ε`), conditional on Harper.**
+
+Writing `ε = e^{-2t²/n}` — the notes' `t = √(n log(1/ε)/2)` — a set with more than `ε 2ⁿ`
+points expands in `2t` steps to more than `(1 - ε) 2ⁿ`.
+
+Harper's inequality enters as the hypothesis `harper`, in exactly the form task #46 will
+prove, so this derivation is `sorry`-free and the missing input is visible.
+
+**The hypothesis is strict where the notes write `≥`, and that is needed.** With `|A| = ε 2ⁿ`
+exactly, the counting step gives `2ⁿ ≤ 2ⁿ` and no contradiction; the notes' own proof quietly
+uses a strict Chernoff bound at that point. -/
+theorem card_cubeNbhd_two_mul_ge_of_harper
+    (harper : ∀ (t k : ℕ) (A : Finset (Finset (Fin n))), #(lowBall n k) ≤ #A →
+      #(cubeNbhd t (lowBall n k)) ≤ #(cubeNbhd t A))
+    (hn : 0 < n) {t : ℕ} (ht : 0 < t) (A : Finset (Finset (Fin n)))
+    (hA : (2 : ℝ) ^ n * Real.exp (-(2 * (t : ℝ) ^ 2) / n) < #A) :
+    (2 : ℝ) ^ n * (1 - Real.exp (-(2 * (t : ℝ) ^ 2) / n)) ≤ #(cubeNbhd (2 * t) A) := by
+  classical
+  set ε : ℝ := Real.exp (-(2 * (t : ℝ) ^ 2) / n) with hεdef
+  have hcardcube : #(univ : Finset (Finset (Fin n))) = 2 ^ n := by
+    rw [card_univ, Fintype.card_finset, Fintype.card_fin]
+  have hhalf : 2 * #(lowBall n ((n + 1) / 2)) ≤ 2 ^ n := card_lowBall_half_le hn
+  -- the complement of the first expansion is small
+  set A' : Finset (Finset (Fin n)) := (univ : Finset (Finset (Fin n))) \ cubeNbhd t A with hA'def
+  have hdisj : ∀ T ∈ cubeNbhd t A', T ∉ A := by
+    intro T hT hTA
+    rw [mem_cubeNbhd] at hT
+    obtain ⟨S, hS, hd⟩ := hT
+    rw [hA'def, Finset.mem_sdiff] at hS
+    refine hS.2 ?_
+    rw [mem_cubeNbhd]
+    exact ⟨T, hTA, by rw [hamDist] at hd ⊢; omega⟩
+  have hsmall : (#A' : ℝ) < 2 ^ (n - 1) := by
+    by_contra hcon
+    push_neg at hcon
+    -- Harper applies to `A'`, so its expansion is large
+    have hballle : #(lowBall n ((n + 1) / 2)) ≤ #A' := by
+      have h1 : (#(lowBall n ((n + 1) / 2)) : ℝ) ≤ 2 ^ (n - 1) := by
+        have h2 : (2 : ℝ) * #(lowBall n ((n + 1) / 2)) ≤ 2 ^ n := by exact_mod_cast hhalf
+        have h3 : (2 : ℝ) ^ n = 2 * 2 ^ (n - 1) := by
+          rw [← pow_succ']
+          congr 1
+          omega
+        rw [h3] at h2
+        linarith
+      exact_mod_cast le_trans h1 hcon
+    have hbig := card_cubeNbhd_ge_of_harper hn ht A' (by exact_mod_cast hcon)
+      (harper t ((n + 1) / 2) A' hballle)
+    -- but `A` and the expansion of `A'` are disjoint
+    have hle : #A + #(cubeNbhd t A') ≤ 2 ^ n := by
+      rw [← hcardcube]
+      have hdisjoint : Disjoint A (cubeNbhd t A') := by
+        rw [Finset.disjoint_right]
+        exact fun T hT => hdisj T hT
+      rw [← Finset.card_union_of_disjoint hdisjoint]
+      exact Finset.card_le_card (Finset.subset_univ _)
+    have hleR : (#A : ℝ) + #(cubeNbhd t A') ≤ 2 ^ n := by exact_mod_cast hle
+    rw [← hεdef] at hbig
+    linarith
+  -- so the first expansion is at least half the cube
+  have hhalfA : (2 : ℝ) ^ (n - 1) ≤ #(cubeNbhd t A) := by
+    have hsub : cubeNbhd t A ⊆ (univ : Finset (Finset (Fin n))) := Finset.subset_univ _
+    have hcard : #A' = 2 ^ n - #(cubeNbhd t A) := by
+      rw [hA'def, Finset.card_sdiff_of_subset hsub, hcardcube]
+    have hle : #(cubeNbhd t A) ≤ 2 ^ n := by
+      rw [← hcardcube]
+      exact Finset.card_le_card hsub
+    have hcardR : (#A' : ℝ) = 2 ^ n - #(cubeNbhd t A) := by
+      rw [hcard, Nat.cast_sub hle]
+      push_cast
+      ring
+    have h3 : (2 : ℝ) ^ n = 2 * 2 ^ (n - 1) := by
+      rw [← pow_succ']
+      congr 1
+      omega
+    rw [hcardR] at hsmall
+    linarith
+  -- expand a second time
+  have hballle2 : #(lowBall n ((n + 1) / 2)) ≤ #(cubeNbhd t A) := by
+    have h1 : (#(lowBall n ((n + 1) / 2)) : ℝ) ≤ 2 ^ (n - 1) := by
+      have h2 : (2 : ℝ) * #(lowBall n ((n + 1) / 2)) ≤ 2 ^ n := by exact_mod_cast hhalf
+      have h3 : (2 : ℝ) ^ n = 2 * 2 ^ (n - 1) := by
+        rw [← pow_succ']
+        congr 1
+        omega
+      rw [h3] at h2
+      linarith
+    exact_mod_cast le_trans h1 hhalfA
+  have hsecond := card_cubeNbhd_ge_of_harper hn ht (cubeNbhd t A) (by exact_mod_cast hhalfA)
+    (harper t ((n + 1) / 2) (cubeNbhd t A) hballle2)
+  rw [← hεdef] at hsecond
+  calc (2 : ℝ) ^ n * (1 - ε) ≤ #(cubeNbhd t (cubeNbhd t A)) := hsecond
+    _ ≤ #(cubeNbhd (2 * t) A) := by
+        have hsub := cubeNbhd_cubeNbhd_subset t t A
+        have : t + t = 2 * t := by ring
+        rw [this] at hsub
+        exact_mod_cast Finset.card_le_card hsub
+
+
 end HammingCube
 
 end PMC

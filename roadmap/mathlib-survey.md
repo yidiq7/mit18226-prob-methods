@@ -32,7 +32,20 @@ availability of the mathematics. Recorded as upstream in `graph.json`.
   theory around it (`Basic`, `Convergence`, `OptionalStopping`, `OptionalSampling`,
   `Upcrossing`, `BorelCantelli`, `Centering`).
 * **§9.5 Talagrand's inequality** — absent.
-* **§9.4 isoperimetric inequalities, §9.6 Euclidean TSP** — absent.
+* **§9.4 isoperimetric inequalities** — absent from Mathlib, and now **started here**
+  (`ProbMethods/Chapter09/HammingCube.lean`). The cube is `Finset (Fin n)`, as in Chapter 5.
+  Proved: `PMC.cubeNbhd_lowBall` (the `t`-neighbourhood of a Hamming ball is the ball of
+  radius `t` larger — exactly), `PMC.card_lowBall_ge` (the Chernoff estimate, where Chapter
+  5's bound at `λ = 2t/√n` gives `exp(-2t²/n)` on the nose), `PMC.card_lowBall_half_le`, the
+  cube metric lemmas, and **Theorems 9.4.5 and 9.4.6 with Harper's inequality as an explicit
+  hypothesis** — so those two are `sorry`-free and what is missing is visible in the
+  statement. Harper's inequality itself (Theorem 9.4.3, which the notes state without proof)
+  is published as task #46.
+
+  Worth recording: 9.4.6's hypothesis had to be made **strict** where the notes write
+  `|A| ≥ ε2ⁿ`. At `|A| = ε2ⁿ` exactly the counting step yields `2ⁿ ≤ 2ⁿ` and no
+  contradiction; the notes' proof quietly uses a strict Chernoff bound there.
+* **§9.6 Euclidean TSP** — absent, and downstream of Talagrand.
 
 So Chapter 9 is *not* the wall it was recorded as. Its first two sections are upstream in
 `MeasureTheory` form; Talagrand and the geometric sections remain genuinely absent.

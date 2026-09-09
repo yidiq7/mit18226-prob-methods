@@ -3533,6 +3533,50 @@
    ],
    "proof_uses": [],
    "note": "THEOREM 9.4.5 (rapid expansion from half), CONDITIONAL ON HARPER: if |A| >= 2^(n-1) then |A_t| >= (1 - exp(-2t^2/n)) 2^n. Harper's conclusion for the half-cube ball is an EXPLICIT HYPOTHESIS rather than a use of the sorry'd statement, so this theorem is sorry-free and axiom-clean, and what is missing is visible in the statement. That is the honest way to record a derivation whose one input is a published task."
+  },
+  "hamDist_triangle": {
+   "kind": "theorem",
+   "parent": "concentrationGroup",
+   "file": "ProbMethods/Chapter09/HammingCube.lean",
+   "decl": "PMC.hamDist_triangle",
+   "doc": "mathlib-survey.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "hamDist"
+   ],
+   "proof_uses": [],
+   "note": "The Hamming distance satisfies the triangle inequality: S \\ U is contained in (S \\ T) union (T \\ U) and symmetrically."
+  },
+  "cubeNbhd_compose": {
+   "kind": "theorem",
+   "parent": "concentrationGroup",
+   "file": "ProbMethods/Chapter09/HammingCube.lean",
+   "decl": "PMC.cubeNbhd_cubeNbhd_subset",
+   "doc": "mathlib-survey.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "hamDist_triangle",
+    "cubeNbhd"
+   ],
+   "proof_uses": [],
+   "note": "Expanding twice expands by the sum of the radii, which is what lets Theorem 9.4.6 apply 9.4.5 a second time."
+  },
+  "rapid_expansion_eps": {
+   "kind": "theorem",
+   "parent": "concentrationGroup",
+   "file": "ProbMethods/Chapter09/HammingCube.lean",
+   "decl": "PMC.card_cubeNbhd_two_mul_ge_of_harper",
+   "doc": "mathlib-survey.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "rapid_expansion_half",
+    "cubeNbhd_compose"
+   ],
+   "proof_uses": [],
+   "note": "THEOREM 9.4.6 (rapid expansion from epsilon to 1 - epsilon), CONDITIONAL ON HARPER: with epsilon = exp(-2t^2/n), which is the notes' t = sqrt(n log(1/epsilon)/2), a set of more than epsilon 2^n points expands in 2t steps to more than (1 - epsilon) 2^n. Harper enters as a hypothesis in exactly the form task #46 will prove, so this is sorry-free. ERRATUM-ADJACENT: the hypothesis here is STRICT where the notes write |A| >= epsilon 2^n, and the strictness is needed -- at |A| = epsilon 2^n exactly the counting step gives 2^n <= 2^n and no contradiction. The notes' proof quietly uses a strict Chernoff bound at that point."
   }
  }
 }
