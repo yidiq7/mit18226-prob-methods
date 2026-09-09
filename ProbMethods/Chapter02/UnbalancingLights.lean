@@ -9,8 +9,10 @@ import Mathlib.Tactic.Ring
 
 Zhao, *Probabilistic Methods in Combinatorics*, Theorem 2.5.1.
 
-Theorem 2.5.2 is **not** a node: its proof rests on a compactness argument producing an
-unspecified constant `c_k`, which is not something a statement can be checked against.
+Theorem 2.5.2 and Lemma 2.5.3 are in `ProbMethods/Chapter02/PolyCube.lean`. They were recorded
+here as out of scope, because the notes' proof of 2.5.3 is a compactness argument producing an
+unspecified constant `c_k`; the constant is `2^{-k}`, by a finite difference over the corners
+of the cube, so both results are statable and are proved.
 -/
 
 open Finset

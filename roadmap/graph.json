@@ -4687,6 +4687,34 @@
     "equiangular_family"
    ],
    "note": "THEOREM 5.2.1, and a STATEMENT CORRECTION. 'For every n' is false at small n: the only unit vectors in R^1 are +-1, with inner products +-1, so at a=1/2, eps=1/100 every admissible family has one element while 2^{c*1} > 1; the theorem holds for all N >= N_0(a,eps). The construction is the notes' biased +-1 vectors with the bias moved into ONE CONSTANT COORDINATE (PMC.eqVec = (sqrt a, +- sqrt((1-a)/n))), which leaves the other n coordinates unbiased -- so the probabilistic content is the balanced Chernoff bound and the +-eps window is pure algebra: <v(x),v(y)> = a + (1-a)(1 - 2|x sd y|/n)."
+  },
+  "poly_cube": {
+   "kind": "lemma",
+   "parent": "linearityGroup",
+   "file": "ProbMethods/Chapter02/PolyCube.lean",
+   "decl": "PMC.exists_abs_eval_ge",
+   "doc": "linearity.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [],
+   "proof_uses": [],
+   "note": "LEMMA 2.5.3, and an OVERTURNED DEFERRAL. Recorded as out of scope because the notes prove it by compactness (M(g) = max |g| on the cube is continuous and positive on a compact family, hence has a positive minimum) with no value for c_k. The constant is 2^{-k}: the finite difference sum_{S subset [k]} (-1)^{k-#S} g(chi_S) IS the coefficient of p_1...p_k, because the kernel sum_{S superset T} (-1)^{k-#S} vanishes unless T = [k], and a degree <= k monomial in k variables with full support is p_1...p_k. 2^k numbers summing to 1 cannot all be below 2^{-k}. The notes' coefficient bound |a_i| <= 1 is not needed."
+  },
+  "unbalanced_hypergraph": {
+   "kind": "theorem",
+   "parent": "linearityGroup",
+   "file": "ProbMethods/Chapter02/PolyCube.lean",
+   "decl": "PMC.exists_unbalanced_partSet",
+   "doc": "linearity.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "poly_cube"
+   ],
+   "proof_uses": [
+    "poly_cube"
+   ],
+   "note": "THEOREM 2.5.2 with c_k = 2^{-k}, and S can be taken to be a UNION OF WHOLE PARTS. The notes form the expected imbalance as a polynomial in p_1..p_k and apply Lemma 2.5.3; but 2.5.3's proof only ever evaluates at corners, where p_i in {0,1} and the random set is deterministic. Applying the same kernel one level up, to the signed edge count D(V_S), gives sum_S (-1)^{#S^c} D(V_S) = sum over edges meeting every part of sgn(e) = n^k -- so the polynomial is never formed. The supporting count (an edge of size k meeting all k parts is a transversal, and there are n^k of them) is PMC.filter_image_fst_eq_univ."
   }
  }
 }
