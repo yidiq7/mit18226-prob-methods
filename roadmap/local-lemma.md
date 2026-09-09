@@ -257,7 +257,34 @@ maximum in-degree `Δ` contains a cycle of length divisible by `k`, as long as
 `k ≤ δ / (1 + log(1 + δΔ))`. Theorem 6.4.1 and Corollary 6.4.2 are the `d`-regular
 specialisations.
 
-The probabilistic half is a good fit, and **both of its inputs are now proved**: label
+### The probabilistic half of §6.4 — proved
+
+`PMC.exists_labelling_with_successor`: in a loopless digraph where every vertex has
+out-degree exactly `δ` and in-degree at most `Δ`, if
+
+    e ((k-1)/k)^δ (Δ + δΔ + 1) ≤ 1
+
+then the vertices can be labelled by `ZMod k` so that **every vertex has an out-neighbour
+carrying the next label**. That is 6.4.3's hypothesis-side statement as a self-contained
+theorem, and it is the object its cycle argument consumes.
+
+The assembly is short because all four inputs were built to fit `exists_avoiding_of_lll`
+directly: the blocks are `PMC.dblk r v`, the probability bound is `PMC.wprob_dEvent_le`,
+the degree bound is `PMC.card_digraph_dependency_le`, and `PMC.determinedOn_dEvent` (the
+last piece, proved here) says the event only reads coordinates inside its block. **The
+local lemma's `hfar` — far-apart events have disjoint blocks — is discharged from the
+*definition* of the dependency neighbourhood**, which is why the whole degree count enters
+through a single lemma rather than being re-derived inside the assembly.
+
+Non-vacuity checked on the complete digraph on 9 vertices at `k = 2`, where out-degree and
+in-degree are both `8` and `e·(1/2)⁸·(8 + 64 + 1) ≈ 0.775 ≤ 1`: all six hypotheses
+discharge, so the numeric side condition is satisfiable.
+
+**What is left of §6.4 is not probabilistic.** Deriving 6.4.3 from this labelling means
+extracting a directed cycle whose length is divisible by `k` — a walk argument on digraphs,
+see below.
+
+The inputs, for reference: label
 vertices with `ZMod k` uniformly, so the sample space is the uniform product `V → ZMod k`;
 `A_v` is "no out-neighbour of `v` is labelled `x_v + 1`", whose probability
 `(1 - 1/k)^{d⁺(v)}` is `PMC.wprob_unifProd_forall`; and the dependency degree `Δ + δΔ` is
@@ -268,8 +295,8 @@ Note that this is the notes' *first-pass* degree bound, which gives
 `k ≤ δ/(1 + log(1 + Δ + δΔ))`. Theorem 6.4.3's stated constant
 `k ≤ δ/(1 + log(1 + δΔ))` needs their "final trick" — the observation that `A_v` is
 independent of every `A_w` with `N⁺(v)` disjoint from `N⁺(w) ∪ {w}`, a strictly smaller
-dependency digraph. Formalize the first-pass version first; it is a real theorem and the
-trick can be layered on.
+dependency digraph. The first-pass version is what is proved above; the trick can be
+layered on top of it without touching the assembly, since it only shrinks `N`.
 
 **The remaining obstacle is the combinatorial half**: extracting a directed cycle of length
 divisible by `k` from the colour-incrementing walk needs digraph walk/cycle machinery that
