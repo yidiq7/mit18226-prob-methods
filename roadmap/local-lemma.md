@@ -173,6 +173,11 @@ transversal of the trimmed parts is one of the originals.
 checked on parts of *different* sizes (4 and 2, enumerated at 2) — the case trimming exists
 for.
 
+For events on **more than two** coordinates — §6.4's bad event constrains a vertex's whole
+out-neighbourhood — use `PMC.wprob_unifProd_forall`: independent coordinates multiply, so
+the probability is the product of the per-coordinate ones. Checked on `(Fin 3 → Fin 4)`:
+`36` of `64` functions have both coordinates `0` and `1` nonzero, i.e. `(3/4)²`.
+
 The probability side is also done: `PMC.wprob_unifProd_coord` gives `1/k` for one
 coordinate, and block independence multiplies it to `1/k²` for the two coordinates a bad
 event pins down. Checked on `(Fin 3 → Fin 4)`: `16` of `64` for one coordinate and `4` of

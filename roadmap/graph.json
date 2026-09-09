@@ -2557,6 +2557,49 @@
       "uses": [],
       "proof_uses": [],
       "note": "The 6.3 dependency degree is at most 2k*Delta - 1. tPair injects the neighbourhood, plus the event itself, into the ordered adjacent pairs starting in V_i union V_j. The -1 is the self-exclusion from the errata; without it the notes' displayed inequality is false at Delta = 2. Injectivity is where c.1 < c.2.1 earns its keep."
+    },
+    "coord_pred_prob": {
+      "kind": "theorem",
+      "parent": "localLemmaGroup",
+      "file": "ProbMethods/Product.lean",
+      "decl": "PMC.wprob_unifProd_coord_pred",
+      "doc": "local-lemma.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [
+        "product_indep_prob"
+      ],
+      "proof_uses": [],
+      "note": "A predicate on one coordinate: probability #(allowed values)/#beta. The single-value case summed over the values the predicate allows, counted in Nat first via card_filter_coord_mul so no division appears until the end."
+    },
+    "coords_multiply": {
+      "kind": "theorem",
+      "parent": "localLemmaGroup",
+      "file": "ProbMethods/Product.lean",
+      "decl": "PMC.wprob_unifProd_forall",
+      "doc": "local-lemma.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [
+        "product_indep_prob"
+      ],
+      "proof_uses": [],
+      "note": "Independent coordinates multiply: an event constraining each coordinate in C separately has probability the product of the per-coordinate probabilities. This is what an application with events on MORE THAN TWO coordinates needs -- 6.4's bad event constrains a vertex's whole out-neighbourhood. Checked on (Fin 3 -> Fin 4): 36 of 64 functions have both coordinates 0 and 1 nonzero, i.e. (3/4)^2 = 9/16."
+    },
+    "directed_cycles": {
+      "kind": "theorem",
+      "parent": "localLemmaGroup",
+      "file": null,
+      "decl": null,
+      "doc": "local-lemma.md",
+      "statement": "planned",
+      "proof": "planned",
+      "uses": [
+        "product_lll",
+        "coords_multiply"
+      ],
+      "proof_uses": [],
+      "note": "Theorem 6.4.3 (Alon-Linial 1989): every digraph with minimum out-degree delta and maximum in-degree Delta has a cycle of length divisible by k, provided k <= delta/(1 + log(1 + delta*Delta)). The probabilistic half is a good fit and its two inputs now exist: label vertices from ZMod k (the uniform product V -> ZMod k), A_v = 'no out-neighbour of v is labelled x_v + 1', whose probability (1 - 1/k)^(out-degree) is wprob_unifProd_forall, and the dependency degree Delta + delta*Delta counted as the notes break it down (at most Delta stepping backward, delta forward, delta(Delta-1) forward-then-backward). TWO OBSTACLES remain: (i) that degree count needs an injection into a three-part disjoint union, and (ii) the COMBINATORIAL half -- extracting a directed cycle of length divisible by k from the colour-incrementing walk -- needs digraph walk machinery that Mathlib develops for SimpleGraph but not for digraphs. Expect (ii), not the local lemma, to be the bulk of the work."
     }
   }
 }
