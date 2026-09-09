@@ -31,6 +31,7 @@ import ProbMethods.Chapter05.VectorBalancing
 import ProbMethods.Chapter05.ChernoffBernoulli
 import ProbMethods.Chapter05.HoeffdingBernoulli
 import ProbMethods.Chapter05.ChernoffGeneral
+import ProbMethods.Chapter05.Equiangular
 import ProbMethods.Chapter06.LocalLemma
 import ProbMethods.Chapter06.Coloring
 import ProbMethods.Chapter06.ProductLLL

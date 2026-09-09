@@ -4637,6 +4637,56 @@
    "uses": [],
    "proof_uses": [],
    "note": "THEOREM 9.4.8, both directions: expansion (P(A) >= 1/2 implies P(A_t) >= 1-eps) is equivalent to concentration of 1-Lipschitz functions (P(f <= m) >= 1/2 implies P(f > m+t) <= eps). The two canonical objects do it: the sublevel set {f <= m}, whose t-neighbourhood lies in {f <= m+t}, and x |-> dist(x,A), 1-Lipschitz by the triangle inequality at the nearest point. Only symmetry and the triangle inequality are used -- no separation axiom -- so it applies to hamDist on the cube. This is what licenses 9.4's moving between isoperimetry and concentration, and why Harper and bounded differences are two readings of one phenomenon."
+  },
+  "equiangular_tail": {
+   "kind": "lemma",
+   "parent": "chernoffGroup",
+   "file": "ProbMethods/Chapter05/Equiangular.lean",
+   "decl": "PMC.card_filter_card_dev_le",
+   "doc": "chernoff.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "chernoff_bernoulli"
+   ],
+   "proof_uses": [
+    "hoeffding_bernoulli"
+   ],
+   "note": "Two-sided balanced Chernoff as a COUNT: at most 2 * 2^n e^{-2t^2/n} of the 2^n subsets of an n-set have size deviating from n/2 by more than t. pweight at the constant 1/2 is the uniform weight (1/2)^n (PMC.pweight_half), which turns the two weighted tails sum_pweight_ge_le / sum_pweight_le_le into a cardinality bound."
+  },
+  "equiangular_family": {
+   "kind": "theorem",
+   "parent": "chernoffGroup",
+   "file": "ProbMethods/Chapter05/Equiangular.lean",
+   "decl": "PMC.exists_far_family_exp",
+   "doc": "chernoff.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "equiangular_tail",
+    "caro_wei"
+   ],
+   "proof_uses": [
+    "equiangular_tail",
+    "caro_wei"
+   ],
+   "note": "At least e^{delta^2 n} subsets of [n] with all pairwise Hamming distances within delta*n of n/2. The notes get the pairwise condition by a union bound over an m-tuple of random subsets, which needs the m-fold product space and a marginal computation for a single pair. Instead: PMC.farGraph, whose degrees are each bounded by the SAME tail count because y |-> x sd y is injective, fed to CARO-WEI (section 2.3) -- the book's own Chapter 2 result supplies the independent set of size 2^n/(D+1). No product space."
+  },
+  "equiangular": {
+   "kind": "theorem",
+   "parent": "chernoffGroup",
+   "file": "ProbMethods/Chapter05/Equiangular.lean",
+   "decl": "PMC.exists_nearly_equiangular",
+   "doc": "chernoff.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "equiangular_family"
+   ],
+   "proof_uses": [
+    "equiangular_family"
+   ],
+   "note": "THEOREM 5.2.1, and a STATEMENT CORRECTION. 'For every n' is false at small n: the only unit vectors in R^1 are +-1, with inner products +-1, so at a=1/2, eps=1/100 every admissible family has one element while 2^{c*1} > 1; the theorem holds for all N >= N_0(a,eps). The construction is the notes' biased +-1 vectors with the bias moved into ONE CONSTANT COORDINATE (PMC.eqVec = (sqrt a, +- sqrt((1-a)/n))), which leaves the other n coordinates unbiased -- so the probabilistic content is the balanced Chernoff bound and the +-eps window is pure algebra: <v(x),v(y)> = a + (1-a)(1 - 2|x sd y|/n)."
   }
  }
 }

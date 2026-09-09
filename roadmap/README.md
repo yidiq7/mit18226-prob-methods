@@ -23,7 +23,7 @@ written when the phase opens, so the plan never claims more precision than it ha
 | 2 | 2 (rest) | [linearity.md](linearity.md) | `szele`, `sampling`, `sumfree`, `unbalancing` all proved; §2.6 deferred |
 | 3 | 3 Alterations | [alterations.md](alterations.md) | `dominating` proved; §3.3 upstream, §3.2 deferred, §3.4/§3.5 need design |
 | 4 | 4 Second Moment | [second-moment.md](second-moment.md) | **§4.1 complete, including both halves of the threshold as limits (Prop 4.1.2, Thm 4.1.11)**, §4.2, §4.4, **§4.6 (Erdős distinct sums, and Thm 4.6.6 Dubroff–Fox–Xu modulo Harper)** proved; **§4.7 upstream, bridge proved** (`exists_polynomial_approx`); §4.3 deferred |
-| 5 | 5 Chernoff Bound | [chernoff.md](chernoff.md) | **§5.0 complete**: Thms 5.0.1, 5.0.5 (via Mathlib's sub-Gaussian machinery), 5.0.7, Cors 5.0.3, 5.0.6; **§5.1 proved** (5.1.6 is task #51); §5.2/§5.3 open |
+| 5 | 5 Chernoff Bound | [chernoff.md](chernoff.md) | **§5.0 complete**: Thms 5.0.1, 5.0.5 (via Mathlib's sub-Gaussian machinery), 5.0.7, Cors 5.0.3, 5.0.6; **§5.1 proved** (5.1.6 is task #51); **§5.2 proved** (Thm 5.2.1); §5.3 open |
 | 6 | 6 Lovász Local Lemma | [local-lemma.md](local-lemma.md) | **§6.1–§6.4 complete**: both LLL forms, hypergraph 2-colouring (**including Thm 6.2.4, the non-uniform criterion**), independent transversals, Thm 6.4.3; **§6.5 complete modulo task #44**: lopsided LLL, derangement bound, and **Thm 6.5.11 (Erdős–Spencer Latin transversals)** with 6.5.5's dependency input as an explicit hypothesis; §6.6 open |
 | 7 | 7 Correlation Inequalities | [correlation.md](correlation.md) | **complete in finite form**: §7.1 upstream, §7.2 proved |
 | 8 | 8 Janson Inequalities | [janson.md](janson.md) | **§8.1 complete, including Cor 8.1.7's limit `e^{-c³/6}`**: Thm 8.1.2 (Janson I), Remark 8.1.3, **Thm 8.1.8 (Janson II)**, and **Thm 7.2.2** (`prob_not_hasTriangle_ge`, the triangle-free lower bound `(1-p³)^C(n,3)`); §8.2 is task #42, §8.3 asymptotic |
@@ -58,8 +58,15 @@ Theorem 9.4.5's unconditional forms (need #46), §9.1/§9.3's unconditional form
 **3. Continuous measure, by design.** §9.4's Euclidean and spherical isoperimetry (9.4.1,
 9.4.10), Johnson–Lindenstrauss (9.4.22) and spherical codes (9.4.25); §9.5's convex-body forms
 (9.5.3, 9.5.6, 9.5.8, 9.5.13, 9.5.14, 9.5.17) — the sample space is finite but the *convex
-body* and Euclidean distance are not; §9.6 (Euclidean TSP); §5.2; §10.2.10
+body* and Euclidean distance are not; §9.6 (Euclidean TSP); §10.2.10
 (Linial–Luria, which randomises over `[0,1]^{C(n,2)}`).
+
+**§5.2 was on this list and should not have been.** "Unit vectors in `ℝⁿ`" reads like
+continuous geometry, but the *randomness* is finite — `2ⁿ` sign patterns — and the geometry is
+one algebraic identity, `⟨v(x), v(y)⟩ = a + (1-a)(1 - 2#(x ∆ y)/n)`. `PMC.exists_nearly_equiangular`
+is proved in the counting framework. That is the fifth deferral overturned on re-examination
+(after FKG, 5.0.5, the compactness step, and §9.2); every one of them was recorded for a
+*structural* reason, and the structural reasons are exactly the ones worth re-checking.
 
 **4. Infinite ground sets — the compactness step is now proved.**
 `PMC.exists_two_coloring_of_finite` assembles finite colourings into a global one for an

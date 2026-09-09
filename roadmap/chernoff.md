@@ -121,6 +121,49 @@ stronger check on the exponent than a slack one.
 
 **Theorem 5.0.5 remains deferred** for the reason above: it needs measure theory.
 
+## Nearly equiangular vectors (§5.2, Theorem 5.2.1) — proved
+
+`PMC.exists_nearly_equiangular`: for `a ∈ (0,1)` and `ε > 0` there is `c > 0` such that for
+all large `N`, `ℝ^N` holds at least `2^{cN}` unit vectors with all pairwise inner products in
+`[a - ε, a + ε]`.
+
+**The statement needed correcting.** The notes say "for every `n`", and that is false for
+small `n`: the only unit vectors in `ℝ¹` are `±1`, whose inner products are `±1`, so at
+`a = 1/2, ε = 1/100` every admissible family has a single element while `2^{c·1} > 1`. The
+conclusion holds for `N ≥ N₀(a, ε)`, which is what the proof gives and what the notes mean.
+
+Two design choices, both of which shrank the proof a lot:
+
+* **The bias goes into one coordinate.** The notes sample `v ∈ {-1,1}ⁿ` with `P(+1) = (1+√a)/2`
+  so that `E[vᵢ · vⱼ] = a`, and then the pairwise products `σᵢ(k)σⱼ(k)` are the independent
+  `±1` variables the Chernoff bound is applied to. Formalizing that needs the law of a *pair*
+  of rows, i.e. a marginal computation on the `m × n` grid of coins. Instead `PMC.eqVec`
+  puts the bias in a single constant coordinate, `v(x) = (√a, ±√((1-a)/n))`, leaving the
+  other `n` coordinates *unbiased*. Then
+
+      ⟨v(x), v(y)⟩ = a + (1 - a)(1 - 2#(x ∆ y)/n)
+
+  is an exact algebraic identity (`PMC.sum_eqVec_mul`), `‖v(x)‖ = 1` is `a + (1-a) = 1`
+  (`PMC.sum_eqVec_sq`), and the whole probabilistic content is the *balanced* two-sided
+  bound `PMC.card_filter_card_dev_le`. One coordinate of the `n+1` is the price.
+* **Caro–Wei replaces the union bound.** What remains is a large family of subsets with all
+  pairwise Hamming distances near `n/2` — an independent set in `PMC.farGraph`. The notes get
+  it from a union bound over the `m²` pairs of a random `m`-tuple; `PMC.exists_far_family`
+  instead observes that **every degree of that graph is bounded by the same tail count**,
+  because `y ↦ x ∆ y` injects the neighbours of `x` into the deviating subsets. Caro–Wei
+  (§2.3, `PMC.exists_isIndepSet_caro_wei`) then hands over an independent set of size
+  `2ⁿ/(D+1)`, and with `D ≤ 2 · 2ⁿ e^{-2δ²n}` that is `≥ e^{2δ²n}/3 ≥ e^{δ²n}`. No product
+  space, no marginal, and the input is a result of the book's own Chapter 2.
+
+`δ ≤ 1/2` is imposed (harmlessly — shrinking `δ` only strengthens the conclusion) so that
+`2δ² ≤ 1/2 ≤ log 2` and hence `2ⁿ e^{-2δ²n} ≥ 1`, which is what lets the `+1` in the
+denominator be absorbed. `Real.log_two_gt_d9` supplies the `log 2 ≥ 1/2`.
+
+Checked numerically before trusting it: the inner-product identity and the unit norms to
+machine precision on random pairs, and `D ≤ 2·2ⁿe^{-2t²/n}` together with
+`2ⁿ/(D+1) ≥ e^{δ²n}` at five `(n, δ)` settings with `D` computed exactly from binomial
+coefficients.
+
 ## Discrepancy (§5.1, Theorem 5.1.1) — proved
 
 `PMC.exists_low_discrepancy`: for any family `F` of `m ≥ 3` subsets of an `n`-element ground
