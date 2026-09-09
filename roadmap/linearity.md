@@ -168,6 +168,15 @@ The sampling step is then a double count resting on the identity
 inside each 5-subset gives `#H * C(n-3,2)` on one side and at most `7 * C(n,5)` on the
 other.
 
+### Proposition 2.4.2, the four-vertex version — proved
+
+`PMC.card_le_of_not_hasTetrahedron_four`: `4 #H ≤ 3 C(n,3)` for `n ≥ 4`. The same double
+count as 2.4.4 with four vertices in place of five, and here the base case *is* the
+hypothesis — a `4`-set carrying all four of its triples is a tetrahedron — so no case check is
+needed. Worth having next to 2.4.4 because the pair shows exactly what sampling one more
+vertex buys (`3/4 → 7/10`) and what it costs (a base case, which is also where the notes' own
+`n ≥ 4` slips to `n ≥ 5`).
+
 ## Unbalancing lights (§2.5)
 
 Theorem 2.5.1 is asymptotic — `(sqrt(2/π) + o(1)) * n^(3/2)` — so by the roadmap's

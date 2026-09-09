@@ -125,6 +125,72 @@ private lemma card_le_seven_of_card_eq_five (H : Finset (Finset (Fin n)))
 end BaseCase
 
 
+/-- **The cheap sampling bound** (Zhao, Proposition 2.4.2).
+
+A tetrahedron-free 3-graph on `n ≥ 4` vertices has at most `(3/4) C(n,3)` edges, stated as
+`4 * #H ≤ 3 * n.choose 3` to stay in `ℕ` without division.
+
+Sampling four vertices instead of five, where the base case *is* the hypothesis: a `4`-set
+carrying all four of its triples is a tetrahedron. `PMC.card_le_of_not_hasTetrahedron`
+improves `3/4` to `7/10` by sampling five, at the cost of a base case that has to be checked
+(and which is where the notes' own `n ≥ 4` goes wrong — see there). -/
+theorem card_le_of_not_hasTetrahedron_four {n : ℕ} (hn : 4 ≤ n) (H : Finset (Finset (Fin n)))
+    (hH : IsThreeGraph H) (hfree : ¬ HasTetrahedron H) :
+    4 * #H ≤ 3 * n.choose 3 := by
+  classical
+  have hexch : ∑ S ∈ powersetCard 4 (univ : Finset (Fin n)), #{T ∈ H | T ⊆ S}
+      = ∑ T ∈ H, #{S ∈ powersetCard 4 (univ : Finset (Fin n)) | T ⊆ S} := by
+    simp only [Finset.card_filter]
+    exact Finset.sum_comm
+  have hfib : ∀ T ∈ H, #{S ∈ powersetCard 4 (univ : Finset (Fin n)) | T ⊆ S}
+      = (n - 3).choose 1 := by
+    intro T hT
+    have h := card_filter_superset (univ : Finset (Fin n)) T (subset_univ T) 4
+      (by rw [hH T hT]; omega)
+    rw [hH T hT, card_univ, Fintype.card_fin] at h
+    simpa using h
+  -- the base case is the hypothesis: four triples on four vertices is a tetrahedron
+  have hbase : ∑ S ∈ powersetCard 4 (univ : Finset (Fin n)), #{T ∈ H | T ⊆ S}
+      ≤ 3 * n.choose 4 := by
+    calc ∑ S ∈ powersetCard 4 (univ : Finset (Fin n)), #{T ∈ H | T ⊆ S}
+        ≤ ∑ _S ∈ powersetCard 4 (univ : Finset (Fin n)), 3 := by
+          refine Finset.sum_le_sum fun S hS => ?_
+          rw [mem_powersetCard] at hS
+          by_contra hcon
+          have hsub : {T ∈ H | T ⊆ S} ⊆ powersetCard 3 S := by
+            intro T hT
+            rw [mem_filter] at hT
+            rw [mem_powersetCard]
+            exact ⟨hT.2, hH T hT.1⟩
+          have hcard4 : #(powersetCard 3 S) = 4 := by
+            rw [card_powersetCard, hS.2]
+            decide
+          have heq : {T ∈ H | T ⊆ S} = powersetCard 3 S :=
+            Finset.eq_of_subset_of_card_le hsub (by rw [hcard4]; omega)
+          refine hfree ⟨S, hS.2, fun e he => ?_⟩
+          rw [← heq, mem_filter] at he
+          exact he.1
+      _ = 3 * n.choose 4 := by
+          rw [Finset.sum_const, card_powersetCard, card_univ, Fintype.card_fin, smul_eq_mul,
+            mul_comm]
+  -- combine: `#H (n-3) ≤ 3 C(n,4)` and `C(n,3)(n-3) = 4 C(n,4)`
+  have hleft : #H * (n - 3).choose 1 ≤ 3 * n.choose 4 := by
+    rw [hexch, Finset.sum_congr rfl hfib, Finset.sum_const, smul_eq_mul] at hbase
+    exact hbase
+  have hkey : n.choose 3 * (n - 3).choose 1 = 4 * n.choose 4 := by
+    have h := Nat.choose_mul (n := n) (k := 4) (s := 3) (by omega)
+    rw [show Nat.choose 4 3 = 4 from by decide, show (4 : ℕ) - 3 = 1 from rfl] at h
+    rw [← h]
+    exact Nat.mul_comm _ _
+  have hpos : 0 < (n - 3).choose 1 := Nat.choose_pos (by omega)
+  have hmain : 4 * #H * (n - 3).choose 1 ≤ 3 * n.choose 3 * (n - 3).choose 1 := by
+    calc 4 * #H * (n - 3).choose 1 = 4 * (#H * (n - 3).choose 1) := by rw [mul_assoc]
+      _ ≤ 4 * (3 * n.choose 4) := Nat.mul_le_mul_left _ hleft
+      _ = 3 * (4 * n.choose 4) := by omega
+      _ = 3 * (n.choose 3 * (n - 3).choose 1) := by rw [hkey]
+      _ = 3 * n.choose 3 * (n - 3).choose 1 := by rw [mul_assoc]
+  exact Nat.le_of_mul_le_mul_right hmain hpos
+
 /-- **Tetrahedron-free 3-graphs are sparse** (Zhao, Proposition 2.4.4).
 
 A tetrahedron-free 3-graph on `n ≥ 5` vertices has at most `(7/10) * C(n, 3)` edges,

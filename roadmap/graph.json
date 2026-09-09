@@ -4527,6 +4527,32 @@
    ],
    "proof_uses": [],
    "note": "COROLLARY 8.1.7, DONE: P(G(n,c/n) triangle-free) -> e^{-c^3/6}. Needed Janson specialized to triangles (probTriangleFree_le_exp: mu = C(n,3)p^3, Delta <= 3n C(n,3) p^5, using that two distinct triples share an edge iff they share two vertices and then span 5 edges) plus the Harris lower bound already proved. NO LOGARITHMS: both bracketing inequalities for 1-u are Real.add_one_le_exp, the second applied at u/(1-u) and multiplied by exp(-u/(1-u)). The index type is Fin (C(n,3)) with an explicit enumeration because janson's upper half needs a linear order on the index and transporting one onto Finset would bring its own DecidableEq. Checked by simulation at c=1,2 and n=10,20,40: the simulated probability sits between the brackets and both close on the limit."
+  },
+  "clique_threshold": {
+   "kind": "theorem",
+   "parent": "secondMomentGroup",
+   "file": "ProbMethods/Chapter04/CliqueThreshold.lean",
+   "decl": "PMC.tendsto_probHasClique_zero",
+   "doc": "second-moment.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "first_moment_cliques"
+   ],
+   "proof_uses": [],
+   "note": "THEOREM 4.2.5 (first half) and THEOREM 4.4.2(a): the probability of containing a k-clique vanishes as soon as the expected number C(n,k)p^C(k,2) does. Markov plus a squeeze; the two named instances are p << n^(-2/3) giving no K4 whp and f(n,k) -> 0 giving omega(G(n,1/2)) < k whp. The second-moment halves are not proved -- they need Delta* for k-cliques, the k-vertex analogue of wvar_card_triangles_le', and 4.1 showed a crude version of that does not reach the threshold."
+  },
+  "cheap_sampling": {
+   "kind": "theorem",
+   "parent": "linearityGroup",
+   "file": "ProbMethods/Chapter02/Sampling.lean",
+   "decl": "PMC.card_le_of_not_hasTetrahedron_four",
+   "doc": "linearity.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [],
+   "proof_uses": [],
+   "note": "PROPOSITION 2.4.2: a tetrahedron-free 3-graph on n >= 4 vertices has 4#H <= 3C(n,3). The same double count as 2.4.4 with four vertices instead of five, where the base case IS the hypothesis. The pair 2.4.2/2.4.4 shows what sampling one more vertex buys (3/4 -> 7/10) and costs (a base case, which is also where the notes' n >= 4 slips to n >= 5)."
   }
  }
 }

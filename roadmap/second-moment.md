@@ -151,6 +151,22 @@ the two overlap classes apart is what fixes it: `t' = t` contributes `p³` and t
 term, while `#(t ∩ t') = 2` contributes `p⁵` and there are at most `3n` such `t'`. This is the
 "overlap analysis" the second-moment section previously flagged as remaining work.
 
+## §4.2, §4.4 — the first-moment halves — proved
+
+`ProbMethods/Chapter04/CliqueThreshold.lean`. One statement covers both:
+`PMC.tendsto_probHasClique_zero` — the probability of containing a `k`-clique vanishes as soon
+as the expected number `C(n,k)p^{C(k,2)}` does (`PMC.probHasClique_le` is Markov, on top of
+`PMC.sum_bweight_mul_card_cliqueSets`). Its two instances are the notes':
+
+* `PMC.tendsto_probHasClique_four_zero` — Theorem 4.2.5's first half: `n⁴p⁶ → 0`, i.e.
+  `p ≪ n^{-2/3}`, gives no `K₄` whp;
+* `PMC.tendsto_probHasClique_half_zero` — Theorem 4.4.2(a): `f(n,k) = C(n,k)2^{-C(k,2)} → 0`
+  gives `ω(G(n,1/2)) < k` whp.
+
+The second-moment halves are *not* proved: 4.2.5's other direction and 4.4.2(b) need `Δ*` for
+`k`-cliques, whose overlap analysis is the `k`-vertex analogue of `PMC.wvar_card_triangles_le'`
+— and as §4.1 showed, a crude version of that bound does not reach the threshold.
+
 ## Random graph sections (§4.1–4.4)
 
 ### random_triangle (§4.1) — proved

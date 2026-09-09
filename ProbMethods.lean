@@ -21,6 +21,7 @@ import ProbMethods.Chapter04.Weierstrass
 import ProbMethods.Chapter04.DubroffFoxXu
 import ProbMethods.Chapter04.Variance
 import ProbMethods.Chapter04.TriangleThreshold
+import ProbMethods.Chapter04.CliqueThreshold
 import ProbMethods.Chapter04.DistinctSums
 import ProbMethods.Chapter05.Chernoff
 import ProbMethods.Chapter05.Discrepancy
