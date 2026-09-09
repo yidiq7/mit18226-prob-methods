@@ -3419,6 +3419,120 @@
    "uses": [],
    "proof_uses": [],
    "note": "CONDITIONAL INDEPENDENCE, the step the notes invoke as '[cond indep]' and this library lacked: if the conditional distribution of X given (Y,Z) depends only on Y, then H(X|Y,Z) = H(X|Y). The proof is a regrouping rather than an inequality -- the fibres of (Y,Z) above a fixed Y-value all carry the same conditional distribution, so their weights collapse onto the marginal of Y via sum_wdist_pair_right. Recorded twice in the roadmap as the missing tool for 10.3.5 (all trees) and the notes' own route to 10.3.6; adding it removes that gap from the LIBRARY, though each application still has to verify the hypothesis for its own distribution, which for trees means building the tree-indexed Markov distribution."
+  },
+  "concentrationGroup": {
+   "kind": "group",
+   "doc": "mathlib-survey.md"
+  },
+  "hamDist": {
+   "kind": "definition",
+   "parent": "concentrationGroup",
+   "file": "ProbMethods/Chapter09/HammingCube.lean",
+   "decl": "PMC.hamDist",
+   "doc": "mathlib-survey.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [],
+   "proof_uses": [],
+   "note": "The Hamming distance on the cube, encoded as Finset (Fin n) -- the same subset encoding Chapter 5 uses. Checked: hamDist {0} {1} = 2."
+  },
+  "cubeNbhd": {
+   "kind": "definition",
+   "parent": "concentrationGroup",
+   "file": "ProbMethods/Chapter09/HammingCube.lean",
+   "decl": "PMC.cubeNbhd",
+   "doc": "mathlib-survey.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [],
+   "proof_uses": [],
+   "note": "The t-neighbourhood of a set of points of the cube."
+  },
+  "lowBall": {
+   "kind": "definition",
+   "parent": "concentrationGroup",
+   "file": "ProbMethods/Chapter09/HammingCube.lean",
+   "decl": "PMC.lowBall",
+   "doc": "mathlib-survey.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [],
+   "proof_uses": [],
+   "note": "The Hamming ball about the empty set: points of weight below k."
+  },
+  "cube_ball_expand": {
+   "kind": "theorem",
+   "parent": "concentrationGroup",
+   "file": "ProbMethods/Chapter09/HammingCube.lean",
+   "decl": "PMC.cubeNbhd_lowBall",
+   "doc": "mathlib-survey.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "cubeNbhd",
+    "lowBall"
+   ],
+   "proof_uses": [],
+   "note": "THE t-NEIGHBOURHOOD OF A HAMMING BALL IS A HAMMING BALL, radius grown by exactly t. This is what Theorem 9.4.5's proof uses to evaluate |B_t|, and it is exact rather than approximate. 1 <= k is needed: the ball of radius 0 is empty and expands to nothing. Checked on the 3-cube: the 1-neighbourhood of {empty set} has 4 points, as does the ball of radius 2."
+  },
+  "cube_chernoff_ball": {
+   "kind": "theorem",
+   "parent": "concentrationGroup",
+   "file": "ProbMethods/Chapter09/HammingCube.lean",
+   "decl": "PMC.card_lowBall_ge",
+   "doc": "mathlib-survey.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "lowBall"
+   ],
+   "proof_uses": [],
+   "note": "At least (1 - exp(-2t^2/n)) 2^n points of the cube have weight below n/2 + t. This needed nothing new: Chapter 5's card_filter_sign_sum_le at lambda = 2t/sqrt(n) gives exp(-lambda^2/2) = exp(-2t^2/n) ON THE NOSE, so the constant in Theorem 9.4.5 is exactly the Chernoff constant."
+  },
+  "cube_half_ball": {
+   "kind": "theorem",
+   "parent": "concentrationGroup",
+   "file": "ProbMethods/Chapter09/HammingCube.lean",
+   "decl": "PMC.card_lowBall_half_le",
+   "doc": "mathlib-survey.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "lowBall"
+   ],
+   "proof_uses": [],
+   "note": "The half-cube ball has at most 2^(n-1) points, which is what makes Harper applicable to any A with |A| >= 2^(n-1). Complementation is injective and maps the ball into its own complement. Checked: 4 points on the 3-cube (tight) and 5 on the 4-cube."
+  },
+  "harper": {
+   "kind": "theorem",
+   "parent": "concentrationGroup",
+   "file": "ProbMethods/Chapter09/HammingCube.lean",
+   "decl": "PMC.card_cubeNbhd_lowBall_le",
+   "doc": "mathlib-survey.md",
+   "statement": "formalized",
+   "proof": "planned",
+   "uses": [
+    "cubeNbhd",
+    "lowBall"
+   ],
+   "proof_uses": [],
+   "note": "HARPER'S ISOPERIMETRIC INEQUALITY in the Hamming cube (Theorem 9.4.3): among sets of a given size a Hamming ball has the smallest t-neighbourhood. Balls centred at the empty set suffice, since translation by any point is an isometry of the cube. The notes state it WITHOUT PROOF -- it is the hard input of 9.4, by a compression argument -- so it is published as a task rather than assumed silently. STATEMENT COMMITTED."
+  },
+  "rapid_expansion_half": {
+   "kind": "theorem",
+   "parent": "concentrationGroup",
+   "file": "ProbMethods/Chapter09/HammingCube.lean",
+   "decl": "PMC.card_cubeNbhd_ge_of_harper",
+   "doc": "mathlib-survey.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "cube_ball_expand",
+    "cube_chernoff_ball",
+    "cube_half_ball"
+   ],
+   "proof_uses": [],
+   "note": "THEOREM 9.4.5 (rapid expansion from half), CONDITIONAL ON HARPER: if |A| >= 2^(n-1) then |A_t| >= (1 - exp(-2t^2/n)) 2^n. Harper's conclusion for the half-cube ball is an EXPLICIT HYPOTHESIS rather than a use of the sorry'd statement, so this theorem is sorry-free and axiom-clean, and what is missing is visible in the statement. That is the honest way to record a derivation whose one input is a published task."
   }
  }
 }
