@@ -96,12 +96,17 @@ Theorem 9.4.5's unconditional forms (need #46), §9.1/§9.3's unconditional form
 * §4.5 (Hardy–Ramanujan, Erdős–Kac) needs **Mertens' theorem** — `∑_{p≤n} 1/p = log log n +
   O(1)`. Not in Mathlib (checked); formalizing it is its own project.
 * §2.6 (crossing number) needs **planarity** and Euler's formula. Not in Mathlib.
-* §4.5.2/§4.5.4 (CLT, method of moments) are analysis, not combinatorics.
+* §4.5.2/§4.5.4 (CLT, method of moments) are analysis, not combinatorics. **§4.5.1 itself is
+  now published** (`PMC.hardy_ramanujan`) with Mertens' second theorem as an explicit
+  hypothesis — the notes quote Mertens too, so naming it in the type is faithful, and the rest
+  is the second moment method this development already has.
 
 **3. Continuous measure, by design.** §9.4's Euclidean and spherical isoperimetry (9.4.1,
 9.4.10), Johnson–Lindenstrauss (9.4.22) and spherical codes (9.4.25); §9.5's convex-body forms
 (9.5.3, 9.5.6, 9.5.8, 9.5.13, 9.5.14, 9.5.17) — the sample space is finite but the *convex
-body* and Euclidean distance are not; §9.6 (Euclidean TSP); §10.2.10
+body* and Euclidean distance are not, though **Lemma 9.5.12 is now published**
+(`PMC.exists_mem_convexHull_dist_le`), and it is the bridge those five need from Theorem
+9.5.11; §9.6 (Euclidean TSP); §10.2.10
 (Linial–Luria, which randomises over `[0,1]^{C(n,2)}`).
 
 **§5.2 was on this list and should not have been.** "Unit vectors in `ℝⁿ`" reads like

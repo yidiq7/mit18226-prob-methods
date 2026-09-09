@@ -25,6 +25,7 @@ import ProbMethods.Chapter04.SecondMoment
 import ProbMethods.Chapter04.Threshold
 import ProbMethods.Chapter04.BollobasThomason
 import ProbMethods.Chapter04.Weierstrass
+import ProbMethods.Chapter04.HardyRamanujan
 import ProbMethods.Chapter04.DubroffFoxXu
 import ProbMethods.Chapter04.Variance
 import ProbMethods.Chapter04.TriangleThreshold
@@ -61,6 +62,7 @@ import ProbMethods.Chapter09.ChromaticConcentration
 import ProbMethods.Chapter09.CubeExpansion
 import ProbMethods.Chapter09.Equivalence
 import ProbMethods.Chapter09.Talagrand
+import ProbMethods.Chapter09.ConvexDistance
 import ProbMethods.Chapter09.Median
 import ProbMethods.Chapter09.LIS
 import ProbMethods.Chapter10.Entropy
