@@ -2353,6 +2353,37 @@
       ],
       "proof_uses": [],
       "note": "Section 10.3, Sidorenko's inequality. Homomorphism densities; Remark 10.3.8 notes the Mobius graph K_{5,5} minus C_10 is the smallest open case, so the section is partly about an open problem."
+    },
+    "determinedOn_noneOf": {
+      "kind": "theorem",
+      "parent": "localLemmaGroup",
+      "file": "ProbMethods/Chapter06/ProductLLL.lean",
+      "decl": "PMC.determinedOn_noneOf",
+      "doc": "local-lemma.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [
+        "determinedOnDef"
+      ],
+      "proof_uses": [],
+      "note": "The product analogue of determinedBy_noneOf: 'none of the events in T occurs' depends only on a block containing all of their blocks."
+    },
+    "product_lll": {
+      "kind": "theorem",
+      "parent": "localLemmaGroup",
+      "file": "ProbMethods/Chapter06/ProductLLL.lean",
+      "decl": "PMC.exists_avoiding_of_lll",
+      "doc": "local-lemma.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [
+        "lll_symmetric",
+        "determinedOn_noneOf",
+        "product_indep_prob",
+        "mem_noneOf"
+      ],
+      "proof_uses": [],
+      "note": "The local lemma packaged for a PRODUCT sample space -- the twin of 6.2's exists_two_coloring_of_local_lemma, and the engine all of 6.3, 6.4 and 6.5 need. Supply the events, the coordinate block each depends on, a bound p on their probabilities and a bound d on how many other blocks each meets; independence is discharged internally from wprob_unifProd_mul_of_determinedOn, so an application never mentions wprob. Usability verified end to end by instantiating it: one event on a 2-coordinate product over 6 values, all seven hypotheses discharged."
     }
   }
 }

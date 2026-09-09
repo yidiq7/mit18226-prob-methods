@@ -152,10 +152,27 @@ no case analysis. Avoiding the obvious route `(ι → β) ≃ (C → β) × (C�
 that drags dependent types through every step, whereas splicing keeps everything at
 `ι → β`. Same choice `PMC.masked` made for Chapter 10's tuples, and it paid off both times.
 
-What is still missing for §6.3 specifically is a *weighted* product version: picking one
-vertex from each part means the parts have different sizes, so the natural weight is a
-product of `1/|Vᵢ|` rather than the uniform counting measure. `PMC.pweightOn` is the model
-to copy.
+### The product-space local lemma is now packaged
+
+`ProbMethods/Chapter06/ProductLLL.lean`. `PMC.exists_avoiding_of_lll` is the twin of §6.2's
+`PMC.exists_two_coloring_of_local_lemma`, for a product sample space: supply the events, the
+coordinate block each one depends on, a bound `p` on their probabilities, and a bound `d` on
+how many other blocks each block meets, and it returns a point avoiding every event.
+Independence is discharged internally, so an **application never has to mention `wprob`** —
+which is the whole point of packaging it. Usability was verified end to end by instantiating
+it on a small concrete product with all seven hypotheses discharged, not just by type-checking
+the statement.
+
+The earlier note here said §6.3 would need a *weighted* product version, because parts have
+different sizes. That is avoided: after the trimming step all parts have size exactly
+`k = ⌈2eΔ⌉`, so enumerating each part by `Fin k` makes the sample space `Fin r → Fin k`,
+which is uniform. The trimming is `Finset.exists_subset_card_eq` and an independent
+transversal of the trimmed parts is one of the originals.
+
+What remains for §6.3 is graph bookkeeping rather than probability: index the bad events by
+edges *between different parts*, show each is determined on the two-element block `{i, j}` of
+part indices, and bound the dependency degree by `2kΔ - 1` (see the errata above — that
+self-exclusion is what makes the arithmetic work).
 
 ### §6.3 and §6.4, read off the notes
 
