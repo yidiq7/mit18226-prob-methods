@@ -4438,6 +4438,22 @@
    ],
    "proof_uses": [],
    "note": "THEOREM 10.4.12 (Kahn, Zhao), DONE: i(G)^(2d) <= (2^(d+1)-1)^n for every n-vertex d-regular graph. Stated over the naturals -- the notes' i(G) <= i(K_{d,d})^{n/(2d)} with the root cleared, equivalent by monotonicity of log. Zhao's reduction: the double cover is bipartite and d-regular, Kahn's case applies to it, and the swapping trick transfers the bound back. Checked by brute force over every regular graph on at most 6 vertices: no violations, and the equality cases are exactly the disjoint unions of K_{d,d}."
+  },
+  "galvin_tetali": {
+   "kind": "theorem",
+   "parent": "entropyGroup",
+   "file": "ProbMethods/Chapter10/GalvinTetali.lean",
+   "decl": "PMC.card_homSetR_pow_le",
+   "doc": "entropy.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "kahn_zhao_bipartite",
+    "gibbs_variational",
+    "shearer_subset"
+   ],
+   "proof_uses": [],
+   "note": "THEOREM 10.4.14 (Galvin-Tetali 2004), DONE: hom(G,H)^d <= hom(K_{d,d},H)^#B for d-regular bipartite G and any target H with loops allowed. The notes state it and say only that Kahn's proof 'extends'; it does, and the extension was cheap because the global argument was first factored out as mul_tupleEntropy_univ_le. The per-vertex bound is the Gibbs variational principle at the energy d*log #commonNbhd, whose partition function IS hom(K_{d,d},H) by card_kddHom -- so the extremal graph arrives as the partition function rather than as an example. Degenerate tuples must be excluded from that sum: log 0 = 0 makes exp(d log 0) = 1 where #commonNbhd^d = 0. Checked by brute force over all targets on <= 3 vertices, and in Lean: at indepTarget it reproduces card_indepR_pow_le_of_bipartite."
   }
  }
 }

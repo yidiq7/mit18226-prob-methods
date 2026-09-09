@@ -66,6 +66,10 @@ distribution, and `PMC.wentropy w X = ∑ b, negMulLog (P (X = b))` is its entro
 | `PMC.condProd`, `PMC.sum_condProd` — conditionally independent copies | proved |
 | **`PMC.card_matchSet_le_prod`** — Brégman, Thm 10.2.1 | proved |
 | **`PMC.card_indepSets_pow_le`** — Kahn–Zhao, Thm 10.4.12 | proved |
+| `PMC.mul_tupleEntropy_univ_le` — the bipartite entropy skeleton | proved |
+| `PMC.wcondEntropy_congr_left` — `H(Y\|Z)` depends only on `Z`'s fibres | proved |
+| `PMC.card_kddHom` — `hom(K_{d,d},H) = ∑_a #commonNbhd(a)^d` | proved |
+| **`PMC.card_homSetR_pow_le`** — Galvin–Tetali, Thm 10.4.14 | proved |
 
 ## The one trap: `log 0 = 0`
 
@@ -733,7 +737,60 @@ equality cases are exactly the disjoint unions of `K_{d,d}` (`n=2,d=1`; `n=4,d=1
 `n=4,d=2` — that is `C₄ = K_{2,2}`, `i = 7`; `n=6,d=1`; `n=6,d=3` — `K_{3,3}`, `i = 15`),
 which is what the theorem predicts.
 
-**What remains in §10.4**: Theorem 10.4.14 (Galvin–Tetali, the same bound for homomorphism
-counts into an arbitrary target `H`) and Theorem 10.4.15 (Sah–Sawhney–Stoner–Zhao). The
-bipartite proof above is the right skeleton for 10.4.14; what changes is the per-vertex
-maximisation, which for a general target is no longer a two-point computation.
+## §10.4 — Theorem 10.4.14, Galvin–Tetali
+
+`ProbMethods/Chapter10/GalvinTetali.lean`. `PMC.card_homSetR_pow_le`: for a `d`-regular
+bipartite `G` and **any** target `H`, loops allowed,
+
+    hom(G, H)^d ≤ hom(K_{d,d}, H)^{#B}.
+
+The notes state this and say only that "the entropy proof of the bipartite case of Theorem
+10.4.12 extends". It does, and the extension cost almost nothing here because the global part
+of Kahn's proof was first separated out as `PMC.mul_tupleEntropy_univ_le` — Shearer on the
+side `A`, chain rule and block subadditivity on the side `B`, with a per-vertex bound as a
+hypothesis. Galvin–Tetali is that skeleton with a different per-vertex bound, and nothing
+else changes.
+
+**The per-vertex bound, and where the constant comes from.** The notes take `d`
+conditionally independent copies of `X_b` given `X_{N(b)}` and observe the resulting tuple is
+a homomorphism of `K_{d,d}`. Here it is the Gibbs variational principle again, and this time
+the target constant is not put in by hand but *computed*:
+
+* `X_b` must lie in the common neighbourhood of the values on `N(b)`, so
+  `H(X_b | X_{N(b)}) ≤ E[log #commonNbhd(X_{N(b)})]`;
+* `PMC.wentropy_add_wmean_le_log_sum_exp` at the energy `a ↦ d·log #commonNbhd(a)` bounds the
+  whole left side by `log ∑_a #commonNbhd(a)^d`;
+* and `∑_a #commonNbhd(a)^d` **is** `hom(K_{d,d}, H)` (`PMC.card_kddHom`): a homomorphism of
+  `K_{d,d}` is a tuple on one side plus `d` independent choices from its common
+  neighbourhood.
+
+So the extremal graph appears as the partition function of the maximisation rather than as an
+example to be checked. This is the same phenomenon as `2^{d+1} - 1 = i(K_{d,d})` in Kahn's
+case, which is now visibly the instance `H = ` one edge with a loop.
+
+**Two things worth recording about the formalization.**
+
+*The degenerate tuples must be excluded from the partition function.* `Real.log 0 = 0` makes
+`exp (d log #commonNbhd a) = 1` where `#commonNbhd a ^ d = 0`, so summing the energy over
+*all* tuples would inflate the partition function above `hom(K_{d,d},H)` and break the
+inequality. Restricting to the tuples with nonempty common neighbourhood is free, since an
+attained tuple always has `X_b` in its common neighbourhood — but it is not optional.
+
+*The conditioning variable is re-presented, not re-derived.* The per-vertex bound wants
+`X_{N(b)}` as a function `Fin d → V(H)` (so that the partition function is a sum over tuples),
+while the skeleton produces it as a mask `V → Option V(H)`. `PMC.wcondEntropy_congr_left` —
+new, and the conditional analogue of `PMC.wentropy_congr` — says conditional entropy depends
+only on the fibres of the conditioning variable, which lets an enumeration of `N(b)` move
+between the two presentations with no probability recomputed.
+
+**Checked**: brute force over every symmetric relation with loops on up to 3 vertices as the
+target, against `2K₂`, `C₄`, `C₆`, `K₂,₂` and `K₃,₃` as the host: no violations, equality at
+`K_{d,d}` itself. And the specialisation is checked *in Lean*: `PMC.card_homSetR_indepTarget`
+and `PMC.card_kddHom_indepTarget` turn Theorem 10.4.14 at the independent-set target back into
+the statement of `PMC.card_indepR_pow_le_of_bipartite`, which the file records as a
+kernel-checked `example`. `PMC.card_properColorings_pow_le` is the other special case the
+notes name, `c_q(G)^d ≤ c_q(K_{d,d})^{#B}`.
+
+**What remains in §10.4**: Theorem 10.4.15 (Sah–Sawhney–Stoner–Zhao 2020), which removes the
+bipartite hypothesis for `H = K_q`. The notes state it without proof — it is a research paper,
+not an argument in the book — so it is not a node here.

@@ -288,6 +288,59 @@ lemma tupleEntropy_indepInd_univ :
     card_indepSpace]
 
 
+/-! ### The entropy skeleton
+
+The three global steps of Kahn's argument — Shearer on one side, the chain rule with block
+subadditivity on the other, and dropping the conditioning down to a neighbourhood — use
+nothing about independent sets, or even about graphs. They are separated out here because
+Galvin–Tetali (Theorem 10.4.14) is the *same* argument with a different per-vertex bound. -/
+
+section Skeleton
+
+variable {Ω : Type*} [Fintype Ω] [DecidableEq Ω] {β : Type*} [Fintype β] [DecidableEq β]
+
+/-- **The entropy skeleton of the bipartite proof.** With `V = A ∪ B`, a neighbourhood map
+`nb` sending each `b ∈ B` into `A`, and every vertex of `A` covered `d` times, a per-vertex
+bound `H(X_{nb b}) + d·H(X_b | X_{nb b}) ≤ c` gives `d·H(X) ≤ #B·c`.
+
+Reading the three inputs in order: `PMC.shearer_subset` turns `d·H(X_A)` into
+`∑_{b ∈ B} H(X_{nb b})` — the covering multiplicity is regularity — `PMC.tupleEntropy_union_le`
+turns `H(X)` into `H(X_A) + ∑_{b ∈ B} H(X_b | X_A)`, and `PMC.wcondEntropy_masked_antitone`
+replaces `X_A` by `X_{nb b}` in each of those terms. -/
+theorem mul_tupleEntropy_univ_le {w : Ω → ℝ} (hw : ∀ ω, 0 ≤ w ω) (hsum : ∑ ω, w ω = 1)
+    (X : V → Ω → β) (nb : V → Finset V) {A B : Finset V} (hdisj : Disjoint A B)
+    (hcover : A ∪ B = univ) (hAS : ∀ b ∈ B, nb b ⊆ A) (d : ℕ)
+    (hcov : ∀ a ∈ A, d ≤ #(B.filter fun b => a ∈ nb b)) {c : ℝ}
+    (hper : ∀ b ∈ B, tupleEntropy w X (nb b)
+      + (d : ℝ) * wcondEntropy w (masked X (nb b)) (X b) ≤ c) :
+    (d : ℝ) * tupleEntropy w X univ ≤ (#B : ℝ) * c := by
+  classical
+  have hdnn : (0 : ℝ) ≤ (d : ℝ) := Nat.cast_nonneg d
+  have hshearer := shearer_subset hw hsum X A B nb d hAS hcov
+  have hchain : tupleEntropy w X univ
+      ≤ tupleEntropy w X A + ∑ b ∈ B, wcondEntropy w (masked X A) (X b) := by
+    rw [← hcover]
+    exact tupleEntropy_union_le hw hsum X A B hdisj
+  have hdrop : ∀ b ∈ B, wcondEntropy w (masked X A) (X b)
+      ≤ wcondEntropy w (masked X (nb b)) (X b) :=
+    fun b hb => wcondEntropy_masked_antitone hw hsum X (hAS b hb)
+      fun h => (Finset.disjoint_left.mp hdisj h) hb
+  have h4 : (d : ℝ) * tupleEntropy w X univ
+      ≤ (d : ℝ) * tupleEntropy w X A
+        + (d : ℝ) * ∑ b ∈ B, wcondEntropy w (masked X A) (X b) := by
+    have h := mul_le_mul_of_nonneg_left hchain hdnn
+    rw [mul_add] at h
+    exact h
+  have h5 : (d : ℝ) * ∑ b ∈ B, wcondEntropy w (masked X A) (X b)
+      ≤ ∑ b ∈ B, (d : ℝ) * wcondEntropy w (masked X (nb b)) (X b) := by
+    rw [Finset.mul_sum]
+    exact Finset.sum_le_sum fun b hb => mul_le_mul_of_nonneg_left (hdrop b hb) hdnn
+  have h6 := Finset.sum_le_sum hper
+  rw [Finset.sum_add_distrib, Finset.sum_const, nsmul_eq_mul] at h6
+  linarith
+
+end Skeleton
+
 /-- **Theorem 10.4.12, the bipartite case** (Kahn). For a `d`-regular graph with
 bipartition `V = A ∪ B`,
 
@@ -325,36 +378,11 @@ theorem card_indepR_pow_le_of_bipartite (hsymm : ∀ u v, r u v → r v u)
     rcases hbip a v (mem_nbrs.mp hv) with ⟨-, hvB⟩ | ⟨haB, -⟩
     · exact hvB
     · exact absurd haB (Finset.disjoint_left.mp hdisj ha)
-  have hshearer := shearer_subset hw hsum (indepInd r) A B (nbrs r) d hAS hcov
-  have hchain : tupleEntropy (indepWeight r) (indepInd r) univ
-      ≤ tupleEntropy (indepWeight r) (indepInd r) A
-        + ∑ b ∈ B, wcondEntropy (indepWeight r) (masked (indepInd r) A) (indepInd r b) := by
-    rw [← hcover]
-    exact tupleEntropy_union_le hw hsum (indepInd r) A B hdisj
-  have hdrop : ∀ b ∈ B,
-      wcondEntropy (indepWeight r) (masked (indepInd r) A) (indepInd r b)
-        ≤ wcondEntropy (indepWeight r) (masked (indepInd r) (nbrs r b)) (indepInd r b) :=
-    fun b hb => wcondEntropy_masked_antitone hw hsum (indepInd r) (hAS b hb)
-      fun h => (Finset.disjoint_left.mp hdisj h) hb
   have hlog := tupleEntropy_indepInd_univ r
   -- the entropy inequality
   have hkey : (d : ℝ) * Real.log #(indepR r) ≤ (#B : ℝ) * Real.log (2 ^ (d + 1) - 1) := by
-    have h4 : (d : ℝ) * tupleEntropy (indepWeight r) (indepInd r) univ
-        ≤ (d : ℝ) * tupleEntropy (indepWeight r) (indepInd r) A
-          + (d : ℝ) * ∑ b ∈ B,
-              wcondEntropy (indepWeight r) (masked (indepInd r) A) (indepInd r b) := by
-      have h := mul_le_mul_of_nonneg_left hchain hdnn
-      rw [mul_add] at h
-      exact h
-    have h5 : (d : ℝ) * ∑ b ∈ B,
-          wcondEntropy (indepWeight r) (masked (indepInd r) A) (indepInd r b)
-        ≤ ∑ b ∈ B, (d : ℝ)
-            * wcondEntropy (indepWeight r) (masked (indepInd r) (nbrs r b)) (indepInd r b) := by
-      rw [Finset.mul_sum]
-      exact Finset.sum_le_sum fun b hb => mul_le_mul_of_nonneg_left (hdrop b hb) hdnn
-    have h6 := Finset.sum_le_sum fun b (_ : b ∈ B) =>
-      tupleEntropy_nbrs_add_mul_le r b (hreg b)
-    rw [Finset.sum_add_distrib, Finset.sum_const, nsmul_eq_mul] at h6
+    have hskel := mul_tupleEntropy_univ_le hw hsum (indepInd r) (nbrs r) hdisj hcover hAS d
+      hcov (fun b _ => tupleEntropy_nbrs_add_mul_le r b (hreg b))
     have hlogd : (d : ℝ) * tupleEntropy (indepWeight r) (indepInd r) univ
         = (d : ℝ) * Real.log #(indepR r) := by rw [hlog]
     linarith

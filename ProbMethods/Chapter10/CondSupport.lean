@@ -186,6 +186,27 @@ theorem wentropy_add_wmean_le_log_sum_exp {w : Ω → ℝ} (hw : ∀ ω, 0 ≤ w
   rw [wmean_comp_eq_sum_wdist]
   exact hkey
 
+/-- **Conditional entropy depends only on the fibres of the conditioning variable.** If `Z`
+and `Z'` determine each other along their ranges, then `H(Y | Z) = H(Y | Z')`.
+
+Both `H(Z)` and `H(Z, Y)` are invariant under such a relabelling (`PMC.wentropy_congr`), and
+the chain rule writes `H(Y | Z)` as their difference. Needed whenever a conditioning variable
+is re-presented in a different type — for instance a tuple `X_S` read as a function on an
+enumeration `Fin d → β` of `S` rather than as a mask. -/
+theorem wcondEntropy_congr_left {w : Ω → ℝ} (hw : ∀ ω, 0 ≤ w ω) (Z : Ω → β) (Z' : Ω → δ)
+    (Y : Ω → γ) (g : β → δ) (h : δ → β)
+    (hg : ∀ ω, g (Z ω) = Z' ω) (hh : ∀ ω, h (Z' ω) = Z ω) :
+    wcondEntropy w Z Y = wcondEntropy w Z' Y := by
+  have h1 := wentropy_chain hw Z Y
+  have h2 := wentropy_chain hw Z' Y
+  have h3 : wentropy w Z = wentropy w Z' :=
+    wentropy_congr w Z Z' g h (fun ω => (hg ω).symm) (fun ω => (hh ω).symm)
+  have h4 : wentropy w (fun ω => (Z ω, Y ω)) = wentropy w (fun ω => (Z' ω, Y ω)) :=
+    wentropy_congr w _ _ (fun q => (g q.1, q.2)) (fun q => (h q.1, q.2))
+      (fun ω => by rw [Prod.ext_iff]; exact ⟨(hg ω).symm, rfl⟩)
+      (fun ω => by rw [Prod.ext_iff]; exact ⟨(hh ω).symm, rfl⟩)
+  linarith
+
 /-! ### Conditional independence
 
 The step §10.3's proofs use and this library lacked: **if the conditional distribution of `X`
