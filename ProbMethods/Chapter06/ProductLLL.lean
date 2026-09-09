@@ -177,4 +177,92 @@ theorem card_adj_pairs_le (G : SimpleGraph V) [DecidableRel G.Adj] {Δ : ℕ}
 
 end AdjacentPairs
 
+/-! ### §6.4's counting core: the dependency degree of a digraph
+
+For §6.4 the bad event at `v` is "no out-neighbour of `v` carries the next label", so it is
+determined on `{v} ∪ N⁺(v)`. Two such blocks meet in one of three ways, and the notes count
+them exactly that way: at most `Δ` stepping backward, `δ` stepping forward, and `δ(Δ-1)`
+stepping forward and then backward. The last is where the `-1` comes from — `v` is itself an
+in-neighbour of each of its out-neighbours, so it must be excluded — and it is what turns
+`Δ + δ + δ(Δ-1)` into `Δ + δΔ`.
+-/
+
+section DigraphDependency
+
+variable {V : Type*} [Fintype V] [DecidableEq V]
+
+/-- The coordinates §6.4's bad event at `v` depends on: `v` and its out-neighbours. -/
+abbrev dblk (r : V → V → Prop) [DecidableRel r] (v : V) : Finset V :=
+  insert v ((univ : Finset V).filter fun u => r v u)
+
+/-- **The dependency degree of a digraph is at most `Δ + δΔ`.**
+
+`δ` bounds out-degrees, `Δ` bounds in-degrees. `1 ≤ Δ` is needed only to fold
+`δ + δ(Δ-1)` into `δΔ`; with `Δ = 0` the relation is empty and every count is zero anyway.
+
+This is the *first-pass* bound, which is what the straightforward local lemma needs. The
+notes then observe a smaller valid dependency digraph — their "final trick" — to reach
+Theorem 6.4.3's exact constant `k ≤ δ/(1 + log(1 + δΔ))`; without it one gets
+`k ≤ δ/(1 + log(1 + Δ + δΔ))`. -/
+theorem card_digraph_dependency_le (r : V → V → Prop) [DecidableRel r] {δ D : ℕ}
+    (hD : 1 ≤ D)
+    (hout : ∀ v, #((univ : Finset V).filter fun u => r v u) ≤ δ)
+    (hin : ∀ v, #((univ : Finset V).filter fun u => r u v) ≤ D)
+    (v : V) :
+    #((univ : Finset V).filter fun w => w ≠ v ∧ ¬ Disjoint (dblk r v) (dblk r w))
+      ≤ D + δ * D := by
+  classical
+  set B := (univ : Finset V).filter fun w => r w v with hB
+  set F := (univ : Finset V).filter fun u => r v u with hF
+  set T := F.biUnion (fun u => ((univ : Finset V).filter fun w => r w u).erase v) with hT
+  -- the three ways two blocks can meet
+  have hsub : (univ : Finset V).filter
+      (fun w => w ≠ v ∧ ¬ Disjoint (dblk r v) (dblk r w)) ⊆ B ∪ F ∪ T := by
+    intro w hw
+    rw [mem_filter] at hw
+    obtain ⟨-, hwv, hdis⟩ := hw
+    rw [Finset.not_disjoint_iff] at hdis
+    obtain ⟨x, hxv, hxw⟩ := hdis
+    rw [Finset.mem_insert, mem_filter] at hxv hxw
+    rw [Finset.mem_union, Finset.mem_union]
+    rcases hxv with rfl | ⟨-, hrvx⟩
+    · rcases hxw with rfl | ⟨-, hrwx⟩
+      · exact absurd rfl hwv
+      · exact Or.inl (Or.inl (by rw [hB, mem_filter]; exact ⟨mem_univ _, hrwx⟩))
+    · rcases hxw with rfl | ⟨-, hrwx⟩
+      · exact Or.inl (Or.inr (by rw [hF, mem_filter]; exact ⟨mem_univ _, hrvx⟩))
+      · refine Or.inr ?_
+        rw [hT, Finset.mem_biUnion]
+        exact ⟨x, by rw [hF, mem_filter]; exact ⟨mem_univ _, hrvx⟩,
+          Finset.mem_erase.mpr ⟨hwv, by rw [mem_filter]; exact ⟨mem_univ _, hrwx⟩⟩⟩
+  -- and their sizes
+  have hTcard : #T ≤ δ * (D - 1) := by
+    refine le_trans (Finset.card_biUnion_le) ?_
+    refine le_trans (Finset.sum_le_card_nsmul F _ (D - 1) ?_) ?_
+    · intro u hu
+      rw [hF, mem_filter] at hu
+      have hvmem : v ∈ (univ : Finset V).filter fun w => r w u := by
+        rw [mem_filter]
+        exact ⟨mem_univ _, hu.2⟩
+      rw [Finset.card_erase_of_mem hvmem]
+      have := hin u
+      omega
+    · rw [smul_eq_mul]
+      exact Nat.mul_le_mul_right _ (hout v)
+  have hBcard : #B ≤ D := hin v
+  have hFcard : #F ≤ δ := hout v
+  calc #((univ : Finset V).filter fun w => w ≠ v ∧ ¬ Disjoint (dblk r v) (dblk r w))
+      ≤ #(B ∪ F ∪ T) := Finset.card_le_card hsub
+    _ ≤ #(B ∪ F) + #T := Finset.card_union_le _ _
+    _ ≤ #B + #F + #T := by
+        have := Finset.card_union_le B F
+        omega
+    _ ≤ D + δ + δ * (D - 1) := by omega
+    _ = D + δ * D := by
+        cases D with
+        | zero => omega
+        | succ d => simp; ring
+
+end DigraphDependency
+
 end PMC

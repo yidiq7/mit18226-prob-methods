@@ -257,12 +257,24 @@ maximum in-degree `Δ` contains a cycle of length divisible by `k`, as long as
 `k ≤ δ / (1 + log(1 + δΔ))`. Theorem 6.4.1 and Corollary 6.4.2 are the `d`-regular
 specialisations.
 
-The probabilistic half is a good fit — label vertices with `ZMod k` uniformly, `A_v` is "no
-out-neighbour of `v` is labelled `x_v + 1`", `P(A_v) = (1 - 1/k)^δ`, and the sample space is
-the uniform product `V → ZMod k`. **The obstacle is the combinatorial half**: extracting a
-directed cycle of length divisible by `k` from the colour-incrementing walk needs digraph
-walk/cycle machinery that Mathlib develops for `SimpleGraph` but not for digraphs. Expect
-that, not the local lemma, to be the bulk of the work.
+The probabilistic half is a good fit, and **both of its inputs are now proved**: label
+vertices with `ZMod k` uniformly, so the sample space is the uniform product `V → ZMod k`;
+`A_v` is "no out-neighbour of `v` is labelled `x_v + 1`", whose probability
+`(1 - 1/k)^{d⁺(v)}` is `PMC.wprob_unifProd_forall`; and the dependency degree `Δ + δΔ` is
+`PMC.card_digraph_dependency_le`, counted the notes' own three ways and checked **tight** on
+the directed 4-cycle.
+
+Note that this is the notes' *first-pass* degree bound, which gives
+`k ≤ δ/(1 + log(1 + Δ + δΔ))`. Theorem 6.4.3's stated constant
+`k ≤ δ/(1 + log(1 + δΔ))` needs their "final trick" — the observation that `A_v` is
+independent of every `A_w` with `N⁺(v)` disjoint from `N⁺(w) ∪ {w}`, a strictly smaller
+dependency digraph. Formalize the first-pass version first; it is a real theorem and the
+trick can be layered on.
+
+**The remaining obstacle is the combinatorial half**: extracting a directed cycle of length
+divisible by `k` from the colour-incrementing walk needs digraph walk/cycle machinery that
+Mathlib develops for `SimpleGraph` but not for digraphs. Expect that, not the local lemma,
+to be the bulk of the work.
 
 The remaining sections (§6.5 lopsided local lemma, §6.6 algorithmic local lemma) each need
 their own setup; §6.5 in particular

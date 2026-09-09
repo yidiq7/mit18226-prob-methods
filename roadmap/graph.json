@@ -2599,7 +2599,31 @@
         "coords_multiply"
       ],
       "proof_uses": [],
-      "note": "Theorem 6.4.3 (Alon-Linial 1989): every digraph with minimum out-degree delta and maximum in-degree Delta has a cycle of length divisible by k, provided k <= delta/(1 + log(1 + delta*Delta)). The probabilistic half is a good fit and its two inputs now exist: label vertices from ZMod k (the uniform product V -> ZMod k), A_v = 'no out-neighbour of v is labelled x_v + 1', whose probability (1 - 1/k)^(out-degree) is wprob_unifProd_forall, and the dependency degree Delta + delta*Delta counted as the notes break it down (at most Delta stepping backward, delta forward, delta(Delta-1) forward-then-backward). TWO OBSTACLES remain: (i) that degree count needs an injection into a three-part disjoint union, and (ii) the COMBINATORIAL half -- extracting a directed cycle of length divisible by k from the colour-incrementing walk -- needs digraph walk machinery that Mathlib develops for SimpleGraph but not for digraphs. Expect (ii), not the local lemma, to be the bulk of the work."
+      "note": "Theorem 6.4.3 (Alon-Linial 1989): every digraph with minimum out-degree delta and maximum in-degree Delta has a cycle of length divisible by k, provided k <= delta/(1 + log(1 + delta*Delta)). The probabilistic half is a good fit and its two inputs now exist: label vertices from ZMod k (the uniform product V -> ZMod k), A_v = 'no out-neighbour of v is labelled x_v + 1', whose probability (1 - 1/k)^(out-degree) is wprob_unifProd_forall, and the dependency degree Delta + delta*Delta counted as the notes break it down (at most Delta stepping backward, delta forward, delta(Delta-1) forward-then-backward). Obstacle (i) is now DONE -- card_digraph_dependency_le, checked tight on the directed 4-cycle. What remains is (ii) the COMBINATORIAL half -- extracting a directed cycle of length divisible by k from the colour-incrementing walk -- needs digraph walk machinery that Mathlib develops for SimpleGraph but not for digraphs. Expect (ii), not the local lemma, to be the bulk of the work."
+    },
+    "dblkDef": {
+      "kind": "definition",
+      "parent": "localLemmaGroup",
+      "file": "ProbMethods/Chapter06/ProductLLL.lean",
+      "decl": "PMC.dblk",
+      "doc": "local-lemma.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "The coordinates 6.4's bad event at v depends on: v and its out-neighbours."
+    },
+    "digraph_degree": {
+      "kind": "theorem",
+      "parent": "localLemmaGroup",
+      "file": "ProbMethods/Chapter06/ProductLLL.lean",
+      "decl": "PMC.card_digraph_dependency_le",
+      "doc": "local-lemma.md",
+      "statement": "formalized",
+      "proof": "formalized",
+      "uses": [],
+      "proof_uses": [],
+      "note": "6.4's dependency degree is at most Delta + delta*Delta, counted the notes' own way: at most Delta stepping backward, delta forward, and delta(Delta-1) forward-then-backward. The -1 matters -- v is itself an in-neighbour of each of its out-neighbours and must be excluded -- and it is what turns Delta + delta + delta(Delta-1) into Delta + delta*Delta. 1 <= Delta is needed only to fold those together; at Delta = 0 the relation is empty. This is the FIRST-PASS bound, which is what the straightforward local lemma needs; the notes then find a smaller valid dependency digraph (their 'final trick') to reach 6.4.3's exact constant, and without it one gets k <= delta/(1 + log(1 + Delta + delta*Delta)). Checked TIGHT on the directed 4-cycle: all degrees 1, bound 1 + 1 = 2, and the actual neighbourhood of a vertex has exactly 2 elements."
     }
   }
 }
