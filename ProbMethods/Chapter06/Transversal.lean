@@ -72,6 +72,75 @@ section Transversal
 
 variable {V : Type*} [Fintype V] [DecidableEq V]
 
+section Events
+
+variable (G : SimpleGraph V) [DecidableRel G.Adj] {r k : ℕ} (w : Fin r → Fin k → V)
+
+/-- The index of a bad event: an ordered pair of parts with `i < j`, and a slot in each.
+
+`abbrev`, not `def`: reducibility is what lets `if_pos` fire on `tEvent`/`tBlock` below
+without a rewrite, which is the trap that sank the first attempt at this proof. -/
+abbrev tValid (c : Fin r × Fin r × Fin k × Fin k) : Prop :=
+  c.1 < c.2.1 ∧ G.Adj (w c.1 c.2.2.1) (w c.2.1 c.2.2.2)
+
+/-- The bad event: both chosen slots are the ones joined by an edge. Invalid indices get the
+empty event, which is never violated, has probability `0`, and is determined on the empty
+block — so it is disjoint from everything and costs nothing. -/
+abbrev tEvent (c : Fin r × Fin r × Fin k × Fin k) : Finset (Fin r → Fin k) :=
+  if tValid G w c then
+    (univ : Finset (Fin r → Fin k)).filter (fun f => f c.1 = c.2.2.1 ∧ f c.2.1 = c.2.2.2)
+  else ∅
+
+/-- The coordinates a bad event depends on. -/
+abbrev tBlock (c : Fin r × Fin r × Fin k × Fin k) : Finset (Fin r) :=
+  if tValid G w c then {c.1, c.2.1} else ∅
+
+/-- Each bad event depends only on the two part-indices in its block. -/
+theorem determinedOn_tEvent (c : Fin r × Fin r × Fin k × Fin k) :
+    DeterminedOn (tBlock G w c) (tEvent G w c) := by
+  by_cases hc : tValid G w c
+  · rw [show tEvent G w c = (univ : Finset (Fin r → Fin k)).filter
+        (fun f => f c.1 = c.2.2.1 ∧ f c.2.1 = c.2.2.2) from if_pos hc,
+      show tBlock G w c = ({c.1, c.2.1} : Finset (Fin r)) from if_pos hc]
+    intro f g hfg
+    simp only [mem_filter, mem_univ, true_and]
+    rw [hfg c.1 (by simp), hfg c.2.1 (by simp)]
+  · rw [show tEvent G w c = (∅ : Finset (Fin r → Fin k)) from if_neg hc]
+    intro f g _
+    simp
+
+/-- **A bad event has probability `1/k²`**: it pins down two distinct coordinates, and
+block independence multiplies `PMC.wprob_unifProd_coord` twice. -/
+theorem wprob_tEvent_le [Nonempty (Fin k)] (c : Fin r × Fin r × Fin k × Fin k) :
+    wprob (unifProd (Fin r) (Fin k)) (tEvent G w c) ≤ 1 / (k : ℝ) ^ 2 := by
+  by_cases hc : tValid G w c
+  · rw [show tEvent G w c = (univ : Finset (Fin r → Fin k)).filter
+        (fun f => f c.1 = c.2.2.1 ∧ f c.2.1 = c.2.2.2) from if_pos hc]
+    have hne : c.1 ≠ c.2.1 := ne_of_lt hc.1
+    have hsplit : (univ : Finset (Fin r → Fin k)).filter
+          (fun f => f c.1 = c.2.2.1 ∧ f c.2.1 = c.2.2.2)
+        = ((univ : Finset (Fin r → Fin k)).filter fun f => f c.1 = c.2.2.1)
+          ∩ ((univ : Finset (Fin r → Fin k)).filter fun f => f c.2.1 = c.2.2.2) := by
+      ext f
+      simp [and_assoc]
+    have hdet1 : DeterminedOn ({c.1} : Finset (Fin r))
+        ((univ : Finset (Fin r → Fin k)).filter fun f => f c.1 = c.2.2.1) := by
+      intro f g hfg
+      simp only [mem_filter, mem_univ, true_and]
+      rw [hfg c.1 (by simp)]
+    have hdet2 : DeterminedOn ((univ : Finset (Fin r)) \ {c.1})
+        ((univ : Finset (Fin r → Fin k)).filter fun f => f c.2.1 = c.2.2.2) := by
+      intro f g hfg
+      simp only [mem_filter, mem_univ, true_and]
+      rw [hfg c.2.1 (by simp [Ne.symm hne])]
+    rw [hsplit, wprob_unifProd_mul_of_determinedOn hdet1 hdet2,
+      wprob_unifProd_coord, wprob_unifProd_coord, Fintype.card_fin, div_mul_div_comm,
+      one_mul, sq]
+  · rw [show tEvent G w c = (∅ : Finset (Fin r → Fin k)) from if_neg hc, wprob_empty]
+    positivity
+
+end Events
+
 /-- **Theorem 6.3.1.** A graph of maximum degree `Δ` whose vertices are partitioned into
 parts of size at least `2eΔ` has an independent set with one vertex from each part. -/
 theorem exists_independent_transversal (G : SimpleGraph V) [DecidableRel G.Adj]
