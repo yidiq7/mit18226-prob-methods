@@ -3800,6 +3800,74 @@
    ],
    "proof_uses": [],
    "note": "EXAMPLE 9.1.2 (coupon collector), DONE: at most a 2 exp(-2t^2/n) fraction of the n^n draws miss the mean number of missed types by t or more. Theorem 9.1.1 applied with all constants 1, plus the exact mean; the two tails are combined by a union bound. The sample space Fin n -> Fin n is exactly the shape the bounded-differences development uses, so no bridging was needed."
+  },
+  "chromNat": {
+   "kind": "definition",
+   "parent": "concentrationGroup",
+   "file": "ProbMethods/Chapter09/ChromaticConcentration.lean",
+   "decl": "PMC.chromNat",
+   "doc": "mathlib-survey.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [],
+   "proof_uses": [],
+   "note": "The chromatic number as a natural number, the least k for which the graph is k-colourable. A Fintype graph is always card-V-colourable, so the minimum exists; using Nat.find rather than Mathlib's ENat-valued chromaticNumber keeps the arithmetic in the reals downstream."
+  },
+  "chrom_diff": {
+   "kind": "theorem",
+   "parent": "concentrationGroup",
+   "file": "ProbMethods/Chapter09/ChromaticConcentration.lean",
+   "decl": "PMC.chromNat_le_succ_of_agree_off",
+   "doc": "mathlib-survey.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "chromNat"
+   ],
+   "proof_uses": [],
+   "note": "Changing the edges at ONE VERTEX changes the chromatic number by at most one: a proper colouring of the old graph becomes one of the new graph after giving that vertex a fresh colour. This is the graph-theoretic input of Theorem 9.3.1, and the notes give exactly this one-line reason."
+  },
+  "graphOf": {
+   "kind": "definition",
+   "parent": "concentrationGroup",
+   "file": "ProbMethods/Chapter09/ChromaticConcentration.lean",
+   "decl": "PMC.graphOf",
+   "doc": "mathlib-survey.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [],
+   "proof_uses": [],
+   "note": "The vertex-exposure encoding: the graph on Fin n where the edge {a,b} with a < b is controlled by coordinate b, the larger endpoint. So coordinate i controls exactly the edges from i downwards, and coordinate 0 controls none. The notes use a product of factors of DIFFERENT sizes (Omega_i = {0,1}^(i-1)); this uses the uniform product Fin n -> (Fin n -> Bool) instead, which is what the bounded-differences development is stated for, at the cost of some redundant coordinates that no lemma has to mention."
+  },
+  "graphOf_zero": {
+   "kind": "theorem",
+   "parent": "concentrationGroup",
+   "file": "ProbMethods/Chapter09/ChromaticConcentration.lean",
+   "decl": "PMC.graphOf_eq_of_agree_off_zero",
+   "doc": "mathlib-survey.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "graphOf"
+   ],
+   "proof_uses": [],
+   "note": "Coordinate 0 controls no edge, so the graph does not depend on it -- which is why its bounded-difference constant is 0 and the window comes out as sqrt(n-1) rather than sqrt(n), exactly as the notes have it. This is where the general-constants form of the inequality (Theorem 9.1.3) earns its keep over the all-ones form (9.1.1)."
+  },
+  "chrom_concentration": {
+   "kind": "theorem",
+   "parent": "concentrationGroup",
+   "file": "ProbMethods/Chapter09/ChromaticConcentration.lean",
+   "decl": "PMC.card_filter_chromF_le",
+   "doc": "mathlib-survey.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "mcdiarmid",
+    "chrom_diff",
+    "graphOf_zero"
+   ],
+   "proof_uses": [],
+   "note": "THEOREM 9.3.1 (Shamir-Spencer 1987), DONE: P(|chi - E chi| >= lambda sqrt(n-1)) <= 2 exp(-2 lambda^2). A FINITE statement with no o(1) anywhere, and the flagship application of 9.1 -- as the notes put it, concentration around the mean without even knowing where the mean is. Theorem 9.1.3 applied to the vertex-exposure encoding; Hoeffding's lemma (task #47) enters as a hypothesis, so the theorem is sorry-free and axiom-clean."
   }
  }
 }

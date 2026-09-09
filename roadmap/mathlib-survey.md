@@ -51,6 +51,22 @@ availability of the mathematics. Recorded as upstream in `graph.json`.
   by `(n-1)ⁿ` of the `nⁿ` draws. The sample space `Fin n → Fin n` is exactly the shape the
   bounded-differences development uses, so the application needed no bridging.
 
+* **§9.3's Theorem 9.3.1 (Shamir–Spencer) is proved** — `PMC.card_filter_chromF_le` in
+  `Chapter09/ChromaticConcentration.lean`: `P(|χ - E χ| ≥ λ√(n-1)) ≤ 2e^{-2λ²}`. **The
+  statement is finite**, with no `o(1)`, and it is §9.1's flagship application: concentration
+  around the mean without knowing where the mean is.
+
+  Two details worth recording. The graph-theoretic input is that changing the edges at one
+  vertex changes the chromatic number by at most one (`PMC.chromNat_le_succ_of_agree_off`) —
+  recolour that vertex afresh. And the notes' window is `√(n-1)`, not `√n`, because the
+  vertex-exposure coordinate at the *first* vertex controls no edge; that is captured by
+  giving it bounded-difference constant `0`, which is where the general-constants form of the
+  inequality (their Theorem 9.1.3) earns its keep over the all-ones form.
+
+  The notes' sample space is a product of factors of different sizes; this uses the uniform
+  product `Fin n → (Fin n → Bool)`, which is what the bounded-differences development is
+  stated for, at the cost of redundant coordinates that no lemma has to mention.
+
 * **§9.2 martingale concentration** is upstream:
   `measure_sum_ge_le_of_HasCondSubgaussianMGF` in `SubGaussian.lean` is the
   **Azuma–Hoeffding inequality**. `Mathlib/Probability/Martingale/` supplies the martingale
