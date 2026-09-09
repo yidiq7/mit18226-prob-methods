@@ -2106,6 +2106,20 @@
       "uses": [],
       "proof_uses": [],
       "note": "The intersecting bound with the trace written as G inter A, which is the form the counting corollary produces."
+    },
+    "shearer_order_free": {
+      "kind": "theorem",
+      "parent": "entropyGroup",
+      "file": "ProbMethods/Chapter10/Shearer.lean",
+      "decl": "PMC.shearer_of_submodular",
+      "doc": "entropy.md",
+      "statement": "planned",
+      "proof": "planned",
+      "uses": [
+        "shearer_submodular"
+      ],
+      "proof_uses": [],
+      "note": "Restate shearer_of_submodular (and the chain below it) WITHOUT [LinearOrder iota]. The order is needed only by sum_chain_eq's peeling; no conclusion mentions it, so it is an artifact in the interface -- and it blocks Theorem 10.4.9, whose edge type is a subtype of Sym2 or of Finset and has no natural order. ATTEMPTED and it does not work naively: deriving the order inside the proof via Fintype.truncEquivFin plus LinearOrder.lift' brings a DIFFERENT LinearOrder.toDecidableEq than the ambient DecidableEq, so every Finset.filter and insert in the statement stops matching, with two goals that print identically; structure-update to override toDecidableEq does not typecheck since LinearOrder extends several classes. Fix: bridge with Subsingleton.elim on DecidableEq (it is a subsingleton pointwise plus funext), using Finset.filter_congr_decidable for the filters and congr for the inserts."
     }
   }
 }

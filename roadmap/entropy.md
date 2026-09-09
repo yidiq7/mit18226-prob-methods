@@ -215,9 +215,40 @@ Three things, in the notes' own order:
   star family, which is a stronger check than non-vacuity: an off-by-one in the halving would
   not achieve equality.
 
-  What remains is purely finite counting on the edge set: model graphs as subsets of `K_n`'s
-  edges and get `#E = C(n,2)`; compute `#(A_S) = C(a,2) + C(b,2)`; the direct covering count
+  What remains is finite counting on the edge set: model graphs as subsets of `K_n`'s edges
+  and get `#E = C(n,2)`; compute `#(A_S) = C(a,2) + C(b,2)`; the direct covering count
   above; the double-count identity `k · C(n,2) = r · C(n,⌊n/2⌋)`; the bound `r ≤ C(n,2)/2`
   (which reduces to `(a-b)² ≤ a+b`); and the exponent arithmetic. No probability, no
-  analysis, no asymptotics — which is why this is the cheapest of Chapter 10's three
-  remaining items.
+  analysis, no asymptotics.
+
+### The one real obstacle, and it is not mathematical
+
+**`PMC.shearer_of_submodular` and everything downstream carry `[LinearOrder ι]`, and the
+natural edge type has no linear order.** The chain decomposition `PMC.sum_chain_eq` needs an
+order to peel the largest element, but *no conclusion in the chain mentions one* — it is an
+artifact of the proof sitting in the interface. The candidate edge types
+(`{e : Sym2 (Fin n) // ¬ e.IsDiag}`, which is where `Sym2.card_subtype_not_diag` gives
+`C(n,2)` for free, or `{e : Finset (Fin n) // #e = 2}`) are subtypes of types Mathlib does
+not linearly order.
+
+The obvious fix — derive an order inside the proof, since any `Fintype` with decidable
+equality carries one via `Fintype.truncEquivFin` and `LinearOrder.lift'`, and the goal is a
+`Prop` so `Trunc.induction_on` supplies it — **was attempted and does not work naively.** A
+transported `LinearOrder` brings its own `LinearOrder.toDecidableEq`, which is a different
+term from the ambient `DecidableEq ι`, so every `Finset.filter` and `insert` in the
+statement stops matching and the application fails with two goals that print identically.
+Overriding the field via structure update (`{ LinearOrder.lift' … with toDecidableEq := … }`)
+does not typecheck either, because `LinearOrder` extends several classes.
+
+Two routes that should work, in order of preference:
+
+1. **Bridge the instances explicitly.** `DecidableEq ι` is a subsingleton (pointwise
+   `Subsingleton (Decidable p)` plus `funext`), so `Subsingleton.elim` gives the equality of
+   the two instances; convert the hypotheses with it — `Finset.filter_congr_decidable`
+   handles the `filter` occurrences and `congr` the `insert` ones.
+2. **Give the edge type an order and keep the interface as is.** Index edges by
+   `Fin (C(n,2))` and carry an explicit bijection to the 2-element vertex subsets, so the
+   order is `Fin`'s and all the counting happens on the subset side.
+
+Route 1 is worth doing regardless of 10.4.9: it removes a hypothesis no application should
+have to satisfy.
