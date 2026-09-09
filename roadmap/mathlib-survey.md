@@ -41,6 +41,16 @@ availability of the mathematics. Recorded as upstream in `graph.json`.
   `PMC.hoeffdingUnif_of_hoeffding` records the exact instantiation of task #47 that discharges
   the hypothesis, so §9.1 closes automatically once that task lands.
 
+  Both tails are proved (`PMC.card_filter_le_le` by applying the upper tail to `-f`), and
+  `PMC.card_filter_ge_le_one` is Theorem 9.1.1 as the notes write it — all constants `1`,
+  bound `exp(-2t²/N)`. The general-constants form is their Theorem 9.1.3, which is what was
+  proved first here; specialising is the cheaper direction.
+
+  **Example 9.1.2 (coupon collector) is proved too** (`PMC.card_filter_missing_le`), with the
+  mean computed *exactly*: `E Z = n(1 - 1/n)ⁿ` (`PMC.pAvg_missing`), since each type is missed
+  by `(n-1)ⁿ` of the `nⁿ` draws. The sample space `Fin n → Fin n` is exactly the shape the
+  bounded-differences development uses, so the application needed no bridging.
+
 * **§9.2 martingale concentration** is upstream:
   `measure_sum_ge_le_of_HasCondSubgaussianMGF` in `SubGaussian.lean` is the
   **Azuma–Hoeffding inequality**. `Mathlib/Probability/Martingale/` supplies the martingale

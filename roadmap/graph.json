@@ -3742,6 +3742,64 @@
    ],
    "proof_uses": [],
    "note": "THEOREM 9.1.1 exactly as the notes state it: all constants 1, both tails, bound exp(-2t^2/N). The general-constants form is Theorem 9.1.3, which is PMC.card_filter_ge_le -- the notes give 9.1.1 first and then remark that it holds with per-coordinate constants, so the general one was proved first here and 9.1.1 specialised from it."
+  },
+  "missing": {
+   "kind": "definition",
+   "parent": "concentrationGroup",
+   "file": "ProbMethods/Chapter09/BoundedDifferences.lean",
+   "decl": "PMC.missing",
+   "doc": "mathlib-survey.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [],
+   "proof_uses": [],
+   "note": "The number of coupon types a draw sequence misses -- Example 9.1.2's random variable."
+  },
+  "bddDiff_missing": {
+   "kind": "theorem",
+   "parent": "concentrationGroup",
+   "file": "ProbMethods/Chapter09/BoundedDifferences.lean",
+   "decl": "PMC.bddDiff_missing",
+   "doc": "mathlib-survey.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "missing",
+    "bddDiff"
+   ],
+   "proof_uses": [],
+   "note": "Changing one draw changes the number of missed types by at most one: the two images differ by at most the replaced coupon on either side, so each missed-set is contained in the other's insert."
+  },
+  "pAvg_missing": {
+   "kind": "theorem",
+   "parent": "concentrationGroup",
+   "file": "ProbMethods/Chapter09/BoundedDifferences.lean",
+   "decl": "PMC.pAvg_missing",
+   "doc": "mathlib-survey.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "missing",
+    "pAvg"
+   ],
+   "proof_uses": [],
+   "note": "The expected number of missed types is EXACTLY n (1 - 1/n)^n: each type is missed by (n-1)^n of the n^n draws, counted by Fintype.card_piFinset_const, and the double count is a Finset.sum_comm. Checked on Fin 2, where the four draws miss 1,0,0,1 types and the average is 1/2 = 2 (1 - 1/2)^2."
+  },
+  "coupon_collector": {
+   "kind": "theorem",
+   "parent": "concentrationGroup",
+   "file": "ProbMethods/Chapter09/BoundedDifferences.lean",
+   "decl": "PMC.card_filter_missing_le",
+   "doc": "mathlib-survey.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "mcdiarmid_one",
+    "bddDiff_missing",
+    "pAvg_missing"
+   ],
+   "proof_uses": [],
+   "note": "EXAMPLE 9.1.2 (coupon collector), DONE: at most a 2 exp(-2t^2/n) fraction of the n^n draws miss the mean number of missed types by t or more. Theorem 9.1.1 applied with all constants 1, plus the exact mean; the two tails are combined by a union bound. The sample space Fin n -> Fin n is exactly the shape the bounded-differences development uses, so no bridging was needed."
   }
  }
 }

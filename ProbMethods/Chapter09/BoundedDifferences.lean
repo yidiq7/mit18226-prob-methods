@@ -419,6 +419,150 @@ theorem card_filter_ge_le_one (hoeff : HoeffdingUnif β) {N : ℕ} (hN : 0 < N)
   exact ⟨hup, hlo⟩
 
 
+/-! ### Example 9.1.2 — the coupon collector
+
+`s : Fin n → Fin n` draws `n` coupons uniformly, and `Z` counts the coupon types never drawn.
+Changing one draw changes `Z` by at most one, so Theorem 9.1.1 applies with all constants `1`,
+and the mean is `n(1 - 1/n)ⁿ` exactly. -/
+
+/-- The number of coupon types that `s` misses. -/
+def missing {n : ℕ} (s : Fin n → Fin n) : ℝ :=
+  #((univ : Finset (Fin n)).filter fun v => ∀ i, s i ≠ v)
+
+/-- Changing one draw changes the number of missed types by at most one: the two images
+differ by at most the one replaced coupon on either side. -/
+lemma bddDiff_missing {n : ℕ} : BddDiff (missing (n := n)) (fun _ => 1) := by
+  classical
+  intro i s s' hss'
+  set M : Finset (Fin n) := (univ : Finset (Fin n)).filter fun v => ∀ j, s j ≠ v with hM
+  set M' : Finset (Fin n) := (univ : Finset (Fin n)).filter fun v => ∀ j, s' j ≠ v with hM'
+  -- a type missed by `s'` but not by `s` must be the one `s` puts at `i`
+  have hsub : M' ⊆ insert (s i) M := by
+    intro v hv
+    rw [hM', mem_filter] at hv
+    rw [Finset.mem_insert]
+    by_cases hvi : v = s i
+    · exact Or.inl hvi
+    · refine Or.inr ?_
+      rw [hM, mem_filter]
+      refine ⟨mem_univ _, fun j => ?_⟩
+      by_cases hji : j = i
+      · subst hji
+        exact fun hcon => hvi hcon.symm
+      · rw [hss' j hji]
+        exact hv.2 j
+  have hsub' : M ⊆ insert (s' i) M' := by
+    intro v hv
+    rw [hM, mem_filter] at hv
+    rw [Finset.mem_insert]
+    by_cases hvi : v = s' i
+    · exact Or.inl hvi
+    · refine Or.inr ?_
+      rw [hM', mem_filter]
+      refine ⟨mem_univ _, fun j => ?_⟩
+      by_cases hji : j = i
+      · subst hji
+        exact fun hcon => hvi hcon.symm
+      · rw [← hss' j hji]
+        exact hv.2 j
+  have h1 : #M' ≤ #M + 1 :=
+    le_trans (Finset.card_le_card hsub) (le_trans (Finset.card_insert_le _ _) (by omega))
+  have h2 : #M ≤ #M' + 1 :=
+    le_trans (Finset.card_le_card hsub') (le_trans (Finset.card_insert_le _ _) (by omega))
+  have hmiss : missing s = #M := by rw [missing, hM]
+  have hmiss' : missing s' = #M' := by rw [missing, hM']
+  have h1R : (#M' : ℝ) ≤ #M + 1 := by exact_mod_cast h1
+  have h2R : (#M : ℝ) ≤ #M' + 1 := by exact_mod_cast h2
+  rw [hmiss, hmiss', show ((fun _ => (1 : ℝ)) i) = 1 from rfl, abs_le]
+  exact ⟨by linarith, by linarith⟩
+
+/-- **The expected number of missed coupon types is `n(1 - 1/n)ⁿ`.** Each type is missed by
+exactly `(n-1)ⁿ` of the `nⁿ` draws. -/
+theorem pAvg_missing {n : ℕ} (hn : 0 < n) :
+    pAvg (missing (n := n)) = n * (1 - 1 / (n : ℝ)) ^ n := by
+  classical
+  have hnR : (0 : ℝ) < n := by exact_mod_cast hn
+  -- count the draws missing a fixed type
+  have hfib : ∀ v : Fin n,
+      #((univ : Finset (Fin n → Fin n)).filter fun s => ∀ i, s i ≠ v) = (n - 1) ^ n := by
+    intro v
+    have hcard : #((univ : Finset (Fin n)).erase v) = n - 1 := by
+      rw [Finset.card_erase_of_mem (mem_univ v), card_univ, Fintype.card_fin]
+    rw [← hcard, ← Fintype.card_piFinset_const ((univ : Finset (Fin n)).erase v) n]
+    refine Finset.card_bij (fun s _ => s) ?_ ?_ ?_
+    · intro s hs
+      rw [mem_filter] at hs
+      rw [Fintype.mem_piFinset]
+      intro i
+      rw [Finset.mem_erase]
+      exact ⟨hs.2 i, mem_univ _⟩
+    · intro s _ s' _ h
+      exact h
+    · intro s hs
+      rw [Fintype.mem_piFinset] at hs
+      refine ⟨s, ?_, rfl⟩
+      rw [mem_filter]
+      exact ⟨mem_univ _, fun i => (Finset.mem_erase.mp (hs i)).1⟩
+  -- double count
+  have hsum : ∑ s : Fin n → Fin n, missing s = (n : ℝ) * (n - 1) ^ n := by
+    have hswap : ∑ s : Fin n → Fin n, missing s
+        = ∑ v : Fin n, (#((univ : Finset (Fin n → Fin n)).filter fun s => ∀ i, s i ≠ v) : ℝ) := by
+      simp only [missing, Finset.card_filter]
+      push_cast
+      exact Finset.sum_comm
+    have hcast : ((n - 1 : ℕ) : ℝ) = (n : ℝ) - 1 := by
+      have h1 : (1 : ℕ) ≤ n := hn
+      push_cast [h1]
+      ring
+    rw [hswap, Finset.sum_congr rfl fun v _ => by rw [hfib v], Finset.sum_const, card_univ,
+      Fintype.card_fin, nsmul_eq_mul]
+    push_cast [hcast]
+    ring
+  rw [pAvg, hsum, Fintype.card_fin]
+  rw [show (1 : ℝ) - 1 / n = (n - 1) / n from by field_simp, div_pow]
+  field_simp
+
+/-- **Example 9.1.2 (coupon collector).** The number of missed coupon types is concentrated:
+at most a `2 exp(-2t²/n)` fraction of the `nⁿ` draws miss it from its mean by `t` or more. -/
+theorem card_filter_missing_le {n : ℕ} (hoeff : HoeffdingUnif (Fin n)) (hn : 0 < n)
+    {t : ℝ} (ht : 0 < t) :
+    (#((univ : Finset (Fin n → Fin n)).filter fun s =>
+        t ≤ |missing s - n * (1 - 1 / (n : ℝ)) ^ n|) : ℝ)
+      ≤ 2 * ((n : ℝ) ^ n * Real.exp (-(2 * t ^ 2) / n)) := by
+  classical
+  haveI : NeZero n := ⟨by omega⟩
+  obtain ⟨hup, hlo⟩ := card_filter_ge_le_one hoeff hn (missing (n := n)) bddDiff_missing ht
+  rw [pAvg_missing hn] at hup hlo
+  have hsub : ((univ : Finset (Fin n → Fin n)).filter fun s =>
+        t ≤ |missing s - n * (1 - 1 / (n : ℝ)) ^ n|)
+      ⊆ ((univ : Finset (Fin n → Fin n)).filter fun s =>
+          n * (1 - 1 / (n : ℝ)) ^ n + t ≤ missing s)
+        ∪ ((univ : Finset (Fin n → Fin n)).filter fun s =>
+          missing s ≤ n * (1 - 1 / (n : ℝ)) ^ n - t) := by
+    intro s hs
+    rw [mem_filter] at hs
+    rw [mem_union, mem_filter, mem_filter]
+    rcases le_abs.mp hs.2 with h | h
+    · exact Or.inl ⟨mem_univ _, by linarith⟩
+    · exact Or.inr ⟨mem_univ _, by linarith⟩
+  have hcard := Finset.card_le_card hsub
+  have hunion := Finset.card_union_le
+    ((univ : Finset (Fin n → Fin n)).filter fun s =>
+      n * (1 - 1 / (n : ℝ)) ^ n + t ≤ missing s)
+    ((univ : Finset (Fin n → Fin n)).filter fun s =>
+      missing s ≤ n * (1 - 1 / (n : ℝ)) ^ n - t)
+  have hle : (#((univ : Finset (Fin n → Fin n)).filter fun s =>
+        t ≤ |missing s - n * (1 - 1 / (n : ℝ)) ^ n|) : ℝ)
+      ≤ #((univ : Finset (Fin n → Fin n)).filter fun s =>
+          n * (1 - 1 / (n : ℝ)) ^ n + t ≤ missing s)
+        + #((univ : Finset (Fin n → Fin n)).filter fun s =>
+          missing s ≤ n * (1 - 1 / (n : ℝ)) ^ n - t) := by
+    have := le_trans hcard hunion
+    exact_mod_cast this
+  rw [Fintype.card_fin] at hup hlo
+  linarith
+
+
 end BoundedDifferences
 
 end PMC
