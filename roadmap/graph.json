@@ -5238,7 +5238,7 @@
    "doc": "second-moment.md",
    "statement": "formalized",
    "proof": "planned",
-   "origin": "orchestrator",
+   "origin": "task:60",
    "uses": [],
    "proof_uses": [],
    "note": "THEOREM 4.5.1 (Hardy-Ramanujan 1917, Turan's 1934 proof), with MERTENS' SECOND THEOREM as an explicit hypothesis -- sum_{p<=m} 1/p = log log m + O(1) is analytic number theory Mathlib lacks, and the notes quote it too, so it is named in the type rather than hidden in prose (same device as Harper in Theorem 4.6.6 and Theorem 6.5.5 in the Latin-transversal bound). Statement published; proof open. Route: X = sum over p <= n^{1/10} of the indicator of p | x, which differs from nu by at most 10 since x <= n has at most 10 prime factors above n^{1/10}; E[X p] = floor(n/p)/n = 1/p + O(1/n) so Mertens gives E X = log log n + O(1); for p =/= q, p|x and q|x iff pq|x so the covariance is O(1/n) and the at most n^{1/5} pairs contribute O(n^{-4/5}), leaving Var X = O(log log n); then PMC.wchebyshev at deviation C sqrt(log log n) makes the exceptional set O(1/C^2), below eps for large C. Uniform weights on Finset.Icc 1 n -- no measure theory."
@@ -5251,7 +5251,7 @@
    "doc": "mathlib-survey.md",
    "statement": "formalized",
    "proof": "planned",
-   "origin": "orchestrator",
+   "origin": "task:59",
    "uses": [
     "talagrand"
    ],
