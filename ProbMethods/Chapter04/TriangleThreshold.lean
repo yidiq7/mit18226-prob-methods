@@ -108,26 +108,31 @@ theorem probTriangleFree_mul_le (n : ℕ) {p : ℝ} (hp0 : 0 ≤ p) (hp1 : p ≤
   rw [hcard] at h1 h2
   exact le_trans h1 h2
 
-/-- `C(n,3) ≥ n³/12` for `n ≥ 6`. -/
-private lemma choose_three_ge {n : ℕ} (hn : 6 ≤ n) : (n : ℝ) ^ 3 / 12 ≤ (n.choose 3 : ℝ) := by
+/-- `6 C(n,3) = n(n-1)(n-2)`, over `ℝ`, for `n ≥ 2`. The `ℕ` identity is
+`Nat.descFactorial`; what this adds is the casts, which need `n ≥ 2` because `ℕ`-subtraction
+truncates. -/
+lemma choose_three_cast {n : ℕ} (hn : 2 ≤ n) :
+    (6 : ℝ) * (n.choose 3 : ℝ) = (n : ℝ) * ((n : ℝ) - 1) * ((n : ℝ) - 2) := by
   have hdesc : n.descFactorial 3 = 6 * n.choose 3 := by
     rw [Nat.descFactorial_eq_factorial_mul_choose]
     norm_num [Nat.factorial]
   have hval : n.descFactorial 3 = n * (n - 1) * (n - 2) := by
     simp [Nat.descFactorial]
     ring
-  have hnR : (6 : ℝ) ≤ (n : ℝ) := by exact_mod_cast hn
   have hcast : ((n * (n - 1) * (n - 2) : ℕ) : ℝ) = (n : ℝ) * ((n : ℝ) - 1) * ((n : ℝ) - 2) := by
     have h1 : (1 : ℕ) ≤ n := by omega
     have h2 : (2 : ℕ) ≤ n := by omega
     push_cast [h1, h2]
     ring
-  have hkey : (6 : ℝ) * (n.choose 3 : ℝ) = (n : ℝ) * ((n : ℝ) - 1) * ((n : ℝ) - 2) := by
-    have : ((n.descFactorial 3 : ℕ) : ℝ) = ((6 * n.choose 3 : ℕ) : ℝ) := by rw [hdesc]
-    rw [hval, hcast] at this
-    push_cast at this
-    linarith
-  nlinarith [hkey, hnR]
+  have : ((n.descFactorial 3 : ℕ) : ℝ) = ((6 * n.choose 3 : ℕ) : ℝ) := by rw [hdesc]
+  rw [hval, hcast] at this
+  push_cast at this
+  linarith
+
+/-- `C(n,3) ≥ n³/12` for `n ≥ 6`. -/
+private lemma choose_three_ge {n : ℕ} (hn : 6 ≤ n) : (n : ℝ) ^ 3 / 12 ≤ (n.choose 3 : ℝ) := by
+  have hnR : (6 : ℝ) ≤ (n : ℝ) := by exact_mod_cast hn
+  nlinarith [choose_three_cast (n := n) (by omega), hnR]
 
 /-- **Theorem 4.1.11.** If `n p → ∞` then `G(n, p)` contains a triangle with probability
 `1 - o(1)`.

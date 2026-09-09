@@ -4512,6 +4512,21 @@
    ],
    "proof_uses": [],
    "note": "PROP 4.1.2 and THEOREM 4.1.11, the triangle threshold, in the notes' own asymptotic phrasing: np -> 0 gives triangle-free with probability 1-o(1), np -> infinity gives a triangle with probability 1-o(1). The limits sit ON TOP OF explicit bounds rather than replacing them, so the convention on asymptotics is unchanged and nothing about the finite framework had to move. The real work was the SHARPER VARIANCE wvar_card_triangles_le': Var <= C(n,3)(p^3 + 3n p^5). The earlier bound (every overlapping pair <= p^3) gives P(triangle-free) <~ 1/(n^2 p^3), which diverges at p = n^(-9/10) and so cannot prove 4.1.11 at all; separating the two overlap classes (t'=t contributes p^3 once, #(t inter t')=2 contributes p^5 at most 3n times) fixes it."
+  },
+  "janson_triangle": {
+   "kind": "theorem",
+   "parent": "jansonGroup",
+   "file": "ProbMethods/Chapter08/JansonTriangle.lean",
+   "decl": "PMC.tendsto_probTriangleFree_exp",
+   "doc": "janson.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "janson_upper",
+    "janson_lower"
+   ],
+   "proof_uses": [],
+   "note": "COROLLARY 8.1.7, DONE: P(G(n,c/n) triangle-free) -> e^{-c^3/6}. Needed Janson specialized to triangles (probTriangleFree_le_exp: mu = C(n,3)p^3, Delta <= 3n C(n,3) p^5, using that two distinct triples share an edge iff they share two vertices and then span 5 edges) plus the Harris lower bound already proved. NO LOGARITHMS: both bracketing inequalities for 1-u are Real.add_one_le_exp, the second applied at u/(1-u) and multiplied by exp(-u/(1-u)). The index type is Fin (C(n,3)) with an explicit enumeration because janson's upper half needs a linear order on the index and transporting one onto Finset would bring its own DecidableEq. Checked by simulation at c=1,2 and n=10,20,40: the simulated probability sits between the brackets and both close on the limit."
   }
  }
 }

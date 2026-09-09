@@ -31,7 +31,10 @@ The theorem sandwiches the probability that no bad set appears:
 | `PMC.janson_lower` — **Theorem 8.1.1, lower bound** | proved |
 | Theorem 8.1.1, upper bound `exp (-μ + Δ/2)` | open |
 | §8.2 (extended Janson, `Δ ≥ μ` regime) | open |
-| §8.3 applications (triangle-free `G(n,p)`, chromatic number) | open, asymptotic |
+| **Thm 7.2.2 / §8.3's lower bound** (`prob_not_hasTriangle_ge`) | proved |
+| **Janson for triangles** (`probTriangleFree_le_exp`) | proved |
+| **Cor 8.1.7** — `P(triangle-free) → e^{-c³/6}` | proved |
+| §8.3's chromatic number application | open, asymptotic |
 
 ## The lower bound: how it went
 
@@ -52,6 +55,40 @@ pweight p T * pweight p U = pweight p (T ∩ U) * pweight p (T ∪ U),
 is an *equality* and therefore symmetric in `⊓` and `⊔`. So Mathlib's `fkg` transports to
 the dual verbatim, where `Monotone` means `Antitone`. Worth remembering: when a hypothesis
 is stated as an equality rather than an inequality, order-reversal is usually free.
+
+## §8.1 for triangles, and Corollary 8.1.7 — proved
+
+`ProbMethods/Chapter08/JansonTriangle.lean`.
+
+`PMC.probTriangleFree_le_exp`: `P(G(n,p) triangle-free) ≤ exp(-C(n,3)p³ + 3n C(n,3)p⁵/2)`.
+`PMC.janson` supplies `exp(-μ + Δ/2)` for an arbitrary family; the work is computing the two
+quantities for the `C(n,3)` potential triangles. `μ = C(n,3)p³` since each spans three edges,
+and `Δ ≤ 3n C(n,3) p⁵` because two distinct triples share an edge exactly when they share two
+vertices, in which case they span `6 - 1 = 5` edges (`PMC.card_spannedEdges_union`), and each
+triple has at most `3n` such partners (`PMC.card_partners_le`, shared with Chapter 4's
+variance).
+
+`PMC.tendsto_probTriangleFree_exp` is **Corollary 8.1.7**:
+
+    P(G(n, c/n) triangle-free) → e^{-c³/6}.
+
+Both brackets converge to it: `C(n,3)p³ → c³/6` and `3n C(n,3)p⁵ = 3c⁵·C(n,3)/n⁴ → 0` for the
+Janson side, and for the Harris side `(1-p³)^{C(n,3)} ≥ exp(-C(n,3)p³/(1-p³))`, whose exponent
+has the same limit.
+
+**No logarithms and no series.** Both bracketing inequalities for `1 - u` are
+`Real.add_one_le_exp`: `1 - u ≤ exp(-u)` directly, and `exp(-u/(1-u)) ≤ 1 - u` by applying it
+at `u/(1-u)` and multiplying by `exp(-u/(1-u))`. That is what keeps the whole corollary
+elementary — the temptation is to take logs and expand, which needs an error term.
+
+The index type is `Fin (C(n,3))` with an explicit enumeration, not the triples themselves:
+`PMC.janson`'s upper half needs a linear order on the index, and transporting one onto
+`Finset (Fin n)` would bring its own `DecidableEq` and break every `filter` in the statement —
+the trap `Chapter10/Shearer.lean` documents.
+
+Checked by simulation at `c = 1` and `c = 2`, `n = 10, 20, 40`: the simulated probability sits
+between the two brackets throughout and both brackets close on `e^{-c³/6}` (at `c = 1`,
+`n = 40`: `0.857 ≤ 0.861 ≤ 0.862` against the limit `0.8465`).
 
 ## The upper bound — proved
 

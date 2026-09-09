@@ -16,8 +16,11 @@ open Finset
 namespace PMC
 
 /-- For a fixed triple `t`, at most `3 * n` triples meet it in two or more vertices: such a
-`t'` is `insert v u` for a `2`-subset `u ⊆ t` and some vertex `v`. -/
-private lemma card_partners_le {V : Type*} [Fintype V] [DecidableEq V] (t : Finset V) :
+`t'` is `insert v u` for a `2`-subset `u ⊆ t` and some vertex `v`.
+
+Public because §8.1's Janson bound for triangles counts the same partners: two triangles are
+dependent exactly when they share an edge, i.e. two vertices. -/
+lemma card_partners_le {V : Type*} [Fintype V] [DecidableEq V] (t : Finset V) :
     #((powersetCard 3 (univ : Finset V)).filter fun t' => 2 ≤ #(t ∩ t'))
       ≤ #(powersetCard 2 t) * Fintype.card V := by
   classical
