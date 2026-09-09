@@ -4497,6 +4497,21 @@
    ],
    "proof_uses": [],
    "note": "THEOREM 4.6.6 (Dubroff-Fox-Xu 2021): k integers bounded by n with distinct subset sums force C(k,floor(k/2)) <= n. The reduction is proved in full -- card_lowHalf (the below-half subsets are exactly half the cube, distinctness ruling out the tie with the complement) and card_boundary_lowHalf_le (a boundary point is an insertion, never an erasure, so its sum lies in an interval of n integers on which distinctness makes the sum injective). Harper is an explicit hypothesis in BOUNDARY form, which the ball form of task #46 does not reach for even k. STATEMENT BUG CAUGHT BY BRUTE FORCE: the hypothesis was first written with 2^(k-1) <= #A, which is false at A = univ and would have made the theorem vacuous; the equality form is true and tight for k <= 4."
+  },
+  "triangle_threshold": {
+   "kind": "theorem",
+   "parent": "secondMomentGroup",
+   "file": "ProbMethods/Chapter04/TriangleThreshold.lean",
+   "decl": "PMC.tendsto_probHasTriangle_one",
+   "doc": "second-moment.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "random_triangle",
+    "triangle_variance"
+   ],
+   "proof_uses": [],
+   "note": "PROP 4.1.2 and THEOREM 4.1.11, the triangle threshold, in the notes' own asymptotic phrasing: np -> 0 gives triangle-free with probability 1-o(1), np -> infinity gives a triangle with probability 1-o(1). The limits sit ON TOP OF explicit bounds rather than replacing them, so the convention on asymptotics is unchanged and nothing about the finite framework had to move. The real work was the SHARPER VARIANCE wvar_card_triangles_le': Var <= C(n,3)(p^3 + 3n p^5). The earlier bound (every overlapping pair <= p^3) gives P(triangle-free) <~ 1/(n^2 p^3), which diverges at p = n^(-9/10) and so cannot prove 4.1.11 at all; separating the two overlap classes (t'=t contributes p^3 once, #(t inter t')=2 contributes p^5 at most 3n times) fixes it."
   }
  }
 }
