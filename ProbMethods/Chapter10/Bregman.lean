@@ -1,5 +1,6 @@
 import ProbMethods.Chapter10.OrderChain
 import ProbMethods.RandomOrder
+import Mathlib.GroupTheory.Perm.Cycle.Basic
 
 /-!
 # §10.2 — the Brégman–Minc inequality
@@ -256,8 +257,8 @@ theorem log_card_matchSet_le_sum_log_factorial :
   have hterm_nonneg : ∀ i : Fin n, 0 ≤ Real.log (Nat.factorial #(row i)) / #(row i) := by
     intro i
     have h1 : (1 : ℝ) ≤ Nat.factorial #(row i) := by
-      have := Nat.one_le_iff_ne_zero.mpr (Nat.factorial_ne_zero #(row i))
-      exact_mod_cast this
+      have h := Nat.one_le_iff_ne_zero.mpr (Nat.factorial_ne_zero #(row i))
+      exact_mod_cast h
     positivity
   by_cases hne : (matchSet row).Nonempty
   swap
@@ -389,6 +390,47 @@ theorem card_matchSet_sq_le_prod :
     _ ≤ (∏ i : Fin n, (Nat.factorial #(row i) : ℝ) ^ (1 / (#(row i) : ℝ)))
           * ∏ j : Fin n, (Nat.factorial #(colOf row j) : ℝ) ^ (1 / (#(colOf row j) : ℝ)) :=
         mul_le_mul h1 h2 hnn (Finset.prod_nonneg fun i _ => Real.rpow_nonneg (by positivity) _)
+
+
+/-! ### Theorem 10.2.6's Brégman step: Hamilton cycles in a tournament
+
+Alon's bound on the number of Hamilton cycles of a tournament runs
+
+    #Hamilton cycles ≤ per A ≤ ∏ᵢ (dᵢ!)^{1/dᵢ},
+
+with `dᵢ` the out-degree of vertex `i`, and then maximises the right-hand side over degree
+sequences of total `C(n,2)`. **The displayed chain is what is proved here.** Its first step is
+the observation that a Hamilton cycle *is* a `1`-factor, which in this encoding is literally a
+subset relation: a Hamilton cycle is a permutation choosing an out-neighbour at every vertex,
+subject to the extra condition of being a single cycle.
+
+The passage from here to `O(√n · n!/2ⁿ)` is the part the notes omit — log-concavity of
+`x ↦ (x!)^{1/x}`, a smoothing argument, and Stirling's formula. That is a genuine analysis
+project rather than a missing line, so it is not attempted here. -/
+
+/-- The Hamilton cycles of the digraph `out`: permutations choosing an out-neighbour
+everywhere that consist of a single cycle through all the vertices. -/
+noncomputable def hamCycleSet (out : Fin n → Finset (Fin n)) :
+    Finset (Equiv.Perm (Fin n)) := by
+  classical
+  exact (matchSet out).filter fun σ => Equiv.Perm.IsCycle σ ∧ Equiv.Perm.support σ = univ
+
+/-- **A Hamilton cycle is a `1`-factor**, so Brégman's bound on the permanent bounds the
+number of Hamilton cycles: `#Hamilton cycles ≤ ∏ᵢ (dᵢ!)^{1/dᵢ}`, with `dᵢ` the out-degree.
+
+This is the displayed chain in the notes' proof of Theorem 10.2.6; turning the right-hand side
+into `O(√n · n!/2ⁿ)` needs the log-concavity and Stirling steps the notes omit. -/
+theorem card_hamCycleSet_le_prod (out : Fin n → Finset (Fin n)) :
+    (#(hamCycleSet out) : ℝ)
+      ≤ ∏ i : Fin n, (Nat.factorial #(out i) : ℝ) ^ (1 / (#(out i) : ℝ)) := by
+  refine le_trans ?_ (card_matchSet_le_prod out)
+  have hsub : #(hamCycleSet out) ≤ #(matchSet out) := by
+    classical
+    refine Finset.card_le_card ?_
+    show ((matchSet out).filter fun σ =>
+      Equiv.Perm.IsCycle σ ∧ Equiv.Perm.support σ = univ) ⊆ matchSet out
+    exact Finset.filter_subset _ _
+  exact_mod_cast hsub
 
 
 end Bregman

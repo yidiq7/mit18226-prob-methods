@@ -280,7 +280,21 @@ block-diagonal matrix has `per = 2 = (2!)^{1/2}(2!)^{1/2}·1`. A strict case was
 turn, which needs the permanent to be transpose-invariant — that is the inversion `σ ↦ σ⁻¹`
 (`PMC.card_matchSet_colOf`, checked on an asymmetric example).
 
-**Only the bipartite case is claimed, and that is deliberate.** The notes derive the general
+### Theorem 10.2.6's Brégman step — proved; its asymptotic form is not
+
+`PMC.card_hamCycleSet_le_prod`: the number of Hamilton cycles of a tournament is at most
+`∏ᵢ (dᵢ!)^{1/dᵢ}`, with `dᵢ` the out-degree. In this encoding the notes' first inequality —
+a Hamilton cycle *is* a `1`-factor — is literally a subset relation, so the content is
+Brégman. Checked on the cyclic tournament on `Fin 3` (`per = 1`, bound `1`, equality) and the
+transitive one (`per = 0`, since the sink has out-degree `0`).
+
+**Theorems 10.2.6 and 10.2.4 themselves are not claimed.** Reaching `O(√n · n!/2ⁿ)` needs
+log-concavity of `x ↦ (x!)^{1/x}` — which the notes state as "One can check (omitted)" — plus
+a smoothing argument over degree sequences of total `C(n,2)`, and Stirling. That is an
+analysis project, not a missing line, and the log-concavity is worth publishing as a task on
+its own.
+
+**Only the bipartite case of Corollary 10.2.2 is claimed, and that is deliberate.** The notes derive the general
 statement from `pm(G ⊔ G) ≤ pm(G × K₂)`, which they leave as an exercise — and that
 inequality, not the appeal to Brégman, is the actual content of Kahn–Lovász. Formalizing the
 general case means proving that exercise, which is a separate combinatorial project.

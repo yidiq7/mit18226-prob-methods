@@ -3113,6 +3113,20 @@
    ],
    "proof_uses": [],
    "note": "Corollary 10.2.2 (Kahn-Lovasz) FOR BIPARTITE GRAPHS: pm(G)^2 <= prod over X of (d_x!)^(1/d_x) times prod over Y of (d_y!)^(1/d_y), i.e. pm(G) <= prod over all 2n vertices of (d_v!)^(1/(2 d_v)). Bregman applied to each side in turn. The NON-bipartite case is not this: it needs pm(G + G) <= pm(G x K_2), which the notes leave as an exercise and which is the actual content of Kahn-Lovasz -- so only the bipartite case is claimed here."
+  },
+  "ham_cycles_bregman": {
+   "kind": "theorem",
+   "parent": "entropyGroup",
+   "file": "ProbMethods/Chapter10/Bregman.lean",
+   "decl": "PMC.card_hamCycleSet_le_prod",
+   "doc": "entropy.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "bregman"
+   ],
+   "proof_uses": [],
+   "note": "Theorem 10.2.6's Bregman step: the number of Hamilton cycles of a tournament is at most prod_i (d_i!)^(1/d_i) with d_i the out-degree. The first inequality of the notes' displayed chain -- that a Hamilton cycle IS a 1-factor -- is literally a subset relation in this encoding, so the whole content is Bregman. Getting from here to O(sqrt(n) n!/2^n) needs log-concavity of x -> (x!)^(1/x), a smoothing argument over degree sequences of total C(n,2), and Stirling; the notes omit the first ('One can check (omitted)') and it is a genuine analysis project, so 10.2.6 and 10.2.4 are NOT claimed. Checked on the cyclic tournament on Fin 3 (per = 1, bound 1, equality) and the transitive one (per = 0, since the sink has out-degree 0)."
   }
  }
 }
