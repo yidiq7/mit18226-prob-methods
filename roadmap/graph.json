@@ -3868,6 +3868,60 @@
    ],
    "proof_uses": [],
    "note": "THEOREM 9.3.1 (Shamir-Spencer 1987), DONE: P(|chi - E chi| >= lambda sqrt(n-1)) <= 2 exp(-2 lambda^2). A FINITE statement with no o(1) anywhere, and the flagship application of 9.1 -- as the notes put it, concentration around the mean without even knowing where the mean is. Theorem 9.1.3 applied to the vertex-exposure encoding; Hoeffding's lemma (task #47) enters as a hypothesis, so the theorem is sorry-free and axiom-clean."
+  },
+  "fHamDist": {
+   "kind": "definition",
+   "parent": "concentrationGroup",
+   "file": "ProbMethods/Chapter09/CubeExpansion.lean",
+   "decl": "PMC.fHamDist",
+   "doc": "mathlib-survey.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [],
+   "proof_uses": [],
+   "note": "The Hamming distance on the cube written as Fin n -> Bool, the shape Section 9.1's development uses. Checked: two points of the 3-cube differing in two coordinates are at distance 2, and the 1-neighbourhood of a point of the 2-cube has 3 points."
+  },
+  "distToSet": {
+   "kind": "definition",
+   "parent": "concentrationGroup",
+   "file": "ProbMethods/Chapter09/CubeExpansion.lean",
+   "decl": "PMC.distToSet",
+   "doc": "mathlib-survey.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [],
+   "proof_uses": [],
+   "note": "The distance from a cube point to a nonempty set, as a real -- the random variable the second proof of 9.4.6 concentrates."
+  },
+  "bddDiff_distToSet": {
+   "kind": "theorem",
+   "parent": "concentrationGroup",
+   "file": "ProbMethods/Chapter09/CubeExpansion.lean",
+   "decl": "PMC.bddDiff_distToSet",
+   "doc": "mathlib-survey.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "distToSet",
+    "bddDiff"
+   ],
+   "proof_uses": [],
+   "note": "The distance to a set has bounded differences 1: changing one coordinate changes the distance to each point by at most one, and the inf inherits that."
+  },
+  "rapid_expansion_harper_free": {
+   "kind": "theorem",
+   "parent": "concentrationGroup",
+   "file": "ProbMethods/Chapter09/CubeExpansion.lean",
+   "decl": "PMC.card_fNbhd_ge",
+   "doc": "mathlib-survey.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "mcdiarmid",
+    "bddDiff_distToSet"
+   ],
+   "proof_uses": [],
+   "note": "THEOREM 9.4.6 WITHOUT HARPER, the notes' SECOND proof: with epsilon = exp(-2t^2/n), a set of more than epsilon 2^n cube points expands in 2t steps to at least (1-epsilon) 2^n. Apply the bounded differences inequality to f = dist(., A): it vanishes on A, which is more than an epsilon fraction, so the lower tail forces E f < t, and the upper tail then puts all but an epsilon fraction within 2t of A. Compare rapid_expansion_eps, the same statement in the SUBSET encoding, which follows the notes' first proof and therefore carries Harper as a hypothesis -- this version carries none, only Hoeffding via 9.1. Both encodings are kept deliberately: a transfer layer whose only purpose is to restate a proved theorem is not worth its weight."
   }
  }
 }

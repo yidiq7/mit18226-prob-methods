@@ -86,6 +86,18 @@ availability of the mathematics. Recorded as upstream in `graph.json`.
   Worth recording: 9.4.6's hypothesis had to be made **strict** where the notes write
   `|A| ≥ ε2ⁿ`. At `|A| = ε2ⁿ` exactly the counting step yields `2ⁿ ≤ 2ⁿ` and no
   contradiction; the notes' proof quietly uses a strict Chernoff bound there.
+
+  **And with §9.1 proved, Theorem 9.4.6 no longer needs Harper at all.**
+  `PMC.card_fNbhd_ge` (`Chapter09/CubeExpansion.lean`) is the notes' *second* proof: apply the
+  bounded differences inequality to `f = dist(·, A)`, which has bounded differences `1` and
+  vanishes on `A`; since `A` is more than an `ε` fraction, the lower tail forces `E f < t`, and
+  the upper tail then puts all but an `ε` fraction within `2t` of `A`. That version carries no
+  Harper hypothesis — only Hoeffding, via §9.1.
+
+  It is stated in the `Fin n → Bool` encoding, the shape §9.1 is written for, rather than the
+  `Finset (Fin n)` encoding of the Harper route. **Both encodings are kept on purpose**: a
+  transfer layer whose only job would be to restate a theorem already proved is not worth its
+  weight, and each proof reads best in its own encoding.
 * **§9.6 Euclidean TSP** — absent, and downstream of Talagrand.
 
 So Chapter 9 is *not* the wall it was recorded as. Its first two sections are upstream in
