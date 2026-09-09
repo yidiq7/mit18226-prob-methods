@@ -510,6 +510,55 @@ theorem sum_choose_mul_pow_le {n k : ℕ} (hk : k ≤ n) {x : ℝ} (hx0 : 0 ≤ 
           omega
         exact Finset.sum_le_sum_of_subset_of_nonneg hsub fun i _ _ => by positivity
 
+/-- **The binomial tail bound at its optimal `x`**, which is the entropy bound in algebraic
+form: for `0 < k` and `2k ≤ n`,
+
+`∑_{i ≤ k} C(n,i) ≤ (n/k)^k · (n/(n-k))^(n-k)`.
+
+The right-hand side is exactly `2 ^ (H(k/n) · n)` — substituting `p = k/n` into
+`p^(-np) (1-p)^(-n(1-p))` gives it — so this *is* the notes' entropy bound, stated without
+logarithms. Keeping it algebraic is preferable here: it is sharp, it needs no `Real.log`,
+and it makes the `2k ≤ n` hypothesis visible.
+
+That hypothesis is not cosmetic and the notes state it too ("varying over `m ≤ k ≤ n/2`"):
+the minimising `x = k/(n-k)` exceeds `1` once `2k > n`, and `PMC.sum_choose_mul_pow_le`
+needs `x ≤ 1`. -/
+theorem sum_choose_le_pow_mul_pow {n k : ℕ} (hk0 : 0 < k) (hk2 : 2 * k ≤ n) (hkn : k < n) :
+    (∑ i ∈ Finset.range (k + 1), (n.choose i : ℝ))
+      ≤ ((n : ℝ) / k) ^ k * ((n : ℝ) / ((n : ℝ) - k)) ^ (n - k) := by
+  have hkR : (0 : ℝ) < k := by exact_mod_cast hk0
+  have hknR : (k : ℝ) < n := by exact_mod_cast hkn
+  have hnkR : (0 : ℝ) < (n : ℝ) - k := by linarith
+  have h2kR : (2 : ℝ) * k ≤ n := by exact_mod_cast hk2
+  set x : ℝ := (k : ℝ) / ((n : ℝ) - k) with hxdef
+  have hx0 : 0 ≤ x := by rw [hxdef]; positivity
+  have hx1 : x ≤ 1 := by
+    rw [hxdef, div_le_one hnkR]
+    linarith
+  have hne : ((n : ℝ) - k) ≠ 0 := ne_of_gt hnkR
+  have h1x : 1 + x = (n : ℝ) / ((n : ℝ) - k) := by
+    rw [hxdef, eq_div_iff hne, add_mul, one_mul, div_mul_cancel₀ _ hne]
+    ring
+  have hmain := sum_choose_mul_pow_le (n := n) (k := k) (le_of_lt hkn) hx0 hx1
+  rw [h1x] at hmain
+  have hxk : (0 : ℝ) < x ^ k := by rw [hxdef]; positivity
+  rw [← le_div_iff₀ hxk] at hmain
+  refine hmain.trans (le_of_eq ?_)
+  have hpow : ((n : ℝ) / ((n : ℝ) - k)) ^ n
+      = ((n : ℝ) / ((n : ℝ) - k)) ^ k * ((n : ℝ) / ((n : ℝ) - k)) ^ (n - k) := by
+    rw [← pow_add]
+    congr 1
+    omega
+  have hkey : ((n : ℝ) / ((n : ℝ) - k)) / x = (n : ℝ) / k := by
+    rw [hxdef, div_div_eq_mul_div, div_mul_cancel₀ _ hne]
+  calc ((n : ℝ) / ((n : ℝ) - k)) ^ n / x ^ k
+      = ((n : ℝ) / ((n : ℝ) - k)) ^ k * ((n : ℝ) / ((n : ℝ) - k)) ^ (n - k) / x ^ k := by
+        rw [hpow]
+    _ = (((n : ℝ) / ((n : ℝ) - k)) ^ k / x ^ k)
+          * ((n : ℝ) / ((n : ℝ) - k)) ^ (n - k) := by ring
+    _ = ((n : ℝ) / k) ^ k * ((n : ℝ) / ((n : ℝ) - k)) ^ (n - k) := by
+        rw [← div_pow, hkey]
+
 /-! ### Relabelling, and submodularity
 
 Submodularity, `H(X,Y,Z) + H(X) ≤ H(X,Y) + H(X,Z)`, is the last of the structural entropy

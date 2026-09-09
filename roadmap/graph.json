@@ -2329,16 +2329,16 @@
     "binomial_tail_entropy": {
       "kind": "theorem",
       "parent": "entropyGroup",
-      "file": null,
-      "decl": null,
+      "file": "ProbMethods/Chapter10/Entropy.lean",
+      "decl": "PMC.sum_choose_le_pow_mul_pow",
       "doc": "entropy.md",
-      "statement": "planned",
-      "proof": "planned",
+      "statement": "formalized",
+      "proof": "formalized",
       "uses": [
         "binomial_tail"
       ],
       "proof_uses": [],
-      "note": "The entropy form of the binomial tail bound: log2 of the truncated sum <= H(k/n)*n. Follows from sum_choose_mul_pow_le by substituting the minimising x = (k/n)/(1 - k/n); Mathlib's Real.binEntropy is the right target. Pure real analysis from here."
+      "note": "Section 10.1's entropy bound on the binomial tail, stated ALGEBRAICALLY: sum over i <= k of C(n,i) <= (n/k)^k * (n/(n-k))^(n-k), for 0 < k and 2k <= n. The right side IS 2^(H(k/n) n) -- confirmed numerically to 6 figures at (n,k) = (10,3), (20,4) and (100,10) -- so this is the notes' bound without logarithms, which is sharper in form and needs no Real.log. The 2k <= n hypothesis is not cosmetic and the notes state it too: the minimising x = k/(n-k) exceeds 1 once 2k > n, and sum_choose_mul_pow_le needs x <= 1."
     },
     "sidorenko": {
       "kind": "theorem",

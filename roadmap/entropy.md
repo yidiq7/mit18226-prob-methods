@@ -7,7 +7,7 @@ file had it wrong, which is worth flagging because the mistake was silent):
 
 | § | Title | Status |
 |---|---|---|
-| 10.1 | Basic properties | proved, incl. the explicit binomial tail bound |
+| 10.1 | Basic properties | proved, incl. the binomial tail bound in both forms |
 | 10.2 | Permanent, perfect matchings, Steiner triple systems | not started |
 | 10.3 | Sidorenko's inequality | not started |
 | 10.4 | Shearer's lemma | **complete** — Thms 10.4.1, 10.4.3, 10.4.5, 10.4.9; Cors 10.4.6, 10.4.7 |
@@ -188,12 +188,8 @@ asymptotically tight on `K_n`, where the two sides' ratio tends to `1`.
 
 ## Next
 
-Three things:
+Two things:
 
-* **The entropy form of §10.1's binomial tail bound** —
-  `log₂ ∑_{i ≤ k} C(n,i) ≤ H(k/n) n`. `PMC.sum_choose_mul_pow_le` is the explicit-`x` form;
-  the entropy form follows by substituting the minimising `x = (k/n)/(1 - k/n)`, with
-  Mathlib's `Real.binEntropy` as the target. Pure real analysis from here, no combinatorics.
 
 
 * **§10.2** — Theorem 10.2.1 (Brégman–Minc): `per A ≤ ∏ (dᵢ!)^{1/dᵢ}` for a 0–1 matrix with
@@ -223,12 +219,8 @@ Three things:
 
 ## Next
 
-Three things:
+Two things:
 
-* **The entropy form of §10.1's binomial tail bound** —
-  `log₂ ∑_{i ≤ k} C(n,i) ≤ H(k/n) n`. `PMC.sum_choose_mul_pow_le` is the explicit-`x` form;
-  the entropy form follows by substituting the minimising `x = (k/n)/(1 - k/n)`, with
-  Mathlib's `Real.binEntropy` as the target. Pure real analysis from here, no combinatorics.
 
 
 * **§10.2** — Theorem 10.2.1 (Brégman–Minc): `per A ≤ ∏ (dᵢ!)^{1/dᵢ}` for a 0–1 matrix with
@@ -331,12 +323,8 @@ setting Theorem 10.4.9 needs, so its remaining work really is only arithmetic no
 
 ## Next
 
-Three things:
+Two things:
 
-* **The entropy form of §10.1's binomial tail bound** —
-  `log₂ ∑_{i ≤ k} C(n,i) ≤ H(k/n) n`. `PMC.sum_choose_mul_pow_le` is the explicit-`x` form;
-  the entropy form follows by substituting the minimising `x = (k/n)/(1 - k/n)`, with
-  Mathlib's `Real.binEntropy` as the target. Pure real analysis from here, no combinatorics.
 
 
 * **§10.2** — Theorem 10.2.1 (Brégman–Minc): `per A ≤ ∏ (dᵢ!)^{1/dᵢ}` for a 0–1 matrix with
