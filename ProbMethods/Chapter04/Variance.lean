@@ -64,6 +64,22 @@ private lemma card_union_cases {V : Type*} [DecidableEq V] {t t' : Finset V}
     rw [card_spannedEdges, ht] at this
     simpa using this
 
+
+/-- **The exact number of triples meeting a given one in two vertices** is `3(n-3)`: choose
+which pair of `t` to keep (`C(3,2) = 3` ways) and which outside vertex to add (`n - 3` ways).
+
+`PMC.card_partners_le` is the corresponding upper bound `3n`, which is all Chapter 4's variance
+needed. The *exact* count — really its lower half — is what §8.1's second regime needs: Janson
+II applies only when `μ ≤ Δ`, and verifying that requires a lower bound on the number of
+dependent pairs, not an upper one.
+
+The `3(n-3)` partners are distinct: from `t' = insert v u` with `u ⊆ t`, `#u = 2` and `v ∉ t`,
+the vertex `v` is recovered as the unique element of `t' \ t` and the pair `u` as `t' ∩ t`. -/
+theorem card_partners_eq {V : Type*} [Fintype V] [DecidableEq V] (t : Finset V) (ht : #t = 3) :
+    #((powersetCard 3 (univ : Finset V)).filter fun t' => #(t ∩ t') = 2)
+      = 3 * (Fintype.card V - 3) := by
+  sorry
+
 /-- **The variance of the triangle count** (Zhao, §4.1).
 
 `Var ≤ 3 n C(n,3) p ^ 3`.
