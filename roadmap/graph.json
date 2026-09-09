@@ -1972,16 +1972,16 @@
   "bregman": {
    "kind": "theorem",
    "parent": "entropyGroup",
-   "file": null,
-   "decl": null,
+   "file": "ProbMethods/Chapter10/Bregman.lean",
+   "decl": "PMC.card_matchSet_le_prod",
    "doc": "entropy.md",
-   "statement": "planned",
-   "proof": "planned",
+   "statement": "formalized",
+   "proof": "formalized",
    "uses": [
-    "entropy_chain_rule"
+    "bregman_log"
    ],
    "proof_uses": [],
-   "note": "Theorem 10.2.1 (Bregman-Minc): per A <= product of (d_i!)^(1/d_i) for a 0-1 matrix with row sums d_i. Radhakrishnan's proof reveals the chosen entries in a UNIFORM RANDOM ORDER, so it needs conditional entropy over a random permutation of the rows -- a second layer of randomness on top of the permutation being counted. Real exponents 1/d_i as well. Substantially harder than anything in 10.4."
+   "note": "THEOREM 10.2.1 (Bregman-Minc), DONE: a 0-1 matrix whose i-th row has d_i ones has permanent at most prod_i (d_i!)^(1/d_i). Exponentiating the log form. Checked against the notes' EQUALITY cases, which is the strongest available evidence the constant is right: the all-ones 3x3 matrix has per = 6 = prod (3!)^(1/3), a permutation matrix has per = 1 = prod (1!)^1, and the 2+1 block-diagonal matrix has per = 2 = (2!)^(1/2) (2!)^(1/2) 1. A strict case was checked too (rows {0,1},{0} on Fin 2: per = 1 < sqrt 2)."
   },
   "triangle_intersecting": {
    "kind": "theorem",
@@ -2999,6 +2999,91 @@
    ],
    "proof_uses": [],
    "note": "The chain rule ALONG AN ARBITRARY ORDER: for every permutation tau of the coordinates, H(X_univ) = sum_i H(X_i | X_{predecessors of i under tau}). A telescoping sum over the prefixes of tau (Finset.sum_range_sub), reindexed by tau.symm. This is the structural half of Radhakrishnan's proof of Bregman-Minc: the identity holds for EVERY order, and the argument then averages the resulting bounds over a uniformly random one."
+  },
+  "matchSet": {
+   "kind": "definition",
+   "parent": "entropyGroup",
+   "file": "ProbMethods/Chapter10/Bregman.lean",
+   "decl": "PMC.matchSet",
+   "doc": "entropy.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [],
+   "proof_uses": [],
+   "note": "The permutations selecting a one from every row: the perfect matchings the permanent counts. Verified against the permanent on concrete matrices by decide."
+  },
+  "hitSet": {
+   "kind": "definition",
+   "parent": "entropyGroup",
+   "file": "ProbMethods/Chapter10/Bregman.lean",
+   "decl": "PMC.hitSet",
+   "doc": "entropy.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [],
+   "proof_uses": [],
+   "note": "The rows whose selected column is one of row i's ones. Under sigma this set corresponds bijectively to row i's support, so it has d_i elements (card_hitSet)."
+  },
+  "avail_eq_rank": {
+   "kind": "theorem",
+   "parent": "entropyGroup",
+   "file": "ProbMethods/Chapter10/Bregman.lean",
+   "decl": "PMC.card_avail_eq_tauRank",
+   "doc": "entropy.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "hitSet",
+    "tauRank"
+   ],
+   "proof_uses": [],
+   "note": "THE COMBINATORIAL IDENTITY the notes leave implicit: the columns of row i not yet taken correspond, via sigma inverse, to the members of hitSet that tau reveals at or after i. Each one of row i sits in a column sigma j for exactly one row j, and the one is still available precisely when that j has not been revealed. This is what makes the abstract uniformity of tauRank applicable to the matrix."
+  },
+  "match_entropy": {
+   "kind": "theorem",
+   "parent": "entropyGroup",
+   "file": "ProbMethods/Chapter10/Bregman.lean",
+   "decl": "PMC.tupleEntropy_matchCoord_univ",
+   "doc": "entropy.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "matchSet"
+   ],
+   "proof_uses": [],
+   "note": "H(sigma) = log(per A): a uniform matching is determined by its coordinates, so wentropy_uniform_of_injective turns the entropy back into a count. The empty case (no matchings) is handled separately, where both sides are 0 under Mathlib's log 0 = 0."
+  },
+  "bregman_per_order": {
+   "kind": "theorem",
+   "parent": "entropyGroup",
+   "file": "ProbMethods/Chapter10/Bregman.lean",
+   "decl": "PMC.log_card_matchSet_le",
+   "doc": "entropy.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "match_entropy",
+    "order_chain_rule",
+    "cond_entropy_le_expected_log",
+    "avail_eq_rank"
+   ],
+   "proof_uses": [],
+   "note": "The bound for ONE FIXED order: log(per A) <= sum_i E_sigma[log N_i(sigma,tau)]. Chain rule along tau, then each conditional entropy bounded by the log of the columns still free. Holds for every tau, which is what makes the averaging step available."
+  },
+  "bregman_log": {
+   "kind": "theorem",
+   "parent": "entropyGroup",
+   "file": "ProbMethods/Chapter10/Bregman.lean",
+   "decl": "PMC.log_card_matchSet_le_sum_log_factorial",
+   "doc": "entropy.md",
+   "statement": "formalized",
+   "proof": "formalized",
+   "uses": [
+    "bregman_per_order",
+    "rank_expectation"
+   ],
+   "proof_uses": [],
+   "note": "The log form of Bregman-Minc: log(per A) <= sum_i log(d_i!)/d_i. The two expectations are exchanged by Finset.sum_comm -- the bound holds for each order, and for each matching the rank is uniform as the order varies. THE KEY POINT of the whole proof: bounding each conditional entropy by log d_i (the naive worst case) would be too lossy; revealing in a random order replaces log d_i by the average of log 1, ..., log d_i."
   }
  }
 }
