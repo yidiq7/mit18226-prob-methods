@@ -44,7 +44,25 @@ theorem region_count_le_cube {f g : ℕ → ℕ} (hf1 : f 1 = 2)
     (hf : ∀ m, 1 ≤ m → f (m + 1) ≤ f m + 2 * m) (hg1 : g 1 = 2)
     (hg : ∀ m, 1 ≤ m → g (m + 1) ≤ g m + f m) :
     ∀ m, 2 ≤ m → g m ≤ m ^ 3 := by
-  sorry
+  have hf_bound : ∀ k, f (k + 1) ≤ (k + 1) * k + 2 := by
+    intro k
+    induction k with
+    | zero => simp [hf1]
+    | succ k ih =>
+      have hstep := hf (k + 1) (by omega)
+      nlinarith
+  intro m hm
+  obtain ⟨k, rfl⟩ : ∃ k, m = k + 2 := ⟨m - 2, by omega⟩
+  induction k with
+  | zero =>
+    have hg2 : g 2 ≤ g 1 + f 1 := hg 1 (by omega)
+    simp only [zero_add]
+    omega
+  | succ k ih =>
+    have hg_step := hg (k + 2) (by omega)
+    have hf_step := hf_bound (k + 1)
+    have ih' := ih (by omega)
+    nlinarith
 
 end SphereRegions
 
