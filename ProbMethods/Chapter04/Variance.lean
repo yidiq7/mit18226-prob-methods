@@ -78,7 +78,62 @@ the vertex `v` is recovered as the unique element of `t' \ t` and the pair `u` a
 theorem card_partners_eq {V : Type*} [Fintype V] [DecidableEq V] (t : Finset V) (ht : #t = 3) :
     #((powersetCard 3 (univ : Finset V)).filter fun t' => #(t ∩ t') = 2)
       = 3 * (Fintype.card V - 3) := by
-  sorry
+  classical
+  let D : Finset (Finset V × V) := (powersetCard 2 t) ×ˢ ((univ : Finset V) \ t)
+  have hD_card : #D = 3 * (Fintype.card V - 3) := by
+    dsimp [D]
+    rw [card_product, card_powersetCard, card_sdiff_of_subset (subset_univ t), card_univ, ht]
+    rw [show Nat.choose 3 2 = 3 by decide]
+  rw [← hD_card]
+  symm
+  have h_inter : ∀ q ∈ D, t ∩ insert q.2 q.1 = q.1 := by
+    intro q hq
+    rw [mem_product, mem_powersetCard, mem_sdiff] at hq
+    ext x
+    simp only [mem_inter, mem_insert]
+    constructor
+    · rintro ⟨hxt, rfl | hxq1⟩
+      · exact (hq.2.2 hxt).elim
+      · exact hxq1
+    · intro hxq1
+      exact ⟨hq.1.1 hxq1, Or.inr hxq1⟩
+  refine Finset.card_bij (fun q _ => insert q.2 q.1) ?_ ?_ ?_
+  · intro q hq
+    have hq' := hq
+    rw [mem_product, mem_powersetCard, mem_sdiff] at hq'
+    have hnotin : q.2 ∉ q.1 := fun h => hq'.2.2 (hq'.1.1 h)
+    rw [mem_filter, mem_powersetCard]
+    refine ⟨⟨subset_univ _, ?_⟩, ?_⟩
+    · rw [card_insert_of_notMem hnotin, hq'.1.2]
+    · rw [h_inter q hq, hq'.1.2]
+  · intro q₁ hq₁ q₂ hq₂ h
+    have h1 : q₁.1 = q₂.1 := by
+      rw [← h_inter q₁ hq₁, h, h_inter q₂ hq₂]
+    have h2 : q₁.2 = q₂.2 := by
+      have hmem : q₁.2 ∈ insert q₂.2 q₂.1 := by
+        rw [← h]
+        exact mem_insert_self _ _
+      rw [mem_insert] at hmem
+      rcases hmem with h2 | hmem
+      · exact h2
+      · rw [mem_product, mem_powersetCard, mem_sdiff] at hq₁ hq₂
+        exact (hq₁.2.2 (hq₂.1.1 hmem)).elim
+    exact Prod.ext h1 h2
+  · intro t' ht'
+    rw [mem_filter, mem_powersetCard] at ht'
+    obtain ⟨⟨-, ht'card⟩, hmeet⟩ := ht'
+    let u := t ∩ t'
+    have hlt : #u < #t' := by change #(t ∩ t') < #t'; omega
+    obtain ⟨v, hv⟩ := Finset.exists_mem_notMem_of_card_lt_card hlt
+    have hv_not_t : v ∉ t := fun hvt => hv.2 (mem_inter.mpr ⟨hvt, hv.1⟩)
+    refine ⟨(u, v), ?_, ?_⟩
+    · rw [mem_product, mem_powersetCard, mem_sdiff]
+      exact ⟨⟨inter_subset_left, hmeet⟩, mem_univ v, hv_not_t⟩
+    · dsimp
+      have hins : insert v u ⊆ t' := insert_subset hv.1 inter_subset_right
+      have hcard : #(insert v u) = 3 := by
+        rw [card_insert_of_notMem hv.2, hmeet]
+      exact Finset.eq_of_subset_of_card_le hins (by rw [hcard, ht'card])
 
 /-- **The variance of the triangle count** (Zhao, §4.1).
 
