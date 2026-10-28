@@ -204,7 +204,55 @@ two sets have equal cardinality since `#D = #f(D)`. -/
 theorem exists_perm_extend (D : Finset α) (f : α → α) (hf : Set.InjOn f D) :
     ∃ σ : Equiv.Perm α, (∀ x ∈ D, σ x = f x) ∧
       ∀ y, y ∉ D ∪ D.image f → σ y = y := by
-  sorry
+  let U : Finset α := D ∪ D.image f
+  have hcard : Fintype.card ↥(U \ D) = Fintype.card ↥(U \ D.image f) := by
+    rw [Fintype.card_coe, Fintype.card_coe,
+      card_sdiff_of_subset subset_union_left,
+      card_sdiff_of_subset subset_union_right,
+      card_image_of_injOn hf]
+  let e : ↥(U \ D) ≃ ↥(U \ D.image f) := Fintype.equivOfCardEq hcard
+  let g : α → α := fun x =>
+    if hxD : x ∈ D then f x
+    else if hxU : x ∈ U then (e ⟨x, mem_sdiff.mpr ⟨hxU, hxD⟩⟩).1
+    else x
+  have hg_inj : Function.Injective g := by
+    intro x y hxy
+    dsimp only [g] at hxy
+    split_ifs at hxy with hxD hyD hyU hxU hyD hyU hyD hyU
+    · exact hf hxD hyD hxy
+    · exfalso
+      have h1 : f x ∈ D.image f := mem_image_of_mem f hxD
+      have h2 : (e ⟨y, mem_sdiff.mpr ⟨hyU, hyD⟩⟩).1 ∉ D.image f :=
+        (mem_sdiff.mp (e ⟨y, mem_sdiff.mpr ⟨hyU, hyD⟩⟩).2).2
+      exact h2 (hxy ▸ h1)
+    · exfalso
+      have h1 : f x ∈ U := subset_union_right (mem_image_of_mem f hxD)
+      exact hyU (hxy ▸ h1)
+    · exfalso
+      have h1 : f y ∈ D.image f := mem_image_of_mem f hyD
+      have h2 : (e ⟨x, mem_sdiff.mpr ⟨hxU, hxD⟩⟩).1 ∉ D.image f :=
+        (mem_sdiff.mp (e ⟨x, mem_sdiff.mpr ⟨hxU, hxD⟩⟩).2).2
+      exact h2 (hxy.symm ▸ h1)
+    · have he := e.injective (Subtype.ext hxy)
+      exact congrArg Subtype.val he
+    · exfalso
+      have h1 : (e ⟨x, mem_sdiff.mpr ⟨hxU, hxD⟩⟩).1 ∈ U :=
+        (mem_sdiff.mp (e ⟨x, mem_sdiff.mpr ⟨hxU, hxD⟩⟩).2).1
+      exact hyU (hxy ▸ h1)
+    · exfalso
+      have h1 : f y ∈ U := subset_union_right (mem_image_of_mem f hyD)
+      exact hxU (hxy.symm ▸ h1)
+    · exfalso
+      have h1 : (e ⟨y, mem_sdiff.mpr ⟨hyU, hyD⟩⟩).1 ∈ U :=
+        (mem_sdiff.mp (e ⟨y, mem_sdiff.mpr ⟨hyU, hyD⟩⟩).2).1
+      exact hxU (hxy.symm ▸ h1)
+    · exact hxy
+  refine ⟨Equiv.ofBijective g (Finite.injective_iff_bijective.mp hg_inj), ?_, ?_⟩
+  · intro x hxD
+    simp only [Equiv.ofBijective_apply, g, dif_pos hxD]
+  · intro y (hyU : y ∉ U)
+    have hyD : y ∉ D := fun hyD => hyU (subset_union_left hyD)
+    simp only [Equiv.ofBijective_apply, g, dif_neg hyD, dif_neg hyU]
 
 /-! ### Two cells at once
 
