@@ -433,6 +433,36 @@ theorem card_hamCycleSet_le_prod (out : Fin n → Finset (Fin n)) :
   exact_mod_cast hsub
 
 
+/-- A factorial bound sharper than `log m! ≤ m log m`, by enough to give log-concavity of
+`x ↦ (x!)^{1/x}`: `log m! ≤ m log (m + 1) - m / 2`. -/
+private lemma log_factorial_le_mul_log_succ_sub_half (m : ℕ) :
+    Real.log (Nat.factorial m) ≤ (m : ℝ) * Real.log ((m : ℝ) + 1) - (m : ℝ) / 2 := by
+  induction m with
+  | zero => simp
+  | succ k ih =>
+    have hk : (0 : ℝ) ≤ k := Nat.cast_nonneg k
+    have h1 : (0 : ℝ) < (k : ℝ) + 1 := by linarith
+    have h2 : (0 : ℝ) < (k : ℝ) + 2 := by linarith
+    have hfac : (0 : ℝ) < Nat.factorial k := by exact_mod_cast Nat.factorial_pos k
+    -- `1 - 1/x ≤ log x` at `x = (k + 2) / (k + 1)`
+    have hgap : 1 / 2 ≤ ((k : ℝ) + 1) * (Real.log ((k : ℝ) + 2) - Real.log ((k : ℝ) + 1)) := by
+      have hlog := Real.one_sub_inv_le_log_of_pos (div_pos h2 h1)
+      rw [Real.log_div h2.ne' h1.ne', inv_div] at hlog
+      have hfrac : 1 / 2 ≤ ((k : ℝ) + 1) * (1 - ((k : ℝ) + 1) / ((k : ℝ) + 2)) := by
+        have : ((k : ℝ) + 1) * (1 - ((k : ℝ) + 1) / ((k : ℝ) + 2))
+            = ((k : ℝ) + 1) / ((k : ℝ) + 2) := by
+          field_simp
+          ring
+        rw [this, div_le_div_iff₀ two_pos h2]
+        linarith
+      exact hfrac.trans (mul_le_mul_of_nonneg_left hlog h1.le)
+    have hcast : ((k + 1 : ℕ) : ℝ) + 1 = (k : ℝ) + 2 := by
+      push_cast
+      ring
+    rw [hcast, Nat.factorial_succ, Nat.cast_mul, Real.log_mul (by positivity) hfac.ne']
+    push_cast
+    linarith
+
 /-- **Log-concavity of `x ↦ (x!)^{1/x}`**, the step Theorem 10.2.6's proof omits ("One can
 check (omitted)"). It is what makes the smoothing argument work: with `g` log-concave,
 balancing two unequal degrees *increases* `∏ᵢ g(dᵢ)`, so the maximum over degree sequences of
@@ -449,7 +479,56 @@ theorem factorial_rpow_log_concave {m : ℕ} (hm : 1 ≤ m) :
     (Nat.factorial m : ℝ) ^ (1 / (m : ℝ))
         * (Nat.factorial (m + 2) : ℝ) ^ (1 / ((m : ℝ) + 2))
       ≤ ((Nat.factorial (m + 1) : ℝ) ^ (1 / ((m : ℝ) + 1))) ^ 2 := by
-  sorry
+  have hm0 : (0 : ℝ) < m := by exact_mod_cast hm
+  have h1 : (0 : ℝ) < (m : ℝ) + 1 := by linarith
+  have h2 : (0 : ℝ) < (m : ℝ) + 2 := by linarith
+  have hf0 : (0 : ℝ) < Nat.factorial m := by exact_mod_cast Nat.factorial_pos m
+  have hf1 : (0 : ℝ) < Nat.factorial (m + 1) := by exact_mod_cast Nat.factorial_pos (m + 1)
+  have hf2 : (0 : ℝ) < Nat.factorial (m + 2) := by exact_mod_cast Nat.factorial_pos (m + 2)
+  have hlog1 : Real.log (Nat.factorial (m + 1))
+      = Real.log ((m : ℝ) + 1) + Real.log (Nat.factorial m) := by
+    rw [Nat.factorial_succ, Nat.cast_mul, Real.log_mul (by positivity) hf0.ne']
+    push_cast
+    rfl
+  have hlog2 : Real.log (Nat.factorial (m + 2))
+      = Real.log ((m : ℝ) + 2) + Real.log (Nat.factorial (m + 1)) := by
+    rw [Nat.factorial_succ (m + 1), Nat.cast_mul, Real.log_mul (by positivity) hf1.ne']
+    have hcast : ((m + 1 + 1 : ℕ) : ℝ) = (m : ℝ) + 2 := by
+      push_cast
+      ring
+    rw [hcast]
+  -- `log x ≤ x - 1` at `x = (m + 2) / (m + 1)`
+  have hgap : ((m : ℝ) + 1) * (Real.log ((m : ℝ) + 2) - Real.log ((m : ℝ) + 1)) ≤ 1 := by
+    have hlog := Real.log_le_sub_one_of_pos (div_pos h2 h1)
+    rw [Real.log_div h2.ne' h1.ne'] at hlog
+    calc ((m : ℝ) + 1) * (Real.log ((m : ℝ) + 2) - Real.log ((m : ℝ) + 1))
+        ≤ ((m : ℝ) + 1) * (((m : ℝ) + 2) / ((m : ℝ) + 1) - 1) :=
+          mul_le_mul_of_nonneg_left hlog h1.le
+      _ = 1 := by
+          field_simp
+          ring
+  have hfac := log_factorial_le_mul_log_succ_sub_half m
+  rw [← Real.log_le_log_iff (by positivity) (by positivity),
+    Real.log_mul (by positivity) (by positivity), Real.log_pow, Real.log_rpow hf0,
+    Real.log_rpow hf2, Real.log_rpow hf1, hlog2, hlog1]
+  set L := Real.log (Nat.factorial m)
+  set a := Real.log ((m : ℝ) + 1)
+  set b := Real.log ((m : ℝ) + 2)
+  -- clearing denominators: `2 L ≤ m ((m + 3) a - (m + 1) b)`
+  have hkey : 2 * L ≤ (m : ℝ) * (((m : ℝ) + 3) * a - ((m : ℝ) + 1) * b) := by
+    have hmul := mul_le_mul_of_nonneg_left hgap hm0.le
+    linarith
+  have hdiff : ((2 : ℕ) : ℝ) * (1 / ((m : ℝ) + 1) * (a + L))
+        - (1 / (m : ℝ) * L + 1 / ((m : ℝ) + 2) * (b + (a + L)))
+      = ((m : ℝ) * (((m : ℝ) + 3) * a - ((m : ℝ) + 1) * b) - 2 * L)
+        / ((m : ℝ) * ((m : ℝ) + 1) * ((m : ℝ) + 2)) := by
+    push_cast
+    field_simp
+    ring
+  have hnn := div_nonneg (sub_nonneg.mpr hkey)
+    (by positivity : (0 : ℝ) ≤ (m : ℝ) * ((m : ℝ) + 1) * ((m : ℝ) + 2))
+  rw [← hdiff] at hnn
+  linarith
 
 
 end Bregman
