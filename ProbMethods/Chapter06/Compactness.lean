@@ -147,6 +147,65 @@ The same transport turns `PMC.exists_two_coloring_of_weight_sum` (Theorem 6.2.4)
 infinite form, and it is the mechanism Theorems 6.2.10 and 6.2.11 use on `ℤ`. -/
 
 
+/-- Only finitely many indices carry an edge inside a finite vertex set, once every edge is
+nonempty and meets only finitely many indices. Indices carrying the same edge intersect, so each
+edge is carried finitely often, and a finite set has finitely many subsets.
+
+The index type itself is arbitrary. This is what lets a finite theorem indexed by a `Fintype` be
+applied to `{i // edge i ⊆ X}`. -/
+lemma finite_indices_inside (edge : ι → Finset V) (hne : ∀ i, (edge i).Nonempty)
+    (hloc : ∀ i, {j | (edge i ∩ edge j).Nonempty}.Finite) (X : Finset V) :
+    Finite {i // edge i ⊆ X} := by
+  have hfib : ∀ Y ∈ (X.powerset : Set (Finset V)), (edge ⁻¹' {Y}).Finite := by
+    intro Y _
+    rcases (edge ⁻¹' {Y}).eq_empty_or_nonempty with h | ⟨i, hi⟩
+    · simp [h]
+    · refine (hloc i).subset fun j hj => ?_
+      have hji : edge j = edge i := hj.trans hi.symm
+      simpa [hji] using hne i
+  have hinside : {i | edge i ⊆ X}.Finite :=
+    (X.powerset.finite_toSet.preimage' hfib).subset fun i hi => by simpa using hi
+  exact hinside.to_subtype
+
+/-- Restriction to `X` does not enlarge neighbourhoods: on underlying indices, the neighbourhood
+of `i` in the family carried across to `↥X` lies in any set containing its neighbourhood in the
+whole family. Stated as a containment so that it bounds cardinalities and weighted sums alike. -/
+lemma map_sharesVertex_subtype_subset (edge : ι → Finset V) (X : Finset V)
+    [Fintype {i // edge i ⊆ X}] [DecidableEq {i // edge i ⊆ X}] (i : {i // edge i ⊆ X})
+    {N : Finset ι} (hN : ∀ j : ι, j ≠ i → (edge i ∩ edge j).Nonempty → j ∈ N) :
+    (sharesVertex (fun j : {i // edge i ⊆ X} => (edge j).subtype (· ∈ X)) i).map
+      (Function.Embedding.subtype _) ⊆ N := by
+  intro j hj
+  obtain ⟨j', hj', rfl⟩ := mem_map.mp hj
+  obtain ⟨hji, x, hx⟩ := mem_sharesVertex.mp hj'
+  obtain ⟨hxi, hxj⟩ := mem_inter.mp hx
+  exact hN _ (fun h => hji (Subtype.ext h))
+    ⟨x, mem_inter.mpr ⟨mem_subtype.mp hxi, mem_subtype.mp hxj⟩⟩
+
+/-- **The transport of the finite half.** A hypergraph on an arbitrary vertex set is 2-colourable
+as soon as, for each finite `X`, some set of black vertices of `↥X` splits every edge inside `X`,
+the edges being carried across by `Finset.subtype`. That is the shape of the conclusion of the
+finite theorems of §6.2 applied on `↥X` and `{i // edge i ⊆ X}`.
+
+The colouring on `V` paints a vertex black when it is the image of a member of that set. -/
+theorem exists_two_coloring_of_forall_subtype (edge : ι → Finset V)
+    (hfin : ∀ X : Finset V, ∃ S : Finset X, ∀ i : {i // edge i ⊆ X},
+      ¬ (edge i).subtype (· ∈ X) ⊆ S ∧ ((edge i).subtype (· ∈ X) ∩ S).Nonempty) :
+    ∃ c : V → Bool, ∀ i, Bichromatic edge c i := by
+  refine exists_two_coloring_of_finite edge fun X => ?_
+  obtain ⟨S, hS⟩ := hfin X
+  refine ⟨fun v => decide (v ∈ S.map (Function.Embedding.subtype _)), fun i hi => ?_⟩
+  obtain ⟨hsub, hmeet⟩ := hS ⟨i, hi⟩
+  obtain ⟨u, hu, huS⟩ := Finset.not_subset.mp hsub
+  obtain ⟨v, hv⟩ := hmeet
+  obtain ⟨hvi, hvS⟩ := mem_inter.mp hv
+  refine ⟨u, mem_subtype.mp hu, v, mem_subtype.mp hvi, ?_⟩
+  have hu' : (u : V) ∉ S.map (Function.Embedding.subtype _) := fun h =>
+    huS ((mem_map' (Function.Embedding.subtype _)).mp h)
+  have hv' : (v : V) ∈ S.map (Function.Embedding.subtype _) :=
+    (mem_map' (Function.Embedding.subtype _)).mpr hvS
+  simp only [decide_eq_decide, hu', hv', ne_eq, iff_true, not_false_eq_true]
+
 /-- **Theorem 6.2.6** (Zhao): a hypergraph on a possibly infinite vertex set, whose edges are
 finite with at least `k` vertices and meet at most `d` others, is 2-colourable once
 `e (d+1) 2^{1-k} ≤ 1`.
@@ -160,7 +219,24 @@ theorem exists_two_coloring_infinite (edge : ι → Finset V) {k d : ℕ}
       ∀ j, j ≠ i → (edge i ∩ edge j).Nonempty → j ∈ N)
     (hep : Real.exp 1 * ((d : ℝ) + 1) * (2 / 2 ^ k) ≤ 1) :
     ∃ c : V → Bool, ∀ i, Bichromatic edge c i := by
-  sorry
+  classical
+  have hne : ∀ i, (edge i).Nonempty := fun i => card_pos.mp (lt_of_lt_of_le hk (hcard i))
+  have hloc : ∀ i, {j | (edge i ∩ edge j).Nonempty}.Finite := by
+    intro i
+    obtain ⟨N, -, hN⟩ := hdeg i
+    refine (N.finite_toSet.insert i).subset fun j hj => ?_
+    by_cases hji : j = i
+    · exact Or.inl hji
+    · exact Or.inr (hN j hji hj)
+  refine exists_two_coloring_of_forall_subtype edge fun X => ?_
+  have := finite_indices_inside edge hne hloc X
+  have := Fintype.ofFinite {i // edge i ⊆ X}
+  refine exists_two_coloring_of_local_lemma' _ hk hd (fun i => ?_) (fun i => ?_) hep
+  · rw [card_subtype, filter_true_of_mem fun v hv => i.2 hv]
+    exact hcard i
+  · obtain ⟨N, hNd, hN⟩ := hdeg i
+    rw [← card_map (Function.Embedding.subtype _)]
+    exact (card_le_card (map_sharesVertex_subtype_subset edge X i hN)).trans hNd
 
 end Compactness
 
