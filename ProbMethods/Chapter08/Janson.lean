@@ -518,13 +518,207 @@ noncomputable def jansonDelta (p : α → ℝ) (g : ι → Finset α) : ℝ :=
   ∑ i, ∑ j ∈ (univ : Finset ι).filter (fun j => j ≠ i ∧ (g i ∩ g j).Nonempty),
     wprob (pweight p) (badEvent g i ∩ badEvent g j)
 
+/-- `PMC.janson`'s upper bound with no order on the index type: any enumeration of `ι` serves,
+and neither side of the bound depends on it. -/
+private lemma wprob_noneOf_le_exp (p : α → ℝ) (hp0 : ∀ i, 0 ≤ p i) (hp1 : ∀ i, p i ≤ 1)
+    (g : ι → Finset α) :
+    wprob (pweight p) (noneOf (badEvent g) (univ : Finset ι))
+      ≤ Real.exp (-jansonMu p g + jansonDelta p g / 2) := by
+  let _ : LinearOrder ι := LinearOrder.lift' (Fintype.equivFin ι) (Fintype.equivFin ι).injective
+  unfold jansonMu jansonDelta
+  convert (janson p hp0 hp1 g).2
+
+/-- Containing a fixed `B` has probability `∏ x ∈ B, p x`. -/
+private lemma wprob_filter_superset (p : α → ℝ) (B : Finset α) :
+    wprob (pweight p) ((univ : Finset (Finset α)).filter fun S => B ⊆ S) = ∏ x ∈ B, p x := by
+  have h := sum_pweight_superset p B
+  rwa [Finset.powerset_univ] at h
+
+omit [Fintype ι] [DecidableEq ι] in
+private lemma wprob_badEvent_eq_prod (p : α → ℝ) (g : ι → Finset α) (i : ι) :
+    wprob (pweight p) (badEvent g i) = ∏ x ∈ g i, p x :=
+  wprob_filter_superset p (g i)
+
+/-- Two bad sets both survive exactly when their union does. -/
+private lemma wprob_badEvent_inter_eq_prod (p : α → ℝ) (g : ι → Finset α) (i j : ι) :
+    wprob (pweight p) (badEvent g i ∩ badEvent g j) = ∏ x ∈ g i ∪ g j, p x := by
+  rw [← wprob_filter_superset]
+  congr 1
+  ext S
+  simp [Finset.union_subset_iff]
+
+omit [DecidableEq α] [DecidableEq ι] in
+/-- A sum over subsets of `α ⊕ ι` splits into a double sum over the two blocks. -/
+private lemma sum_finset_sum_type (f : Finset (α ⊕ ι) → ℝ) :
+    ∑ U, f U = ∑ S : Finset α, ∑ T : Finset ι, f (S.disjSum T) := by
+  rw [← Fintype.sum_prod_type' (fun (S : Finset α) (T : Finset ι) => f (S.disjSum T))]
+  exact (Fintype.sum_equiv Finset.sumEquiv.symm.toEquiv _ _ fun x => by simp).symm
+
+/-- The new coordinates are independent of the old ones, each kept with probability `q`. -/
+private lemma pweight_sumElim_disjSum (p : α → ℝ) (q : ℝ) (S : Finset α) (T : Finset ι) :
+    pweight (Sum.elim p fun _ : ι => q) (S.disjSum T) = pweight p S * bweight q T := by
+  rw [bweight_eq_pweight, pweight_eq_prod, pweight_eq_prod, pweight_eq_prod,
+    Fintype.prod_sum_type]
+  simp
+
+/-- `μ` of the enlarged family is `q * μ`. -/
+private lemma jansonMu_enlarged (p : α → ℝ) (q : ℝ) (g : ι → Finset α) :
+    jansonMu (Sum.elim p fun _ : ι => q) (fun i => (g i).disjSum ({i} : Finset ι))
+      = q * jansonMu p g := by
+  simp only [jansonMu, Finset.mul_sum]
+  refine Finset.sum_congr rfl fun i _ => ?_
+  rw [wprob_badEvent_eq_prod, wprob_badEvent_eq_prod, Finset.prod_disjSum]
+  simp [mul_comm]
+
+omit [Fintype α] [Fintype ι] in
+/-- The new coordinates are distinct, so they create no new overlaps. -/
+private lemma disjSum_inter_nonempty_iff (g : ι → Finset α) {i j : ι} (hji : j ≠ i) :
+    ((g i).disjSum ({i} : Finset ι) ∩ (g j).disjSum ({j} : Finset ι)).Nonempty
+      ↔ (g i ∩ g j).Nonempty := by
+  constructor
+  · rintro ⟨x | b, hx⟩
+    · simp only [mem_inter, inl_mem_disjSum] at hx
+      exact ⟨x, mem_inter.mpr hx⟩
+    · simp only [mem_inter, inr_mem_disjSum, mem_singleton] at hx
+      exact absurd (hx.2.symm.trans hx.1) hji
+  · rintro ⟨x, hx⟩
+    refine ⟨Sum.inl x, ?_⟩
+    simpa only [mem_inter, inl_mem_disjSum] using hx
+
+/-- `Δ` of the enlarged family is `q ^ 2 * Δ`. -/
+private lemma jansonDelta_enlarged (p : α → ℝ) (q : ℝ) (g : ι → Finset α) :
+    jansonDelta (Sum.elim p fun _ : ι => q) (fun i => (g i).disjSum ({i} : Finset ι))
+      = q ^ 2 * jansonDelta p g := by
+  simp only [jansonDelta, Finset.mul_sum]
+  refine Finset.sum_congr rfl fun i _ => ?_
+  have hfilter : (univ : Finset ι).filter (fun j => j ≠ i ∧
+        ((g i).disjSum ({i} : Finset ι) ∩ (g j).disjSum ({j} : Finset ι)).Nonempty)
+      = (univ : Finset ι).filter (fun j => j ≠ i ∧ (g i ∩ g j).Nonempty) :=
+    Finset.filter_congr fun j _ => and_congr_right fun hj => disjSum_inter_nonempty_iff g hj
+  rw [hfilter]
+  refine Finset.sum_congr rfl fun j hj => ?_
+  have hij : i ≠ j := ((mem_filter.mp hj).2.1).symm
+  have hunion : (g i).disjSum ({i} : Finset ι) ∪ (g j).disjSum ({j} : Finset ι)
+      = (g i ∪ g j).disjSum ({i, j} : Finset ι) := by
+    ext (x | b) <;> simp
+  rw [wprob_badEvent_inter_eq_prod, wprob_badEvent_inter_eq_prod, hunion, Finset.prod_disjSum,
+    Finset.prod_pair hij]
+  simp only [Sum.elim_inl, Sum.elim_inr]
+  ring
+
+/-- Avoiding every enlarged bad set means the new block misses the bad sets present in the old
+block, which turns "no bad event" into the generating function of `badCount`. -/
+private lemma wprob_noneOf_enlarged (p : α → ℝ) (q : ℝ) (g : ι → Finset α) :
+    wprob (pweight (Sum.elim p fun _ : ι => q))
+        (noneOf (badEvent fun i => (g i).disjSum ({i} : Finset ι)) (univ : Finset ι))
+      = ∑ S, pweight p S * (1 - q) ^ badCount g S := by
+  set A := noneOf (badEvent fun i => (g i).disjSum ({i} : Finset ι)) (univ : Finset ι) with hA
+  have hmem : ∀ (S : Finset α) (T : Finset ι),
+      S.disjSum T ∈ A ↔ Disjoint T ((univ : Finset ι).filter fun i => g i ⊆ S) := by
+    intro S T
+    rw [hA, mem_noneOf, Finset.disjoint_right]
+    simp [disjSum_subset, singleton_subset_iff]
+  have hsum : ∑ U ∈ A, pweight (Sum.elim p fun _ : ι => q) U
+      = ∑ U, if U ∈ A then pweight (Sum.elim p fun _ : ι => q) U else 0 := by
+    simp [Finset.sum_ite_mem]
+  rw [wprob, hsum, sum_finset_sum_type]
+  refine Finset.sum_congr rfl fun S _ => ?_
+  simp only [hmem, pweight_sumElim_disjSum]
+  rw [← Finset.sum_filter, ← Finset.mul_sum, badCount, ← sum_bweight_disjoint,
+    Finset.powerset_univ]
+
+/-- `PMC.janson` at the enlarged family: the generating function of `badCount` at `1 - q`. -/
+private lemma sum_pweight_mul_pow_badCount_le (p : α → ℝ) (hp0 : ∀ i, 0 ≤ p i)
+    (hp1 : ∀ i, p i ≤ 1) (g : ι → Finset α) {q : ℝ} (hq0 : 0 ≤ q) (hq1 : q ≤ 1) :
+    ∑ S, pweight p S * (1 - q) ^ badCount g S
+      ≤ Real.exp (-(q * jansonMu p g) + q ^ 2 * jansonDelta p g / 2) := by
+  have h := wprob_noneOf_le_exp (Sum.elim p fun _ : ι => q)
+    (by rintro (x | i) <;> simp [hp0, hq0]) (by rintro (x | i) <;> simp [hp1, hq1])
+    (fun i => (g i).disjSum ({i} : Finset ι))
+  rwa [wprob_noneOf_enlarged, jansonMu_enlarged, jansonDelta_enlarged] at h
+
+/-- `exp (-l) ≤ 1 - l + l ^ 2 / 2` for `l ≥ 0`: multiply through by `exp l`. -/
+private lemma sub_sq_div_two_le_one_sub_exp {l : ℝ} (hl : 0 ≤ l) :
+    l - l ^ 2 / 2 ≤ 1 - Real.exp (-l) := by
+  have h1 := Real.quadratic_le_exp_of_nonneg hl
+  have hpos : 0 < 1 + l + l ^ 2 / 2 := by positivity
+  have h2 : Real.exp (-l) * Real.exp l = 1 := by rw [← Real.exp_add]; simp
+  have h4 : Real.exp (-l) * (1 + l + l ^ 2 / 2) ≤ Real.exp (-l) * Real.exp l :=
+    mul_le_mul_of_nonneg_left h1 (Real.exp_pos _).le
+  have h5 : 1 ≤ (1 - l + l ^ 2 / 2) * (1 + l + l ^ 2 / 2) := by
+    nlinarith [sq_nonneg (l ^ 2)]
+  have h6 : Real.exp (-l) ≤ 1 - l + l ^ 2 / 2 :=
+    le_of_mul_le_mul_right (h4.trans (h2.trans_le h5)) hpos
+  linarith
+
+/-- Markov's inequality for `exp (-l * badCount)`, with the exponent simplified using
+`l - l ^ 2 / 2 ≤ 1 - exp (-l) ≤ l`. -/
+private lemma sum_pweight_filter_badCount_le (p : α → ℝ) (hp0 : ∀ i, 0 ≤ p i)
+    (hp1 : ∀ i, p i ≤ 1) (g : ι → Finset α) (t : ℝ) {l : ℝ} (hl : 0 ≤ l) :
+    ∑ S ∈ (univ : Finset (Finset α)).filter
+        (fun S => (badCount g S : ℝ) ≤ jansonMu p g - t), pweight p S
+      ≤ Real.exp (-(l * t) + l ^ 2 * (jansonMu p g + jansonDelta p g) / 2) := by
+  have hw : ∀ S, 0 ≤ pweight p S := fun S => pweight_nonneg hp0 hp1 S
+  have hmu : 0 ≤ jansonMu p g := Finset.sum_nonneg fun i _ => wprob_nonneg hw _
+  have hdelta : 0 ≤ jansonDelta p g :=
+    Finset.sum_nonneg fun i _ => Finset.sum_nonneg fun j _ => wprob_nonneg hw _
+  set μ := jansonMu p g
+  set Δ := jansonDelta p g
+  set P := ∑ S ∈ (univ : Finset (Finset α)).filter (fun S => (badCount g S : ℝ) ≤ μ - t),
+    pweight p S with hP
+  set q := 1 - Real.exp (-l) with hq
+  have hq0 : 0 ≤ q := by
+    have : Real.exp (-l) ≤ 1 := Real.exp_le_one_iff.mpr (by linarith)
+    linarith
+  have hq1 : q ≤ 1 := by linarith [Real.exp_pos (-l)]
+  have hql : q ≤ l := by linarith [Real.add_one_le_exp (-l)]
+  have hql' : l - l ^ 2 / 2 ≤ q := sub_sq_div_two_le_one_sub_exp hl
+  have hpow : ∀ S, (1 - q) ^ badCount g S = Real.exp (-(l * badCount g S)) := by
+    intro S
+    rw [hq, sub_sub_cancel, ← Real.exp_nat_mul]
+    congr 1
+    ring
+  have hmarkov : P * Real.exp (-(l * (μ - t))) ≤ ∑ S, pweight p S * (1 - q) ^ badCount g S := by
+    rw [hP, Finset.sum_mul]
+    refine (Finset.sum_le_sum fun S hS => ?_).trans
+      (Finset.sum_le_sum_of_subset_of_nonneg (Finset.filter_subset _ _) fun S _ _ =>
+        mul_nonneg (hw S) (pow_nonneg (by linarith) _))
+    rw [hpow]
+    refine mul_le_mul_of_nonneg_left (Real.exp_le_exp.mpr ?_) (hw S)
+    have hS' := (mem_filter.mp hS).2
+    have := mul_le_mul_of_nonneg_left hS' hl
+    linarith
+  have hmgf := sum_pweight_mul_pow_badCount_le p hp0 hp1 g hq0 hq1
+  have h1 := mul_le_mul_of_nonneg_right hql' hmu
+  have h2 := mul_le_mul_of_nonneg_right (pow_le_pow_left₀ hq0 hql 2) hdelta
+  calc P = P * Real.exp (-(l * (μ - t))) * Real.exp (l * (μ - t)) := by
+        rw [mul_assoc, ← Real.exp_add]
+        simp
+    _ ≤ Real.exp (-(q * μ) + q ^ 2 * Δ / 2) * Real.exp (l * (μ - t)) :=
+        mul_le_mul_of_nonneg_right (hmarkov.trans hmgf) (Real.exp_pos _).le
+    _ = Real.exp (-(q * μ) + q ^ 2 * Δ / 2 + l * (μ - t)) := (Real.exp_add _ _).symm
+    _ ≤ Real.exp (-(l * t) + l ^ 2 * (μ + Δ) / 2) := Real.exp_le_exp.mpr (by nlinarith)
+
 /-- **Theorem 8.2.2 (Janson inequality III).** The lower tail. -/
 theorem janson_lower_tail (p : α → ℝ) (hp0 : ∀ i, 0 ≤ p i) (hp1 : ∀ i, p i ≤ 1)
     (g : ι → Finset α) {t : ℝ} (ht0 : 0 ≤ t) (htmu : t ≤ jansonMu p g) :
     ∑ S ∈ (univ : Finset (Finset α)).filter
         (fun S => (badCount g S : ℝ) ≤ jansonMu p g - t), pweight p S
       ≤ Real.exp (-t ^ 2 / (2 * (jansonMu p g + jansonDelta p g))) := by
-  sorry
+  have hw : ∀ S, 0 ≤ pweight p S := fun S => pweight_nonneg hp0 hp1 S
+  have hmu : 0 ≤ jansonMu p g := Finset.sum_nonneg fun i _ => wprob_nonneg hw _
+  have hdelta : 0 ≤ jansonDelta p g :=
+    Finset.sum_nonneg fun i _ => Finset.sum_nonneg fun j _ => wprob_nonneg hw _
+  rcases (add_nonneg hmu hdelta).eq_or_lt with hD | hD
+  · have hsum : ∑ S : Finset α, pweight p S = 1 := by
+      have h := sum_pweight (α := α) p
+      rwa [Finset.powerset_univ] at h
+    rw [← hD, mul_zero, div_zero, Real.exp_zero]
+    exact wprob_le_one hw hsum _
+  · refine (sum_pweight_filter_badCount_le p hp0 hp1 g t (div_nonneg ht0 hD.le)).trans_eq ?_
+    congr 1
+    field_simp
+    ring
 
 end LowerTail
 
