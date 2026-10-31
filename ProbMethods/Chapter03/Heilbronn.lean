@@ -1,6 +1,8 @@
 import ProbMethods.Basic
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
 import Mathlib.Tactic.Linarith
+import Mathlib.NumberTheory.Bertrand
+import Mathlib.Algebra.Field.ZMod
 
 /-!
 # §3.2 — Theorem 3.2.3, the Heilbronn triangle problem
@@ -50,7 +52,72 @@ theorem exists_heilbronn_config :
       Function.Injective P ∧
       ∀ i j k : Fin n, i ≠ j → j ≠ k → i ≠ k →
         c / (n : ℝ) ^ 2 ≤ |twiceArea (P i) (P j) (P k)| / 2 := by
-  sorry
+  -- Erdős' construction: for a prime `n < p ≤ 2n`, take the points `(i, i² mod p) / p`.
+  -- The twice-area of the unscaled lattice triangle is an integer congruent mod `p` to a
+  -- Vandermonde product of nonzero residues, hence a nonzero integer, so the area is at
+  -- least `1 / (2p²) ≥ 1 / (8n²)`.
+  refine ⟨1 / 8, by norm_num, fun n hn => ?_⟩
+  obtain ⟨p, hp, hnp, hp2n⟩ := Nat.exists_prime_lt_and_le_two_mul n (by omega)
+  have : Fact p.Prime := ⟨hp⟩
+  have hp0 : (0 : ℝ) < p := by exact_mod_cast hp.pos
+  refine ⟨fun i => ((i : ℕ) / (p : ℝ), (((i : ℕ) ^ 2 % p : ℕ) : ℝ) / p), ?_, ?_, ?_⟩
+  · intro i
+    have hi : (i : ℕ) < p := lt_trans i.isLt hnp
+    have hm : (i : ℕ) ^ 2 % p < p := Nat.mod_lt _ hp.pos
+    refine ⟨⟨by positivity, ?_⟩, ⟨by positivity, ?_⟩⟩
+    · rw [div_le_one hp0]; exact_mod_cast hi.le
+    · rw [div_le_one hp0]; exact_mod_cast hm.le
+  · intro i j hij
+    have h := congrArg Prod.fst hij
+    simp only at h
+    rw [div_left_inj' hp0.ne', Nat.cast_inj] at h
+    exact Fin.ext h
+  · intro i j k hij hjk hik
+    have hi : (i : ℕ) < p := lt_trans i.isLt hnp
+    have hj : (j : ℕ) < p := lt_trans j.isLt hnp
+    have hk : (k : ℕ) < p := lt_trans k.isLt hnp
+    -- The integer twice-area of the unscaled lattice triangle.
+    set a : ℕ := (i : ℕ)
+    set b : ℕ := (j : ℕ)
+    set d : ℕ := (k : ℕ)
+    set T : ℤ := (a : ℤ) * (((b ^ 2 % p : ℕ) : ℤ) - ((d ^ 2 % p : ℕ) : ℤ)) +
+      (b : ℤ) * (((d ^ 2 % p : ℕ) : ℤ) - ((a ^ 2 % p : ℕ) : ℤ)) +
+      (d : ℤ) * (((a ^ 2 % p : ℕ) : ℤ) - ((b ^ 2 % p : ℕ) : ℤ)) with hT
+    have hne : ∀ x y : ℕ, x < p → y < p → x ≠ y → ((x : ZMod p) - (y : ZMod p)) ≠ 0 := by
+      intro x y hx hy hxy h
+      apply hxy
+      have h' : (x : ZMod p) = (y : ZMod p) := sub_eq_zero.mp h
+      rw [ZMod.natCast_eq_natCast_iff'] at h'
+      rwa [Nat.mod_eq_of_lt hx, Nat.mod_eq_of_lt hy] at h'
+    have hab : a ≠ b := fun h => hij (Fin.ext h)
+    have hbd : b ≠ d := fun h => hjk (Fin.ext h)
+    have had : a ≠ d := fun h => hik (Fin.ext h)
+    have hTmod : (T : ZMod p) ≠ 0 := by
+      have hc : ((T : ℤ) : ZMod p) =
+          -(((a : ZMod p) - b) * ((b : ZMod p) - d) * ((a : ZMod p) - d)) := by
+        simp only [hT, Int.cast_add, Int.cast_mul, Int.cast_sub, Int.cast_natCast,
+          ZMod.natCast_mod, Nat.cast_pow]
+        ring
+      rw [hc, neg_ne_zero]
+      exact mul_ne_zero (mul_ne_zero (hne a b hi hj hab) (hne b d hj hk hbd)) (hne a d hi hk had)
+    have hT0 : T ≠ 0 := fun h => hTmod (by rw [h]; simp)
+    have hT1 : (1 : ℝ) ≤ |(T : ℝ)| := by
+      have : (1 : ℤ) ≤ |T| := Int.one_le_abs hT0
+      exact_mod_cast this
+    have harea : twiceArea ((a : ℝ) / p, ((a ^ 2 % p : ℕ) : ℝ) / p)
+        ((b : ℝ) / p, ((b ^ 2 % p : ℕ) : ℝ) / p)
+        ((d : ℝ) / p, ((d ^ 2 % p : ℕ) : ℝ) / p) = (T : ℝ) / (p : ℝ) ^ 2 := by
+      simp only [hT, twiceArea, Int.cast_add, Int.cast_mul, Int.cast_sub, Int.cast_natCast]
+      field_simp
+    show 1 / 8 / (n : ℝ) ^ 2 ≤ |twiceArea ((a : ℝ) / p, ((a ^ 2 % p : ℕ) : ℝ) / p)
+        ((b : ℝ) / p, ((b ^ 2 % p : ℕ) : ℝ) / p)
+        ((d : ℝ) / p, ((d ^ 2 % p : ℕ) : ℝ) / p)| / 2
+    rw [harea, abs_div, abs_of_pos (by positivity : (0 : ℝ) < (p : ℝ) ^ 2)]
+    have hn0 : (0 : ℝ) < n := by exact_mod_cast hn
+    have hpn : (p : ℝ) ≤ 2 * n := by exact_mod_cast hp2n
+    have hp2 : (p : ℝ) ^ 2 ≤ 4 * (n : ℝ) ^ 2 := by nlinarith
+    rw [div_div, div_div, div_le_div_iff₀ (by positivity) (by positivity)]
+    nlinarith
 
 end Heilbronn
 
