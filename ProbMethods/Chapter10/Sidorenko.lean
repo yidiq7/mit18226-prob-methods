@@ -790,6 +790,331 @@ lemma mem_homSet {W : Type*} [Fintype W] [DecidableEq W] {F : SimpleGraph W}
   rw [homSet, mem_filter]
   exact ⟨fun h => h.2, fun h => ⟨mem_univ _, h⟩⟩
 
+/-! #### The tree-indexed random walk, by counting
+
+The notes' distribution on `Hom(F, G)` — a uniform random directed edge at the root, then each
+further vertex a uniform neighbour of its parent's image — gives a homomorphism `φ` the
+probability `w(φ) / 2m`, where
+
+    w(φ) = ∏_{a} d(φ a) ^ (1 - deg_F a)
+
+does not depend on the root. The two facts the entropy argument needs are that `w` sums to `2m`
+over `Hom(F, G)` and that every vertex's image is degree-biased; both are the single identity
+`∑_{φ ∈ Hom} g(φ a) w(φ) = ∑_x d(x) g(x)`. It is proved by growing the tree one leaf at a time
+inside a fixed vertex type: for a vertex set `S` of `F`, maps `W → V` are counted that are
+homomorphisms on `S`, and the coordinates outside `S` contribute the factor `n^{|W| - |S|}`. -/
+
+section TreeWalk
+
+variable {W : Type*} [Fintype W] [DecidableEq W] (F : SimpleGraph W) [DecidableRel F.Adj]
+
+/-- Maps `W → V` that are homomorphisms on the vertex set `S`. -/
+private def homOn (S : Finset W) : Finset (W → V) :=
+  (univ : Finset (W → V)).filter fun φ => ∀ a ∈ S, ∀ b ∈ S, F.Adj a b → G.Adj (φ a) (φ b)
+
+/-- The unnormalised law of the tree-indexed walk on `S`: `∏_{a ∈ S} d(φ a)^{1 - deg_S a}`. -/
+private noncomputable def walkWeight (S : Finset W) (φ : W → V) : ℝ :=
+  ∏ a ∈ S, (G.degree (φ a) : ℝ) ^ ((1 : ℤ) - #(S.filter (F.Adj a)))
+
+omit [DecidableEq V] in
+/-- Resampling one coordinate: `(φ, y) ↦ (update φ ℓ y, φ ℓ)` is a bijection of
+`(W → V) × V`, so summing over all updates counts every map `n` times. -/
+private lemma sum_sum_update (ℓ : W) (f : (W → V) → ℝ) :
+    ∑ φ : W → V, ∑ y : V, f (Function.update φ ℓ y) = Fintype.card V * ∑ φ, f φ := by
+  let e : (W → V) × V ≃ (W → V) × V :=
+    { toFun := fun p => (Function.update p.1 ℓ p.2, p.1 ℓ)
+      invFun := fun p => (Function.update p.1 ℓ p.2, p.1 ℓ)
+      left_inv := fun p => by simp
+      right_inv := fun p => by simp }
+  have key : ∑ p : (W → V) × V, f (Function.update p.1 ℓ p.2) = ∑ p : (W → V) × V, f p.1 :=
+    Fintype.sum_equiv e _ _ fun p => rfl
+  rw [← Fintype.sum_prod_type', key, Fintype.sum_prod_type]
+  simp only [Finset.sum_const, card_univ, nsmul_eq_mul, Finset.mul_sum]
+
+omit [DecidableEq V] in
+private lemma card_filter_adj {X : Type*} [Fintype X] (K : SimpleGraph X) [DecidableRel K.Adj]
+    (x : X) : #((univ : Finset X).filter fun y => K.Adj x y) = K.degree x := by
+  rw [← SimpleGraph.card_neighborFinset_eq_degree]
+  congr 1
+  ext y
+  simp
+
+omit [DecidableEq V] in
+/-- Averaging `g` over the neighbours and reweighting by degree recovers the degree-weighted
+sum of `g`: the stationarity of `d(x)/2m` under the simple random walk. -/
+private lemma sum_degree_mul_nbrAvg (g : V → ℝ) :
+    ∑ x, (G.degree x : ℝ) * (((G.degree x : ℝ))⁻¹ * ∑ y, if G.Adj x y then g y else 0)
+      = ∑ x, (G.degree x : ℝ) * g x := by
+  have h1 : ∀ x, (G.degree x : ℝ) * (((G.degree x : ℝ))⁻¹ * ∑ y, if G.Adj x y then g y else 0)
+      = ∑ y, if G.Adj x y then g y else 0 := by
+    intro x
+    rcases Nat.eq_zero_or_pos (G.degree x) with h0 | hpos
+    · have hno : ∀ y, ¬ G.Adj x y := fun y hxy => by
+        have := (G.degree_pos_iff_exists_adj x).mpr ⟨y, hxy⟩
+        omega
+      simp [hno]
+    · rw [← mul_assoc, mul_inv_cancel₀ (by exact_mod_cast hpos.ne'), one_mul]
+  rw [Finset.sum_congr rfl fun x _ => h1 x, Finset.sum_comm]
+  refine Finset.sum_congr rfl fun y _ => ?_
+  rw [← Finset.sum_filter, Finset.sum_const, nsmul_eq_mul]
+  congr 2
+  rw [← card_filter_adj G y]
+  congr 1
+  ext x
+  simp [G.adj_comm]
+
+omit [DecidableEq V] in
+/-- The base case of the growth: a single vertex. -/
+private lemma walkWeight_marginal_single (u : W) (g : V → ℝ) :
+    (Fintype.card V : ℝ) ^ #({u} : Finset W)
+        * ∑ φ ∈ homOn G F {u}, g (φ u) * walkWeight G F {u} φ
+      = (Fintype.card V : ℝ) ^ Fintype.card W * ∑ x, (G.degree x : ℝ) * g x := by
+  have hhom : homOn G F {u} = univ := by
+    refine eq_univ_of_forall fun φ => ?_
+    simp only [homOn, mem_filter, mem_univ, true_and]
+    intro a ha b hb hab
+    rw [mem_singleton] at ha hb
+    rw [ha, hb] at hab
+    exact absurd hab F.irrefl
+  have hw : ∀ φ : W → V, walkWeight G F {u} φ = G.degree (φ u) := by
+    intro φ
+    have : ({u} : Finset W).filter (F.Adj u) = ∅ := by
+      rw [filter_eq_empty_iff]
+      intro b hb
+      rw [mem_singleton] at hb
+      rw [hb]
+      exact F.irrefl
+    simp [walkWeight, this]
+  rw [hhom, card_singleton, pow_one]
+  simp_rw [hw]
+  obtain ⟨k, hk⟩ : ∃ k : V → ℝ, k = fun x => g x * (G.degree x : ℝ) := ⟨_, rfl⟩
+  have h := sum_sum_update u (fun φ : W → V => k (φ u))
+  simp only [Function.update_self] at h
+  rw [hk] at h
+  simp only at h
+  rw [← h, Finset.sum_const, card_univ, Fintype.card_fun, nsmul_eq_mul]
+  push_cast
+  congr 1
+  exact Finset.sum_congr rfl fun x _ => mul_comm _ _
+
+/-- **Adding a leaf.** If `ℓ ∈ S` has exactly one neighbour `p` in `S`, the identity for
+`S.erase ℓ` gives it for `S`: the new coordinate is a uniform neighbour of `φ p`, so for
+`u ≠ ℓ` it integrates out, and for `u = ℓ` it turns `g` into its neighbourhood average,
+which the degree weighting at `p` turns back into `g` (`sum_degree_mul_nbrAvg`). -/
+private lemma walkWeight_marginal_step {S : Finset W} {ℓ p : W} (hℓ : ℓ ∈ S)
+    (hp : p ∈ S.erase ℓ) (hfil : S.filter (F.Adj ℓ) = {p})
+    (ih : ∀ u ∈ S.erase ℓ, ∀ g : V → ℝ,
+      (Fintype.card V : ℝ) ^ #(S.erase ℓ)
+          * ∑ φ ∈ homOn G F (S.erase ℓ), g (φ u) * walkWeight G F (S.erase ℓ) φ
+        = (Fintype.card V : ℝ) ^ Fintype.card W * ∑ x, (G.degree x : ℝ) * g x) :
+    ∀ u ∈ S, ∀ g : V → ℝ,
+      (Fintype.card V : ℝ) ^ #S * ∑ φ ∈ homOn G F S, g (φ u) * walkWeight G F S φ
+        = (Fintype.card V : ℝ) ^ Fintype.card W * ∑ x, (G.degree x : ℝ) * g x := by
+  intro u hu g
+  have hpS : p ∈ S := mem_of_mem_erase hp
+  have hpℓ : p ≠ ℓ := ne_of_mem_erase hp
+  have hadj_iff : ∀ b ∈ S, F.Adj ℓ b ↔ b = p := by
+    intro b hb
+    have := congrArg (b ∈ ·) hfil
+    simpa [mem_filter, hb] using this
+  have hℓp : F.Adj ℓ p := (hadj_iff p hpS).mpr rfl
+  -- membership of an updated map
+  have hmem : ∀ (ψ : W → V) (y : V), Function.update ψ ℓ y ∈ homOn G F S ↔
+      ψ ∈ homOn G F (S.erase ℓ) ∧ G.Adj (ψ p) y := by
+    intro ψ y
+    simp only [homOn, mem_filter, mem_univ, true_and]
+    constructor
+    · intro h
+      refine ⟨fun a ha b hb hab => ?_, ?_⟩
+      · have := h a (mem_of_mem_erase ha) b (mem_of_mem_erase hb) hab
+        rwa [Function.update_of_ne (ne_of_mem_erase ha),
+          Function.update_of_ne (ne_of_mem_erase hb)] at this
+      · have := h p hpS ℓ hℓ hℓp.symm
+        rwa [Function.update_of_ne hpℓ, Function.update_self] at this
+    · rintro ⟨h, hy⟩ a ha b hb hab
+      by_cases haℓ : a = ℓ
+      · have hbp : b = p := (hadj_iff b hb).mp (haℓ ▸ hab)
+        rw [haℓ, hbp, Function.update_self, Function.update_of_ne hpℓ]
+        exact hy.symm
+      · by_cases hbℓ : b = ℓ
+        · have hap : a = p := (hadj_iff a ha).mp (hbℓ ▸ hab.symm)
+          rw [hbℓ, hap, Function.update_self, Function.update_of_ne hpℓ]
+          exact hy
+        · rw [Function.update_of_ne haℓ, Function.update_of_ne hbℓ]
+          exact h a (mem_erase.mpr ⟨haℓ, ha⟩) b (mem_erase.mpr ⟨hbℓ, hb⟩) hab
+  -- the degrees inside `S` against those inside `S.erase ℓ`
+  have hdeg : ∀ a ∈ S.erase ℓ, #(S.filter (F.Adj a))
+      = #((S.erase ℓ).filter (F.Adj a)) + if a = p then 1 else 0 := by
+    intro a ha
+    have haS : a ∈ S := mem_of_mem_erase ha
+    conv_lhs => rw [← insert_erase hℓ]
+    rw [filter_insert]
+    by_cases hap : a = p
+    · have : F.Adj a ℓ := hap ▸ hℓp.symm
+      rw [if_pos this, if_pos hap, card_insert_of_notMem
+        (fun h => (notMem_erase ℓ S) (mem_of_mem_filter ℓ h))]
+    · have : ¬ F.Adj a ℓ := fun h => hap ((hadj_iff a haS).mp h.symm)
+      rw [if_neg this, if_neg hap, add_zero]
+  -- the weight of an updated map
+  have hwt : ∀ (ψ : W → V) (y : V), G.Adj (ψ p) y →
+      walkWeight G F S (Function.update ψ ℓ y)
+        = walkWeight G F (S.erase ℓ) ψ * ((G.degree (ψ p) : ℝ))⁻¹ := by
+    intro ψ y hy
+    have hdp : (G.degree (ψ p) : ℝ) ≠ 0 := by
+      have : 0 < G.degree (ψ p) := (G.degree_pos_iff_exists_adj _).mpr ⟨y, hy⟩
+      exact_mod_cast this.ne'
+    have hℓdeg : #(S.filter (F.Adj ℓ)) = 1 := by rw [hfil, card_singleton]
+    have hterm : ∀ a ∈ S.erase ℓ,
+        (G.degree (Function.update ψ ℓ y a) : ℝ) ^ ((1 : ℤ) - #(S.filter (F.Adj a)))
+          = (G.degree (ψ a) : ℝ) ^ ((1 : ℤ) - #((S.erase ℓ).filter (F.Adj a)))
+            * (if a = p then ((G.degree (ψ p) : ℝ))⁻¹ else 1) := by
+      intro a ha
+      rw [Function.update_of_ne (ne_of_mem_erase ha), hdeg a ha]
+      by_cases hap : a = p
+      · rw [if_pos hap, if_pos hap, hap]
+        push_cast
+        rw [sub_add_eq_sub_sub, zpow_sub₀ hdp, zpow_one, div_eq_mul_inv]
+      · rw [if_neg hap, if_neg hap]
+        simp
+    unfold walkWeight
+    rw [← Finset.mul_prod_erase S _ hℓ, Function.update_self, hℓdeg, Nat.cast_one, sub_self,
+      zpow_zero, one_mul, Finset.prod_congr rfl hterm, Finset.prod_mul_distrib,
+      Finset.prod_ite_eq', if_pos hp]
+  -- a homomorphism on `S.erase ℓ` sending `p` to an isolated vertex has weight zero
+  have hzero : ∀ ψ ∈ homOn G F (S.erase ℓ), G.degree (ψ p) = 0 →
+      walkWeight G F (S.erase ℓ) ψ = 0 := by
+    intro ψ hψ hd
+    unfold walkWeight
+    apply Finset.prod_eq_zero hp
+    have hc : #((S.erase ℓ).filter (F.Adj p)) = 0 := by
+      rw [card_eq_zero, filter_eq_empty_iff]
+      intro b hb hpb
+      simp only [homOn, mem_filter, mem_univ, true_and] at hψ
+      have hadj := hψ p hp b hb hpb
+      have : 0 < G.degree (ψ p) := (G.degree_pos_iff_exists_adj _).mpr ⟨_, hadj⟩
+      omega
+    rw [hc, hd]
+    simp
+  have hfull : ∀ (t : Finset (W → V)) (f : (W → V) → ℝ),
+      ∑ φ ∈ t, f φ = ∑ φ, if φ ∈ t then f φ else 0 := by
+    intro t f
+    rw [Finset.sum_ite_mem, Finset.univ_inter]
+  -- integrate out the new coordinate
+  have hsplit : ∀ ψ : W → V,
+      ∑ y, (if Function.update ψ ℓ y ∈ homOn G F S then
+          g (Function.update ψ ℓ y u) * walkWeight G F S (Function.update ψ ℓ y) else 0)
+        = if ψ ∈ homOn G F (S.erase ℓ) then walkWeight G F (S.erase ℓ) ψ
+            * (((G.degree (ψ p) : ℝ))⁻¹
+              * ∑ y, if G.Adj (ψ p) y then g (Function.update ψ ℓ y u) else 0) else 0 := by
+    intro ψ
+    by_cases hψ : ψ ∈ homOn G F (S.erase ℓ)
+    · rw [if_pos hψ, Finset.mul_sum, Finset.mul_sum]
+      refine Finset.sum_congr rfl fun y _ => ?_
+      by_cases hy : G.Adj (ψ p) y
+      · rw [if_pos ((hmem ψ y).mpr ⟨hψ, hy⟩), if_pos hy, hwt ψ y hy]
+        ring
+      · rw [if_neg (fun h => hy ((hmem ψ y).mp h).2), if_neg hy]
+        ring
+    · rw [if_neg hψ]
+      exact Finset.sum_eq_zero fun y _ => if_neg (fun h => hψ ((hmem ψ y).mp h).1)
+  have hn : (Fintype.card V : ℝ) * ∑ φ ∈ homOn G F S, g (φ u) * walkWeight G F S φ
+      = ∑ ψ, if ψ ∈ homOn G F (S.erase ℓ) then walkWeight G F (S.erase ℓ) ψ
+          * (((G.degree (ψ p) : ℝ))⁻¹
+            * ∑ y, if G.Adj (ψ p) y then g (Function.update ψ ℓ y u) else 0) else 0 := by
+    have h := sum_sum_update ℓ
+      (fun φ => if φ ∈ homOn G F S then g (φ u) * walkWeight G F S φ else 0)
+    rw [hfull, ← h]
+    exact Finset.sum_congr rfl fun ψ _ => hsplit ψ
+  have hcard : #S = #(S.erase ℓ) + 1 := by
+    rw [card_erase_of_mem hℓ]
+    have := card_pos.mpr ⟨ℓ, hℓ⟩
+    omega
+  rw [hcard, pow_succ, mul_assoc, hn]
+  by_cases huℓ : u = ℓ
+  · -- the new vertex: its image is a uniform neighbour of `φ p`
+    let h : V → ℝ := fun x => ((G.degree x : ℝ))⁻¹ * ∑ y, if G.Adj x y then g y else 0
+    have hih := ih p hp h
+    rw [sum_degree_mul_nbrAvg G g] at hih
+    rw [← hih, hfull (homOn G F (S.erase ℓ))]
+    congr 1
+    refine Finset.sum_congr rfl fun ψ _ => ?_
+    by_cases hψ : ψ ∈ homOn G F (S.erase ℓ)
+    · simp only [if_pos hψ, huℓ, Function.update_self, h]
+      ring
+    · simp only [if_neg hψ]
+  · -- an old vertex: the new coordinate integrates out
+    have huS : u ∈ S.erase ℓ := mem_erase.mpr ⟨huℓ, hu⟩
+    rw [← ih u huS g, hfull (homOn G F (S.erase ℓ))]
+    congr 1
+    refine Finset.sum_congr rfl fun ψ _ => ?_
+    by_cases hψ : ψ ∈ homOn G F (S.erase ℓ)
+    · simp only [if_pos hψ, Function.update_of_ne huℓ]
+      rw [← Finset.sum_filter, Finset.sum_const, nsmul_eq_mul, card_filter_adj G (ψ p)]
+      rcases Nat.eq_zero_or_pos (G.degree (ψ p)) with h0 | hpos
+      · rw [hzero ψ hψ h0]
+        ring
+      · have : (G.degree (ψ p) : ℝ) ≠ 0 := by exact_mod_cast hpos.ne'
+        field_simp
+    · simp only [if_neg hψ]
+
+omit [Fintype W] in
+/-- **A leaf to remove.** A connected acyclic vertex set with at least two vertices has a
+vertex with exactly one neighbour in it, whose removal leaves it connected. -/
+private lemma exists_leaf_erase {F : SimpleGraph W} [DecidableRel F.Adj] (hF : F.IsAcyclic)
+    (S : Finset W) (hS : 1 < #S) (hconn : (F.induce (S : Set W)).Connected) :
+    ∃ ℓ ∈ S, ∃ p ∈ S.erase ℓ, S.filter (F.Adj ℓ) = {p} ∧
+      (F.induce ((S.erase ℓ : Finset W) : Set W)).Connected := by
+  classical
+  have htree : (F.induce (S : Set W)).IsTree := ⟨hconn, hF.induce _⟩
+  obtain ⟨a, ha, b, hb, hab⟩ := Finset.one_lt_card.mp hS
+  have : Nontrivial (S : Set W) :=
+    ⟨⟨⟨a, ha⟩, ⟨b, hb⟩, fun h => hab (congrArg Subtype.val h)⟩⟩
+  obtain ⟨ℓ, hℓ⟩ := htree.exists_vert_degree_one_of_nontrivial
+  obtain ⟨p, hp, huniq⟩ := SimpleGraph.degree_eq_one_iff_existsUnique_adj.mp hℓ
+  have hℓS : (ℓ : W) ∈ S := ℓ.2
+  have hpS : (p : W) ∈ S := p.2
+  have hp' : F.Adj ℓ p := hp
+  have hpℓ : (p : W) ≠ ℓ := fun h => by rw [h] at hp'; exact F.irrefl hp'
+  refine ⟨ℓ, hℓS, p, mem_erase.mpr ⟨hpℓ, hpS⟩, ?_, ?_⟩
+  · ext x
+    simp only [mem_filter, mem_singleton]
+    constructor
+    · rintro ⟨hx, hadj⟩
+      exact congrArg Subtype.val (huniq ⟨x, hx⟩ hadj)
+    · rintro rfl
+      exact ⟨hpS, hp'⟩
+  · have hc := hconn.induce_compl_singleton_of_degree_eq_one hℓ
+    let f : (F.induce (S : Set W)).induce {ℓ}ᶜ →g F.induce ((S.erase ℓ : Finset W) : Set W) :=
+      { toFun := fun x => ⟨x.1.1, mem_coe.mpr (mem_erase.mpr
+          ⟨fun h => x.2 (Subtype.ext h), mem_coe.mp x.1.2⟩)⟩
+        map_rel' := fun h => h }
+    refine SimpleGraph.Connected.map f ?_ hc
+    rintro ⟨y, hy⟩
+    have hy' := mem_erase.mp (mem_coe.mp hy)
+    exact ⟨⟨⟨y, hy'.2⟩, fun h => hy'.1 (congrArg Subtype.val h)⟩, rfl⟩
+
+/-- **The marginal identity** on every connected vertex set of an acyclic `F`, by induction on
+its size, removing a leaf each time. -/
+private lemma walkWeight_marginal (hF : F.IsAcyclic) (k : ℕ) :
+    ∀ S : Finset W, #S = k + 1 → (F.induce (S : Set W)).Connected →
+      ∀ u ∈ S, ∀ g : V → ℝ,
+        (Fintype.card V : ℝ) ^ #S * ∑ φ ∈ homOn G F S, g (φ u) * walkWeight G F S φ
+          = (Fintype.card V : ℝ) ^ Fintype.card W * ∑ x, (G.degree x : ℝ) * g x := by
+  induction k with
+  | zero =>
+    intro S hS _ u hu g
+    obtain ⟨a, rfl⟩ := card_eq_one.mp hS
+    rw [mem_singleton] at hu
+    subst hu
+    exact walkWeight_marginal_single G F u g
+  | succ k ih =>
+    intro S hS hconn
+    obtain ⟨ℓ, hℓ, p, hp, hfil, hconn'⟩ := exists_leaf_erase hF S (by omega) hconn
+    exact walkWeight_marginal_step G F hℓ hp hfil
+      (ih (S.erase ℓ) (by rw [card_erase_of_mem hℓ]; omega) hconn')
+
+end TreeWalk
+
 /-- **Theorem 10.3.5 (Sidorenko's conjecture for trees).** For every tree `F` and every graph
 `G` on `n` vertices with `m` edges,
 
@@ -800,7 +1125,165 @@ theorem sidorenko_tree {W : Type*} [Fintype W] [DecidableEq W] (F : SimpleGraph 
     [DecidableRel F.Adj] [Fintype F.edgeSet] (hF : F.IsTree) :
     ((∑ v, G.degree v : ℕ) : ℝ) ^ #F.edgeFinset * (Fintype.card V : ℝ)
       ≤ #(homSet F G) * (Fintype.card V : ℝ) ^ #F.edgeFinset := by
-  sorry
+  classical
+  have hcardW : #F.edgeFinset + 1 = Fintype.card W := hF.card_edgeFinset
+  -- no vertices in `G`: the left side vanishes
+  rcases Nat.eq_zero_or_pos (Fintype.card V) with hV0 | hVpos
+  · rw [hV0, Nat.cast_zero, mul_zero]
+    positivity
+  have hn : (0 : ℝ) < Fintype.card V := by exact_mod_cast hVpos
+  -- a single vertex: every map is a homomorphism
+  rcases Nat.eq_zero_or_pos #F.edgeFinset with he0 | hepos
+  · have hW1 : Fintype.card W = 1 := by omega
+    have hall : homSet F G = univ := by
+      refine eq_univ_of_forall fun φ => mem_homSet.mpr fun a b hab => ?_
+      have : a = b := Fintype.card_le_one_iff.mp hW1.le a b
+      rw [this] at hab
+      exact absurd hab F.irrefl
+    rw [he0, hall, card_univ, Fintype.card_fun, hW1]
+    simp
+  obtain ⟨k, hk⟩ : ∃ k, #F.edgeFinset = k + 1 := ⟨_, (Nat.succ_pred_eq_of_pos hepos).symm⟩
+  -- no edges in `G`: the left side vanishes
+  rcases Nat.eq_zero_or_pos (∑ v, G.degree v) with hD0 | hD
+  · rw [hD0, hk, Nat.cast_zero, zero_pow (Nat.succ_ne_zero k), zero_mul]
+    positivity
+  set D : ℝ := ((∑ v, G.degree v : ℕ) : ℝ) with hDdef
+  have hDpos : (0 : ℝ) < D := by rw [hDdef]; exact_mod_cast hD
+  have hDsum : D = ∑ x, (G.degree x : ℝ) := by rw [hDdef]; push_cast; rfl
+  -- the marginal identity on all of `W`
+  have hconnU : (F.induce ((univ : Finset W) : Set W)).Connected := by
+    let f : F →g F.induce ((univ : Finset W) : Set W) :=
+      { toFun := fun a => ⟨a, by simp⟩
+        map_rel' := fun h => h }
+    exact SimpleGraph.Connected.map f (fun x => ⟨x.1, rfl⟩) hF.connected
+  have hhom : homOn G F univ = homSet F G := by
+    ext φ
+    simp [homOn, mem_homSet]
+  have hmarg : ∀ (a : W) (g : V → ℝ), ∑ φ ∈ homSet F G, g (φ a) * walkWeight G F univ φ
+      = ∑ x, (G.degree x : ℝ) * g x := by
+    intro a g
+    have h := walkWeight_marginal G F hF.isAcyclic (Fintype.card W - 1) univ
+      (by rw [card_univ]; omega) hconnU a (mem_univ a) g
+    rw [card_univ, hhom] at h
+    exact mul_left_cancel₀ (pow_ne_zero _ hn.ne') h
+  -- every vertex of `F` has a neighbour, so homomorphisms have positive weight
+  have : Nontrivial W := Fintype.one_lt_card_iff_nontrivial.mp (by omega)
+  have hdegF : ∀ a : W, 0 < F.degree a := fun a =>
+    hF.connected.preconnected.degree_pos_of_nontrivial a
+  have hdegpos : ∀ φ ∈ homSet F G, ∀ a : W, 0 < G.degree (φ a) := by
+    intro φ hφ a
+    obtain ⟨b, hab⟩ := (F.degree_pos_iff_exists_adj a).mp (hdegF a)
+    exact (G.degree_pos_iff_exists_adj _).mpr ⟨φ b, mem_homSet.mp hφ a b hab⟩
+  have hwpos : ∀ φ ∈ homSet F G, 0 < walkWeight G F univ φ := by
+    intro φ hφ
+    refine Finset.prod_pos fun a _ => zpow_pos ?_ _
+    exact_mod_cast hdegpos φ hφ a
+  -- total mass `2m`
+  have hA : ∑ φ ∈ homSet F G, walkWeight G F univ φ = D := by
+    have := hmarg (Classical.arbitrary W) (fun _ => 1)
+    simp only [one_mul, mul_one] at this
+    rw [this, hDsum]
+  have hHpos : (0 : ℝ) < #(homSet F G) := by
+    have hne : (homSet F G).Nonempty := by
+      by_contra hcon
+      rw [not_nonempty_iff_eq_empty] at hcon
+      rw [hcon, sum_empty] at hA
+      exact hDpos.ne' hA.symm
+    exact_mod_cast card_pos.mpr hne
+  -- `∑ w log w = (1 - e) ∑_x d(x) log d(x)`
+  set Sx : ℝ := ∑ x, (G.degree x : ℝ) * Real.log (G.degree x) with hSx
+  have hlogw : ∀ φ ∈ homSet F G, Real.log (walkWeight G F univ φ)
+      = ∑ a, (1 - (#((univ : Finset W).filter (F.Adj a)) : ℝ)) * Real.log (G.degree (φ a)) := by
+    intro φ hφ
+    unfold walkWeight
+    rw [Real.log_prod (fun a _ => (zpow_pos (by exact_mod_cast hdegpos φ hφ a) _).ne')]
+    refine Finset.sum_congr rfl fun a _ => ?_
+    rw [Real.log_zpow]
+    push_cast
+    ring
+  have hsumc : ∑ a : W, (1 - (#((univ : Finset W).filter (F.Adj a)) : ℝ)) = 1 - (k + 1 : ℝ) := by
+    have h2 : ∑ a : W, (#((univ : Finset W).filter (F.Adj a)) : ℝ) = 2 * (k + 1 : ℝ) := by
+      have : ∑ a : W, F.degree a = 2 * #F.edgeFinset := by
+        convert F.sum_degrees_eq_twice_card_edges using 3
+        ext e
+        simp only [SimpleGraph.mem_edgeFinset]
+      rw [hk] at this
+      have h' : ∑ a : W, #((univ : Finset W).filter (F.Adj a)) = 2 * (k + 1) := by
+        rw [← this]
+        exact Finset.sum_congr rfl fun a _ => card_filter_adj F a
+      exact_mod_cast h'
+    rw [Finset.sum_sub_distrib, h2, Finset.sum_const, card_univ, ← hcardW, hk, nsmul_eq_mul]
+    push_cast
+    ring
+  have hWlogW : ∑ φ ∈ homSet F G, walkWeight G F univ φ * Real.log (walkWeight G F univ φ)
+      = (1 - (k + 1 : ℝ)) * Sx := by
+    rw [Finset.sum_congr rfl fun φ hφ => by rw [hlogw φ hφ, Finset.mul_sum], Finset.sum_comm]
+    rw [← hsumc, Finset.sum_mul]
+    refine Finset.sum_congr rfl fun a _ => ?_
+    have := hmarg a (fun x => (1 - (#((univ : Finset W).filter (F.Adj a)) : ℝ))
+      * Real.log (G.degree x))
+    rw [hSx, Finset.mul_sum]
+    refine (Finset.sum_congr rfl fun φ _ => mul_comm _ _).trans
+      (this.trans (Finset.sum_congr rfl fun x _ => by ring))
+  -- Gibbs' inequality: the entropy of the walk is at most `log hom(F, G)`
+  have hgibbs := sum_mul_log_div_le (β := W → V)
+    (fun φ => if φ ∈ homSet F G then walkWeight G F univ φ / D else 0)
+    (fun φ => if φ ∈ homSet F G then 1 / (#(homSet F G) : ℝ) else 0)
+    (fun φ => by
+      by_cases hφ : φ ∈ homSet F G
+      · simp only [if_pos hφ]; exact div_nonneg (hwpos φ hφ).le hDpos.le
+      · simp only [if_neg hφ, le_refl])
+    (fun φ => by
+      by_cases hφ : φ ∈ homSet F G
+      · simp only [if_pos hφ]; positivity
+      · simp only [if_neg hφ, le_refl])
+    (fun φ hφ => by
+      by_cases hφ' : φ ∈ homSet F G
+      · simp only [if_pos hφ']; positivity
+      · simp only [if_neg hφ'] at hφ; exact absurd rfl hφ)
+    (by rw [Finset.sum_ite_mem, univ_inter, ← Finset.sum_div, hA, div_self hDpos.ne'])
+    (by
+      rw [Finset.sum_ite_mem, univ_inter, Finset.sum_const, nsmul_eq_mul, mul_one_div,
+        div_self hHpos.ne'])
+  have hterm : ∀ φ, (if φ ∈ homSet F G then walkWeight G F univ φ / D else 0)
+      * Real.log ((if φ ∈ homSet F G then 1 / (#(homSet F G) : ℝ) else 0)
+        / (if φ ∈ homSet F G then walkWeight G F univ φ / D else 0))
+      = if φ ∈ homSet F G then walkWeight G F univ φ / D * (Real.log D - Real.log #(homSet F G))
+          - walkWeight G F univ φ * Real.log (walkWeight G F univ φ) / D else 0 := by
+    intro φ
+    by_cases hφ : φ ∈ homSet F G
+    · simp only [if_pos hφ]
+      have hw := hwpos φ hφ
+      rw [show (1 / (#(homSet F G) : ℝ)) / (walkWeight G F univ φ / D)
+          = D / (#(homSet F G) * walkWeight G F univ φ) by field_simp,
+        Real.log_div hDpos.ne' (by positivity), Real.log_mul hHpos.ne' hw.ne']
+      ring
+    · simp only [if_neg hφ, zero_mul]
+  rw [Finset.sum_congr rfl fun φ _ => hterm φ, Finset.sum_ite_mem, univ_inter,
+    Finset.sum_sub_distrib, ← Finset.sum_mul, ← Finset.sum_div, ← Finset.sum_div, hA,
+    div_self hDpos.ne', one_mul, hWlogW] at hgibbs
+  -- Gibbs against the uniform distribution on vertices
+  have hS := sum_degree_mul_log_degree_ge G hD
+  rw [← hDdef, ← hSx] at hS
+  have h1 : Real.log (D / Fintype.card V) ≤ Sx / D := by
+    rw [le_div_iff₀ hDpos]; linarith [hS]
+  have h2 : (k : ℝ) * Real.log (D / Fintype.card V) ≤ k * (Sx / D) :=
+    mul_le_mul_of_nonneg_left h1 (by positivity)
+  have hlog : Real.log (D * (D / Fintype.card V) ^ k) ≤ Real.log #(homSet F G) := by
+    rw [Real.log_mul hDpos.ne' (by positivity), Real.log_pow]
+    have h3 : (1 - (k + 1 : ℝ)) * Sx / D = -((k : ℝ) * (Sx / D)) := by ring
+    rw [h3] at hgibbs
+    linarith
+  have hfin : D * (D / Fintype.card V) ^ k ≤ #(homSet F G) :=
+    (Real.log_le_log_iff (by positivity) hHpos).mp hlog
+  rw [hk]
+  calc D ^ (k + 1) * (Fintype.card V : ℝ)
+      = (D * (D / Fintype.card V) ^ k) * (Fintype.card V : ℝ) ^ (k + 1) := by
+        rw [div_pow]
+        field_simp
+        ring
+    _ ≤ #(homSet F G) * (Fintype.card V : ℝ) ^ (k + 1) :=
+        mul_le_mul_of_nonneg_right hfin (by positivity)
 
 
 end Sidorenko
